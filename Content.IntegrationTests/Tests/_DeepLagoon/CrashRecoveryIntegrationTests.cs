@@ -3,10 +3,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Content.Server.Database;
+using Content.Server.GameTicking;
+using Content.Server.Preferences.Managers;
+using Content.Server.Station.Systems;
 using Content.Server._DeepLagoon.CrashRecovery;
 using Content.Shared.Implants;
 using Content.Shared.Implants.Components;
 using Content.Shared.Inventory;
+using Content.Shared.GameTicking;
+using Content.Shared.Preferences;
+using Content.Shared.Preferences.Loadouts;
 using Content.Shared.Storage;
 using Robust.Shared.Containers;
 using Robust.Shared.EntitySerialization;
@@ -20,6 +26,128 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class CrashRecoveryIntegrationTests
 {
+    [Test]
+    public async Task PaidStartingGearKeepsTheOriginalCharacterIdentity()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        var map = await pair.CreateTestMap();
+        var scope = "test" + Guid.NewGuid().ToString("N");
+        CrashRecoverySystem recovery = default!;
+        await pair.Server.WaitAssertion(() =>
+        {
+            pair.Server.CfgMan.SetCVar(RecoveryCVars.Scope, scope);
+            pair.Server.CfgMan.SetCVar(RecoveryCVars.Enabled, true);
+            recovery = pair.Server.EntMan.System<CrashRecoverySystem>();
+        });
+        await PoolManager.WaitUntil(pair.Server, () => recovery.Ready, 3600);
+        EntityUid body = default;
+        int slot = -1;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var e = pair.Server.EntMan;
+            var player = pair.Player!;
+            var preferences = pair.Server.ResolveDependency<IServerPreferencesManager>();
+            var prefs = preferences.GetPreferences(player.UserId);
+            slot = prefs.SelectedCharacterIndex;
+            var role = new RoleLoadout("JobMercenary");
+            role.SelectedLoadouts["MercenaryPistol"] = [new() { Prototype = "MercenaryPollockLoadout" }];
+            var profile = HumanoidCharacterProfile.DefaultWithSpecies("Human").WithLoadout(role)
+                .WithBankBalance(((HumanoidCharacterProfile) prefs.SelectedCharacter).BankBalance);
+            preferences.SetProfile(player.UserId, slot, profile, persist: false).GetAwaiter().GetResult();
+            profile = (HumanoidCharacterProfile) preferences.GetPreferences(player.UserId).SelectedCharacter;
+            body = e.System<StationSpawningSystem>().SpawnPlayerMob(map.GridCoords, "Mercenary", profile, null, session: player);
+            Assert.That(preferences.GetPreferences(player.UserId).IndexOfCharacter(profile), Is.EqualTo(-1),
+                "The real starting-gear payment must replace the cached profile before spawn completion.");
+            e.EventBus.RaiseLocalEvent(body, new PlayerSpawnCompleteEvent(body, player, "Mercenary", true, false, 1, map.Grid, profile), true);
+        });
+        await PoolManager.WaitUntil(pair.Server, () => pair.Server.EntMan.HasComponent<RecoveryBodyComponent>(body), 600);
+        RecoveryIncident snapshot = default!;
+        await PoolManager.WaitUntil(pair.Server, async () =>
+        {
+            snapshot = await pair.Server.ResolveDependency<IServerDbManager>().ReadCrashRecovery(scope, recovery.RunIdentity);
+            return snapshot.Assets.Any(a => a.Location == RecoveryLocation.Carried && a.Data.Length > 0);
+        }, 1800);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var marker = pair.Server.EntMan.GetComponent<RecoveryBodyComponent>(body);
+            Assert.That(marker.Slot, Is.EqualTo(slot));
+            Assert.That(marker.Profile, Is.GreaterThan(0));
+            Assert.That(marker.User, Is.EqualTo(pair.Player!.UserId.UserId));
+            Assert.That(snapshot.Assets.Where(a => a.Location == RecoveryLocation.Carried).All(a => a.Profile == marker.Profile), Is.True);
+            Assert.That(snapshot.Purchases, Is.Not.Empty);
+            Assert.That(snapshot.Purchases.All(p => p.Profile == marker.Profile), Is.True);
+        });
+        await recovery.CloseNormally();
+        await recovery.StopWorker();
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task PurchasedGearIsRecapturedWhenItsCharacterLookupFinishesLater()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        var map = await pair.CreateTestMap();
+        var scope = "test" + Guid.NewGuid().ToString("N");
+        var user = Guid.NewGuid();
+        CrashRecoverySystem recovery = default!;
+        await pair.Server.WaitAssertion(() =>
+        {
+            pair.Server.CfgMan.SetCVar(RecoveryCVars.Scope, scope);
+            pair.Server.CfgMan.SetCVar(RecoveryCVars.Enabled, true);
+            recovery = pair.Server.EntMan.System<CrashRecoverySystem>();
+        });
+        await PoolManager.WaitUntil(pair.Server, () => recovery.Ready, 3600);
+        EntityUid body = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var e = pair.Server.EntMan;
+            body = e.SpawnEntity("MobHumanDummy", map.GridCoords);
+            using (recovery.SpawnPurchaseScope(recovery.BeginProfilePurchase(user, 100)))
+            {
+                var bag = e.SpawnEntity("ClothingBackpack", map.GridCoords);
+                Assert.That(e.System<InventorySystem>().TryEquip(body, bag, "back", force: true), Is.True);
+                Assert.That(e.System<SharedContainerSystem>().Insert(e.SpawnEntity("Pen", map.GridCoords),
+                    e.GetComponent<StorageComponent>(bag).Container), Is.True);
+            }
+        });
+        RecoveryIncident snapshot = default!;
+        async Task<bool> ReadSnapshot(Func<RecoveryAsset, bool> predicate)
+        {
+            snapshot = await pair.Server.ResolveDependency<IServerDbManager>().ReadCrashRecovery(scope, recovery.RunIdentity);
+            return snapshot.Assets.Length == 2 && snapshot.Assets.All(predicate);
+        }
+        await PoolManager.WaitUntil(pair.Server, () => ReadSnapshot(a => a.Profile == 0 && a.Location == RecoveryLocation.Loose), 1800);
+        await pair.Server.WaitAssertion(() => recovery.RegisterBody(body, user, 1));
+        await PoolManager.WaitUntil(pair.Server, () => ReadSnapshot(a => a.Profile == 1 && a.Location == RecoveryLocation.Carried && a.Data.Length > 0), 1800);
+        await recovery.CloseNormally();
+        await recovery.StopWorker();
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task StartingDuringRecoveryWarmupWaitsInTheSameLobby()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        CrashRecoverySystem recovery = default!;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var ticker = pair.Server.EntMan.System<GameTicker>();
+            var round = ticker.RoundId;
+            pair.Server.CfgMan.SetCVar(RecoveryCVars.Scope, "test" + Guid.NewGuid().ToString("N"));
+            pair.Server.CfgMan.SetCVar(RecoveryCVars.Enabled, true);
+            recovery = pair.Server.EntMan.System<CrashRecoverySystem>();
+            Assert.That(recovery.Ready, Is.False);
+            ticker.StartRound(force: true);
+            ticker.StartRound(force: true);
+            Assert.That(ticker.RunLevel, Is.EqualTo(GameRunLevel.PreRoundLobby));
+            Assert.That(ticker.RoundId, Is.EqualTo(round), "Warmup must not fail the preset or create another round.");
+        });
+        await PoolManager.WaitUntil(pair.Server, () => recovery.Ready, 3600);
+        await recovery.CloseNormally();
+        await recovery.StopWorker();
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task ContinuousContainerChangesCannotStarveSnapshots()
     {

@@ -19,10 +19,40 @@ public sealed partial class MoverController
     private uint _movementLastTick;
     private int _movementMaxMovers, _movementMaxParallel;
     private static readonly double MovementMs = 1000d / Stopwatch.Frequency;
+    private bool _movementDiagnostics;
+    private long _movementSummaryPeriod = 30 * Stopwatch.Frequency;
+    private long _movementSlowPeriod = 10 * Stopwatch.Frequency;
+
+    private void InitializeMovementDiagnostics()
+    {
+        Subs.CVar(_movementConfig, Robust.Shared.CVars.PerformanceLogLevel, value =>
+        {
+            _movementDiagnostics = value > 0;
+            ResetMovementDiagnostics();
+        }, true);
+        Subs.CVar(_movementConfig, Robust.Shared.CVars.PerformanceLogInterval, value =>
+        {
+            _movementSummaryPeriod = (long)((float.IsFinite(value) ? Math.Clamp(value, 5, 600) : 30) * Stopwatch.Frequency);
+            ResetMovementDiagnostics();
+        }, true);
+        Subs.CVar(_movementConfig, Robust.Shared.CVars.PerformanceSlowInterval, value =>
+        {
+            _movementSlowPeriod = (long)((float.IsFinite(value) ? Math.Clamp(value, 1, 120) : 10) * Stopwatch.Frequency);
+            ResetMovementDiagnostics();
+        }, true);
+    }
+
+    private void ResetMovementDiagnostics()
+    {
+        _movementWindow = _movementNextSummary = _movementNextSlow = 0;
+        _movementTotal = _movementSlowest = default;
+        _movementSamples = _movementTicks = _movementMax = 0;
+        _movementMaxMovers = _movementMaxParallel = 0;
+    }
 
     private bool BeginMovementTiming()
     {
-        return Log.IsLogLevelEnabled(LogLevel.Info) || Log.IsLogLevelEnabled(LogLevel.Warning);
+        return _movementDiagnostics && (Log.IsLogLevelEnabled(LogLevel.Info) || Log.IsLogLevelEnabled(LogLevel.Warning));
     }
 
     private void RecordMovementTiming(long start, long collected, long prepared, long moved, long pilots, long end,
@@ -31,8 +61,8 @@ public sealed partial class MoverController
         if (_movementWindow == 0)
         {
             _movementWindow = start;
-            _movementNextSummary = start + 60 * Stopwatch.Frequency;
-            _movementNextSlow = start + 15 * Stopwatch.Frequency;
+            _movementNextSummary = start + _movementSummaryPeriod;
+            _movementNextSlow = start + _movementSlowPeriod;
         }
         var tick = Timing.CurTick.Value;
         var sample = new MovementSample
@@ -66,7 +96,7 @@ public sealed partial class MoverController
                 Log.Warning($"Slow mover substep: tick={slow.Tick} elapsed_ms={slow.Total * MovementMs:F3} collect_ms={slow.Collect * MovementMs:F3} mob_prepare_or_serial_ms={slow.Mob * MovementMs:F3} batch_calc_ms={slow.Calculate * MovementMs:F3} batch_apply_ms={slow.Apply * MovementMs:F3} batch_other_ms={slow.ParallelOther * MovementMs:F3} pilots_ms={slow.Pilots * MovementMs:F3} shuttles_ms={slow.Shuttles * MovementMs:F3} movers={slow.Movers} parallel={slow.Parallel}");
             }
             _movementSlowest = default;
-            _movementNextSlow = end + 15 * Stopwatch.Frequency;
+            _movementNextSlow = end + _movementSlowPeriod;
         }
         if (end < _movementNextSummary) return;
         if (Log.IsLogLevelEnabled(LogLevel.Info))
@@ -78,6 +108,6 @@ public sealed partial class MoverController
         _movementSamples = _movementTicks = _movementMax = 0;
         _movementMaxMovers = _movementMaxParallel = 0;
         _movementWindow = end;
-        _movementNextSummary = end + 60 * Stopwatch.Frequency;
+        _movementNextSummary = end + _movementSummaryPeriod;
     }
 }

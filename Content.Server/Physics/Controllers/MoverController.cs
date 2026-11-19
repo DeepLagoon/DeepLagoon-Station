@@ -49,6 +49,7 @@ public sealed partial class MoverController : SharedMoverController
     public override void Initialize()
     {
         base.Initialize();
+        InitializeMovementDiagnostics();
 
         SubscribeLocalEvent<ActiveInputMoverComponent, EntityPausedEvent>(OnEntityPaused);
         SubscribeLocalEvent<InputMoverComponent, EntityUnpausedEvent>(OnEntityUnpaused);

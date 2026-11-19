@@ -375,6 +375,14 @@ namespace Content.Server.GameTicking
             if (DummyTicker || _startingRound)
                 return;
 
+            // Recovery preparation is a lobby wait, not a rejected game mode or a new round.
+            if (!EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().Ready)
+            {
+                _roundStartTime = _gameTiming.CurTime;
+                DelayStart(TimeSpan.FromSeconds(30));
+                return;
+            }
+
             _startingRound = true;
 
             if (RoundId == 0)

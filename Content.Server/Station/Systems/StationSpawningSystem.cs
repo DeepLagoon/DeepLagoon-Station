@@ -188,6 +188,8 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             MakeSentientCommand.MakeSentient(jobEntity, EntityManager);
             if (!TryPlace(jobEntity))
                 return null;
+            EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>()
+                .PreparePlayerSpawn(jobEntity, session, profile);
             if (profile != null)
             {
                 EntityManager.System<Content.Shared.Chat.TypingIndicator.SharedTypingIndicatorSystem>()
@@ -229,6 +231,10 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
         entity ??= Spawn(species.Prototype, coordinates);
         if (!TryPlace(entity.Value))
             return null;
+
+        // Bank payments below replace the cached profile. Bind the original slot first.
+        EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>()
+            .PreparePlayerSpawn(entity.Value, session, profile);
 
         if (_randomizeCharacters)
         {

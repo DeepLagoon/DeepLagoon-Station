@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Robust.Shared.Configuration;
 
 namespace Content.Server._Goobstation.ItemMiner;
 
@@ -25,16 +26,46 @@ public sealed partial class ItemMinerSystem
     private long _maxPendingPayouts;
     private int _maxMiners, _maxActive, _maxPending;
     private double _maxLateness;
+    [Dependency] private IConfigurationManager _diagnosticConfig = default!;
+    private bool _miningDiagnosticsEnabled;
+    private long _diagnosticSummaryPeriod = SummaryPeriod;
+    private long _diagnosticSlowPeriod = SlowPeriod;
 
     private void InitializeDiagnostics()
     {
+        Subs.CVar(_diagnosticConfig, Robust.Shared.CVars.PerformanceLogLevel, value =>
+        {
+            _miningDiagnosticsEnabled = value > 0;
+            ResetDiagnostics();
+        }, true);
+        Subs.CVar(_diagnosticConfig, Robust.Shared.CVars.PerformanceLogInterval, value =>
+        {
+            _diagnosticSummaryPeriod = (long)((float.IsFinite(value) ? Math.Clamp(value, 5, 600) : 30) * Stopwatch.Frequency);
+            ResetDiagnostics();
+        }, true);
+        Subs.CVar(_diagnosticConfig, Robust.Shared.CVars.PerformanceSlowInterval, value =>
+        {
+            _diagnosticSlowPeriod = (long)((float.IsFinite(value) ? Math.Clamp(value, 1, 120) : 10) * Stopwatch.Frequency);
+            ResetDiagnostics();
+        }, true);
+    }
+
+    private void ResetDiagnostics()
+    {
         _windowStarted = Stopwatch.GetTimestamp();
-        _nextSummary = _windowStarted + SummaryPeriod;
-        _nextSlowReport = _windowStarted + SlowPeriod;
+        _nextSummary = _windowStarted + _diagnosticSummaryPeriod;
+        _nextSlowReport = _windowStarted + _diagnosticSlowPeriod;
+        _slowest = default;
+        _frames = _attempts = _spawned = _merged = _dueSamples = _deferredFrames = 0;
+        _totalTicks = _checkTicks = _spawnTicks = _mergeTicks = _effectTicks = _maxTicks = 0;
+        _timerResets = _invalidIntervals = _missedIntervals = _maxPendingPayouts = 0;
+        _maxMiners = _maxActive = _maxPending = 0;
+        _maxLateness = 0;
     }
 
     private void RecordDiagnostics(long now)
     {
+        if (!_miningDiagnosticsEnabled) return;
         if (_frame.Miners > 0)
         {
             _frames++;
@@ -70,7 +101,7 @@ public sealed partial class ItemMinerSystem
                 Log.Warning($"Slow item miner tick: tick={_slowestTick} age_ms={(now - _slowestAt) * MillisecondsPerTimestamp:F1} elapsed_ms={_slowest.TotalTicks * MillisecondsPerTimestamp:F2} check_ms={_slowest.CheckTicks * MillisecondsPerTimestamp:F2} spawn_ms={_slowest.SpawnTicks * MillisecondsPerTimestamp:F2} merge_ms={_slowest.MergeTicks * MillisecondsPerTimestamp:F2} effects_ms={_slowest.EffectTicks * MillisecondsPerTimestamp:F2} miners={_slowest.Miners} active={_slowest.Active} due={_slowest.Due} attempts={_slowest.Attempts} spawned={_slowest.Spawned} merged={_slowest.Merged} pending={_slowest.Deferred} pending_payouts={_slowest.PendingPayouts} lateness_s={_slowest.MaxLateness:F2}");
             }
             _slowest = default;
-            _nextSlowReport = now + SlowPeriod;
+            _nextSlowReport = now + _diagnosticSlowPeriod;
         }
 
         if (now < _nextSummary) return;
@@ -85,6 +116,6 @@ public sealed partial class ItemMinerSystem
         _maxMiners = _maxActive = _maxPending = 0;
         _maxLateness = 0;
         _windowStarted = now;
-        _nextSummary = now + SummaryPeriod;
+        _nextSummary = now + _diagnosticSummaryPeriod;
     }
 }

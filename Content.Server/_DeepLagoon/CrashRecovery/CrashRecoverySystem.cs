@@ -12,12 +12,14 @@ using Content.Shared.Body.Part;
 using Content.Shared.Body.Organ;
 using Content.Shared.Implants.Components;
 using Content.Shared.Mind.Components;
+using Content.Shared.Preferences;
 using Content.Shared.Ghost;
 using Robust.Shared.Configuration;
 using Robust.Shared.Containers;
 using Robust.Shared.EntitySerialization;
 using Robust.Shared.IoC;
 using Robust.Shared.Map;
+using Robust.Shared.Player;
 using Robust.Shared.Serialization.Markdown.Mapping;
 using Robust.Shared.Timing;
 
@@ -104,7 +106,6 @@ public sealed partial class CrashRecoverySystem : EntitySystem
         EntityManager.EntityInitialized += OnEntityInitialized;
         SubscribeLocalEvent<EntParentChangedMessage>(OnParentChanged);
         SubscribeLocalEvent<RecoveryIdentityComponent, EntityTerminatingEvent>(OnItemTerminating);
-        SubscribeLocalEvent<RoundStartAttemptEvent>(args => { if (!Ready) args.Cancel(); });
         SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => EndRound());
         SubscribeLocalEvent<GameRunLevelChangedEvent>(args =>
         {
@@ -139,14 +140,21 @@ public sealed partial class CrashRecoverySystem : EntitySystem
     }
 
     private void OnSpawn(PlayerSpawnCompleteEvent args)
+        => PreparePlayerSpawn(args.Mob, args.Player, args.Profile);
+
+    /// <summary>
+    /// Capture the character slot before starting gear payments replace its cached profile.
+    /// Resolving its immutable database identity remains asynchronous.
+    /// </summary>
+    public void PreparePlayerSpawn(EntityUid body, ICommonSession? player, ICharacterProfile? profile)
     {
-        if (!_enabled) return;
-        if (HasComp<BitrunAvatarComponent>(args.Mob) || !_preferences.TryGetCachedPreferences(args.Player.UserId, out var prefs)) return;
-        var slot = prefs.IndexOfCharacter(args.Profile);
+        if (!_enabled || player == null || profile == null || _profiles.ContainsKey(body) || HasComp<RecoveryBodyComponent>(body)) return;
+        if (HasComp<BitrunAvatarComponent>(body) || !_preferences.TryGetCachedPreferences(player.UserId, out var prefs)) return;
+        var slot = prefs.IndexOfCharacter(profile);
         if (slot < 0) return;
-        _profiles[args.Mob] = _db.GetRecoveryProfile(args.Player.UserId.UserId, slot);
-        _profileUsers[args.Mob] = args.Player.UserId.UserId;
-        _profileSlots[args.Mob] = slot;
+        _profiles[body] = _db.GetRecoveryProfile(player.UserId.UserId, slot);
+        _profileUsers[body] = player.UserId.UserId;
+        _profileSlots[body] = slot;
     }
 
     private void OnEntityInitialized(Entity<MetaDataComponent> entity)
@@ -309,7 +317,11 @@ public sealed partial class CrashRecoverySystem : EntitySystem
                 _tracked.Add(uid);
                 _serializer?.YamlUidMap.TryAdd(uid, state.YamlId);
             }
-            if (!_capturedTicks.TryGetValue(uid, out var captured) || captured != MetaData(uid).EntityLastModifiedTick)
+            // The async profile lookup can finish after an initial, unowned purchase capture.
+            // Adding the body's owner marker does not modify the item's metadata tick.
+            var ownershipChanged = owner is { } character && _assets.TryGetValue(uid, out var recorded)
+                && (recorded.User != character.User || recorded.Profile != character.Profile || recorded.Location == RecoveryLocation.Loose);
+            if (ownershipChanged || !_capturedTicks.TryGetValue(uid, out var captured) || captured != MetaData(uid).EntityLastModifiedTick)
                 _dirty.Enqueue(uid, 65536);
         }
         // A single pathological backpack can have thousands of children. Even its enumeration

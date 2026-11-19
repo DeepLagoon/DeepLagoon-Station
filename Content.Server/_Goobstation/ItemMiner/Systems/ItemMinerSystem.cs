@@ -93,7 +93,8 @@ public sealed partial class ItemMinerSystem : EntitySystem
 
     public override void Update(float frameTime)
     {
-        var started = Stopwatch.GetTimestamp();
+        var measure = _miningDiagnosticsEnabled;
+        var started = measure ? Stopwatch.GetTimestamp() : 0;
         _frame = default;
         _ready.Clear();
         var now = _timing.CurTime;
@@ -146,16 +147,20 @@ public sealed partial class ItemMinerSystem : EntitySystem
             _ready[uid] = new ReadyMiner(miner, checkEv.Proto);
             if (_queued.Add(uid)) _pending.Enqueue(uid);
         }
-        var scanned = Stopwatch.GetTimestamp();
-        _frame.CheckTicks = scanned - started;
-        if (_pending.Count > 0) ProcessPending(scanned);
+        // Queue budget clocks remain active even with diagnostics off.
+        var scanned = measure || _pending.Count > 0 ? Stopwatch.GetTimestamp() : 0;
+        if (measure) _frame.CheckTicks = scanned - started;
+        if (_pending.Count > 0) ProcessPending(scanned, measure);
         _frame.Deferred = _pending.Count;
-        var finished = Stopwatch.GetTimestamp();
-        _frame.TotalTicks = finished - started;
-        RecordDiagnostics(finished);
+        if (measure)
+        {
+            var finished = Stopwatch.GetTimestamp();
+            _frame.TotalTicks = finished - started;
+            RecordDiagnostics(finished);
+        }
     }
 
-    private void ProcessPending(long started)
+    private void ProcessPending(long started, bool measure)
     {
         var checks = Math.Min(_pending.Count, MaxQueueChecksPerTick);
         while (checks-- > 0 && _frame.Attempts < MaxAttemptsPerTick)
@@ -185,29 +190,29 @@ public sealed partial class ItemMinerSystem : EntitySystem
             RaiseLocalEvent(uid, ref produce);
             if (produce.Handled) continue;
 
-            var spawnStart = Stopwatch.GetTimestamp();
+            var spawnStart = measure ? Stopwatch.GetTimestamp() : 0;
             var coords = Transform(uid).Coordinates;
             EntityUid? mined;
             if (!miner.ResolveRandomSpawner || !_spawners.TrySpawnRandom(uid, ready.Prototype, coords, out mined))
                 mined = Spawn(ready.Prototype, coords);
-            _frame.SpawnTicks += Stopwatch.GetTimestamp() - spawnStart;
+            if (measure) _frame.SpawnTicks += Stopwatch.GetTimestamp() - spawnStart;
             if (mined is not { } minedUid) continue; // Empty random-spawner roll.
             _frame.Spawned++;
             var ev = new ItemMinedEvent(minedUid);
-            var eventStart = Stopwatch.GetTimestamp();
+            var eventStart = measure ? Stopwatch.GetTimestamp() : 0;
             RaiseLocalEvent(uid, ref ev);
-            _frame.EffectTicks += Stopwatch.GetTimestamp() - eventStart;
+            if (measure) _frame.EffectTicks += Stopwatch.GetTimestamp() - eventStart;
             if (!ev.NoStack && !TerminatingOrDeleted(minedUid) && !EntityManager.IsQueuedForDeletion(minedUid))
             {
-                var mergeStart = Stopwatch.GetTimestamp();
+                var mergeStart = measure ? Stopwatch.GetTimestamp() : 0;
                 if (_stack.TryMergeToContacts(minedUid, null, null, _mergeContacts)) _frame.Merged++;
-                _frame.MergeTicks += Stopwatch.GetTimestamp() - mergeStart;
+                if (measure) _frame.MergeTicks += Stopwatch.GetTimestamp() - mergeStart;
             }
             if (miner.MinedSound != null)
             {
-                var soundStart = Stopwatch.GetTimestamp();
+                var soundStart = measure ? Stopwatch.GetTimestamp() : 0;
                 _audio.PlayPvs(miner.MinedSound, uid);
-                _frame.EffectTicks += Stopwatch.GetTimestamp() - soundStart;
+                if (measure) _frame.EffectTicks += Stopwatch.GetTimestamp() - soundStart;
             }
         }
     }
