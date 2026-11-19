@@ -55,7 +55,9 @@ public sealed partial class MaterialStorageMagnetPickupSystem : EntitySystem
                 ToggleMagnet(uid, component);
             },
             Icon = new SpriteSpecifier.Texture(new("/Textures/Interface/VerbIcons/Spare/poweronoff.svg.192dpi.png")),
-            Text = Loc.GetString("magnet-pickup-component-toggle-verb"),
+            Text = Loc.GetString(component.MagnetEnabled
+               ? "magnet-pickup-component-disable-verb"
+               : "magnet-pickup-component-enable-verb"),
             Priority = 3
         };
 

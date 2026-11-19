@@ -1,6 +1,7 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-magnet-pickup-component-toggle-verb = Включить магнит
+magnet-pickup-component-enable-verb = Включить магнит
+magnet-pickup-component-disable-verb = Выключить магнит
 
 magnet-pickup-component-on-examine-main = Похоже, магнит { $stateText }.
 

@@ -7,6 +7,7 @@ using Content.Shared.Verbs;
 using Robust.Shared.Containers;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Timing;
+using System.ComponentModel;
 
 namespace Content.Server.Research.Disk;
 
@@ -32,7 +33,9 @@ public sealed partial class ResearchDiskCollectorSystem : EntitySystem
 
         args.Verbs.Add(new AlternativeVerb
         {
-            Text = Loc.GetString("magnet-pickup-component-toggle-verb"),
+            Text = Loc.GetString(server.Comp.Enabled
+                ? "magnet-pickup-component-disable-verb"
+                : "magnet-pickup-component-enable-verb"),
             Act = () => server.Comp.Enabled = !server.Comp.Enabled,
         });
     }
