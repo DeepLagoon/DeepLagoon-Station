@@ -12,6 +12,13 @@ namespace Content.Shared.Lathe
     public sealed partial class LatheComponent : Component
     {
         /// <summary>
+        /// Forward offset for printed items, in tiles.
+        /// Zero preserves the default spawning behavior.
+        /// </summary>
+        [DataField]
+        public float OutputOffset = 0f;
+
+        /// <summary>
         /// All of the recipe packs that the lathe has by default
         /// </summary>
         [DataField]

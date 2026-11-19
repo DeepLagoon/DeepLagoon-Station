@@ -390,6 +390,7 @@
   - type: Lathe
     idleState: fab-idle
     runningState: fab-active
+    outputOffset: 0.35
     staticPacks:
     - RoboticsStatic
     - BorgModulesStatic
