@@ -25162,4 +25162,11 @@ Entries:
     id: 2861
     time: '2026-11-09T13:20:45.000Z'
     url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/34
-GeneratedThrough: '2026-11-19T05:10:49.000Z'
+  - author: Zscreeper
+    changes:
+      - type: Tweak
+        message: хвост резоми
+    id: 2862
+    time: '2026-11-19T05:11:41.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/60
+GeneratedThrough: '2026-11-19T05:11:41.000Z'
