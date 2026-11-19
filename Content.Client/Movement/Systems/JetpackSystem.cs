@@ -7,6 +7,7 @@ using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Timing;
+using Content.Shared.Clothing;
 
 namespace Content.Client.Movement.Systems;
 
@@ -31,13 +32,25 @@ public sealed partial class JetpackSystem : SharedJetpackSystem
 
     private void OnJetpackAppearance(EntityUid uid, JetpackComponent component, ref AppearanceChangeEvent args)
     {
-        Appearance.TryGetData<bool>(uid, JetpackVisuals.Enabled, out var enabled, args.Component);
+        // Magboots have their own visual state controlled!
+        // by ToggleableVisuals.Enabled. :3 :3 :3 :3
+        if (HasComp<MagbootsComponent>(uid))
+            return;
+
+        Appearance.TryGetData<bool>(
+            uid,
+            JetpackVisuals.Enabled,
+            out var enabled,
+            args.Component);
 
         var state = "icon" + (enabled ? "-on" : "");
         args.Sprite?.LayerSetState(0, state);
 
         if (TryComp<ClothingComponent>(uid, out var clothing))
-            _clothing.SetEquippedPrefix(uid, enabled ? "on" : null, clothing);
+            _clothing.SetEquippedPrefix(
+                uid,
+                enabled ? "on" : null,
+                clothing);
     }
 
     public override void Update(float frameTime)
