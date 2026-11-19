@@ -36,6 +36,13 @@ public sealed partial class ModControlComponent : Component
 [RegisterComponent]
 public sealed partial class ModModuleComponent : Component
 {
+    [DataField] public bool Removable = true;
+    [DataField] public bool AffectsWearer;
+    [DataField] public float IdleCharge;
+    [DataField] public float ActiveCharge;
+    [DataField] public bool StartPinned;
+    [DataField] public int StorageMaxItems;
+    [DataField] public int StorageMaxWeight;
     [DataField]
     public int Complexity = 1;
 
@@ -88,6 +95,7 @@ public enum ModModuleMode : byte
     Jetpack,
     Cloak,
     ThermalRegulator,
+    JumpJet,
 }
 
 [RegisterComponent]

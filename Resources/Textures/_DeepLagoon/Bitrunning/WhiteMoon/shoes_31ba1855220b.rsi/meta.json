@@ -9,6 +9,12 @@
   "states": [
     {
       "name": "combat"
+    },
+    {
+      "name": "explorer"
+    },
+    {
+      "name": "security_boots"
     }
   ]
 }

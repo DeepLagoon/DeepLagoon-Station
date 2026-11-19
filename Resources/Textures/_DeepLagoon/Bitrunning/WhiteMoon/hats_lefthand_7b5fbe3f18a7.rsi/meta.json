@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/mob/inhands/clothing/hats_lefthand.dmi.",
+  "states": [
+    {
+      "name": "bio_hood",
+      "directions": 4
+    },
+    {
+      "name": "chefhat",
+      "directions": 4
+    },
+    {
+      "name": "clown_hat",
+      "directions": 4
+    },
+    {
+      "name": "cowboy_hat_brown",
+      "directions": 4
+    },
+    {
+      "name": "fishing_hat",
+      "directions": 4
+    },
+    {
+      "name": "greyscale_softcap",
+      "directions": 4
+    },
+    {
+      "name": "helmet",
+      "directions": 4
+    },
+    {
+      "name": "space_helmet",
+      "directions": 4
+    },
+    {
+      "name": "space_pirate_helmet",
+      "directions": 4
+    },
+    {
+      "name": "swatsyndie_helmet",
+      "directions": 4
+    },
+    {
+      "name": "syndicate-helm-black",
+      "directions": 4
+    },
+    {
+      "name": "syndicate-helm-orange",
+      "directions": 4
+    },
+    {
+      "name": "that",
+      "directions": 4
+    },
+    {
+      "name": "void_helmet",
+      "directions": 4
+    }
+  ]
+}

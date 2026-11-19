@@ -96,7 +96,7 @@ public sealed partial class SlipperySystem : EntitySystem
         if (HasComp<KnockedDownComponent>(other) && !component.SlipData.SuperSlippery)
             return;
 
-        var attemptEv = new SlipAttemptEvent();
+        var attemptEv = new SlipAttemptEvent { Cause = uid };
         RaiseLocalEvent(other, attemptEv);
         if (attemptEv.SlowOverSlippery)
             _speedModifier.AddModifiedEntity(other);
@@ -150,6 +150,7 @@ public sealed partial class SlipperySystem : EntitySystem
 /// </summary>
 public sealed class SlipAttemptEvent : EntityEventArgs, IInventoryRelayEvent
 {
+    public EntityUid? Cause;
     public bool NoSlip;
 
     public bool SlowOverSlippery;

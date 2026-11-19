@@ -5,6 +5,7 @@ using Content.Shared.Silicons.Borgs;
 using Content.Shared.Verbs;
 using Robust.Shared.GameStates;
 using Robust.Shared.Utility;
+using Content.Shared.Explosion;
 
 namespace Content.Shared.Armor;
 
@@ -24,6 +25,7 @@ public abstract partial class SharedArmorSystem : EntitySystem
         SubscribeLocalEvent<ArmorComponent, InventoryRelayedEvent<DamageModifyEvent>>(OnDamageModify);
         SubscribeLocalEvent<ArmorComponent, BorgModuleRelayedEvent<DamageModifyEvent>>(OnBorgDamageModify);
         SubscribeLocalEvent<ArmorComponent, GetVerbsEvent<ExamineVerb>>(OnArmorVerbExamine);
+        SubscribeLocalEvent<ArmorComponent, InventoryRelayedEvent<GetExplosionResistanceEvent>>(OnCoveredExplosionResistance);
     }
 
     /// <summary>
@@ -33,7 +35,14 @@ public abstract partial class SharedArmorSystem : EntitySystem
     /// <param name="args">The event, contains the running count of armor percentage as a coefficient</param>
     private void OnCoefficientQuery(Entity<ArmorComponent> ent, ref InventoryRelayedEvent<CoefficientQueryEvent> args)
     {
-        foreach (var armorCoefficient in ent.Comp.Modifiers.Coefficients)
+        var modifiers = ent.Comp.Modifiers;
+        if (ent.Comp.Coverage != null)
+        {
+            if (args.Args.CoveredArmorApplied) return;
+            args.Args.CoveredArmorApplied = true;
+            modifiers = GetCoveredModifiers(ent, null, out _);
+        }
+        foreach (var armorCoefficient in modifiers.Coefficients)
         {
             args.Args.DamageModifiers.Coefficients[armorCoefficient.Key] = args.Args.DamageModifiers.Coefficients.TryGetValue(armorCoefficient.Key, out var coefficient) ? coefficient * armorCoefficient.Value : armorCoefficient.Value;
         }
@@ -41,8 +50,30 @@ public abstract partial class SharedArmorSystem : EntitySystem
 
     private void OnDamageModify(EntityUid uid, ArmorComponent component, InventoryRelayedEvent<DamageModifyEvent> args)
     {
+        DamageArmorOverrideComponent? armorOverride = null;
+        if (args.Args.Tool is {} tool && TryComp<DamageArmorOverrideComponent>(tool, out armorOverride) && armorOverride.IgnoreArmor)
+            return;
+        var modifiers = component.Modifiers;
+        if (component.Coverage != null)
+        {
+            if (args.Args.CoveredArmorApplied) return;
+            args.Args.CoveredArmorApplied = true;
+            modifiers = GetCoveredModifiers(uid, args.Args.TargetPart, out _);
+        }
+        if (armorOverride?.ArmorType is {} armorType)
+        {
+            var alternate = new DamageModifierSet();
+            foreach (var type in args.Args.Damage.DamageDict.Keys)
+            {
+                alternate.Coefficients[type] = modifiers.Coefficients.GetValueOrDefault(armorType, 1);
+                alternate.FlatReduction[type] = modifiers.FlatReduction.GetValueOrDefault(armorType);
+            }
+            modifiers = alternate;
+        }
         args.Args.Damage = DamageSpecifier.ApplyModifierSet(args.Args.Damage,
-            DamageSpecifier.PenetrateArmor(component.Modifiers, args.Args.ArmorPenetration)); // Goob edit
+            component.Coverage != null || armorOverride?.SourceArmorPenetration == true
+                ? PenetrateSourceArmor(modifiers, args.Args.ArmorPenetration)
+                : DamageSpecifier.PenetrateArmor(modifiers, args.Args.ArmorPenetration));
     }
 
     private void OnBorgDamageModify(EntityUid uid, ArmorComponent component,

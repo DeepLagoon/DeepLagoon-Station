@@ -14,10 +14,10 @@ orphans:
 nullspace: []
 tilemap:
   0: Space
-  5: BitrunTile7754658ada1c
-  6: BitrunTile7963ce65be47
-  2: BitrunTile80258e7f7344
-  7: BitrunTile8bd579ece209
+  5: BitrunMapTileOpenFloorMineralPlastitaniumRed
+  6: BitrunMapTileOpenFloorIronAirlessStateStairsMinusL
+  2: BitrunMapTileOpenFloorIronDarkHerringbone
+  7: BitrunMapTileOpenIndestructibleLight
   4: FloorBlueCircuit
   8: FloorElevatorShaft
   3: FloorRedCircuit
@@ -72,7 +72,7 @@ entities:
         version: 2
         nodes:
         - node:
-            id: BitrunDecal3a2105ca89c2
+            id: BitrunMapDecalStructureFloraBushSunnyStyle3
             color: '#FFFFFFFF'
           decals:
             0: 16,8

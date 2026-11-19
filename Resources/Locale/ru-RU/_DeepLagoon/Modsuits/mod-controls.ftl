@@ -110,3 +110,4 @@ mod-panel-label-cell-charge = Заряд батареи
 mod-panel-label-actions = Действия
 mod-panel-label-configure = Настроить
 mod-panel-label-frequency = Частота
+mod-mount-hat = Закрепить шляпу на шлеме

@@ -8,9 +8,9 @@ orphans: [1]
 nullspace: []
 tilemap:
   "0": Space
-  "1": BitrunTile010e681be03e
-  "2": BitrunTile0c9b02979800
-  "3": BitrunTile737fdf53c76b
+  "1": BitrunMapTileOpenMiscAsteroid
+  "2": BitrunMapTileOpenIndestructibleBitrunningTransport
+  "3": BitrunMapTileOpenFloorPlating
   "4": FloorAsteroidSand
   "5": FloorBasalt
 entities:
@@ -46,12 +46,12 @@ entities:
               version: 2
               nodes:
               - node:
-                  id: BitrunDecal0d2658f34df4
+                  id: BitrunMapDecalEffectDecalCleanableDirtDust
                 decals:
                   "4": 4,1
                   "17": 1,4
               - node:
-                  id: BitrunDecal37831117fcc1
+                  id: BitrunMapDecalEffectTurfDecalSandPlating
                 decals:
                   "5": 1,2
                   "7": 1,2
@@ -60,7 +60,7 @@ entities:
                   "16": 1,4
                   "19": 3,5
               - node:
-                  id: BitrunDecalb4169e91243b
+                  id: BitrunMapDecalEffectDecalCleanableBloodSplatter
                 decals:
                   "10": 2,2
               - node:
@@ -76,21 +76,21 @@ entities:
                   "12": 4,2
                   "14": 2,3
                   "18": 2,4
-  - proto: AirlockMaintBitrunArtca3c57225053
+  - proto: BitrunMapMachineryDoorAirlockMaintenance
     entities:
       - uid: 31
         components:
           - type: Transform
             parent: 1
             pos: 3.5,5.5
-  - proto: BitrunArt0fed2639133c
+  - proto: BitrunMapEffectDecalRemainsXenoLarva
     entities:
       - uid: 22
         components:
           - type: Transform
             parent: 1
             pos: 2.5,4.5
-  - proto: BitrunArt300d11564d77
+  - proto: BitrunMapEffectTurfDecalBoxCorners
     entities:
       - uid: 11
         components:
@@ -103,14 +103,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 3.5,1.5
-  - proto: BitrunArt52b63f7ea0d0
-    entities:
-      - uid: 32
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,5.5
-  - proto: BitrunArt5c8ec16d0536
+  - proto: BitrunMapEffectDecalRemainsXeno
     entities:
       - uid: 17
         components:
@@ -163,21 +156,28 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,3.5
-  - proto: FlashlightLanternBitrunArtadced0c3348aPlacement855ede13ea9a
+  - proto: BitrunMapStructureFansTiny
+    entities:
+      - uid: 32
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,5.5
+  - proto: BitrunMapItemFlashlightLanternSpriteOffset0Point1250Point25
     entities:
       - uid: 25
         components:
           - type: Transform
             parent: 1
             pos: 4.5,4.5
-  - proto: FlashlightLanternBitrunArteab35eed6f4c
+  - proto: BitrunMapItemFlashlightGlowstick
     entities:
       - uid: 16
         components:
           - type: Transform
             parent: 1
             pos: 1.5,2.5
-  - proto: RailingBitrunArt78760ec387e4
+  - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
     entities:
       - uid: 12
         components:
@@ -185,21 +185,21 @@ entities:
             parent: 1
             pos: 3.5,1.5
             rot: 90
-  - proto: SpaceCashBitrunArt9d43b709482dPlacement41bf96a41028
+  - proto: BitrunMapItemCoinGoldSpriteOffsetMinus0Point18750Point0625
     entities:
       - uid: 24
         components:
           - type: Transform
             parent: 1
             pos: 4.5,4.5
-  - proto: TableBitrunArt01782f28577d
+  - proto: BitrunMapStructureTable
     entities:
       - uid: 23
         components:
           - type: Transform
             parent: 1
             pos: 4.5,4.5
-  - proto: WallRockBasaltBitrunArt729f0072bebe
+  - proto: BitrunMapClosedWallRock
     entities:
       - uid: 3
         components:
@@ -271,7 +271,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: WallRockBitrunArtdca595925372
+  - proto: BitrunMapClosedMineralAsteroid
     entities:
       - uid: 2
         components:

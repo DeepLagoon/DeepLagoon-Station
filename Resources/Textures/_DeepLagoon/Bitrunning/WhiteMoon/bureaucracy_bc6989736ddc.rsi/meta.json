@@ -59,10 +59,16 @@
       "name": "pen_blue"
     },
     {
+      "name": "pointer"
+    },
+    {
       "name": "scrap"
     },
     {
       "name": "scrap_bloodied"
+    },
+    {
+      "name": "stamp-clown"
     },
     {
       "name": "stamp-hop"

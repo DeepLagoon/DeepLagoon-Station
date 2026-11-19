@@ -17,11 +17,15 @@ from functools import cache
 from pathlib import Path
 
 from map_art import MapArt
+from source_model import SourceModel
+from gameplay_import import GameplayImport
+from localization_import import write_locales
 
 SOURCE_COMMIT = "634692776c7b38f998c12907bdbabe3aae46df65"
 DOMAIN_ROOT = "_maps/virtual_domains/"
 SAFEHOUSE_ROOT = "_maps/safehouses/"
 SAFEHOUSE_CONFIG = "strings/modular_maps/safehouse.toml"
+SHELTER_SOURCES = ("_maps/templates/shelter_1.dmm", "_maps/templates/shelter_t.dmm")
 MAP_ROOT = Path("Resources/Maps/_DeepLagoon/Bitrunning")
 DICTIONARY = re.compile(r'^"([A-Za-z]+)"\s*=\s*\(', re.M)
 BLOCK = re.compile(r'^\((\d+),\s*(\d+),\s*(\d+)\)\s*=\s*\{"\s*\n(.*?)^"\}', re.M | re.S)
@@ -495,6 +499,24 @@ OBJECTS = {
     "obj/item/tank/internals/oxygen": "OxygenTankFilled",
     "obj/item/clothing/mask/breath": "ClothingMaskBreath",
     "obj/item/clothing/mask/gas": "ClothingMaskGas",
+    "obj/item/clothing/glasses/sunglasses": "ClothingEyesGlassesSunglasses",
+    "obj/item/clothing/glasses/night": "ClothingEyesNightVisionGoggles",
+    "obj/item/clothing/glasses/meson/night": "ClothingEyesNightVisionGoggles",
+    "obj/item/clothing/glasses/hud/health": "ClothingEyesHudMedical",
+    "obj/item/clothing/glasses": "BitrunImportedClothingEyesBase",
+    "obj/item/clothing/gloves/color/yellow": "ClothingHandsGlovesColorYellow",
+    "obj/item/clothing/gloves": "BitrunImportedClothingHandsBase",
+    "obj/item/clothing/head/helmet/space": "ClothingHeadHelmetEVA",
+    "obj/item/clothing/head/helmet": "ClothingHeadHelmetBasic",
+    "obj/item/clothing/head": "BitrunImportedClothingHeadBase",
+    "obj/item/clothing/mask": "BitrunImportedClothingMaskBase",
+    "obj/item/clothing/neck": "BitrunImportedClothingNeckBase",
+    "obj/item/clothing/shoes": "BitrunImportedClothingShoesBase",
+    "obj/item/clothing/suit/space": "BitrunImportedClothingOuterEVASuitBase",
+    "obj/item/clothing/suit/armor": "ClothingOuterArmorBasic",
+    "obj/item/clothing/suit/hooded/wintercoat": "ClothingOuterWinterCoat",
+    "obj/item/clothing/suit": "BitrunImportedClothingOuterBase",
+    "obj/item/clothing/under": "BitrunImportedClothingUniformBase",
     "obj/item/tank/jetpack": "JetpackBlueFilled",
     "obj/item/storage/box/survival": "BoxSurvival",
     "obj/item/storage/firstaid": "MedkitFilled",
@@ -540,7 +562,9 @@ OBJECTS = {
     "obj/structure/flora/tree/snow": "FloraTreeSnow",
     "obj/structure/flora/bush/reed": "",
     "obj/structure/potted_plant": "PottedPlantRandom",
-    "obj/structure/fans/tiny": "",
+    "obj/structure/fans": "BitrunShelterFan",
+    "obj/structure/fans/tiny": "BitrunShelterTinyFan",
+    "obj/machinery/stasis": "StasisBed",
     "obj/structure/table/plasmaglass": "TablePlasmaGlass",
     "obj/structure/tent": "Barricade",
     "obj/structure/catwalk": "Catwalk",
@@ -681,6 +705,7 @@ MOBS = {
 }
 
 MODULAR_MOBS = {
+    "grasslands_hunt": ("BitrunHuntAnimal",),
     "mob/living/basic/alien/queen": "NFMobXenoQueen",
     "mob/living/basic/alien/drone": "NFMobXenoDrone",
     "mob/living/basic/alien": "NFMobXeno",
@@ -788,6 +813,11 @@ def imported_placement(atom, entity, art):
         entity = replace(entity, rotation=str((int(direction_for(atom)) + 180) % 360))
     has_offset = any(axis in atom.fields or axis in source for axis in ("pixel_x", "pixel_y"))
     x, y = (as_int(atom.fields.get(axis, source.get(axis))) / 32 for axis in ("pixel_x", "pixel_y"))
+    if atom.path.startswith("/obj/structure/flora/tree") and (atlas := art.atlas_path(atom)):
+        # BYOND anchors large icons by their lower-left 32px cell, whereas
+        # Robust centers them. Keep the trunk and its collision on one cell.
+        _, (width, height), _ = art.atlas(atlas)
+        x, y, has_offset = x + (width - 32) / 64, y + (height - 32) / 64, True
     if "ApcVisuals" in components:
         # APC setDir() mounts the panel 25 pixels toward the supporting wall.
         angle = math.radians(int(entity.rotation))
@@ -962,11 +992,12 @@ def convert(cells, key, is_domain, known, art):
                     associations[atom.path].add(f"{scenario_proto} ({name})")
                     if name == "loot_signal":
                         caches.add(pos)
-                    if name == "mob_segment" and key in MODULAR_MOBS:
-                        mob_pool = MODULAR_MOBS[key]
+                    if name == "mob_segment" and key in art.functional_mob_pools:
+                        mob_pool = art.functional_mob_pools[key]
                         # Each room uses a stable distribution of its scenario's enemy types.
-                        proto = mob_pool[(pos[0] + 3 * pos[1]) % len(mob_pool)]
-                        entities.append(atom_entity(atom, proto, pos))
+                        source_mob, proto = mob_pool[(pos[0] + 3 * pos[1]) % len(mob_pool)]
+                        mob_atom = Atom(source_mob, {})
+                        entities.append(appearance(mob_atom, atom_entity(mob_atom, proto, pos)))
                         associations[atom.path].add(proto)
                 continue
             if path.startswith("obj/structure/closet/crate/secure/bitrunning/encrypted"):
@@ -1014,7 +1045,7 @@ def convert(cells, key, is_domain, known, art):
                     entities.append(appearance(grille, atom_entity(grille, "Grille", pos)))
                     associations[atom.path].add("Grille")
                 continue
-            proto = match_path(MOBS, path) or match_path(OBJECTS, path)
+            proto = art.functional_targets.get(atom.path) or match_path(MOBS, path) or match_path(OBJECTS, path)
             if proto is None or proto and proto not in imported_objects:
                 proto = lookup_equivalent(path, proto_by_name) or proto
             if proto == "DisposalPipe" and path == "obj/structure/disposalpipe/segment" and as_int(atom.fields.get("dir")) in {5, 6, 9, 10}:
@@ -1051,14 +1082,6 @@ def convert(cells, key, is_domain, known, art):
             raise ValueError(f"{key}: no avatar spawn found in domain or embedded safehouse")
         if not goals:
             goals.update(spawns)
-        if key in {"syndicate_assault", "vaporwave"}:
-            for x, y in sorted(spawns):
-                entities.extend(Entity(proto, (x + 0.5, y + 0.5)) for proto in (
-                    "ClothingOuterHardsuitBasic", "ClothingHeadHelmetHardsuitBasic",
-                    "JetpackBlueFilled", "ClothingMaskGas", "EmergencyOxygenTankFilled",
-                ))
-        if key == "xeno_nest":
-            entities.extend(Entity("WeaponProtoKineticAccelerator", (x + 0.5, y + 0.5)) for x, y in sorted(spawns))
         if key == "clown_planet":
             # The WhiteMoon peel can teleport through the boundary between the staging room and the arena.
             endpoints = ((13, 10), (13, 15))
@@ -1089,17 +1112,6 @@ def convert(cells, key, is_domain, known, art):
     ):
         if path in counts:
             associations[path].add(proto)
-    # Some imported guns had no loose ammunition in their source room.
-    magazine = "Magazine45_ACPSubMachineGunFMJ"
-    supplied = {entity.position for entity in entities if entity.proto.startswith(magazine)}
-    drozd_positions = dict.fromkeys(entity.position for entity in entities
-                                   if entity.proto.startswith("WeaponSubMachineGunDrozd"))
-    for position in drozd_positions:
-        if position in supplied:
-            continue
-        atom = Atom("/obj/item/ammo_box/magazine/smgm45", {"pixel_x": "8", "pixel_y": "-8"})
-        pos = (math.floor(position[0]), math.floor(position[1]))
-        entities.append(imported_placement(atom, atom_entity(atom, magazine, pos), art))
 
     # Native noRot transforms reject authored angles even when the source counterpart rotates.
     entities = [replace(entity, rotation="0") if entity.proto in known["noRotation"] else entity
@@ -1111,7 +1123,7 @@ def float_pos(pos):
     return ",".join(f"{value:g}" for value in pos)
 
 
-def map_yaml(name, tiles, entities, decals, art):
+def map_yaml(name, tiles, entities, decals, art, capsule_blocked=(), hierophant_tiles=()):
     tile_names = ["Space"] + sorted(set(tiles.values()) - {"Space"})
     ids = {name: index for index, name in enumerate(tile_names)}
     chunks = defaultdict(lambda: bytearray(TILE_BYTES.size * CHUNK_SIZE * CHUNK_SIZE))
@@ -1144,6 +1156,12 @@ def map_yaml(name, tiles, entities, decals, art):
         "          - type: GridEnvironment", "            forceGravity: true", "            alwaysPowered: true",
         "            safeAtmosphere: true",
     ])
+    if hierophant_tiles:
+        rows.extend(["          - type: BitrunHierophantArena", "            tiles:"])
+        rows.extend(f"            - {x},{y}" for x, y in sorted(hierophant_tiles))
+    if capsule_blocked:
+        rows.extend(["          - type: BitrunCapsulePlacementPolicy", "            blockedTiles:"])
+        rows.extend(f"            - {x},{y}" for x, y in sorted(capsule_blocked))
     if decals:
         rows.extend(["          - type: DecalGrid", "            chunkCollection:", "              version: 2",
                      "              nodes:"])
@@ -1164,7 +1182,8 @@ def map_yaml(name, tiles, entities, decals, art):
             lockers.setdefault(entity.position, uid)
     for uid, entity in enumerate(entities, start=2):
         by_prototype[entity.proto].append((uid, entity))
-        if (locker := lockers.get(entity.position)) and "Item" in art.placed_components(entity.proto):
+        components = art.placed_components(entity.proto)
+        if (locker := lockers.get(entity.position)) and "Item" in components and not components.get("Transform", {}).get("anchored", False):
             contents[locker].append(uid)
             parents[uid] = locker
         if entity.link:
@@ -1219,7 +1238,7 @@ def main():
     white_moon = args.whitemoon.resolve()
     station = args.station.resolve()
     paths = git(white_moon, "ls-tree", "-r", "--name-only", SOURCE_COMMIT, DOMAIN_ROOT, SAFEHOUSE_ROOT).decode().splitlines()
-    map_paths = sorted(path for path in paths if path.endswith(".dmm"))
+    map_paths = sorted([*(path for path in paths if path.endswith(".dmm")), *SHELTER_SOURCES])
     domains = [p for p in map_paths if p.startswith(DOMAIN_ROOT)]
     rooms = [p for p in map_paths if p.startswith(SAFEHOUSE_ROOT)]
     if len(domains) != 26 or len(rooms) != 14:
@@ -1228,17 +1247,45 @@ def main():
     catalog = tomllib.loads(blobs[SAFEHOUSE_CONFIG].decode())["rooms"]
     parsed = {path: parse_dmm(blobs[path]) for path in map_paths}
     safehouses = {key: parsed[SAFEHOUSE_ROOT + conf["modules"][0]] for key, conf in catalog.items()}
+    source_counts = Counter(atom.path for cells in parsed.values() for atoms in cells.values() for atom in atoms)
+    model = SourceModel(white_moon, SOURCE_COMMIT, git, read_git_blobs)
+    before = target_prototypes(station)
+    by_name = {normalize_id(p): p for p in before['entity']}
+    def native_item(source):
+        target = match_path(OBJECTS, source.lstrip('/'))
+        return target if target in before['entity'] else lookup_equivalent(source.lstrip('/'), by_name) or None
+    gameplay = GameplayImport(model, station, args.verify, native_item,
+                              lambda source: match_path(MOBS, source.lstrip('/')))
+    functional = gameplay.generate(source_counts)
     known = target_prototypes(station)
     art = MapArt(white_moon, station, SOURCE_COMMIT, git, read_git_blobs, args.verify)
+    art.functional_targets = functional
+    art.functional_mob_pools = gameplay.mob_pools
     art.prepare(parsed, ["/obj/structure/grille", *(source for source, _ in SPAWN_RESULTS.values())])
+    inventory_appearances = {source: art.entity(Atom(source, {}), target, (0, 0))
+                             for source, target in sorted(functional.items()) if source.startswith('/obj/item/')}
+    gameplay.bind_appearances(inventory_appearances, art.entities)
     manifest = {"sourceCommit": SOURCE_COMMIT, "maps": {}, "sourceAtoms": {}}
-    source_counts = Counter(atom.path for cells in parsed.values() for atoms in cells.values() for atom in atoms)
     source_associations = defaultdict(set)
     produced = {}
-    for path in [*domains, *rooms]:
+    domain_file = Path('Resources/Prototypes/_DeepLagoon/Bitrunning/domains.yml')
+    domain_definitions = (station / domain_file).read_text(encoding='utf-8')
+    def source_outfit(match):
+        block = match[0]
+        domain_id = re.search(r'^  id: (.+)$', block, re.M)[1]
+        source_key = 'skyrat_ancientmilsim' if domain_id == 'ancient_milsim' else domain_id
+        if source_key not in gameplay.domain_gear:
+            return block
+        gear = gameplay.domain_gear[source_key]
+        block = re.sub(r'^  (?:gear|restrictLoadout): .+\n', '', block, flags=re.M)
+        return block.rstrip() + f'\n  gear: {gear}\n  restrictLoadout: true\n\n'
+    produced[domain_file] = re.sub(r'- type: bitrunDomain\n.*?(?=- type: bitrunDomain\n|\Z)', source_outfit,
+                                   domain_definitions, flags=re.S)
+    for path in [*domains, *rooms, *SHELTER_SOURCES]:
         is_domain = path.startswith(DOMAIN_ROOT)
-        relative = path.removeprefix(DOMAIN_ROOT if is_domain else SAFEHOUSE_ROOT)
-        output = (MAP_ROOT / ("Domains" if is_domain else "Safehouses") / relative).with_suffix(".yml")
+        shelter = path in SHELTER_SOURCES
+        relative = Path(path).name if shelter else path.removeprefix(DOMAIN_ROOT if is_domain else SAFEHOUSE_ROOT)
+        output = (MAP_ROOT / ("Shelters" if shelter else "Domains" if is_domain else "Safehouses") / relative).with_suffix(".yml")
         name = Path(relative).stem
         original = parsed[path]
         cells = merge_safehouses(original, safehouses) if is_domain else original
@@ -1257,15 +1304,42 @@ def main():
             "decals": len(decals),
             "markers": dict(sorted(Counter(e.proto for e in entities if e.proto in MARKERS or e.proto in {"BitrunStageButton", "BitrunFishingSpot", "BitrunRitualAltar"}).items())),
         }
-        produced[output] = map_yaml(name, tiles, entities, decals, art)
+        def capsule_restricted(area):
+            while area:
+                if area.startswith(('/area/shuttle', '/area/station/holodeck')):
+                    return True
+                area = model.parent(area)
+            return False
+        blocked = [position for position, atoms in cells.items()
+                   if any(atom.path.startswith('/area/') and capsule_restricted(atom.path) for atom in atoms)]
+        def hierophant_area(area):
+            while area:
+                if area == "/area/ruin/unpowered/hierophant":
+                    return True
+                area = model.parent(area)
+            return False
+        hierophant_tiles = [position for position, atoms in cells.items()
+                           if any(atom.path.startswith("/area/") and hierophant_area(atom.path) for atom in atoms)]
+        produced[output] = map_yaml(name, tiles, entities, decals, art, blocked, hierophant_tiles)
     for path, count in sorted(source_counts.items()):
         targets = sorted(source_associations.get(path, ()))
         if not targets and path.startswith(("/area", "/obj/effect/baseturf_helper", "/obj/modular_map_")):
             targets.append("area and map topology in target grid")
         manifest["sourceAtoms"][path] = {"occurrences": count, "targets": targets}
+    manifest['functionalImport'] = {'entities': len(gameplay.rows), 'outfits': len(gameplay.gear),
+                                    'sourceTargets': dict(sorted(gameplay.targets.items())),
+                                    'unresolvedItems': dict(sorted(gameplay.unresolved.items()))}
     produced[Path("Tools/bitrunning/map_manifest.json")] = json.dumps(manifest, indent=2, ensure_ascii=False) + "\n"
-    art.finish()
+    names = art.readable_ids()
+    art.finish(names)
+    gameplay.write(names)
+    untranslated = write_locales(station, gameplay.rows, args.verify)
+    manifest['functionalImport']['untranslatedNames'] = untranslated['names']
+    manifest['functionalImport']['untranslatedDescriptions'] = untranslated['descriptions']
+    produced[Path('Tools/bitrunning/map_manifest.json')] = json.dumps(manifest, indent=2, ensure_ascii=False) + '\n'
+    identifier = re.compile(r"\b(?:" + "|".join(re.escape(p) for p in sorted(names, key=len, reverse=True)) + r")\b")
     for relative, content in produced.items():
+        content = identifier.sub(lambda match: names[match[0]], content)
         target = station / relative
         if args.verify:
             if not target.exists() or target.read_text(encoding="utf-8") != content:
@@ -1273,7 +1347,7 @@ def main():
         else:
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(content, encoding="utf-8", newline="\n")
-    print(f"{'Verified' if args.verify else 'Generated'} {len(domains)} domains and {len(rooms)} safehouses.")
+    print(f"{'Verified' if args.verify else 'Generated'} {len(domains)} domains, {len(rooms)} safehouses and {len(SHELTER_SOURCES)} mining shelters.")
 
 
 if __name__ == "__main__":

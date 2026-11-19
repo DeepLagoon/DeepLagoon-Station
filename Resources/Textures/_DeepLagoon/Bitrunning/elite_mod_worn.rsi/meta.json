@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/mob/clothing/modsuit/mod_clothing.dmi as RSI for DeepLagoon.",
+  "states": [
+    {
+      "name": "elite-control-sealed",
+      "directions": 4
+    },
+    {
+      "name": "elite-control",
+      "directions": 4
+    },
+    {
+      "name": "elite-helmet-sealed",
+      "directions": 4
+    },
+    {
+      "name": "elite-helmet",
+      "directions": 4
+    },
+    {
+      "name": "elite-chestplate-sealed",
+      "directions": 4
+    },
+    {
+      "name": "elite-chestplate",
+      "directions": 4
+    },
+    {
+      "name": "elite-gauntlets-sealed",
+      "directions": 4
+    },
+    {
+      "name": "elite-gauntlets",
+      "directions": 4
+    },
+    {
+      "name": "elite-boots-sealed",
+      "directions": 4
+    },
+    {
+      "name": "elite-boots",
+      "directions": 4
+    }
+  ]
+}

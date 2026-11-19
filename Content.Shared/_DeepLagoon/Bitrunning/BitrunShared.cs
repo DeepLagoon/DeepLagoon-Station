@@ -7,6 +7,8 @@ using Robust.Shared.Utility;
 
 namespace Content.Shared._DeepLagoon.Bitrunning;
 
+public sealed partial class BitrunForceWallEvent : InstantActionEvent;
+
 [RegisterComponent]
 public sealed partial class BitrunConsoleComponent : Component;
 

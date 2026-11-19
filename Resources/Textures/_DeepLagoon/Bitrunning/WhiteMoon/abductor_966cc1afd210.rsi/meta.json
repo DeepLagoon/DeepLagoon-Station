@@ -110,6 +110,15 @@
       "name": "welder"
     },
     {
+      "name": "wonderprodCuff"
+    },
+    {
+      "name": "wonderprodProbe"
+    },
+    {
+      "name": "wonderprodSleep"
+    },
+    {
       "name": "wonderprodStun"
     }
   ]

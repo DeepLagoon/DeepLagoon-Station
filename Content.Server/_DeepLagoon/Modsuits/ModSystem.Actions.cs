@@ -42,7 +42,7 @@ public sealed partial class ModSystem
     private void OnSuitAction(Entity<ModControlComponent> suit, ref ModSuitActionEvent args)
     {
         var user = args.Performer;
-        if (args.Handled || !IsWorn(suit, user) || !_blocker.CanInteract(user, suit))
+        if (args.Handled || !IsWorn(suit, user) || !CanUse(suit, user))
             return;
 
         args.Handled = true;
@@ -132,7 +132,7 @@ public sealed partial class ModSystem
     private void OnRadialSelection(Entity<ModControlComponent> suit, ref RadialSelection args)
     {
         var user = args.Actor;
-        if (!Equals(args.UiKey, ModRadialKey.Key) || !IsWorn(suit, user) || !_blocker.CanInteract(user, suit))
+        if (!Equals(args.UiKey, ModRadialKey.Key) || !IsWorn(suit, user) || !CanUse(suit, user))
             return;
 
         var choice = args.Choice;
@@ -205,7 +205,7 @@ public sealed partial class ModSystem
 
     private void UseSelectedModule(Entity<ModControlComponent> suit, Entity<ModModuleComponent> module, EntityUid user)
     {
-        if (module.Comp.Mode == ModModuleMode.Passive)
+        if (!CanUse(suit, user) || module.Comp.Mode == ModModuleMode.Passive)
             return;
 
         suit.Comp.SelectedModule = module.Owner;

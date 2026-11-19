@@ -1,4 +1,6 @@
 using Content.Server.PowerCell;
+using Content.Shared.Access.Systems;
+using Content.Shared.Access.Components;
 using Content.Server.Temperature.Components;
 using Content.Shared.Atmos;
 using Content.Server.Storage.EntitySystems;
@@ -35,6 +37,7 @@ public sealed partial class ModSystem : EntitySystem
     [Dependency] private InventorySystem _inventory = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private PowerCellSystem _power = default!;
+    [Dependency] private AccessReaderSystem _modAccess = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private SharedToolSystem _tools = default!;
     [Dependency] private SharedUserInterfaceSystem _ui = default!;
@@ -66,6 +69,8 @@ public sealed partial class ModSystem : EntitySystem
         InitializeCloak();
         InitializeActions();
         InitializeHardlight();
+        InitializeSourceModules();
+        InitializeHats();
     }
 
     private void OnControlComponentInit(Entity<ModControlComponent> suit, ref ComponentInit args)
@@ -107,7 +112,7 @@ public sealed partial class ModSystem : EntitySystem
 
     private bool CanUse(EntityUid uid, EntityUid user)
     {
-        return _blocker.CanInteract(user, uid) &&
+        return (!HasComp<AccessReaderComponent>(uid) || _modAccess.IsAllowed(user, uid)) && _blocker.CanInteract(user, uid) &&
                (IsWorn(uid, user) || _hands.IsHolding(user, uid) || !_containers.IsEntityInContainer(uid) && _interaction.InRangeUnobstructed(user, uid));
     }
 
@@ -196,6 +201,12 @@ public sealed partial class ModSystem : EntitySystem
     {
         if (args.Cancelled)
             return;
+
+        if (!CanUse(suit, args.User))
+        {
+            args.Cancel();
+            return;
+        }
 
         if (suit.Comp.Deployment != null)
         {
@@ -289,7 +300,7 @@ public sealed partial class ModSystem : EntitySystem
 
             if (args.Operation == ModOperation.RemoveModule)
             {
-                if (!CanService(device))
+                if (!CanService(device) || !module.Removable)
                     return;
 
                 if (TryComp<StorageComponent>(target, out var storage) && storage.Container.Count > 0)
@@ -337,6 +348,7 @@ public sealed partial class ModSystem : EntitySystem
 
     public override void Update(float frameTime)
     {
+        UpdateSourceModules();
         UpdateCloakReveals();
         if (_timing.CurTime < _nextUpdate)
             return;
@@ -349,6 +361,12 @@ public sealed partial class ModSystem : EntitySystem
             {
                 if (TryComp<ModControlComponent>(uid, out var suit))
                 {
+                    foreach (var item in suit.Modules.ContainedEntities)
+                    {
+                        if (!TryComp<ModModuleComponent>(item, out var module) || !module.StartPinned) continue;
+                        PinModule((item, module), user);
+                        module.StartPinned = false;
+                    }
                     if (TryComp<SealableClothingControlComponent>(uid, out var seal) &&
                         (seal.IsCurrentlySealed || seal.IsInProcess) &&
                         (!HasCore(uid) || !_power.HasCharge(uid, 0.01f)))

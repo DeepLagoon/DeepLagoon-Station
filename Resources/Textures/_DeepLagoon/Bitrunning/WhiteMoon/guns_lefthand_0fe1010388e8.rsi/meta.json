@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/mob/inhands/weapons/guns_lefthand.dmi.",
+  "states": [
+    {
+      "name": "arg",
+      "directions": 4
+    },
+    {
+      "name": "c20r",
+      "directions": 4
+    },
+    {
+      "name": "gun",
+      "directions": 4
+    },
+    {
+      "name": "kineticgun",
+      "directions": 4
+    },
+    {
+      "name": "l6closedmag",
+      "directions": 4
+    },
+    {
+      "name": "laser",
+      "directions": 4
+    },
+    {
+      "name": "lionhunter",
+      "directions": 4
+    },
+    {
+      "name": "musket",
+      "directions": 4,
+      "delays": [
+        [
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "rocketlauncher",
+      "directions": 4
+    },
+    {
+      "name": "sakhno",
+      "directions": 4
+    },
+    {
+      "name": "shrink_ray",
+      "directions": 4
+    },
+    {
+      "name": "slopno",
+      "directions": 4
+    },
+    {
+      "name": "sniper",
+      "directions": 4
+    }
+  ]
+}

@@ -11,6 +11,15 @@
       "name": "bobr"
     },
     {
+      "name": "gwiazda",
+      "delays": [
+        [
+          0.2,
+          0.3
+        ]
+      ]
+    },
+    {
       "name": "slonce",
       "delays": [
         [

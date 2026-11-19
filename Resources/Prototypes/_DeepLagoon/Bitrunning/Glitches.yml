@@ -12,7 +12,7 @@
     drawdepth: Effects
     state: glitch
   - type: TimedDespawn
-    lifetime: 90
+    lifetime: 20
   - type: GhostRole
     allowMovement: true
     allowSpeech: true

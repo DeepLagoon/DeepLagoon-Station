@@ -3,6 +3,10 @@ using System.Linq;
 using System.Numerics;
 using Content.Client.Lock.Visualizers;
 using Content.Client.Storage.Visualizers;
+using Content.Client.Trigger;
+using Content.Client.PDA;
+using Content.Shared.PDA;
+using Content.Shared.Storage.Components;
 using Content.Server._DeepLagoon.Bitrunning;
 using Content.Server._DeepLagoon.Mapping;
 using Content.Server.Storage.Components;
@@ -50,8 +54,7 @@ public sealed class BitrunMapLoadingTests
                 return (uid, entities.GetComponent<SpriteComponent>(uid));
             }
 
-            var storage = Spawn(prototypes.Single(p => p.ID.StartsWith("SuitStorageBaseBitrunArt") &&
-                                                        p.Parents?.Contains("SuitStorageBase") == true));
+            var storage = Spawn(prototypes.Single(p => p.ID == "BitrunMapMachinerySuitStorageUnit"));
             Assert.That(sprites.TryGetLayer(storage, StorageVisualLayers.Door, out var door, true), Is.True);
             Assert.That(sprites.TryGetLayer(storage, LockVisualLayers.Lock, out var indicator, true), Is.True);
             Assert.That(sprites.LayerGetRsiState(storage, 0).Name, Is.EqualTo("classic"));
@@ -73,7 +76,34 @@ public sealed class BitrunMapLoadingTests
             Assert.That(indicator.State.Name, Is.EqualTo("lock_indicator_off"));
             entities.DeleteEntity(storage);
 
-            var crabs = prototypes.Where(p => p.ID.StartsWith("MobCrabBitrunArt")).ToArray();
+            foreach (var prototype in prototypes.Where(p => p.ID.StartsWith("BitrunMapItemModularComputerPda")))
+            {
+                var pda = Spawn(prototype);
+                var rsi = sprites.LayerGetEffectiveRsi(pda, 0)!;
+                appearance.OnChangeData(pda, pda.Comp);
+                Assert.That(rsi.TryGetState(sprites.LayerGetRsiState(pda, 0), out _), Is.True, prototype.ID);
+                entities.DeleteEntity(pda);
+            }
+
+            foreach (var prototype in prototypes.Where(p => p.ID.StartsWith("BitrunMapItemGrenade") ||
+                                                           p.ID.StartsWith("BitrunMapItemStorageBagTrash")))
+            {
+                var item = Spawn(prototype);
+                var rsi = sprites.LayerGetEffectiveRsi(item, 0)!;
+                if (entities.TryGetComponent<TimerTriggerVisualsComponent>(item, out var trigger))
+                {
+                    Assert.That(rsi.TryGetState(trigger.UnprimedSprite, out _), Is.True, prototype.ID);
+                    Assert.That(rsi.TryGetState(trigger.PrimingSprite, out _), Is.True, prototype.ID);
+                }
+                if (entities.TryGetComponent<StorageFillVisualizerComponent>(item, out var fill))
+                {
+                    for (var level = 0; level <= fill.MaxFillLevels; level++)
+                        Assert.That(rsi.TryGetState($"{fill.FillBaseName}-{level}", out _), Is.True, prototype.ID);
+                }
+                entities.DeleteEntity(item);
+            }
+
+            var crabs = prototypes.Where(p => p.ID.StartsWith("BitrunMapMobLivingBasicCrab")).ToArray();
             Assert.That(crabs, Is.Not.Empty);
             foreach (var prototype in crabs)
             {
@@ -82,18 +112,19 @@ public sealed class BitrunMapLoadingTests
                 entities.DeleteEntity(crab);
             }
 
-            var table = Spawn(prototypes.First(p => p.ID.StartsWith("TableWoodBitrunArt")));
-            var salt = Spawn(prototypes.Single(p => p.ID.StartsWith("FoodShakerSaltBitrunArt") &&
+            var table = Spawn(prototypes.Single(p => p.ID == "BitrunMapStructureTableWood"));
+            var salt = Spawn(prototypes.Single(p => p.ID.StartsWith("BitrunMapItemReagentContainersCondimentSaltshaker") &&
                                                      p.Parents?.Contains("FoodShakerSalt") == true));
             Assert.That(salt.Comp.DrawDepth, Is.GreaterThan(table.Comp.DrawDepth));
             entities.DeleteEntity(salt);
             entities.DeleteEntity(table);
 
-            var cocktail = Spawn(prototypes.First(p => p.ID.StartsWith("DrinkPinaColadaGlassPlacement")));
+            var cocktail = Spawn(prototypes.First(p => p.ID.StartsWith("BitrunMapItemReagentContainersCupGlassDrinkingglassFilledPinaColada")));
             Assert.That(cocktail.Comp.Offset, Is.Not.EqualTo(Vector2.Zero));
             entities.DeleteEntity(cocktail);
 
-            var plants = prototypes.Where(p => p.ID.StartsWith("PottedPlant0BitrunArt")).ToArray();
+            var plants = prototypes.Where(p => p.ID.StartsWith("BitrunMapItemKirbyplants") &&
+                                              p.Parents?.Contains("PottedPlant0") == true).ToArray();
             Assert.That(plants, Is.Not.Empty);
             foreach (var prototype in plants)
             {
@@ -108,12 +139,12 @@ public sealed class BitrunMapLoadingTests
                 Assert.That(cableRsi.TryGetState($"lvcable_{mask}", out _), Is.True);
             entities.DeleteEntity(cable);
 
-            var apc = Spawn(prototypes.Single(p => p.ID.StartsWith("APCBasicBitrunArt") && p.ID.Contains("Placement")));
+            var apc = Spawn(prototypes.Single(p => p.ID == "BitrunMapMachineryPowerApcAutoNameDirectionalNorthSpriteOffset00Point78125"));
             Assert.That(apc.Comp.SnapCardinals, Is.True);
             Assert.That(apc.Comp.Offset, Is.EqualTo(new Vector2(0, 25f / 32f)));
             entities.DeleteEntity(apc);
 
-            var wideDoor = Spawn(prototypes.First(p => p.ID.StartsWith("AirlockBitrunArt3fd11e64d8afPlacement")));
+            var wideDoor = Spawn(prototypes.Single(p => p.ID == "BitrunMapMachineryDoorAirlockMultiTileMetalSpriteOffset0Point50Point5"));
             Assert.That(wideDoor.Comp.NoRotation, Is.True);
             Assert.That(wideDoor.Comp.SnapCardinals, Is.False);
             sprites.GetLocalBounds(wideDoor);
@@ -262,7 +293,8 @@ public sealed class BitrunMapLoadingTests
         var crate = crates.Single(uid => entities.GetComponent<TransformComponent>(uid).LocalPosition == new Vector2(36.5f, 34.5f)
                                          && entities.HasComponent<EntityStorageComponent>(uid));
         var stored = entities.System<SharedContainerSystem>().GetContainer(crate, "entity_storage").ContainedEntities.ToArray();
-        Assert.That(stored, Has.Length.EqualTo(2));
+        // Thirteen authored PopulateContents items plus two map-authored items.
+        Assert.That(stored, Has.Length.EqualTo(15));
         entities.System<EntityStorageSystem>().OpenStorage(crate);
         Assert.That(stored.All(uid => entities.GetComponent<TransformComponent>(uid).ParentUid == grid), Is.True);
 
@@ -275,9 +307,9 @@ public sealed class BitrunMapLoadingTests
 
         var native = FindMarkers<MetaDataComponent>(entities, grid);
         var drozd = native.First(uid => entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID
-            .StartsWith("WeaponSubMachineGunDrozdBitrunArt") == true);
+            .StartsWith("BitrunMapItemGunBallisticAutomaticLanca") == true);
         var magazine = native.First(uid => entities.GetComponent<MetaDataComponent>(uid).EntityPrototype?.ID
-            .StartsWith("Magazine45_ACPSubMachineGunFMJBitrunArt") == true);
+            .StartsWith("BitrunMapItemAmmoBoxMagazineLanca") == true);
         var slots = entities.System<ItemSlotsSystem>();
         Assert.That(slots.TryEject(drozd, "gun_magazine", null, out _), Is.True);
         Assert.That(slots.TryInsert(drozd, "gun_magazine", magazine, null), Is.True);

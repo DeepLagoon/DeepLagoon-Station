@@ -2,6 +2,708 @@
   "revision": "634692776c7b38f998c12907bdbabe3aae46df65",
   "atlases": [
     {
+      "source": "icons/effects/effects.dmi",
+      "sha256": "22ad91f6eb04193a7ff12643447f92db73ecc6908c2d6626c236a09755f6eb0d",
+      "rsi": "drake_warning.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "lavastaff_warn",
+          "rsi": "lavastaff_warn",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/effects/96x96.dmi",
+      "sha256": "aae33b94539dcd303c31fe52ff59ccf6a3377752d9058f35d870c52828f86c53",
+      "rsi": "drake_landing.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "landing",
+          "rsi": "landing",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/clothing/modsuit/mod_clothing.dmi",
+      "sha256": "c751fdc44c99a9c18fcb99dd9bafd81478414770606aa2a7adc301775785d236",
+      "rsi": "elite_mod_inventory.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "elite-control-sealed",
+          "rsi": "elite-control-sealed",
+          "directions": 1,
+          "frames": 4
+        },
+        {
+          "dmi": "elite-control",
+          "rsi": "elite-control",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-helmet-sealed",
+          "rsi": "elite-helmet-sealed",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-helmet",
+          "rsi": "elite-helmet",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-chestplate-sealed",
+          "rsi": "elite-chestplate-sealed",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-chestplate",
+          "rsi": "elite-chestplate",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-gauntlets-sealed",
+          "rsi": "elite-gauntlets-sealed",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-gauntlets",
+          "rsi": "elite-gauntlets",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-boots-sealed",
+          "rsi": "elite-boots-sealed",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-boots",
+          "rsi": "elite-boots",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/clothing/modsuit/mod_clothing.dmi",
+      "sha256": "d74f74fc0ca7fa0c1813adeb52902e0f895aa995867f84bf7faa3045393235bb",
+      "rsi": "elite_mod_worn.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "elite-control-sealed",
+          "rsi": "elite-control-sealed",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-control",
+          "rsi": "elite-control",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-helmet-sealed",
+          "rsi": "elite-helmet-sealed",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-helmet",
+          "rsi": "elite-helmet",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-chestplate-sealed",
+          "rsi": "elite-chestplate-sealed",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-chestplate",
+          "rsi": "elite-chestplate",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-gauntlets-sealed",
+          "rsi": "elite-gauntlets-sealed",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-gauntlets",
+          "rsi": "elite-gauntlets",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-boots-sealed",
+          "rsi": "elite-boots-sealed",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-boots",
+          "rsi": "elite-boots",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "modular_skyrat/master_files/icons/mob/mod.dmi",
+      "sha256": "57011424259abf2d42a7f99a3853ebeba09d2469f2268abf081ee9fead4c74a9",
+      "rsi": "elite_mod_anthro.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "elite-helmet-sealed",
+          "rsi": "elite-helmet-sealed",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-chestplate-sealed",
+          "rsi": "elite-chestplate-sealed",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-boots-sealed",
+          "rsi": "elite-boots-sealed",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-helmet",
+          "rsi": "elite-helmet",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-chestplate",
+          "rsi": "elite-chestplate",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "elite-boots",
+          "rsi": "elite-boots",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/clothing/modsuit/mod_modules.dmi",
+      "sha256": "ce141aacc83e1fc3bccf594adcac79225af95c3b9ab243c9758ceac10cc06aa9",
+      "rsi": "elite_mod_modules.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "storage_syndi",
+          "rsi": "storage_syndi",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "flashlight",
+          "rsi": "flashlight",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "empshield",
+          "rsi": "empshield",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "welding",
+          "rsi": "welding",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "hat_holder",
+          "rsi": "hat_holder",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "mag_harness",
+          "rsi": "mag_harness",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "jump_jet",
+          "rsi": "jump_jet",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "no_baton",
+          "rsi": "no_baton",
+          "directions": 1,
+          "frames": 4
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/silicon/aibots.dmi",
+      "sha256": "7c25fe5a73d7c45a82e63fb2476d0967a169f7188927a3d9fadcb9a048846d46",
+      "rsi": "minebot.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "mining_drone",
+          "rsi": "mining_drone",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "mining_drone_offense",
+          "rsi": "mining_drone_offense",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "mining_drone_grey",
+          "rsi": "mining_drone_grey",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "mining_drone_offense_grey",
+          "rsi": "mining_drone_offense_grey",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/effects/effects.dmi",
+      "sha256": "22ad91f6eb04193a7ff12643447f92db73ecc6908c2d6626c236a09755f6eb0d",
+      "rsi": "resonance.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "shield1",
+          "rsi": "shield1",
+          "directions": 1,
+          "frames": 7,
+          "rewind": 1
+        },
+        {
+          "dmi": "shield2",
+          "rsi": "shield2",
+          "directions": 1,
+          "frames": 7,
+          "rewind": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/toys/balloons.dmi",
+      "sha256": "8706fbc0e2d167fff2cbc3af982a753d0c8b03605353079d973d6de872ec1e2e",
+      "rsi": "long_balloons.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "balloon_long_red",
+          "rsi": "balloon_long_red",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_blue",
+          "rsi": "balloon_long_blue",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_green",
+          "rsi": "balloon_long_green",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_yellow",
+          "rsi": "balloon_long_yellow",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_purple",
+          "rsi": "balloon_long_purple",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_orange",
+          "rsi": "balloon_long_orange",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/inhands/items/balloons_lefthand.dmi",
+      "sha256": "0ffe11ff8e65d92ee9b1edf7092739c73fececf9136f866e2c0c6e6cc5764533",
+      "rsi": "long_balloons_left.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "balloon_long_red",
+          "rsi": "balloon_long_red",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_blue",
+          "rsi": "balloon_long_blue",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_green",
+          "rsi": "balloon_long_green",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_yellow",
+          "rsi": "balloon_long_yellow",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_purple",
+          "rsi": "balloon_long_purple",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_orange",
+          "rsi": "balloon_long_orange",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/inhands/items/balloons_righthand.dmi",
+      "sha256": "1e218f075c56b47dadba493d48c2b0b0af7a7c15d135fdd907273d9444b070a0",
+      "rsi": "long_balloons_right.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "balloon_long_red",
+          "rsi": "balloon_long_red",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_blue",
+          "rsi": "balloon_long_blue",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_green",
+          "rsi": "balloon_long_green",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_yellow",
+          "rsi": "balloon_long_yellow",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_purple",
+          "rsi": "balloon_long_purple",
+          "directions": 4,
+          "frames": 1
+        },
+        {
+          "dmi": "balloon_long_orange",
+          "rsi": "balloon_long_orange",
+          "directions": 4,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/machines/kitchen.dmi",
+      "sha256": "7b8208d88b1eb00d4c5486cbc553831362cc8ed29bb0b042affaf9a877a5075c",
+      "rsi": "dish_drive.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "synthesizer",
+          "rsi": "synthesizer",
+          "directions": 1,
+          "frames": 4
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/service/hand_of_god_structures.dmi",
+      "sha256": "e415089124750a184f198f71e396950c1c28d5e9a832903d5362c2f089d1be22",
+      "rsi": "carvings.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "alert_rune",
+          "rsi": "alert_rune",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "tentacle_rune",
+          "rsi": "tentacle_rune",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "madness_rune",
+          "rsi": "madness_rune",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/weapons/guns/projectiles.dmi",
+      "sha256": "d5aad41ec36561c64ed83a7bea2c3706338b6795a01e42b7cb63bf4919010ad4",
+      "rsi": "laser_pointer.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "blue_laser",
+          "rsi": "blue_laser",
+          "directions": 1,
+          "frames": 2
+        }
+      ]
+    },
+    {
+      "source": "icons/mob/rideables/vehicles.dmi",
+      "sha256": "33c0491a26ffcea8d174258c62e3387ee3a27f26a81e73bef71f8b5918ae5959",
+      "rsi": "hoverboard.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "hoverboard_red",
+          "rsi": "hoverboard_red",
+          "directions": 4,
+          "frames": 2
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/machines/floor.dmi",
+      "sha256": "b0791682ec766ce5e5451d3dcfd44e6a07990766b34a9144e3f63e1570778a88",
+      "rsi": "disco_ball.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "ethdisco_base",
+          "rsi": "ethdisco_base",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "ethdisco_head_1",
+          "rsi": "ethdisco_head_1",
+          "directions": 1,
+          "frames": 4
+        },
+        {
+          "dmi": "ethdisco_head_0",
+          "rsi": "ethdisco_head_0",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "source": "icons/obj/mining.dmi",
+      "sha256": "c9dc7f0280026653b3c14205a9a48e456e08be6363f713500cf84e56ba3c8b91",
+      "rsi": "marker_beacon.rsi",
+      "scope": "selected",
+      "states": [
+        {
+          "dmi": "markerrandom",
+          "rsi": "markerrandom",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerburgundy-on",
+          "rsi": "markerburgundy-on",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerburgundy",
+          "rsi": "markerburgundy",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerbronze-on",
+          "rsi": "markerbronze-on",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerbronze",
+          "rsi": "markerbronze",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markeryellow-on",
+          "rsi": "markeryellow-on",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markeryellow",
+          "rsi": "markeryellow",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerlime-on",
+          "rsi": "markerlime-on",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerlime",
+          "rsi": "markerlime",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerolive-on",
+          "rsi": "markerolive-on",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerolive",
+          "rsi": "markerolive",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerjade-on",
+          "rsi": "markerjade-on",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerjade",
+          "rsi": "markerjade",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerteal-on",
+          "rsi": "markerteal-on",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerteal",
+          "rsi": "markerteal",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markercerulean-on",
+          "rsi": "markercerulean-on",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markercerulean",
+          "rsi": "markercerulean",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerindigo-on",
+          "rsi": "markerindigo-on",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerindigo",
+          "rsi": "markerindigo",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerpurple-on",
+          "rsi": "markerpurple-on",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerpurple",
+          "rsi": "markerpurple",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerviolet-on",
+          "rsi": "markerviolet-on",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerviolet",
+          "rsi": "markerviolet",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerfuchsia-on",
+          "rsi": "markerfuchsia-on",
+          "directions": 1,
+          "frames": 1
+        },
+        {
+          "dmi": "markerfuchsia",
+          "rsi": "markerfuchsia",
+          "directions": 1,
+          "frames": 1
+        }
+      ]
+    },
+    {
       "source": "icons/obj/machines/bitrunning.dmi",
       "sha256": "8c0d69d41c09c4ef6c8e1ab4076c7eaec0ad2b79a1241fda52196e0b230073a3",
       "rsi": "machines.rsi",

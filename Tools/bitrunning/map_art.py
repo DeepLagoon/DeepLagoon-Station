@@ -1,6 +1,8 @@
 """Resolve WhiteMoon's authored map art and repack it as DeepLagoon resources."""
 
 from collections import Counter, defaultdict
+from ast import literal_eval
+from copy import copy
 from functools import cache
 from hashlib import sha256
 from io import BytesIO
@@ -25,6 +27,9 @@ FIELDS = (
     "dir", "pixel_x", "pixel_y", "invisibility", "smoothing_flags", "icon_living",
     "icon_dead", "icon_resting", "icon_door", "icon_base", "density", "desc",
     "icon_keyboard", "icon_screen", "keyboard_change_icon", "icon_deny", "icon_vend", "light_mask", "panel_type",
+    "worn_icon", "worn_icon_state", "inhand_icon_state", "lefthand_file", "righthand_file",
+    "greyscale_config_worn", "greyscale_config_worn_digi", "greyscale_colors", "icon_file", "json_config",
+    "post_init_icon_state",
 )
 ART_FIELD = re.compile(r"^\t(?:var/(?:static/)?)?(" + "|".join(FIELDS) + r")\s*=\s*(.*?)\s*$")
 TYPE = re.compile(r"^(/[A-Za-z_][\w]*(?:/[\w]+)*)\s*\{?\s*$")
@@ -78,6 +83,19 @@ def digest(value):
     return sha256(value.encode()).hexdigest()[:12]
 
 
+def remap_prototypes(value, names):
+    if isinstance(value, str):
+        return names.get(value, value)
+    if isinstance(value, list):
+        return [remap_prototypes(item, names) for item in value]
+    if isinstance(value, dict):
+        mapped = copy(value)
+        mapped.clear()
+        mapped.update({names.get(key, key): remap_prototypes(item, names) for key, item in value.items()})
+        return mapped
+    return value
+
+
 def dm_string(value):
     if value and value.startswith('"'):
         try:
@@ -103,11 +121,20 @@ def dm_definitions(repo, revision, git, read_blobs):
     available = set(git(repo, "ls-tree", "-r", "--name-only", revision).decode().splitlines())
     paths = list(dict.fromkeys(path for path in paths if path in available))
     definitions = defaultdict(dict)
+    constants = {}
     # Avoid holding the entire source tree in memory while unpacking Git batches.
     for start in range(0, len(paths), 600):
         for blob in read_blobs(repo, paths[start:start + 600]).values():
             current = None
             for line in blob.decode("utf-8-sig", errors="replace").splitlines():
+                if define := re.match(r'^#define\s+(\w+)\s+(.+)$', line):
+                    constants[define[1]] = define[2].split(' //', 1)[0].strip()
+                    continue
+                if undefine := re.match(r'^#undef\s+(\w+)', line):
+                    constants.pop(undefine[1], None)
+                    continue
+                if line.lstrip().startswith(("//", "/*", "*")):
+                    continue
                 if helper := DIRECTIONAL_HELPER.match(line):
                     path, pixels = helper.groups()
                     for side, x, y in (("north", 0, 1), ("south", 0, -1), ("east", 1, 0), ("west", -1, 0)):
@@ -116,7 +143,7 @@ def dm_definitions(repo, revision, git, read_blobs):
                 elif line.startswith("/"):
                     match = TYPE.fullmatch(line.split("//", 1)[0].rstrip())
                     path = match[1] if match else ""
-                    current = definitions[path] if path.startswith(("/atom", "/obj", "/mob", "/turf")) else None
+                    current = definitions[path] if path.startswith(("/atom", "/obj", "/mob", "/turf", "/datum/greyscale_config")) else None
                 elif current is not None and line.startswith("\t"):
                     if offset := BASE_PIXEL.match(line):
                         current.update(pixel_x=offset[1], pixel_y=offset[2])
@@ -125,6 +152,7 @@ def dm_definitions(repo, revision, git, read_blobs):
                         expression = match[2]
                         if switch := MAP_SWITCH.match(expression):
                             expression = switch[1]
+                        expression = constants.get(expression, expression)
                         if literal := LITERAL.match(expression):
                             current[match[1]] = literal[1]
     return definitions
@@ -252,6 +280,8 @@ class MapArt:
 
     def atlas(self, path):
         if path not in self.atlases:
+            if path not in self.blobs:
+                self.blobs.update(self.read_blobs(self.repo, [path]))
             with Image.open(BytesIO(self.blobs[path])) as source:
                 description = source.info["Description"]
                 image = source.convert("RGBA")
@@ -474,7 +504,7 @@ class MapArt:
         if sign and self.atlas(path)[2][state][1] > 1:
             sprite.update(noRot=True, snapCardinals=False)
         self.entities[proto] = {
-            "name": dm_string(source.get("name")) or atom.path.rsplit("/", 1)[-1].replace("_", " "),
+            "name": (dm_string(source.get("name")) or atom.path.rsplit("/", 1)[-1].replace("_", " ")).replace('\\improper ', '').replace('\\proper ', ''),
             **({"parent": parent} if parent else {}),
             "components": ([{"type": "Transform", "anchored": True}] if not portable else []) + [
                 sprite],
@@ -494,6 +524,9 @@ class MapArt:
             "spawner" in Path(path).stem
 
     def entity(self, atom, target, position):
+        if atom.path.startswith(('/obj/item/mod/', '/obj/item/stack/marker_beacon')) and atom.path in self.functional_targets:
+            self.manifest[atom.path]['retained source runtime MOD appearance'] += 1
+            return target
         if target.startswith(("BitrunMob", "BitrunGhost", "MobRandom")) or target in RUNTIME_APPEARANCE or target == "CableApcExtension":
             self.manifest[atom.path]["retained runtime prototype"] += 1
             return target
@@ -504,6 +537,9 @@ class MapArt:
             self.missing[atom.path]["entity art has no static DMI state"] += 1
             return target
         components = self.components(target)
+        if "HumanoidAppearance" in components:
+            self.manifest[atom.path]["retained humanoid body with source outfit"] += 1
+            return target
         if "Sprite" not in components:
             self.missing[atom.path]["native prototype has no sprite"] += 1
             return target
@@ -523,15 +559,122 @@ class MapArt:
             if mapped is None:
                 self.missing[atom.path]["native visual states need a dedicated adapter"] += 1
                 return target
+            self.inhand_components(source, state, mapped)
             localization = self.native_entry(target).get("localizationId")
             self.entities[proto] = {
                 "parent": target,
                 "localizationId": localization or f"ent-{target}",
                 "components": mapped,
             }
+            if atom.path.startswith(("/obj/item/clothing/", "/obj/item/storage/backpack", "/obj/item/storage/belt/")):
+                # Keep the source entity's localization when replacing its
+                # visual layers; a map appearance must not hide its translation.
+                self.entities[proto]['localizationId'] = f'ent-{target}'
+                self.entities[proto]["name"] = (dm_string(source.get("name")) or atom.path.rsplit("/", 1)[-1]).replace("\\improper ", "").replace("\\proper ", "")
+                if description := dm_string(source.get("desc")):
+                    self.entities[proto]["description"] = description
+                if not self.clothing_components(atom.path, source, state, mapped):
+                    # Do not create an invisible equipped item from a map-only
+                    # GAGS preview. These need their runtime greyscale generator.
+                    self.entities[proto]["parent"] = "BaseItem"
+            if atom.path.startswith("/obj/structure/railing/corner"):
+                # WhiteMoon explicitly sets density=FALSE on this aesthetic piece.
+                mapped.extend([{"type": "Physics", "canCollide": False}])
         self.manifest[atom.path]["entity"] += 1
         self.placements[atom.path].add(proto)
         return proto
+
+    def inhand_components(self, source, ground_state, components):
+        state = dm_string(source.get('inhand_icon_state'))
+        if source.get('icon', '').strip("'") == 'icons/obj/toys/balloons.dmi' and ground_state.startswith('balloon_'):
+            state = ground_state
+        if state is None:
+            state = ground_state
+        if not state:
+            return
+        visuals = {}
+        for side, field in (('left', 'lefthand_file'), ('right', 'righthand_file')):
+            path = source.get(field, '').strip("'")
+            if path not in self.available:
+                continue
+            records = self.atlas(path)[2]
+            if state in records:
+                visuals[side] = [self.add(path, state)]
+        if visuals:
+            components.append({'type': 'Item', 'inhandVisuals': visuals})
+
+    def clothing_components(self, source_type, source, ground_state, components):
+        """Use the source's worn atlas, rather than its inventory icon on a body."""
+        family = source_type.split("/")[4]
+        slot = {"head": "head", "mask": "mask", "glasses": "eyes", "gloves": "gloves",
+                "shoes": "shoes", "suit": "outerClothing", "under": "jumpsuit", "neck": "neck",
+                "backpack": "back", "belt": "belt", "accessory": "outerClothing"}.get(family)
+        if colors := dm_string(source.get("greyscale_colors")):
+            if config := source.get("greyscale_config_worn"):
+                state = dm_string(source.get("post_init_icon_state")) or dm_string(source.get("worn_icon_state")) or ground_state
+                worn_layers = self.greyscale_layers(config, colors, state)
+                if worn_layers:
+                    visuals = {slot: worn_layers}
+                    if config_digi := source.get("greyscale_config_worn_digi"):
+                        if digi := self.greyscale_layers(config_digi, colors, state, digitigrade=True):
+                            visuals[slot + "-digitigrade"] = digi
+                    components.append({"type": "Clothing", "clothingVisuals": visuals})
+                    return True
+        worn = source.get("worn_icon", "").strip("'")
+        if not worn or worn == "null":
+            # Human inventory rendering supplies these defaults when worn_icon is null.
+            worn = {"glasses": "icons/mob/clothing/eyes.dmi", "gloves": "icons/mob/clothing/hands.dmi",
+                    "mask": "icons/mob/clothing/mask.dmi", "neck": "icons/mob/clothing/neck.dmi",
+                    "shoes": "icons/mob/clothing/feet.dmi", "backpack": "icons/mob/clothing/back.dmi",
+                    "belt": "icons/mob/clothing/belt.dmi"}.get(family, "")
+        state = dm_string(source.get("worn_icon_state")) or ground_state
+        if slot is None or worn not in self.available:
+            self.missing[source_type]["missing source worn atlas"] += 1
+            return False
+        records = self.atlas(worn)[2]
+        if state not in records:
+            self.missing[source_type]["missing source worn state: " + state] += 1
+            return False
+        style = self.add(worn, state)
+        visuals = {slot: [style]}
+        if state + "_d" in records:
+            visuals[slot + "-digitigrade"] = [self.add(worn, state + "_d")]
+        components.append({"type": "Clothing", "clothingVisuals": visuals})
+        return True
+
+    def greyscale_layers(self, config, colors, state, digitigrade=False):
+        """Use the original GAGS layers and palette on the worn body sprite."""
+        fields = self.source_fields(config)
+        path = fields.get("icon_file", "").strip("'")
+        if path == "SHORTS_PANTS_SHIRTS_DIGIFILE":
+            path = "modular_skyrat/master_files/icons/mob/clothing/under/shorts_pants_shirts_digi.dmi"
+        config_path = fields.get("json_config", "").strip("'")
+        if path not in self.available or config_path not in self.available:
+            return None
+        data = json.loads(self.read_blobs(self.repo, [config_path])[config_path])
+        palette = re.findall(r"#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?", colors)
+        if digitigrade and state + '_d' in data:
+            state += '_d'
+        if state in data:
+            selected = data[state]
+        elif len(data) == 1 or all(value == next(iter(data.values())) for value in data.values()):
+            selected = next(iter(data.values()))
+        else:
+            return None
+        layers = []
+        records = self.atlas(path)[2]
+        for layer in selected:
+            if layer.get("type") != "icon_state" or layer.get("blend_mode", "overlay") != "overlay":
+                return None
+            state = layer["icon_state"]
+            indices = layer.get("color_ids", [])
+            if state not in records or len(indices) > 1 or any(i < 1 or i > len(palette) for i in indices):
+                return None
+            style = self.add(path, state)
+            if indices:
+                style["color"] = palette[indices[0] - 1]
+            layers.append(style)
+        return layers
 
     def entity_components(self, source, native, path, state, variant):
         """Keep visualizer layer keys and any overlays the original state does not include."""
@@ -540,6 +683,36 @@ class MapArt:
         _, _, records = self.atlas(path)
         original = self.add(path, state)
         overrides = []
+        if 'BitrunLongBalloon' in native:
+            return [{'type': 'Sprite', **{key: value for key, value in native['Sprite'].items() if key != 'state'}},
+                    {'type': 'Appearance'}, {'type': 'GenericVisualizer', **native['GenericVisualizer']}]
+        if 'BitrunAbductorBaton' in native:
+            states = ('wonderprodStun', 'wonderprodSleep', 'wonderprodCuff', 'wonderprodProbe')
+            modes = {}
+            for index, mode in enumerate(states):
+                inhands = {}
+                for side, field in (('left', 'lefthand_file'), ('right', 'righthand_file')):
+                    atlas = source.get(field, '').strip("'")
+                    if atlas in self.available and mode in self.atlas(atlas)[2]:
+                        inhands[side] = [self.add(atlas, mode)]
+                modes[index] = {'inhandVisuals': inhands}
+            return [{'type': 'Sprite', 'layers': [{**self.add(path, states[0]), 'map': ['source-mode']}]},
+                    {'type': 'Appearance'}, {'type': 'BitrunAbductorBaton', 'modeVisuals': modes},
+                    {'type': 'GenericVisualizer', 'visuals': {'enum.BitrunEquipmentVisuals.Mode': {
+                        'source-mode': {str(index): self.add(path, mode) for index, mode in enumerate(states)}}}}]
+        active = self.state_candidate(records, re.sub(r'_off$', '_on', re.sub(r'0$', '1', state)), state + '_on', state + '1')
+        if 'ItemToggleMeleeWeapon' in native and active and active != state:
+            off = self.add(path, state)
+            on = self.add(path, active)
+            return [{'type': 'Sprite', 'layers': [{**off, 'map': ['source-toggle']}]},
+                    {'type': 'Appearance'}, {'type': 'GenericVisualizer', 'visuals': {
+                        'enum.ToggleableVisuals.Enabled': {'source-toggle': {
+                            'True': {'state': on['state']}, 'False': {'state': off['state']}}}}}]
+        # These visualizers replace layer RSI/state at runtime. A static DMI
+        # replacement alone leaves their native state names missing (ERROR).
+        # Keep the native pipe atlas until its connection states are ported.
+        if "PipeAppearance" in native:
+            return None
         art_layer = 0
         directional_door = False
         light = path == "icons/obj/lighting.dmi" and "PoweredLight" in native
@@ -857,11 +1030,16 @@ class MapArt:
                 aliases[alias] = state if found is None else found
 
         visuals = native.get("GenericVisualizer", {}).get("visuals", {})
-        for mapping in visuals.values():
+        for appearance, mapping in visuals.items():
             for key in keys:
-                for value in mapping.get(key, {}).values():
+                for setting, value in mapping.get(key, {}).items():
                     if isinstance(value, dict) and "state" in value:
-                        register(value["state"])
+                        if appearance == 'enum.ToggleableVisuals.Enabled':
+                            active = setting in (True, 'True', 'true')
+                            register(value['state'], re.sub('_off$', '_on', re.sub('0$', '1', state)) if active else state,
+                                     state + '_on' if active else state + '_off')
+                        else:
+                            register(value["state"])
         if "enum.PoweredLightLayers.Base" in keys:
             root = re.sub(r"-(?:empty|burned|broken)$", "", state)
             for alias, suffix in (("empty", "-empty"), ("off", ""), ("on", "2"), ("broken", "-broken"),
@@ -882,9 +1060,23 @@ class MapArt:
             charger = native.get("PowerChargerVisuals", {})
             register(charger.get("emptyState", "empty"), state + "-empty")
             register(charger.get("occupiedState", "full"), state + "-full")
+        if 'enum.TriggerVisualLayers.Base' in keys and 'TimerTriggerVisuals' in native:
+            trigger = native['TimerTriggerVisuals']
+            register(trigger.get('unprimedSprite', 'icon'), state)
+            register(trigger.get('primingSprite', 'primed'), state + '_active', state + '_primed', state + '1', state)
+        if 'enum.PdaVisualLayers.Base' in keys:
+            register(native.get('Appearance', {}).get('appearanceDataInit', {}).get('enum.PdaVisuals.PdaType'), state)
+        if 'enum.StorageFillLayers.Fill' in keys and 'StorageFillVisualizer' in native:
+            fill = native['StorageFillVisualizer']
+            root = re.sub(r'\d+$', '', state)
+            for level in range(fill['maxFillLevels'] + 1):
+                register(f"{fill['fillBaseName']}-{level}", root + str(level), state + str(level), state)
         if "enum.GunVisualLayers.Base" in keys and "ChamberMagazineAmmoProvider" in native:
             register("base", state)
             register("bolt-open", state + "_bolt_locked", state + "_bolt_open")
+        if "enum.SolutionContainerLayers.Fill" in keys:
+            visual = native.get("SolutionContainerVisuals", {})
+            register(visual.get("emptySpriteName"), state + "0", state + "_empty", state + "-empty")
         stack = native.get("Stack", {})
         if stack.get("baseLayer") in keys:
             for index, alias in enumerate(stack.get("layerStates", ())):
@@ -899,7 +1091,87 @@ class MapArt:
                     register(alias, normalized)
         return aliases
 
-    def finish(self):
+    def readable_ids(self):
+        """Public prototype IDs describe the source, never an import digest."""
+        sources = defaultdict(set)
+        for source, prototypes in self.placements.items():
+            for prototype in prototypes:
+                sources[prototype].add(source)
+        for tile, (animation, _) in self.animations.items():
+            sources[animation].update(sources[tile])
+        def token(value):
+            value = str(value).replace("-", " Minus ").replace(".", " Point ")
+            return "".join(part[:1].upper() + part[1:] for part in re.findall(r"[A-Za-z0-9]+", value))
+
+        def flatten(value, key=""):
+            if isinstance(value, dict):
+                return {k: v for field, child in value.items() for k, v in flatten(child, key + token(field)).items()}
+            if isinstance(value, (list, tuple)):
+                return {k: v for index, child in enumerate(value) for k, v in flatten(child, key + str(index)).items()}
+            if key.endswith("Sprite") and isinstance(value, str):
+                # RSI filenames are content-addressed assets, not public IDs.
+                value = re.sub(r"_[a-f0-9]{12}(?=\.rsi$)", "", value).removesuffix(".rsi")
+            return {key: token(value)}
+
+        def details(prototype):
+            if prototype in self.entities:
+                fields = self.entities[prototype]
+                parent = fields.get("parent")
+                values = details(parent) if parent in self.entities else {"Parent": token(parent or "Entity")}
+                values["Variant"] = "Placed" if parent in self.entities else "Base"
+                for component in fields["components"]:
+                    # Runtime layers can distinguish two appearances of the same
+                    # source type, as can placement offsets and tint.
+                    values.update(flatten({k: v for k, v in component.items() if k != "type"}, component["type"]))
+                for tile, (animation, _) in self.animations.items():
+                    if animation == prototype:
+                        _, _, frame, tint = literal_eval(self.tiles[tile][1])
+                        values.update(flatten({"direction": FRAME_DIRECTION[frame], "color": tint}))
+                return values
+            if prototype in self.tiles:
+                parent, style, _, _, _ = self.tiles[prototype]
+                path, state, frame, tint = literal_eval(style)
+                return flatten({"parent": parent, "state": state, "direction": FRAME_DIRECTION[frame], "color": tint})
+            return flatten(self.decals[prototype])
+
+        groups = defaultdict(list)
+        for prototype in sorted(self.entities.keys() | self.tiles.keys() | self.decals.keys()):
+            candidates = sources.get(prototype, ())
+            if not candidates:
+                raise ValueError(f"Generated prototype has no source type: {prototype}")
+            source = min(candidates, key=lambda p: (len(p), p))
+            kind = "FloorAnimation" if prototype.startswith("BitrunAnimatedTile") else "Decal" if prototype in self.decals else "Tile" if prototype in self.tiles else ""
+            name = "BitrunMap" + kind + token(source.removeprefix("/obj/").removeprefix("/turf/"))
+            groups[name].append(prototype)
+        names = {}
+        for base, variants in sorted(groups.items()):
+            if len(variants) == 1:
+                names[variants[0]] = base
+                continue
+            values = {p: details(p) for p in variants}
+            keys = set().union(*(v.keys() for v in values.values()))
+            selected = []
+            signatures = {p: () for p in variants}
+            # Choose the smallest useful semantic discriminator, preferring
+            # authored sprite states over longer structural details.
+            while len(set(signatures.values())) != len(variants):
+                choices = []
+                for key in keys - set(selected):
+                    count = len({(*signatures[p], values[p].get(key, "Default")) for p in variants})
+                    priority = 0 if key.endswith("State") else 1 if "Offset" in key else 2
+                    choices.append((-count, priority, max(len(v.get(key, "Default")) for v in values.values()), key))
+                if not choices:
+                    raise ValueError(f"Source variants need descriptive IDs: {base}: {variants}")
+                _, _, _, key = min(choices)
+                selected.append(key)
+                signatures = {p: (*signatures[p], values[p].get(key, "Default")) for p in variants}
+            for prototype in variants:
+                names[prototype] = base + "".join(key + values[prototype].get(key, "Default") for key in selected)
+        if len(set(names.values())) != len(names):
+            raise ValueError("Source-derived prototype names collide")
+        return names
+
+    def finish(self, names=None):
         """Write the generated prototypes and exact source pixels, then return the coverage report."""
         root = self.station / TEXTURES
         if not self.verify:
@@ -918,7 +1190,7 @@ class MapArt:
         for proto_id, fields in sorted(self.entities.items()):
             rows.append({"type": "entity", "id": proto_id, "categories": ["HideSpawnMenu"], **fields})
         encoded = "# Generated by Tools/bitrunning/import_maps.py.\n" + yaml.safe_dump(
-            rows, sort_keys=False, allow_unicode=True, width=120)
+            remap_prototypes(rows, names or {}), sort_keys=False, allow_unicode=True, width=120)
         output = self.station / PROTOTYPES
         if self.verify:
             if output.read_text(encoding="utf-8") != encoded:
@@ -979,7 +1251,7 @@ class MapArt:
                             for path in sorted(self.manifest.keys() | self.missing.keys())},
         }
         self.artifacts.add("art_manifest.json")
-        write_json(root / "art_manifest.json", report, self.verify)
+        write_json(root / "art_manifest.json", remap_prototypes(report, names or {}), self.verify)
         for stale in sorted(root.iterdir()):
             if stale.name in self.artifacts or not re.fullmatch(
                 r"[\w.-]+_[a-f0-9]{12}\.(?:rsi|png)", stale.name

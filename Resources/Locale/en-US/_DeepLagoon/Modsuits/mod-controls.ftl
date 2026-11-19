@@ -110,3 +110,4 @@ mod-panel-label-cell-charge = Cell Charge
 mod-panel-label-actions = Actions
 mod-panel-label-configure = Configure
 mod-panel-label-frequency = Frequency
+mod-mount-hat = Mount hat on helmet

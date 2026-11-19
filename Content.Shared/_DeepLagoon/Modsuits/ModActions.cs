@@ -37,6 +37,9 @@ public sealed partial class ModPinnedModuleEvent : InstantActionEvent;
 public sealed partial class ModDeployStepEvent : SimpleDoAfterEvent;
 
 [Serializable, NetSerializable]
+public sealed partial class ModJumpJetEvent : SimpleDoAfterEvent;
+
+[Serializable, NetSerializable]
 public enum ModRadialKey : byte
 {
     Key,

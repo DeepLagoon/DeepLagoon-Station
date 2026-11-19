@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/mob/clothing/under/syndicate.dmi.",
+  "states": [
+    {
+      "name": "abductor",
+      "directions": 4
+    },
+    {
+      "name": "syndicate",
+      "directions": 4
+    },
+    {
+      "name": "syndicate_combat",
+      "directions": 4
+    },
+    {
+      "name": "syndicate_d",
+      "directions": 4
+    },
+    {
+      "name": "syndicate_skirt",
+      "directions": 4
+    },
+    {
+      "name": "syndicate_skirt_d",
+      "directions": 4
+    }
+  ]
+}

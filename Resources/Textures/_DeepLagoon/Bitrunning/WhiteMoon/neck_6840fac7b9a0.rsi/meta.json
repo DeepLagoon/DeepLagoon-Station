@@ -14,6 +14,24 @@
       "name": "bling"
     },
     {
+      "name": "eldritch_necklace",
+      "delays": [
+        [
+          3.0,
+          0.03,
+          0.04,
+          0.05,
+          0.1,
+          0.05,
+          0.04,
+          0.03
+        ]
+      ]
+    },
+    {
+      "name": "petcollar"
+    },
+    {
       "name": "stethoscope"
     }
   ]

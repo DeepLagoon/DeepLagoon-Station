@@ -8,12 +8,12 @@ orphans: [1]
 nullspace: []
 tilemap:
   "0": Space
-  "1": BitrunTile010e681be03e
-  "2": BitrunTile0c9b02979800
-  "3": BitrunTile737fdf53c76b
-  "4": BitrunTile7e13274f00ac
-  "5": BitrunTilea9839e0024e7
-  "6": BitrunTilee1e088f9d253
+  "1": BitrunMapTileOpenMiscAsteroid
+  "2": BitrunMapTileOpenIndestructibleBitrunningTransport
+  "3": BitrunMapTileOpenFloorPlating
+  "4": BitrunMapTileOpenFloorIronWhite
+  "5": BitrunMapTileOpenFloorGrass
+  "6": BitrunMapTileOpenFloor
   "7": FloorAsteroidSand
   "8": FloorGreenCircuit
   "9": FloorHull
@@ -82,11 +82,11 @@ entities:
               version: 2
               nodes:
               - node:
-                  id: BitrunDecal00fbb4ffe948
+                  id: BitrunMapDecalEffectDecalCleanableBloodStateFloor1
                 decals:
                   "15": 18,4
               - node:
-                  id: BitrunDecal0915b6cfd0a4
+                  id: BitrunMapDecalStructureFloraBushFullgrass
                 decals:
                   "78": 17,23
                   "98": 28,29
@@ -94,23 +94,23 @@ entities:
                   "100": 29,32
                   "102": 24,34
               - node:
-                  id: BitrunDecal0d2658f34df4
+                  id: BitrunMapDecalEffectDecalCleanableDirtDust
                 decals:
                   "40": 20,6
               - node:
-                  id: BitrunDecal0e2a4704b466
+                  id: BitrunMapDecalStructureFloraBushFerny
                 decals:
                   "80": 13,24
                   "81": 21,24
                   "82": 9,25
               - node:
-                  id: BitrunDecal0fe10fd5dbd7
+                  id: BitrunMapDecalStructureFloraBushReedStyleRandom
                 decals:
                   "63": 25,18
                   "75": 17,22
                   "87": 11,26
               - node:
-                  id: BitrunDecal55db2003fc38
+                  id: BitrunMapDecalStructureFloraBushStalky
                 decals:
                   "52": 11,15
                   "70": 28,21
@@ -118,13 +118,13 @@ entities:
                   "90": 14,26
                   "95": 22,27
               - node:
-                  id: BitrunDecal73d443f6d28e
+                  id: BitrunMapDecalStructureFloraBushFlowersBrStyleRandom
                 decals:
                   "65": 28,20
                   "68": 16,21
                   "92": 26,26
               - node:
-                  id: BitrunDecal8d9a5bea1246
+                  id: BitrunMapDecalStructureFloraBushFlowersYwStyleRandom
                 decals:
                   "50": 6,15
                   "58": 19,17
@@ -132,12 +132,12 @@ entities:
                   "83": 11,25
                   "103": 30,34
               - node:
-                  id: BitrunDecala3852a93cf03
+                  id: BitrunMapDecalEffectTurfDecalSandVolcanic
                 decals:
                   "33": 17,6
                   "46": 19,7
               - node:
-                  id: BitrunDecala5cc313dfba7
+                  id: BitrunMapDecalStructureFloraBushLavendergrass
                 decals:
                   "49": 12,14
                   "55": 7,17
@@ -146,11 +146,11 @@ entities:
                   "84": 12,25
                   "88": 12,26
               - node:
-                  id: BitrunDecalacd7cc0cea82
+                  id: BitrunMapDecalStructureFloraBushSunny
                 decals:
                   "57": 18,17
               - node:
-                  id: BitrunDecalc08f0f50e2c7
+                  id: BitrunMapDecalStructureFloraBushSparsegrass
                 decals:
                   "47": 18,13
                   "51": 10,15
@@ -169,7 +169,7 @@ entities:
                   "97": 21,28
                   "101": 30,32
               - node:
-                  id: BitrunDecalde3e3f0d6787
+                  id: BitrunMapDecalEffectDecalCleanableDirt
                 decals:
                   "3": 18,3
                   "10": 21,3
@@ -179,7 +179,7 @@ entities:
                   "36": 18,6
                   "43": 21,6
               - node:
-                  id: BitrunDecalfe85ece0eeac
+                  id: BitrunMapDecalStructureFloraBushGrassy
                 decals:
                   "48": 9,14
                   "59": 25,17
@@ -232,14 +232,14 @@ entities:
                   "42": 21,6
                   "44": 19,7
                   "45": 19,7
-  - proto: AirlockBitrunArt7c330bf4fec2
+  - proto: BitrunMapMachineryDoorAirlockShuttleGlass
     entities:
       - uid: 94
         components:
           - type: Transform
             parent: 1
             pos: 19.5,7.5
-  - proto: BitrunArt3eeb9a18d9d3
+  - proto: BitrunMapItemStorageBagTray
     entities:
       - uid: 52
         components:
@@ -251,33 +251,14 @@ entities:
           - type: Transform
             parent: 1
             pos: 17.5,5.5
-  - proto: BitrunArt52b63f7ea0d0
-    entities:
-      - uid: 95
-        components:
-          - type: Transform
-            parent: 1
-            pos: 19.5,7.5
-  - proto: BitrunArt765d2f3f4723
-    entities:
-      - uid: 54
-        components:
-          - type: Transform
-            parent: 1
-            pos: 17.5,4.5
-      - uid: 68
-        components:
-          - type: Transform
-            parent: 1
-            pos: 17.5,5.5
-  - proto: BitrunArta83e2bb1b69c
+  - proto: BitrunMapEffectDecalCleanableGeneric
     entities:
       - uid: 44
         components:
           - type: Transform
             parent: 1
             pos: 19.5,3.5
-  - proto: BitrunArte2cc92e16c69
+  - proto: BitrunMapStructureMarkerBeacon
     entities:
       - uid: 223
         components:
@@ -362,7 +343,14 @@ entities:
           - type: Transform
             parent: 1
             pos: 21.5,3.5
-  - proto: BitrunGondola
+  - proto: BitrunMapStructureFansTiny
+    entities:
+      - uid: 95
+        components:
+          - type: Transform
+            parent: 1
+            pos: 19.5,7.5
+  - proto: BitrunMapMobLivingBasicPetGondolaVirtualDomain
     entities:
       - uid: 183
         components:
@@ -404,6 +392,39 @@ entities:
           - type: Transform
             parent: 1
             pos: 20.5,33.5
+  - proto: BitrunMapItemClothingMaskGas
+    entities:
+      - uid: 58
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,4.5
+  - proto: BitrunMapItemKnifeKitchenSpriteOffsetDefault
+    entities:
+      - uid: 54
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,4.5
+      - uid: 68
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,5.5
+  - proto: BitrunMapItemStorageToolboxEmergencySpriteOffsetDefault
+    entities:
+      - uid: 81
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,6.5
+  - proto: BitrunMapItemTankInternalsEmergencyOxygenSpriteOffset0Point093750
+    entities:
+      - uid: 57
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,4.5
   - proto: BitrunVirtualWall
     entities:
       - uid: 2
@@ -1216,7 +1237,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 24.5,42.5
-  - proto: ChairWoodBitrunArt442406cc1edf
+  - proto: BitrunMapStructureChairWood
     entities:
       - uid: 55
         components:
@@ -1230,14 +1251,7 @@ entities:
             parent: 1
             pos: 18.5,5.5
             rot: -90
-  - proto: ClothingMaskGasBitrunArt430e0aab4367
-    entities:
-      - uid: 58
-        components:
-          - type: Transform
-            parent: 1
-            pos: 21.5,4.5
-  - proto: ComfyChairBitrunArtabcf3ff781d5
+  - proto: BitrunMapStructureChairComfyShuttle
     entities:
       - uid: 70
         components:
@@ -1245,7 +1259,7 @@ entities:
             parent: 1
             pos: 20.5,5.5
             rot: 90
-  - proto: ComputerTabletopCommsBitrunArtb2a50941dd3f
+  - proto: BitrunMapMachineryComputerSpriteLayers3StateShuttleSpriteOffsetDefault
     entities:
       - uid: 71
         components:
@@ -1255,14 +1269,7 @@ entities:
             rot: -90
           - type: MetaData
             name: "shuttle console"
-  - proto: EmergencyOxygenTankFilledBitrunArt5b709669a52aPlacementf155e8889a72
-    entities:
-      - uid: 57
-        components:
-          - type: Transform
-            parent: 1
-            pos: 21.5,4.5
-  - proto: FloraTreeBitrunArt264c2656e5bePlacement42ae6e72884d
+  - proto: BitrunMapStructureFloraTreePalmSpriteOffset00Point5
     entities:
       - uid: 225
         components:
@@ -1309,7 +1316,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 21.5,30.5
-  - proto: ForkBitrunArte0a1b4684ed9
+  - proto: BitrunMapItemKitchenFork
     entities:
       - uid: 53
         components:
@@ -1321,7 +1328,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 17.5,5.5
-  - proto: GrilleBitrunArt55b67fc37f21
+  - proto: BitrunMapStructureGrille
     entities:
       - uid: 33
         components:
@@ -1363,7 +1370,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 21.5,7.5
-  - proto: PoweredSmallLightBitrunArtc9a32b7fe2e3Placement42ae6e72884d
+  - proto: BitrunMapMachineryLightSmallDirectionalEast
     entities:
       - uid: 43
         components:
@@ -1387,7 +1394,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 20.5,6.5
-  - proto: PuddleBitrunArt9d139a56ba3f
+  - proto: BitrunMapStructureWaterSourcePuddle
     entities:
       - uid: 249
         components:
@@ -1414,7 +1421,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 26.5,32.5
-  - proto: ShuttleWindowBitrunArte9f2fbbfb4dc
+  - proto: BitrunMapStructureWindowReinforcedShuttle
     entities:
       - uid: 32
         components:
@@ -1456,7 +1463,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 21.5,7.5
-  - proto: TableReinforcedBitrunArt234d0deab64b
+  - proto: BitrunMapStructureTableReinforced
     entities:
       - uid: 56
         components:
@@ -1468,7 +1475,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 21.5,6.5
-  - proto: TableWoodBitrunArtbdcc98a2fb9c
+  - proto: BitrunMapStructureTableWood
     entities:
       - uid: 51
         components:
@@ -1480,7 +1487,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 17.5,5.5
-  - proto: ThrusterBitrunArt6ebba51689a8
+  - proto: BitrunMapMachineryPowerShuttleEnginePropulsion
     entities:
       - uid: 41
         components:
@@ -1494,14 +1501,7 @@ entities:
             parent: 1
             pos: 16.5,6.5
             rot: -90
-  - proto: ToolboxMechanicalBitrunArta0ce2b9344fe
-    entities:
-      - uid: 81
-        components:
-          - type: Transform
-            parent: 1
-            pos: 21.5,6.5
-  - proto: WallRockBitrunArt254ff9a35150
+  - proto: BitrunMapClosedMineral
     entities:
       - uid: 105
         components:
@@ -3733,7 +3733,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 19.5,41.5
-  - proto: WallShuttleBitrunArteaee919965c1
+  - proto: BitrunMapClosedWallMineralTitanium
     entities:
       - uid: 30
         components:
@@ -3790,7 +3790,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 22.5,7.5
-  - proto: WindowReinforcedDirectionalBitrunArt681de416b197Placement42ae6e72884d
+  - proto: BitrunMapStructureWindowReinforcedSpawnerDirectionalEastSpriteOffset00
     entities:
       - uid: 42
         components:

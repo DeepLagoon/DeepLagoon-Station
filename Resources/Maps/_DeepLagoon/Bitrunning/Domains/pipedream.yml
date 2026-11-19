@@ -1,25 +1,25 @@
 meta:
   format: 7
   category: Grid
-  entityCount: 917
+  entityCount: 921
 maps: []
 grids: [1]
 orphans: [1]
 nullspace: []
 tilemap:
   "0": Space
-  "1": BitrunTile010e681be03e
-  "2": BitrunTile0c9b02979800
-  "3": BitrunTile293ecdba4dcd
-  "4": BitrunTile35b827038232
-  "5": BitrunTile6ed7365b1030
-  "6": BitrunTile737fdf53c76b
-  "7": BitrunTile738f6b18bee2
-  "8": BitrunTile7e13274f00ac
-  "9": BitrunTilea56750490118
-  "10": BitrunTilea7d3d9ad3d41
-  "11": BitrunTilea9839e0024e7
-  "12": BitrunTilee1e088f9d253
+  "1": BitrunMapTileOpenMiscAsteroid
+  "2": BitrunMapTileOpenIndestructibleBitrunningTransport
+  "3": BitrunMapTileEffectMappingHelpersBrokenFloor
+  "4": BitrunMapTileOpenFloorIronStairsLeft
+  "5": BitrunMapTileEffectMappingHelpersBurntFloor
+  "6": BitrunMapTileOpenFloorPlating
+  "7": BitrunMapTileOpenFloorCatwalkFloorIron
+  "8": BitrunMapTileOpenFloorIronWhite
+  "9": BitrunMapTileOpenFloorIronCafeteria
+  "10": BitrunMapTileOpenFloorIronStairsRight
+  "11": BitrunMapTileOpenFloorGrass
+  "12": BitrunMapTileOpenFloor
   "13": FloorAsteroidSand
   "14": FloorGreenCircuit
   "15": FloorHull
@@ -86,7 +86,7 @@ entities:
               version: 2
               nodes:
               - node:
-                  id: BitrunDecal00fbb4ffe948
+                  id: BitrunMapDecalEffectDecalCleanableBloodStateFloor1
                 decals:
                   "15": 12,4
                   "97": 3,17
@@ -96,11 +96,11 @@ entities:
                   "260": 26,36
                   "267": 14,39
               - node:
-                  id: BitrunDecal0915b6cfd0a4
+                  id: BitrunMapDecalStructureFloraBushFullgrass
                 decals:
                   "48": 4,11
               - node:
-                  id: BitrunDecal0d2658f34df4
+                  id: BitrunMapDecalEffectDecalCleanableDirtDust
                 decals:
                   "40": 14,6
                   "68": 21,12
@@ -132,7 +132,7 @@ entities:
                   "250": 18,35
                   "252": 21,35
               - node:
-                  id: BitrunDecal2535797f6e64
+                  id: BitrunMapDecalEffectTurfDecalTrimlineRed
                 decals:
                   "50": 12,11
                   "51": 12,11
@@ -230,32 +230,32 @@ entities:
                   "238": 33,32
                   "239": 34,32
               - node:
-                  id: BitrunDecal5066b6da39fb
+                  id: BitrunMapDecalEffectTurfDecalDelivery
                 decals:
                   "91": 10,16
                   "123": 19,23
                   "127": 14,24
               - node:
-                  id: BitrunDecal8d9a5bea1246
+                  id: BitrunMapDecalStructureFloraBushFlowersYwStyleRandom
                 decals:
                   "49": 4,11
               - node:
-                  id: BitrunDecala3852a93cf03
+                  id: BitrunMapDecalEffectTurfDecalSandVolcanic
                 decals:
                   "33": 11,6
                   "46": 13,7
               - node:
-                  id: BitrunDecala6e81001d0df
+                  id: BitrunMapDecalEffectDecalCleanableBloodGibsRobotDebris
                 decals:
                   "245": 26,34
               - node:
-                  id: BitrunDecalb4169e91243b
+                  id: BitrunMapDecalEffectDecalCleanableBloodSplatter
                 decals:
                   "105": 7,18
                   "184": 27,29
                   "224": 25,32
               - node:
-                  id: BitrunDecalde3e3f0d6787
+                  id: BitrunMapDecalEffectDecalCleanableDirt
                 decals:
                   "3": 12,3
                   "10": 15,3
@@ -298,7 +298,7 @@ entities:
                   "261": 27,36
                   "265": 21,37
               - node:
-                  id: BitrunDecalec96bee04c2f
+                  id: BitrunMapDecalEffectDecalCleanableBloodDrip
                 decals:
                   "163": 26,27
                   "198": 26,30
@@ -391,42 +391,42 @@ entities:
                 decals:
                   "254": 27,35
                   "255": 28,35
-  - proto: AirlockAssemblyEngineeringBitrunArt24b5cec848c4
+  - proto: BitrunMapStructureDoorAssemblyDoorAssemblyEng
     entities:
-      - uid: 731
+      - uid: 735
         components:
           - type: Transform
             parent: 1
             pos: 24.5,34.5
-  - proto: AirlockBitrunArt7c330bf4fec2
+  - proto: BitrunMapMachineryDoorAirlockShuttleGlass
     entities:
       - uid: 99
         components:
           - type: Transform
             parent: 1
             pos: 13.5,7.5
-  - proto: AirlockBitrunArtce7a95876dc6
+  - proto: BitrunMapMachineryDoorAirlockCommand
     entities:
-      - uid: 629
+      - uid: 633
         components:
           - type: Transform
             parent: 1
             pos: 26.5,29.5
           - type: MetaData
             name: "Quartermaster's Office"
-  - proto: AirlockEngineeringBitrunArt1362c877342e
+  - proto: BitrunMapMachineryDoorAirlockEngineeringGlass
     entities:
       - uid: 226
         components:
           - type: Transform
             parent: 1
             pos: 21.5,14.5
-      - uid: 665
+      - uid: 669
         components:
           - type: Transform
             parent: 1
             pos: 16.5,31.5
-  - proto: AirlockExternalBitrunArt7071c1427123
+  - proto: BitrunMapMachineryDoorAirlockExternalRuin
     entities:
       - uid: 112
         components:
@@ -438,110 +438,110 @@ entities:
           - type: Transform
             parent: 1
             pos: 13.5,10.5
-  - proto: AirlockGlassBitrunArt56db5637dc41
+  - proto: BitrunMapMachineryDoorAirlockGlass
     entities:
       - uid: 215
         components:
           - type: Transform
             parent: 1
             pos: 5.5,14.5
-  - proto: AirlockMaintBitrunArtca3c57225053
+  - proto: BitrunMapMachineryDoorAirlockMaintenance
     entities:
-      - uid: 427
+      - uid: 428
         components:
           - type: Transform
             parent: 1
             pos: 9.5,23.5
-      - uid: 704
+      - uid: 708
         components:
           - type: Transform
             parent: 1
             pos: 19.5,33.5
-      - uid: 744
+      - uid: 748
         components:
           - type: Transform
             parent: 1
             pos: 15.5,35.5
-      - uid: 786
+      - uid: 790
         components:
           - type: Transform
             parent: 1
             pos: 13.5,37.5
-  - proto: BedBitrunArtd13dfc5f5628
+  - proto: BitrunMapStructureBedDogbed
     entities:
-      - uid: 519
+      - uid: 523
         components:
           - type: Transform
             parent: 1
             pos: 29.5,26.5
           - type: MetaData
             name: "cat bed"
-      - uid: 583
+      - uid: 587
         components:
           - type: Transform
             parent: 1
             pos: 17.5,28.5
           - type: MetaData
             name: "cat bed"
-  - proto: BitrunArt10927bf36f9dPlacement42ae6e72884d
+  - proto: BitrunMapStructureSignWarningVacuumExternalDirectionalSouthSpriteOffset00
     entities:
       - uid: 168
         components:
           - type: Transform
             parent: 1
             pos: 12.5,10.5
-  - proto: BitrunArt17be0205c0fbPlacement42ae6e72884d
+  - proto: BitrunMapStructureSignPosterContrabandRandomDirectionalEastSpriteOffset00
     entities:
-      - uid: 836
+      - uid: 840
         components:
           - type: Transform
             parent: 1
             pos: 15.5,39.5
-  - proto: BitrunArt1e078f78ec22
+  - proto: BitrunMapMachineryRecyclerDeathtrap
     entities:
-      - uid: 767
+      - uid: 771
         components:
           - type: Transform
             parent: 1
             pos: 19.5,36.5
             rot: -90
-  - proto: BitrunArt1e562b6bd93cPlacement42ae6e72884d
+  - proto: BitrunMapStructureSignPosterRippedDirectionalWestSpriteOffset00
     entities:
       - uid: 202
         components:
           - type: Transform
             parent: 1
             pos: 1.5,13.5
-  - proto: BitrunArt22220860a99b
+  - proto: BitrunMapItemFolderYellowSpriteOffsetDefault
     entities:
       - uid: 271
         components:
           - type: Transform
             parent: 1
             pos: 20.5,16.5
-  - proto: BitrunArt2b4320dc0575Placement42ae6e72884d
+  - proto: BitrunMapStructureBrokenFlooringCornerDirectionalWestSpriteOffset00
     entities:
-      - uid: 667
+      - uid: 671
         components:
           - type: Transform
             parent: 1
             pos: 19.5,31.5
             rot: -90
-  - proto: BitrunArt2e72524b7cb4Placement42ae6e72884d
+  - proto: BitrunMapStructureSignPosterOfficialMothHardhatDirectionalWestSpriteOffset00
     entities:
-      - uid: 586
+      - uid: 590
         components:
           - type: Transform
             parent: 1
             pos: 16.5,28.5
-  - proto: BitrunArt47018c3d8652Placement42ae6e72884d
+  - proto: BitrunMapStructureSignWarningVacuumDirectionalNorthSpriteOffset00
     entities:
-      - uid: 816
+      - uid: 820
         components:
           - type: Transform
             parent: 1
             pos: 17.5,39.5
-  - proto: BitrunArt4e532f3d698cPlacement42ae6e72884d
+  - proto: BitrunMapStructureBrokenFlooringCornerDirectionalEastSpriteOffset00
     entities:
       - uid: 259
         components:
@@ -549,26 +549,14 @@ entities:
             parent: 1
             pos: 11.5,16.5
             rot: 90
-  - proto: BitrunArt50e0594be710Placement42ae6e72884d
+  - proto: BitrunMapStructureSignClockDirectionalNorthSpriteOffset00
     entities:
       - uid: 339
         components:
           - type: Transform
             parent: 1
             pos: 21.5,20.5
-  - proto: BitrunArt52b63f7ea0d0
-    entities:
-      - uid: 100
-        components:
-          - type: Transform
-            parent: 1
-            pos: 13.5,7.5
-      - uid: 840
-        components:
-          - type: Transform
-            parent: 1
-            pos: 18.5,39.5
-  - proto: BitrunArt54fd8071b954Placement42ae6e72884d
+  - proto: BitrunMapStructureBrokenFlooringSideDirectionalNorthSpriteOffset00
     entities:
       - uid: 222
         components:
@@ -576,117 +564,117 @@ entities:
             parent: 1
             pos: 17.5,14.5
             rot: 180
-      - uid: 676
+      - uid: 680
         components:
           - type: Transform
             parent: 1
             pos: 31.5,31.5
             rot: 180
-      - uid: 690
+      - uid: 694
         components:
           - type: Transform
             parent: 1
             pos: 22.5,32.5
             rot: 180
-      - uid: 732
+      - uid: 736
         components:
           - type: Transform
             parent: 1
             pos: 27.5,34.5
             rot: 180
-  - proto: BitrunArt648533854dc1Placement42ae6e72884d
+  - proto: BitrunMapStructureBrokenFlooringCornerDirectionalSouthSpriteOffset00
     entities:
       - uid: 292
         components:
           - type: Transform
             parent: 1
             pos: 16.5,17.5
-      - uid: 749
+      - uid: 753
         components:
           - type: Transform
             parent: 1
             pos: 24.5,35.5
-  - proto: BitrunArt6995b9e38f23Placement42ae6e72884d
+  - proto: BitrunMapStructureSignWarningDoorsDirectionalEastSpriteOffset00
     entities:
-      - uid: 544
+      - uid: 548
         components:
           - type: Transform
             parent: 1
             pos: 16.5,27.5
-  - proto: BitrunArt6f09c8afe0caPlacement42ae6e72884d
+  - proto: BitrunMapStructureSignWarningChemDiamondDirectionalWestSpriteOffset00
     entities:
-      - uid: 529
+      - uid: 533
         components:
           - type: Transform
             parent: 1
             pos: 9.5,27.5
-  - proto: BitrunArt77f264220a49
+  - proto: BitrunMapMachineryMassDriverTrash
     entities:
-      - uid: 818
+      - uid: 822
         components:
           - type: Transform
             parent: 1
             pos: 18.5,38.5
             rot: 180
-  - proto: BitrunArt7c68e1e302afPlacement42ae6e72884d
+  - proto: BitrunMapStructureSignCalendarDirectionalNorthSpriteOffset00
     entities:
       - uid: 326
         components:
           - type: Transform
             parent: 1
             pos: 6.5,20.5
-  - proto: BitrunArt7d942b58cecc
+  - proto: BitrunMapEffectDecalCleanableCobweb
     entities:
-      - uid: 813
+      - uid: 817
         components:
           - type: Transform
             parent: 1
             pos: 16.5,38.5
-  - proto: BitrunArt8082c13a0d17Placement42ae6e72884d
+  - proto: BitrunMapStructureSignWarningDoorsDirectionalNorthSpriteOffset00
     entities:
       - uid: 336
         components:
           - type: Transform
             parent: 1
             pos: 16.5,20.5
-  - proto: BitrunArt999648b8c60aPlacement5bde0d3fe5d9
+  - proto: BitrunMapItemToyPlushMothSpriteOffset0Point093750Point125
     entities:
-      - uid: 584
+      - uid: 588
         components:
           - type: Transform
             parent: 1
             pos: 17.5,28.5
-  - proto: BitrunArt9d01be60ada3
+  - proto: BitrunMapStructureBrokenFlooringSide
     entities:
-      - uid: 455
+      - uid: 456
         components:
           - type: Transform
             parent: 1
             pos: 15.5,24.5
             rot: 90
-      - uid: 458
+      - uid: 459
         components:
           - type: Transform
             parent: 1
             pos: 21.5,24.5
             rot: 90
-      - uid: 526
+      - uid: 530
         components:
           - type: Transform
             parent: 1
             pos: 7.5,27.5
-      - uid: 661
+      - uid: 665
         components:
           - type: Transform
             parent: 1
             pos: 12.5,31.5
             rot: 90
-      - uid: 770
+      - uid: 774
         components:
           - type: Transform
             parent: 1
             pos: 21.5,36.5
-  - proto: BitrunArta83e2bb1b69c
+  - proto: BitrunMapEffectDecalCleanableGeneric
     entities:
       - uid: 53
         components:
@@ -703,12 +691,12 @@ entities:
           - type: Transform
             parent: 1
             pos: 21.5,18.5
-      - uid: 745
+      - uid: 749
         components:
           - type: Transform
             parent: 1
             pos: 17.5,35.5
-  - proto: BitrunArtb0d00159c788
+  - proto: BitrunMapStructureBrokenFlooringCorner
     entities:
       - uid: 389
         components:
@@ -716,58 +704,58 @@ entities:
             parent: 1
             pos: 18.5,21.5
             rot: 180
-      - uid: 450
+      - uid: 451
         components:
           - type: Transform
             parent: 1
             pos: 7.5,24.5
             rot: 90
-      - uid: 548
+      - uid: 552
         components:
           - type: Transform
             parent: 1
             pos: 19.5,27.5
             rot: 90
-      - uid: 580
+      - uid: 584
         components:
           - type: Transform
             parent: 1
             pos: 15.5,28.5
-      - uid: 699
+      - uid: 703
         components:
           - type: Transform
             parent: 1
             pos: 14.5,33.5
-  - proto: BitrunArtb85a934b7400
+  - proto: BitrunMapStructureBrokenFlooringSingular
     entities:
-      - uid: 747
+      - uid: 751
         components:
           - type: Transform
             parent: 1
             pos: 23.5,35.5
             rot: 90
-  - proto: BitrunArtbcad58ed0664Placement42ae6e72884d
+  - proto: BitrunMapStructureSignPosterContrabandRandomDirectionalWestSpriteOffset00
     entities:
-      - uid: 449
+      - uid: 450
         components:
           - type: Transform
             parent: 1
             pos: 4.5,24.5
-  - proto: BitrunArtc5085df2e4f0Placement42ae6e72884d
+  - proto: BitrunMapStructureSignPosterOfficialRandomDirectionalEastSpriteOffset00
     entities:
-      - uid: 592
+      - uid: 596
         components:
           - type: Transform
             parent: 1
             pos: 30.5,28.5
-  - proto: BitrunArtc69978e97c04
+  - proto: BitrunMapItemAmmoCasingShotgunBuckshotSpent
     entities:
-      - uid: 750
+      - uid: 754
         components:
           - type: Transform
             parent: 1
             pos: 24.5,35.5
-  - proto: BitrunArtc99e3ddbd78aPlacement42ae6e72884d
+  - proto: BitrunMapStructureBrokenFlooringCornerDirectionalNorthSpriteOffset00
     entities:
       - uid: 221
         components:
@@ -775,13 +763,13 @@ entities:
             parent: 1
             pos: 14.5,14.5
             rot: 180
-      - uid: 726
+      - uid: 730
         components:
           - type: Transform
             parent: 1
             pos: 18.5,34.5
             rot: 180
-  - proto: BitrunArtc9c180ef2997
+  - proto: BitrunMapEffectTurfDecalCaution
     entities:
       - uid: 194
         components:
@@ -789,7 +777,7 @@ entities:
             parent: 1
             pos: 13.5,12.5
             rot: 180
-  - proto: BitrunArtcb4c58f48b4dPlacement42ae6e72884d
+  - proto: BitrunMapStructureBrokenFlooringPileDirectionalNorthSpriteOffset00
     entities:
       - uid: 311
         components:
@@ -797,81 +785,81 @@ entities:
             parent: 1
             pos: 11.5,18.5
             rot: 180
-      - uid: 727
+      - uid: 731
         components:
           - type: Transform
             parent: 1
             pos: 20.5,34.5
             rot: 180
-  - proto: BitrunArtce18ce64bb2dPlacement42ae6e72884d
+  - proto: BitrunMapStructureSignPosterOfficialSafetyInternalsDirectionalSouthSpriteOffset00
     entities:
       - uid: 190
         components:
           - type: Transform
             parent: 1
             pos: 8.5,11.5
-  - proto: BitrunArtcf792f1cb29aPlacement42ae6e72884d
+  - proto: BitrunMapStructureSignPosterContrabandRandomDirectionalNorthSpriteOffset00
     entities:
-      - uid: 590
+      - uid: 594
         components:
           - type: Transform
             parent: 1
             pos: 20.5,29.5
-  - proto: BitrunArtd49e78d8adb1Placement42ae6e72884d
+  - proto: BitrunMapStructureSignPosterOfficialRandomDirectionalWestSpriteOffset00
     entities:
-      - uid: 478
+      - uid: 481
         components:
           - type: Transform
             parent: 1
             pos: 22.5,25.5
-  - proto: BitrunArtd721ca24ab03Placement53d884170ec3
+  - proto: BitrunMapItemFolderBlueSpriteOffset0Point0625Minus0Point0625
     entities:
       - uid: 272
         components:
           - type: Transform
             parent: 1
             pos: 20.5,16.5
-  - proto: BitrunArtd8f6b1f0b772
+  - proto: BitrunMapStructureFalsewall
     entities:
-      - uid: 587
+      - uid: 591
         components:
           - type: Transform
             parent: 1
             pos: 18.5,28.5
-  - proto: BitrunArte3c66d129dd2Placement42ae6e72884d
+  - proto: BitrunMapStructureSignPosterOfficialCleanlinessDirectionalWestSpriteOffset00
     entities:
       - uid: 282
         components:
           - type: Transform
             parent: 1
             pos: 1.5,17.5
-  - proto: BitrunArtf2086d3fac17
+  - proto: BitrunMapStructureBrokenFlooringPile
     entities:
-      - uid: 448
+      - uid: 449
         components:
           - type: Transform
             parent: 1
             pos: 5.5,24.5
             rot: 180
-      - uid: 474
+      - uid: 476
         components:
           - type: Transform
             parent: 1
             pos: 18.5,25.5
             rot: 90
-      - uid: 500
+      - uid: 503
         components:
           - type: Transform
             parent: 1
             pos: 12.5,26.5
             rot: 180
-      - uid: 652
+      - uid: 656
         components:
           - type: Transform
             parent: 1
             pos: 19.5,30.5
             rot: 180
-      - uid: 697
+      - uid: 701
         components:
           - type: Transform
             parent: 1
@@ -879,84 +867,84 @@ entities:
             rot: 90
   - proto: BitrunAvatarSpawn
     entities:
-      - uid: 906
+      - uid: 910
         components:
           - type: Transform
             parent: 1
             pos: 13.5,3.5
-      - uid: 907
+      - uid: 911
         components:
           - type: Transform
             parent: 1
             pos: 14.5,3.5
-      - uid: 908
+      - uid: 912
         components:
           - type: Transform
             parent: 1
             pos: 15.5,3.5
   - proto: BitrunCacheGoal
     entities:
-      - uid: 913
+      - uid: 917
         components:
           - type: Transform
             parent: 1
             pos: 11.5,3.5
-      - uid: 914
+      - uid: 918
         components:
           - type: Transform
             parent: 1
             pos: 12.5,3.5
   - proto: BitrunCacheSpawn
     entities:
-      - uid: 909
+      - uid: 913
         components:
           - type: Transform
             parent: 1
             pos: 8.5,27.5
-      - uid: 910
+      - uid: 914
         components:
           - type: Transform
             parent: 1
             pos: 20.5,28.5
-      - uid: 911
+      - uid: 915
         components:
           - type: Transform
             parent: 1
             pos: 28.5,36.5
-      - uid: 912
+      - uid: 916
         components:
           - type: Transform
             parent: 1
             pos: 29.5,24.5
   - proto: BitrunExit
     entities:
-      - uid: 915
+      - uid: 919
         components:
           - type: Transform
             parent: 1
             pos: 13.5,3.5
-      - uid: 916
+      - uid: 920
         components:
           - type: Transform
             parent: 1
             pos: 14.5,3.5
-      - uid: 917
+      - uid: 921
         components:
           - type: Transform
             parent: 1
             pos: 15.5,3.5
-  - proto: BitrunFakeDoorBitrunArt2014606e8706
+  - proto: BitrunMapClosedIndestructibleFakedoor
     entities:
-      - uid: 722
+      - uid: 726
         components:
           - type: Transform
             parent: 1
             pos: 11.5,34.5
           - type: MetaData
             name: "Stairwell Access"
-  - proto: BitrunFakeDoorBitrunArt612b0ddcb040
+  - proto: BitrunMapClosedIndestructibleFakedoorMaintenance
     entities:
-      - uid: 641
+      - uid: 645
         components:
           - type: Transform
             parent: 1
@@ -972,27 +960,206 @@ entities:
             pos: 13.5,22.5
           - type: MetaData
             name: "mob_segment"
-      - uid: 469
+      - uid: 470
         components:
           - type: Transform
             parent: 1
             pos: 7.5,25.5
           - type: MetaData
             name: "mob_segment"
-      - uid: 475
+      - uid: 477
         components:
           - type: Transform
             parent: 1
             pos: 19.5,25.5
           - type: MetaData
             name: "mob_segment"
-      - uid: 502
+      - uid: 505
         components:
           - type: Transform
             parent: 1
             pos: 13.5,26.5
           - type: MetaData
             name: "mob_segment"
+  - proto: BitrunMapStructureFansTiny
+    entities:
+      - uid: 100
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,7.5
+      - uid: 844
+        components:
+          - type: Transform
+            parent: 1
+            pos: 18.5,39.5
+  - proto: BitrunMapMobLivingBasicHivebotRange
+    entities:
+      - uid: 409
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,22.5
+      - uid: 506
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,26.5
+  - proto: BitrunMapMobLivingBasicHivebotStrong
+    entities:
+      - uid: 471
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,25.5
+      - uid: 478
+        components:
+          - type: Transform
+            parent: 1
+            pos: 19.5,25.5
+      - uid: 783
+        components:
+          - type: Transform
+            parent: 1
+            pos: 27.5,36.5
+  - proto: BitrunMapMobLivingBasicPetCatSpace
+    entities:
+      - uid: 586
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,28.5
+  - proto: BitrunSourceObjEffectSpawnerRandomTrashGarbage
+    entities:
+      - uid: 236
+        components:
+          - type: Transform
+            parent: 234
+            pos: 0,0
+      - uid: 327
+        components:
+          - type: Transform
+            parent: 1
+            pos: 6.5,19.5
+  - proto: BitrunMapItemAmmoCasingShotgunBuckshot
+    entities:
+      - uid: 780
+        components:
+          - type: Transform
+            parent: 779
+            pos: 0,0
+      - uid: 781
+        components:
+          - type: Transform
+            parent: 779
+            pos: 0,0
+      - uid: 782
+        components:
+          - type: Transform
+            parent: 779
+            pos: 0,0
+  - proto: BitrunMapItemClothingMaskGas
+    entities:
+      - uid: 64
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,4.5
+  - proto: BitrunMapItemGunBallisticRevolverSpriteOffsetDefault
+    entities:
+      - uid: 260
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,16.5
+  - proto: BitrunMapItemGunBallisticShotgunLethalSpriteOffsetDefault
+    entities:
+      - uid: 777
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,36.5
+  - proto: BitrunMapItemStorageToolboxEmergencySpriteOffsetDefault
+    entities:
+      - uid: 88
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,6.5
+  - proto: BitrunMapItemTankInternalsEmergencyOxygenSpriteOffset0Point093750
+    entities:
+      - uid: 63
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,4.5
+  - proto: BitrunMapStructureClosetCrateBin
+    entities:
+      - uid: 234
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,15.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [235, 236]
+  - proto: BitrunMapStructureClosetCrate
+    entities:
+      - uid: 613
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,29.5
+  - proto: BitrunMapStructureClosetCratePreopen
+    entities:
+      - uid: 242
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,15.5
+      - uid: 290
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,17.5
+      - uid: 469
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,25.5
+      - uid: 541
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,27.5
+      - uid: 802
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,37.5
+  - proto: BitrunMapStructureClosetSecureClosetFreezerEmptyOpen
+    entities:
+      - uid: 252
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,16.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [250, 251]
+  - proto: BitrunMapStructureClosetSecureClosetTac
+    entities:
+      - uid: 779
+        components:
+          - type: Transform
+            parent: 1
+            pos: 25.5,36.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [780, 781, 782]
   - proto: BitrunVirtualWall
     entities:
       - uid: 2
@@ -1435,619 +1602,619 @@ entities:
           - type: Transform
             parent: 1
             pos: 3.5,22.5
-      - uid: 414
-        components:
-          - type: Transform
-            parent: 1
-            pos: 23.5,22.5
       - uid: 415
         components:
           - type: Transform
             parent: 1
-            pos: 24.5,22.5
+            pos: 23.5,22.5
       - uid: 416
         components:
           - type: Transform
             parent: 1
-            pos: 25.5,22.5
+            pos: 24.5,22.5
       - uid: 417
         components:
           - type: Transform
             parent: 1
-            pos: 26.5,22.5
+            pos: 25.5,22.5
       - uid: 418
         components:
           - type: Transform
             parent: 1
-            pos: 27.5,22.5
+            pos: 26.5,22.5
       - uid: 419
         components:
           - type: Transform
             parent: 1
-            pos: 28.5,22.5
+            pos: 27.5,22.5
       - uid: 420
         components:
           - type: Transform
             parent: 1
-            pos: 29.5,22.5
+            pos: 28.5,22.5
       - uid: 421
         components:
           - type: Transform
             parent: 1
-            pos: 30.5,22.5
+            pos: 29.5,22.5
       - uid: 422
         components:
           - type: Transform
             parent: 1
-            pos: 31.5,22.5
+            pos: 30.5,22.5
       - uid: 423
         components:
           - type: Transform
             parent: 1
-            pos: 3.5,23.5
-      - uid: 445
+            pos: 31.5,22.5
+      - uid: 424
         components:
           - type: Transform
             parent: 1
-            pos: 31.5,23.5
+            pos: 3.5,23.5
       - uid: 446
         components:
           - type: Transform
             parent: 1
-            pos: 3.5,24.5
-      - uid: 464
+            pos: 31.5,23.5
+      - uid: 447
         components:
           - type: Transform
             parent: 1
-            pos: 31.5,24.5
+            pos: 3.5,24.5
       - uid: 465
         components:
           - type: Transform
             parent: 1
+            pos: 31.5,24.5
+      - uid: 466
+        components:
+          - type: Transform
+            parent: 1
             pos: 3.5,25.5
-      - uid: 487
+      - uid: 490
         components:
           - type: Transform
             parent: 1
             pos: 31.5,25.5
-      - uid: 488
+      - uid: 491
         components:
           - type: Transform
             parent: 1
             pos: 3.5,26.5
-      - uid: 521
+      - uid: 525
         components:
           - type: Transform
             parent: 1
             pos: 31.5,26.5
-      - uid: 522
+      - uid: 526
         components:
           - type: Transform
             parent: 1
             pos: 3.5,27.5
-      - uid: 560
+      - uid: 564
         components:
           - type: Transform
             parent: 1
             pos: 31.5,27.5
-      - uid: 561
+      - uid: 565
         components:
           - type: Transform
             parent: 1
             pos: 3.5,28.5
-      - uid: 594
-        components:
-          - type: Transform
-            parent: 1
-            pos: 31.5,28.5
-      - uid: 595
-        components:
-          - type: Transform
-            parent: 1
-            pos: 32.5,28.5
-      - uid: 596
-        components:
-          - type: Transform
-            parent: 1
-            pos: 33.5,28.5
-      - uid: 597
-        components:
-          - type: Transform
-            parent: 1
-            pos: 34.5,28.5
       - uid: 598
         components:
           - type: Transform
             parent: 1
-            pos: 3.5,29.5
+            pos: 31.5,28.5
       - uid: 599
         components:
           - type: Transform
             parent: 1
-            pos: 4.5,29.5
+            pos: 32.5,28.5
       - uid: 600
         components:
           - type: Transform
             parent: 1
-            pos: 5.5,29.5
+            pos: 33.5,28.5
       - uid: 601
         components:
           - type: Transform
             parent: 1
-            pos: 6.5,29.5
+            pos: 34.5,28.5
       - uid: 602
         components:
           - type: Transform
             parent: 1
-            pos: 7.5,29.5
+            pos: 3.5,29.5
       - uid: 603
         components:
           - type: Transform
             parent: 1
-            pos: 8.5,29.5
+            pos: 4.5,29.5
       - uid: 604
         components:
           - type: Transform
             parent: 1
+            pos: 5.5,29.5
+      - uid: 605
+        components:
+          - type: Transform
+            parent: 1
+            pos: 6.5,29.5
+      - uid: 606
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,29.5
+      - uid: 607
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,29.5
+      - uid: 608
+        components:
+          - type: Transform
+            parent: 1
             pos: 9.5,29.5
-      - uid: 637
+      - uid: 641
         components:
           - type: Transform
             parent: 1
             pos: 32.5,29.5
-      - uid: 639
+      - uid: 643
         components:
           - type: Transform
             parent: 1
             pos: 34.5,29.5
-      - uid: 640
+      - uid: 644
         components:
           - type: Transform
             parent: 1
             pos: 9.5,30.5
-      - uid: 658
+      - uid: 662
         components:
           - type: Transform
             parent: 1
             pos: 34.5,30.5
-      - uid: 659
+      - uid: 663
         components:
           - type: Transform
             parent: 1
             pos: 9.5,31.5
-      - uid: 678
+      - uid: 682
         components:
           - type: Transform
             parent: 1
             pos: 33.5,31.5
-      - uid: 679
+      - uid: 683
         components:
           - type: Transform
             parent: 1
             pos: 34.5,31.5
-      - uid: 680
+      - uid: 684
         components:
           - type: Transform
             parent: 1
             pos: 35.5,31.5
-      - uid: 681
+      - uid: 685
         components:
           - type: Transform
             parent: 1
             pos: 9.5,32.5
-      - uid: 693
+      - uid: 697
         components:
           - type: Transform
             parent: 1
             pos: 35.5,32.5
-      - uid: 694
+      - uid: 698
         components:
           - type: Transform
             parent: 1
             pos: 9.5,33.5
-      - uid: 718
+      - uid: 722
         components:
           - type: Transform
             parent: 1
             pos: 34.5,33.5
-      - uid: 719
+      - uid: 723
         components:
           - type: Transform
             parent: 1
             pos: 35.5,33.5
-      - uid: 720
+      - uid: 724
         components:
           - type: Transform
             parent: 1
             pos: 9.5,34.5
-      - uid: 721
+      - uid: 725
         components:
           - type: Transform
             parent: 1
             pos: 10.5,34.5
-      - uid: 735
-        components:
-          - type: Transform
-            parent: 1
-            pos: 30.5,34.5
-      - uid: 736
-        components:
-          - type: Transform
-            parent: 1
-            pos: 31.5,34.5
-      - uid: 737
-        components:
-          - type: Transform
-            parent: 1
-            pos: 32.5,34.5
-      - uid: 738
-        components:
-          - type: Transform
-            parent: 1
-            pos: 33.5,34.5
       - uid: 739
         components:
           - type: Transform
             parent: 1
-            pos: 34.5,34.5
+            pos: 30.5,34.5
       - uid: 740
         components:
           - type: Transform
             parent: 1
+            pos: 31.5,34.5
+      - uid: 741
+        components:
+          - type: Transform
+            parent: 1
+            pos: 32.5,34.5
+      - uid: 742
+        components:
+          - type: Transform
+            parent: 1
+            pos: 33.5,34.5
+      - uid: 743
+        components:
+          - type: Transform
+            parent: 1
+            pos: 34.5,34.5
+      - uid: 744
+        components:
+          - type: Transform
+            parent: 1
             pos: 10.5,35.5
-      - uid: 754
+      - uid: 758
         components:
           - type: Transform
             parent: 1
             pos: 30.5,35.5
-      - uid: 755
+      - uid: 759
         components:
           - type: Transform
             parent: 1
             pos: 10.5,36.5
-      - uid: 782
+      - uid: 786
         components:
           - type: Transform
             parent: 1
             pos: 30.5,36.5
-      - uid: 783
+      - uid: 787
         components:
           - type: Transform
             parent: 1
             pos: 10.5,37.5
-      - uid: 807
+      - uid: 811
         components:
           - type: Transform
             parent: 1
             pos: 30.5,37.5
-      - uid: 808
+      - uid: 812
         components:
           - type: Transform
             parent: 1
             pos: 10.5,38.5
-      - uid: 822
-        components:
-          - type: Transform
-            parent: 1
-            pos: 23.5,38.5
-      - uid: 823
-        components:
-          - type: Transform
-            parent: 1
-            pos: 24.5,38.5
-      - uid: 824
-        components:
-          - type: Transform
-            parent: 1
-            pos: 25.5,38.5
-      - uid: 825
-        components:
-          - type: Transform
-            parent: 1
-            pos: 26.5,38.5
       - uid: 826
         components:
           - type: Transform
             parent: 1
-            pos: 27.5,38.5
+            pos: 23.5,38.5
       - uid: 827
         components:
           - type: Transform
             parent: 1
-            pos: 28.5,38.5
+            pos: 24.5,38.5
       - uid: 828
         components:
           - type: Transform
             parent: 1
-            pos: 29.5,38.5
+            pos: 25.5,38.5
       - uid: 829
         components:
           - type: Transform
             parent: 1
-            pos: 30.5,38.5
+            pos: 26.5,38.5
       - uid: 830
         components:
           - type: Transform
             parent: 1
+            pos: 27.5,38.5
+      - uid: 831
+        components:
+          - type: Transform
+            parent: 1
+            pos: 28.5,38.5
+      - uid: 832
+        components:
+          - type: Transform
+            parent: 1
+            pos: 29.5,38.5
+      - uid: 833
+        components:
+          - type: Transform
+            parent: 1
+            pos: 30.5,38.5
+      - uid: 834
+        components:
+          - type: Transform
+            parent: 1
             pos: 10.5,39.5
-      - uid: 848
+      - uid: 852
         components:
           - type: Transform
             parent: 1
             pos: 24.5,39.5
-      - uid: 849
+      - uid: 853
         components:
           - type: Transform
             parent: 1
             pos: 25.5,39.5
-      - uid: 850
+      - uid: 854
         components:
           - type: Transform
             parent: 1
             pos: 10.5,40.5
-      - uid: 858
-        components:
-          - type: Transform
-            parent: 1
-            pos: 25.5,40.5
-      - uid: 859
-        components:
-          - type: Transform
-            parent: 1
-            pos: 26.5,40.5
-      - uid: 860
-        components:
-          - type: Transform
-            parent: 1
-            pos: 10.5,41.5
-      - uid: 861
-        components:
-          - type: Transform
-            parent: 1
-            pos: 11.5,41.5
       - uid: 862
         components:
           - type: Transform
             parent: 1
-            pos: 12.5,41.5
+            pos: 25.5,40.5
       - uid: 863
         components:
           - type: Transform
             parent: 1
-            pos: 14.5,41.5
+            pos: 26.5,40.5
       - uid: 864
         components:
           - type: Transform
             parent: 1
+            pos: 10.5,41.5
+      - uid: 865
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,41.5
+      - uid: 866
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,41.5
+      - uid: 867
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,41.5
+      - uid: 868
+        components:
+          - type: Transform
+            parent: 1
             pos: 15.5,41.5
-      - uid: 871
+      - uid: 875
         components:
           - type: Transform
             parent: 1
             pos: 26.5,41.5
-      - uid: 872
+      - uid: 876
         components:
           - type: Transform
             parent: 1
             pos: 12.5,42.5
-      - uid: 873
+      - uid: 877
         components:
           - type: Transform
             parent: 1
             pos: 13.5,42.5
-      - uid: 874
-        components:
-          - type: Transform
-            parent: 1
-            pos: 14.5,42.5
       - uid: 878
         components:
           - type: Transform
             parent: 1
-            pos: 26.5,42.5
-      - uid: 879
-        components:
-          - type: Transform
-            parent: 1
-            pos: 14.5,43.5
+            pos: 14.5,42.5
       - uid: 882
         components:
           - type: Transform
             parent: 1
-            pos: 25.5,43.5
+            pos: 26.5,42.5
       - uid: 883
         components:
           - type: Transform
             parent: 1
-            pos: 26.5,43.5
-      - uid: 884
+            pos: 14.5,43.5
+      - uid: 886
         components:
           - type: Transform
             parent: 1
-            pos: 14.5,44.5
+            pos: 25.5,43.5
       - uid: 887
         components:
           - type: Transform
             parent: 1
-            pos: 25.5,44.5
+            pos: 26.5,43.5
       - uid: 888
         components:
           - type: Transform
             parent: 1
-            pos: 14.5,45.5
+            pos: 14.5,44.5
       - uid: 891
         components:
           - type: Transform
             parent: 1
-            pos: 25.5,45.5
+            pos: 25.5,44.5
       - uid: 892
         components:
           - type: Transform
             parent: 1
-            pos: 14.5,46.5
-      - uid: 893
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,46.5
-      - uid: 894
-        components:
-          - type: Transform
-            parent: 1
-            pos: 16.5,46.5
+            pos: 14.5,45.5
       - uid: 895
         components:
           - type: Transform
             parent: 1
-            pos: 17.5,46.5
+            pos: 25.5,45.5
       - uid: 896
         components:
           - type: Transform
             parent: 1
-            pos: 18.5,46.5
+            pos: 14.5,46.5
       - uid: 897
         components:
           - type: Transform
             parent: 1
-            pos: 23.5,46.5
+            pos: 15.5,46.5
       - uid: 898
         components:
           - type: Transform
             parent: 1
-            pos: 24.5,46.5
+            pos: 16.5,46.5
       - uid: 899
         components:
           - type: Transform
             parent: 1
-            pos: 25.5,46.5
+            pos: 17.5,46.5
       - uid: 900
         components:
           - type: Transform
             parent: 1
-            pos: 18.5,47.5
+            pos: 18.5,46.5
       - uid: 901
         components:
           - type: Transform
             parent: 1
-            pos: 19.5,47.5
+            pos: 23.5,46.5
       - uid: 902
         components:
           - type: Transform
             parent: 1
-            pos: 20.5,47.5
+            pos: 24.5,46.5
       - uid: 903
         components:
           - type: Transform
             parent: 1
-            pos: 21.5,47.5
+            pos: 25.5,46.5
       - uid: 904
         components:
           - type: Transform
             parent: 1
-            pos: 22.5,47.5
+            pos: 18.5,47.5
       - uid: 905
         components:
           - type: Transform
             parent: 1
+            pos: 19.5,47.5
+      - uid: 906
+        components:
+          - type: Transform
+            parent: 1
+            pos: 20.5,47.5
+      - uid: 907
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,47.5
+      - uid: 908
+        components:
+          - type: Transform
+            parent: 1
+            pos: 22.5,47.5
+      - uid: 909
+        components:
+          - type: Transform
+            parent: 1
             pos: 23.5,47.5
-  - proto: CarpetBlueBitrunArt001ff06ce051
+  - proto: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus74
+    entities:
+      - uid: 561
+        components:
+          - type: Transform
+            parent: 1
+            pos: 28.5,27.5
+  - proto: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus21
+    entities:
+      - uid: 482
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,25.5
+  - proto: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus137
+    entities:
+      - uid: 487
+        components:
+          - type: Transform
+            parent: 1
+            pos: 28.5,25.5
+  - proto: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus63
+    entities:
+      - uid: 519
+        components:
+          - type: Transform
+            parent: 1
+            pos: 27.5,26.5
+  - proto: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus207
+    entities:
+      - uid: 514
+        components:
+          - type: Transform
+            parent: 1
+            pos: 25.5,26.5
+  - proto: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus38
     entities:
       - uid: 557
         components:
           - type: Transform
             parent: 1
-            pos: 28.5,27.5
-  - proto: CarpetBlueBitrunArt21beb807e445
-    entities:
-      - uid: 479
-        components:
-          - type: Transform
-            parent: 1
-            pos: 24.5,25.5
-  - proto: CarpetBlueBitrunArt285f2fb5627e
-    entities:
-      - uid: 484
-        components:
-          - type: Transform
-            parent: 1
-            pos: 28.5,25.5
-  - proto: CarpetBlueBitrunArt38240a2db7dc
-    entities:
-      - uid: 515
-        components:
-          - type: Transform
-            parent: 1
-            pos: 27.5,26.5
-  - proto: CarpetBlueBitrunArt4bf4b7a700ac
-    entities:
-      - uid: 510
-        components:
-          - type: Transform
-            parent: 1
-            pos: 25.5,26.5
-  - proto: CarpetBlueBitrunArt5960439d98ee
-    entities:
-      - uid: 553
-        components:
-          - type: Transform
-            parent: 1
             pos: 24.5,27.5
-  - proto: CarpetBlueBitrunArt840163e44a74
+  - proto: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus157
     entities:
-      - uid: 480
-        components:
-          - type: Transform
-            parent: 1
-            pos: 25.5,25.5
-      - uid: 481
-        components:
-          - type: Transform
-            parent: 1
-            pos: 26.5,25.5
       - uid: 483
         components:
           - type: Transform
             parent: 1
+            pos: 25.5,25.5
+      - uid: 484
+        components:
+          - type: Transform
+            parent: 1
+            pos: 26.5,25.5
+      - uid: 486
+        components:
+          - type: Transform
+            parent: 1
             pos: 27.5,25.5
-  - proto: CarpetBlueBitrunArt90d6c0e85b20
+  - proto: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus110
     entities:
-      - uid: 554
+      - uid: 558
         components:
           - type: Transform
             parent: 1
             pos: 25.5,27.5
-      - uid: 555
+      - uid: 559
         components:
           - type: Transform
             parent: 1
             pos: 26.5,27.5
-      - uid: 556
+      - uid: 560
         components:
           - type: Transform
             parent: 1
             pos: 27.5,27.5
-  - proto: CarpetBlueBitrunArtc42340b18973
+  - proto: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus12
     entities:
-      - uid: 512
+      - uid: 516
         components:
           - type: Transform
             parent: 1
             pos: 26.5,26.5
-  - proto: CarpetBlueBitrunArtce2264015648
+  - proto: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus203
     entities:
-      - uid: 518
+      - uid: 522
         components:
           - type: Transform
             parent: 1
             pos: 28.5,26.5
-  - proto: CarpetBlueBitrunArte3107f5213fd
+  - proto: BitrunMapOpenFloorCarpetRoyalblueIconStateCarpetRoyalblueMinus55
     entities:
-      - uid: 509
+      - uid: 513
         components:
           - type: Transform
             parent: 1
             pos: 24.5,26.5
-  - proto: CarpetOrangeBitrunArta920aaf887cf
+  - proto: BitrunMapOpenFloorCarpetOrange
     entities:
       - uid: 153
         components:
@@ -2079,72 +2246,72 @@ entities:
           - type: Transform
             parent: 1
             pos: 3.5,13.5
-  - proto: CatwalkBitrunArt976abd2f052b
+  - proto: BitrunMapStructureLatticeCatwalk
     entities:
-      - uid: 533
+      - uid: 537
         components:
           - type: Transform
             parent: 1
             pos: 12.5,27.5
           - type: MetaData
             name: "industrial lift"
-      - uid: 536
+      - uid: 540
         components:
           - type: Transform
             parent: 1
             pos: 13.5,27.5
           - type: MetaData
             name: "industrial lift"
-      - uid: 540
+      - uid: 544
         components:
           - type: Transform
             parent: 1
             pos: 14.5,27.5
           - type: MetaData
             name: "industrial lift"
-      - uid: 572
+      - uid: 576
         components:
           - type: Transform
             parent: 1
             pos: 12.5,28.5
           - type: MetaData
             name: "industrial lift"
-      - uid: 574
+      - uid: 578
         components:
           - type: Transform
             parent: 1
             pos: 13.5,28.5
           - type: MetaData
             name: "industrial lift"
-      - uid: 577
+      - uid: 581
         components:
           - type: Transform
             parent: 1
             pos: 14.5,28.5
           - type: MetaData
             name: "industrial lift"
-      - uid: 608
+      - uid: 612
         components:
           - type: Transform
             parent: 1
             pos: 12.5,29.5
           - type: MetaData
             name: "industrial lift"
-      - uid: 611
+      - uid: 615
         components:
           - type: Transform
             parent: 1
             pos: 13.5,29.5
           - type: MetaData
             name: "industrial lift"
-      - uid: 613
+      - uid: 617
         components:
           - type: Transform
             parent: 1
             pos: 14.5,29.5
           - type: MetaData
             name: "industrial lift"
-  - proto: ChairBitrunArt08bf1d74cd8fPlacement42ae6e72884d
+  - proto: BitrunMapStructureChairStoolBarDirectionalEastSpriteOffset00
     entities:
       - uid: 254
         components:
@@ -2164,7 +2331,7 @@ entities:
             parent: 1
             pos: 5.5,18.5
             rot: -90
-  - proto: ChairBitrunArt1c2c6d65d1b0
+  - proto: BitrunMapStructureChairSofaCorpRight
     entities:
       - uid: 156
         components:
@@ -2172,7 +2339,7 @@ entities:
             parent: 1
             pos: 3.5,11.5
             rot: 180
-  - proto: ChairBitrunArtabf873ac75a8
+  - proto: BitrunMapStructureChairPlastic
     entities:
       - uid: 174
         components:
@@ -2186,12 +2353,12 @@ entities:
             parent: 1
             pos: 22.5,11.5
             rot: -90
-      - uid: 810
+      - uid: 814
         components:
           - type: Transform
             parent: 1
             pos: 12.5,38.5
-  - proto: ChairBitrunArtb644adabd1df
+  - proto: BitrunMapStructureChairSofaCorpLeft
     entities:
       - uid: 154
         components:
@@ -2199,7 +2366,7 @@ entities:
             parent: 1
             pos: 2.5,11.5
             rot: 180
-  - proto: ChairOfficeDarkBitrunArte95690fce3d2
+  - proto: BitrunMapStructureChairOfficeSpriteOffsetDefault
     entities:
       - uid: 297
         components:
@@ -2207,20 +2374,13 @@ entities:
             parent: 1
             pos: 21.5,17.5
             rot: -90
-      - uid: 482
+      - uid: 485
         components:
           - type: Transform
             parent: 1
             pos: 26.5,25.5
             rot: -90
-  - proto: ClothingMaskGasBitrunArt430e0aab4367
-    entities:
-      - uid: 64
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,4.5
-  - proto: ComfyChairBitrunArtabcf3ff781d5
+  - proto: BitrunMapStructureChairComfyShuttle
     entities:
       - uid: 73
         components:
@@ -2228,7 +2388,7 @@ entities:
             parent: 1
             pos: 14.5,5.5
             rot: 90
-  - proto: ComputerFrameBitrunArt07e49a39a415
+  - proto: BitrunMapStructureFrameComputerSpriteOffsetDefault
     entities:
       - uid: 295
         components:
@@ -2236,12 +2396,12 @@ entities:
             parent: 1
             pos: 20.5,17.5
             rot: 90
-      - uid: 513
+      - uid: 517
         components:
           - type: Transform
             parent: 1
             pos: 26.5,26.5
-  - proto: ComputerTabletopCommsBitrunArtb2a50941dd3f
+  - proto: BitrunMapMachineryComputerSpriteLayers3StateShuttleSpriteOffsetDefault
     entities:
       - uid: 74
         components:
@@ -2251,121 +2411,76 @@ entities:
             rot: -90
           - type: MetaData
             name: "shuttle console"
-  - proto: ConveyorBeltBitrunArt11700d6d5dc7
+  - proto: BitrunMapMachineryConveyorAutoSpriteLayers0StateConveyorMap
     entities:
-      - uid: 766
+      - uid: 770
         components:
           - type: Transform
             parent: 1
             pos: 18.5,36.5
             rot: 90
-      - uid: 768
+      - uid: 772
         components:
           - type: Transform
             parent: 1
             pos: 19.5,36.5
             rot: 90
-      - uid: 789
+      - uid: 793
         components:
           - type: Transform
             parent: 1
             pos: 16.5,37.5
             rot: 180
-      - uid: 791
+      - uid: 795
         components:
           - type: Transform
             parent: 1
             pos: 17.5,37.5
-      - uid: 794
+      - uid: 798
         components:
           - type: Transform
             parent: 1
             pos: 18.5,37.5
             rot: -135
-      - uid: 795
+      - uid: 799
         components:
           - type: Transform
             parent: 1
             pos: 19.5,37.5
             rot: -90
-      - uid: 812
+      - uid: 816
         components:
           - type: Transform
             parent: 1
             pos: 16.5,38.5
             rot: 135
-      - uid: 814
+      - uid: 818
         components:
           - type: Transform
             parent: 1
             pos: 17.5,38.5
             rot: 45
-  - proto: ConveyorBeltBitrunArt8452a9a3f9da
+  - proto: BitrunMapMachineryConveyorAutoSpriteLayers0StateConveyorMapInverted
     entities:
-      - uid: 764
+      - uid: 768
         components:
           - type: Transform
             parent: 1
             pos: 17.5,36.5
             rot: -135
-      - uid: 769
+      - uid: 773
         components:
           - type: Transform
             parent: 1
             pos: 20.5,36.5
             rot: -45
-      - uid: 796
+      - uid: 800
         components:
           - type: Transform
             parent: 1
             pos: 20.5,37.5
             rot: 45
-  - proto: CrateGenericSteelBitrunArta18a0badb2d7
-    entities:
-      - uid: 234
-        components:
-          - type: Transform
-            parent: 1
-            pos: 2.5,15.5
-          - type: ContainerContainer
-            containers:
-              entity_storage: !type:Container
-                ents: [235, 236]
-  - proto: CrateGenericSteelBitrunArtef78f2373e03
-    entities:
-      - uid: 242
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,15.5
-      - uid: 290
-        components:
-          - type: Transform
-            parent: 1
-            pos: 10.5,17.5
-      - uid: 468
-        components:
-          - type: Transform
-            parent: 1
-            pos: 5.5,25.5
-      - uid: 537
-        components:
-          - type: Transform
-            parent: 1
-            pos: 13.5,27.5
-      - uid: 798
-        components:
-          - type: Transform
-            parent: 1
-            pos: 21.5,37.5
-  - proto: CrateGenericSteelBitrunArtf8451a33dd0b
-    entities:
-      - uid: 609
-        components:
-          - type: Transform
-            parent: 1
-            pos: 12.5,29.5
-  - proto: DisposalBendBitrunArt56ea86fc8d81
+  - proto: BitrunMapStructureDisposalpipeSegmentParentDisposalBend
     entities:
       - uid: 192
         components:
@@ -2419,52 +2534,52 @@ entities:
             parent: 1
             pos: 22.5,19.5
             rot: 90
-      - uid: 428
+      - uid: 429
         components:
           - type: Transform
             parent: 1
             pos: 11.5,23.5
             rot: 90
-      - uid: 433
+      - uid: 434
         components:
           - type: Transform
             parent: 1
             pos: 15.5,23.5
             rot: -90
-      - uid: 490
+      - uid: 493
         components:
           - type: Transform
             parent: 1
             pos: 5.5,26.5
             rot: 90
-      - uid: 501
+      - uid: 504
         components:
           - type: Transform
             parent: 1
             pos: 13.5,26.5
-      - uid: 606
+      - uid: 610
         components:
           - type: Transform
             parent: 1
             pos: 11.5,29.5
-      - uid: 662
+      - uid: 666
         components:
           - type: Transform
             parent: 1
             pos: 13.5,31.5
             rot: 180
-      - uid: 664
+      - uid: 668
         components:
           - type: Transform
             parent: 1
             pos: 15.5,31.5
-      - uid: 757
+      - uid: 761
         components:
           - type: Transform
             parent: 1
             pos: 13.5,36.5
             rot: 90
-  - proto: DisposalPipeBitrunArt551d8ec6792c
+  - proto: BitrunMapStructureDisposalpipeSegmentParentDisposalPipe
     entities:
       - uid: 182
         components:
@@ -2619,221 +2734,221 @@ entities:
           - type: Transform
             parent: 1
             pos: 11.5,22.5
-      - uid: 412
+      - uid: 413
         components:
           - type: Transform
             parent: 1
             pos: 20.5,22.5
-      - uid: 429
+      - uid: 430
         components:
           - type: Transform
             parent: 1
             pos: 12.5,23.5
             rot: 90
-      - uid: 431
+      - uid: 432
         components:
           - type: Transform
             parent: 1
             pos: 13.5,23.5
             rot: 90
-      - uid: 432
+      - uid: 433
         components:
           - type: Transform
             parent: 1
             pos: 14.5,23.5
             rot: 90
-      - uid: 435
+      - uid: 436
         components:
           - type: Transform
             parent: 1
             pos: 20.5,23.5
-      - uid: 453
-        components:
-          - type: Transform
-            parent: 1
-            pos: 13.5,24.5
       - uid: 454
         components:
           - type: Transform
             parent: 1
+            pos: 13.5,24.5
+      - uid: 455
+        components:
+          - type: Transform
+            parent: 1
             pos: 15.5,24.5
-      - uid: 457
+      - uid: 458
         components:
           - type: Transform
             parent: 1
             pos: 20.5,24.5
-      - uid: 471
+      - uid: 473
         components:
           - type: Transform
             parent: 1
             pos: 13.5,25.5
-      - uid: 472
+      - uid: 474
         components:
           - type: Transform
             parent: 1
             pos: 15.5,25.5
-      - uid: 493
+      - uid: 496
         components:
           - type: Transform
             parent: 1
             pos: 7.5,26.5
             rot: 90
-      - uid: 494
+      - uid: 497
         components:
           - type: Transform
             parent: 1
             pos: 8.5,26.5
             rot: 90
-      - uid: 495
+      - uid: 498
         components:
           - type: Transform
             parent: 1
             pos: 9.5,26.5
             rot: 90
-      - uid: 497
+      - uid: 500
         components:
           - type: Transform
             parent: 1
             pos: 10.5,26.5
             rot: 90
-      - uid: 499
+      - uid: 502
         components:
           - type: Transform
             parent: 1
             pos: 12.5,26.5
             rot: 90
-      - uid: 524
+      - uid: 528
         components:
           - type: Transform
             parent: 1
             pos: 6.5,27.5
-      - uid: 530
+      - uid: 534
         components:
           - type: Transform
             parent: 1
             pos: 11.5,27.5
-      - uid: 542
+      - uid: 546
         components:
           - type: Transform
             parent: 1
             pos: 15.5,27.5
-      - uid: 549
+      - uid: 553
         components:
           - type: Transform
             parent: 1
             pos: 20.5,27.5
-      - uid: 569
+      - uid: 573
         components:
           - type: Transform
             parent: 1
             pos: 11.5,28.5
-      - uid: 579
+      - uid: 583
         components:
           - type: Transform
             parent: 1
             pos: 15.5,28.5
-      - uid: 589
+      - uid: 593
         components:
           - type: Transform
             parent: 1
             pos: 20.5,28.5
-      - uid: 615
+      - uid: 619
         components:
           - type: Transform
             parent: 1
             pos: 15.5,29.5
-      - uid: 647
+      - uid: 651
         components:
           - type: Transform
             parent: 1
             pos: 15.5,30.5
-      - uid: 663
+      - uid: 667
         components:
           - type: Transform
             parent: 1
             pos: 14.5,31.5
             rot: 90
-      - uid: 669
+      - uid: 673
         components:
           - type: Transform
             parent: 1
             pos: 21.5,31.5
             rot: 90
-      - uid: 670
+      - uid: 674
         components:
           - type: Transform
             parent: 1
             pos: 22.5,31.5
             rot: 90
-      - uid: 671
+      - uid: 675
         components:
           - type: Transform
             parent: 1
             pos: 23.5,31.5
             rot: 90
-      - uid: 672
+      - uid: 676
         components:
           - type: Transform
             parent: 1
             pos: 27.5,31.5
             rot: 90
-      - uid: 673
+      - uid: 677
         components:
           - type: Transform
             parent: 1
             pos: 28.5,31.5
             rot: 90
-      - uid: 674
+      - uid: 678
         components:
           - type: Transform
             parent: 1
             pos: 29.5,31.5
             rot: 90
-      - uid: 675
+      - uid: 679
         components:
           - type: Transform
             parent: 1
             pos: 30.5,31.5
             rot: 90
-      - uid: 677
+      - uid: 681
         components:
           - type: Transform
             parent: 1
             pos: 31.5,31.5
             rot: 90
-      - uid: 684
+      - uid: 688
         components:
           - type: Transform
             parent: 1
             pos: 13.5,32.5
-      - uid: 698
+      - uid: 702
         components:
           - type: Transform
             parent: 1
             pos: 13.5,33.5
-      - uid: 723
+      - uid: 727
         components:
           - type: Transform
             parent: 1
             pos: 13.5,34.5
-      - uid: 743
+      - uid: 747
         components:
           - type: Transform
             parent: 1
             pos: 13.5,35.5
-      - uid: 758
+      - uid: 762
         components:
           - type: Transform
             parent: 1
             pos: 14.5,36.5
             rot: 90
-      - uid: 761
+      - uid: 765
         components:
           - type: Transform
             parent: 1
             pos: 15.5,36.5
             rot: 90
-  - proto: DisposalPipeBitrunArt710633a4accf
+  - proto: BitrunMapStructureDisposalpipeBroken
     entities:
       - uid: 186
         components:
@@ -2846,43 +2961,43 @@ entities:
           - type: Transform
             parent: 1
             pos: 13.5,22.5
-      - uid: 425
+      - uid: 426
         components:
           - type: Transform
             parent: 1
             pos: 5.5,23.5
-      - uid: 430
+      - uid: 431
         components:
           - type: Transform
             parent: 1
             pos: 13.5,23.5
             rot: 180
-      - uid: 467
+      - uid: 468
         components:
           - type: Transform
             parent: 1
             pos: 5.5,25.5
             rot: 180
-      - uid: 476
+      - uid: 479
         components:
           - type: Transform
             parent: 1
             pos: 20.5,25.5
-      - uid: 506
+      - uid: 510
         components:
           - type: Transform
             parent: 1
             pos: 20.5,26.5
             rot: 180
-  - proto: DisposalPipeBitrunArtac84e6e8fc6d
+  - proto: BitrunMapStructureDisposalpipeSortingMailFlip
     entities:
-      - uid: 504
+      - uid: 508
         components:
           - type: Transform
             parent: 1
             pos: 15.5,26.5
             rot: 180
-  - proto: DisposalPipeBitrunArte6fafb1a5f80
+  - proto: BitrunMapStructureDisposalpipeSorting
     entities:
       - uid: 258
         components:
@@ -2895,38 +3010,38 @@ entities:
             parent: 1
             pos: 13.5,19.5
             rot: -90
-      - uid: 492
+      - uid: 495
         components:
           - type: Transform
             parent: 1
             pos: 6.5,26.5
             rot: -90
-      - uid: 498
+      - uid: 501
         components:
           - type: Transform
             parent: 1
             pos: 11.5,26.5
             rot: -90
-      - uid: 668
+      - uid: 672
         components:
           - type: Transform
             parent: 1
             pos: 20.5,31.5
             rot: -90
-  - proto: DisposalTrunkBitrunArt3516f26e670f
+  - proto: BitrunMapStructureDisposalpipeTrunkMultiz
     entities:
       - uid: 288
         components:
           - type: Transform
             parent: 1
             pos: 8.5,17.5
-      - uid: 503
+      - uid: 507
         components:
           - type: Transform
             parent: 1
             pos: 14.5,26.5
             rot: 90
-  - proto: DisposalTrunkBitrunArta50a3574857d
+  - proto: BitrunMapStructureDisposalpipeTrunk
     entities:
       - uid: 341
         components:
@@ -2934,88 +3049,81 @@ entities:
             parent: 1
             pos: 23.5,19.5
             rot: -90
-      - uid: 762
+      - uid: 766
         components:
           - type: Transform
             parent: 1
             pos: 16.5,36.5
             rot: -90
-  - proto: DisposalUnitBitrunArt35ebab8fe3b2
+  - proto: BitrunMapStructureDisposaloutlet
     entities:
-      - uid: 763
+      - uid: 767
         components:
           - type: Transform
             parent: 1
             pos: 16.5,36.5
-  - proto: DisposalUnitBitrunArt6d7455090077
+  - proto: BitrunMapMachineryDisposalBin
     entities:
       - uid: 342
         components:
           - type: Transform
             parent: 1
             pos: 23.5,19.5
-  - proto: EmergencyOxygenTankFilledBitrunArt5b709669a52aPlacementf155e8889a72
+  - proto: BitrunMapItemFlashlightLanternSpriteOffsetDefault
     entities:
-      - uid: 63
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,4.5
-  - proto: FlashlightLanternBitrunArtadced0c3348a
-    entities:
-      - uid: 835
+      - uid: 839
         components:
           - type: Transform
             parent: 1
             pos: 13.5,39.5
-  - proto: FloorChasmEntityBitrunArt6d7fe888e642
+  - proto: BitrunMapOpenChasm
     entities:
-      - uid: 532
+      - uid: 536
         components:
           - type: Transform
             parent: 1
             pos: 12.5,27.5
-      - uid: 535
-        components:
-          - type: Transform
-            parent: 1
-            pos: 13.5,27.5
       - uid: 539
         components:
           - type: Transform
             parent: 1
+            pos: 13.5,27.5
+      - uid: 543
+        components:
+          - type: Transform
+            parent: 1
             pos: 14.5,27.5
-      - uid: 571
+      - uid: 575
         components:
           - type: Transform
             parent: 1
             pos: 12.5,28.5
-      - uid: 573
+      - uid: 577
         components:
           - type: Transform
             parent: 1
             pos: 13.5,28.5
-      - uid: 576
+      - uid: 580
         components:
           - type: Transform
             parent: 1
             pos: 14.5,28.5
-      - uid: 607
+      - uid: 611
         components:
           - type: Transform
             parent: 1
             pos: 12.5,29.5
-      - uid: 610
+      - uid: 614
         components:
           - type: Transform
             parent: 1
             pos: 13.5,29.5
-      - uid: 612
+      - uid: 616
         components:
           - type: Transform
             parent: 1
             pos: 14.5,29.5
-  - proto: FloraRockSolidBitrunArt121cfac9476c
+  - proto: BitrunMapStructureFloraRockPile
     entities:
       - uid: 35
         components:
@@ -3042,80 +3150,70 @@ entities:
           - type: Transform
             parent: 1
             pos: 4.5,11.5
-      - uid: 855
+      - uid: 859
         components:
           - type: Transform
             parent: 1
             pos: 20.5,40.5
-      - uid: 881
+      - uid: 885
         components:
           - type: Transform
             parent: 1
             pos: 24.5,43.5
-      - uid: 886
+      - uid: 890
         components:
           - type: Transform
             parent: 1
             pos: 16.5,44.5
-  - proto: FloraRockSolidBitrunArt31ee923c7bf5
+  - proto: BitrunMapStructureFloraRockSpriteOffsetDefault
     entities:
       - uid: 110
         components:
           - type: Transform
             parent: 1
             pos: 5.5,8.5
-      - uid: 868
+      - uid: 872
         components:
           - type: Transform
             parent: 1
             pos: 23.5,41.5
   - proto: FoodPacketChipsTrash
     entities:
-      - uid: 236
-        components:
-          - type: Transform
-            parent: 234
-            pos: 0,0
       - uid: 250
         components:
           - type: Transform
             parent: 252
             pos: 0,0
-      - uid: 327
-        components:
-          - type: Transform
-            parent: 1
-            pos: 6.5,19.5
-      - uid: 575
+      - uid: 579
         components:
           - type: Transform
             parent: 1
             pos: 13.5,28.5
-      - uid: 729
+      - uid: 733
         components:
           - type: Transform
             parent: 1
             pos: 21.5,34.5
-      - uid: 819
+      - uid: 823
         components:
           - type: Transform
             parent: 1
             pos: 19.5,38.5
-  - proto: FoodPacketChipsTrashBitrunArt4d664c8bcfb9
+  - proto: BitrunMapItemTrashChipsSpriteOffsetDefault
     entities:
       - uid: 251
         components:
           - type: Transform
             parent: 252
             pos: 0,0
-  - proto: FoodPacketChipsTrashBitrunArtcf76a9cae515
+  - proto: BitrunMapItemTrashTray
     entities:
       - uid: 235
         components:
           - type: Transform
             parent: 234
             pos: 0,0
-  - proto: GrilleBitrunArt55b67fc37f21
+  - proto: BitrunMapStructureGrille
     entities:
       - uid: 39
         components:
@@ -3217,47 +3315,47 @@ entities:
           - type: Transform
             parent: 1
             pos: 19.5,18.5
-      - uid: 625
+      - uid: 629
         components:
           - type: Transform
             parent: 1
             pos: 24.5,29.5
-      - uid: 627
-        components:
-          - type: Transform
-            parent: 1
-            pos: 25.5,29.5
       - uid: 631
         components:
           - type: Transform
             parent: 1
+            pos: 25.5,29.5
+      - uid: 635
+        components:
+          - type: Transform
+            parent: 1
             pos: 27.5,29.5
-      - uid: 633
+      - uid: 637
         components:
           - type: Transform
             parent: 1
             pos: 28.5,29.5
-      - uid: 649
+      - uid: 653
         components:
           - type: Transform
             parent: 1
             pos: 16.5,30.5
-      - uid: 686
+      - uid: 690
         components:
           - type: Transform
             parent: 1
             pos: 16.5,32.5
-      - uid: 842
+      - uid: 846
         components:
           - type: Transform
             parent: 1
             pos: 19.5,39.5
-      - uid: 844
+      - uid: 848
         components:
           - type: Transform
             parent: 1
             pos: 20.5,39.5
-  - proto: KitchenMicrowaveBitrunArtf184eff0df6a
+  - proto: BitrunMapMachineryMicrowaveSpriteOffsetDefault
     entities:
       - uid: 324
         components:
@@ -3266,55 +3364,19 @@ entities:
             pos: 2.5,19.5
           - type: MetaData
             desc: "No longer cooks and boils stuff."
-  - proto: LockerSteelBitrunArtab32fe4c5c82
+  - proto: BitrunMapItemStackRods
     entities:
-      - uid: 252
-        components:
-          - type: Transform
-            parent: 1
-            pos: 2.5,16.5
-          - type: ContainerContainer
-            containers:
-              entity_storage: !type:Container
-                ents: [250, 251]
-  - proto: LockerSteelBitrunArtc86d78215887
-    entities:
-      - uid: 775
-        components:
-          - type: Transform
-            parent: 1
-            pos: 25.5,36.5
-          - type: ContainerContainer
-            containers:
-              entity_storage: !type:Container
-                ents: [776, 777, 778]
-  - proto: MobCatSpaceBitrunArtb87477dcfdd1
-    entities:
-      - uid: 582
-        components:
-          - type: Transform
-            parent: 1
-            pos: 17.5,28.5
-  - proto: MobRogueSiliconDroneLethalsBitrunArt3ab7af5b4894
-    entities:
-      - uid: 779
-        components:
-          - type: Transform
-            parent: 1
-            pos: 27.5,36.5
-  - proto: PartRodMetalBitrunArt8b9ecd764da2
-    entities:
-      - uid: 628
+      - uid: 632
         components:
           - type: Transform
             parent: 1
             pos: 25.5,29.5
-      - uid: 867
+      - uid: 871
         components:
           - type: Transform
             parent: 1
             pos: 20.5,41.5
-  - proto: PoweredSmallLightBitrunArtc9a32b7fe2e3
+  - proto: BitrunMapMachineryLightSmallRedDim
     entities:
       - uid: 193
         components:
@@ -3356,91 +3418,91 @@ entities:
             parent: 1
             pos: 19.5,21.5
             rot: 180
-      - uid: 409
+      - uid: 410
         components:
           - type: Transform
             parent: 1
             pos: 16.5,22.5
             rot: 180
-      - uid: 485
+      - uid: 488
         components:
           - type: Transform
             parent: 1
             pos: 29.5,25.5
             rot: 270
-      - uid: 508
+      - uid: 512
         components:
           - type: Transform
             parent: 1
             pos: 23.5,26.5
             rot: 90
-      - uid: 525
+      - uid: 529
         components:
           - type: Transform
             parent: 1
             pos: 6.5,27.5
-      - uid: 528
+      - uid: 532
         components:
           - type: Transform
             parent: 1
             pos: 10.5,27.5
-      - uid: 578
+      - uid: 582
         components:
           - type: Transform
             parent: 1
             pos: 15.5,28.5
             rot: 270
-      - uid: 588
+      - uid: 592
         components:
           - type: Transform
             parent: 1
             pos: 19.5,28.5
-      - uid: 656
+      - uid: 660
         components:
           - type: Transform
             parent: 1
             pos: 30.5,30.5
             rot: 180
-      - uid: 683
+      - uid: 687
         components:
           - type: Transform
             parent: 1
             pos: 11.5,32.5
             rot: 90
-      - uid: 689
+      - uid: 693
         components:
           - type: Transform
             parent: 1
             pos: 21.5,32.5
-      - uid: 733
+      - uid: 737
         components:
           - type: Transform
             parent: 1
             pos: 27.5,34.5
             rot: 180
-      - uid: 759
+      - uid: 763
         components:
           - type: Transform
             parent: 1
             pos: 14.5,36.5
-      - uid: 790
+      - uid: 794
         components:
           - type: Transform
             parent: 1
             pos: 16.5,37.5
             rot: 90
-      - uid: 797
+      - uid: 801
         components:
           - type: Transform
             parent: 1
             pos: 21.5,37.5
             rot: 270
-      - uid: 832
+      - uid: 836
         components:
           - type: Transform
             parent: 1
             pos: 12.5,39.5
-  - proto: PoweredSmallLightBitrunArtc9a32b7fe2e3Placement42ae6e72884d
+  - proto: BitrunMapMachineryLightSmallDirectionalEast
     entities:
       - uid: 52
         components:
@@ -3464,13 +3526,13 @@ entities:
           - type: Transform
             parent: 1
             pos: 14.5,6.5
-      - uid: 585
+      - uid: 589
         components:
           - type: Transform
             parent: 1
             pos: 17.5,28.5
             rot: 180
-  - proto: PoweredlightBitrunArtc99cdcd3ba4e
+  - proto: BitrunMapMachineryLightDim
     entities:
       - uid: 196
         components:
@@ -3506,72 +3568,72 @@ entities:
             parent: 1
             pos: 15.5,21.5
             rot: 270
-      - uid: 411
+      - uid: 412
         components:
           - type: Transform
             parent: 1
             pos: 18.5,22.5
             rot: 90
-      - uid: 491
+      - uid: 494
         components:
           - type: Transform
             parent: 1
             pos: 5.5,26.5
             rot: 90
-      - uid: 550
+      - uid: 554
         components:
           - type: Transform
             parent: 1
             pos: 21.5,27.5
             rot: 270
-      - uid: 552
+      - uid: 556
         components:
           - type: Transform
             parent: 1
             pos: 23.5,27.5
             rot: 90
-      - uid: 558
+      - uid: 562
         components:
           - type: Transform
             parent: 1
             pos: 29.5,27.5
             rot: 270
-      - uid: 614
+      - uid: 618
         components:
           - type: Transform
             parent: 1
             pos: 15.5,29.5
             rot: 270
-      - uid: 653
+      - uid: 657
         components:
           - type: Transform
             parent: 1
             pos: 21.5,30.5
             rot: 180
-      - uid: 691
+      - uid: 695
         components:
           - type: Transform
             parent: 1
             pos: 24.5,32.5
-      - uid: 724
+      - uid: 728
         components:
           - type: Transform
             parent: 1
             pos: 14.5,34.5
             rot: 270
-      - uid: 728
+      - uid: 732
         components:
           - type: Transform
             parent: 1
             pos: 20.5,34.5
             rot: 180
-      - uid: 780
+      - uid: 784
         components:
           - type: Transform
             parent: 1
             pos: 28.5,36.5
             rot: 270
-  - proto: PoweredlightBitrunArtfa46184abc61
+  - proto: BitrunMapMachineryLightBroken
     entities:
       - uid: 157
         components:
@@ -3608,140 +3670,140 @@ entities:
             parent: 1
             pos: 11.5,22.5
             rot: 90
-      - uid: 426
+      - uid: 427
         components:
           - type: Transform
             parent: 1
             pos: 7.5,23.5
             rot: 180
-      - uid: 459
+      - uid: 460
         components:
           - type: Transform
             parent: 1
             pos: 21.5,24.5
             rot: 270
-      - uid: 461
+      - uid: 462
         components:
           - type: Transform
             parent: 1
             pos: 24.5,24.5
             rot: 180
-      - uid: 462
+      - uid: 463
         components:
           - type: Transform
             parent: 1
             pos: 28.5,24.5
             rot: 180
-      - uid: 570
+      - uid: 574
         components:
           - type: Transform
             parent: 1
             pos: 11.5,28.5
             rot: 90
-      - uid: 651
+      - uid: 655
         components:
           - type: Transform
             parent: 1
             pos: 18.5,30.5
             rot: 180
-      - uid: 657
+      - uid: 661
         components:
           - type: Transform
             parent: 1
             pos: 33.5,30.5
             rot: 180
-      - uid: 688
-        components:
-          - type: Transform
-            parent: 1
-            pos: 20.5,32.5
       - uid: 692
         components:
           - type: Transform
             parent: 1
+            pos: 20.5,32.5
+      - uid: 696
+        components:
+          - type: Transform
+            parent: 1
             pos: 30.5,32.5
-      - uid: 742
+      - uid: 746
         components:
           - type: Transform
             parent: 1
             pos: 12.5,35.5
             rot: 90
-      - uid: 774
+      - uid: 778
         components:
           - type: Transform
             parent: 1
             pos: 24.5,36.5
-      - uid: 815
+      - uid: 819
         components:
           - type: Transform
             parent: 1
             pos: 17.5,38.5
-  - proto: RailingBitrunArt6228dad01d87
+  - proto: BitrunMapStructureRailingCornerEndFlip
     entities:
-      - uid: 543
+      - uid: 547
         components:
           - type: Transform
             parent: 1
             pos: 15.5,27.5
             rot: -90
-      - uid: 646
+      - uid: 650
         components:
           - type: Transform
             parent: 1
             pos: 15.5,30.5
             rot: -90
-  - proto: RailingBitrunArt78760ec387e4
+  - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
     entities:
       - uid: 185
         components:
           - type: Transform
             parent: 1
             pos: 4.5,12.5
-      - uid: 534
-        components:
-          - type: Transform
-            parent: 1
-            pos: 12.5,27.5
       - uid: 538
         components:
           - type: Transform
             parent: 1
+            pos: 12.5,27.5
+      - uid: 542
+        components:
+          - type: Transform
+            parent: 1
             pos: 13.5,27.5
-      - uid: 541
+      - uid: 545
         components:
           - type: Transform
             parent: 1
             pos: 14.5,27.5
-      - uid: 643
+      - uid: 647
         components:
           - type: Transform
             parent: 1
             pos: 12.5,30.5
-      - uid: 644
+      - uid: 648
         components:
           - type: Transform
             parent: 1
             pos: 13.5,30.5
-      - uid: 645
+      - uid: 649
         components:
           - type: Transform
             parent: 1
             pos: 14.5,30.5
-  - proto: RailingBitrunArtb5b1e39cbdf5
+  - proto: BitrunMapStructureRailingCornerEnd
     entities:
-      - uid: 531
+      - uid: 535
         components:
           - type: Transform
             parent: 1
             pos: 11.5,27.5
             rot: 90
-      - uid: 642
+      - uid: 646
         components:
           - type: Transform
             parent: 1
             pos: 11.5,30.5
             rot: 90
-  - proto: ReinforcedWindowBitrunArt9f81dfb3bf9d
+  - proto: BitrunMapStructureWindowReinforcedFulltile
     entities:
       - uid: 125
         components:
@@ -3803,37 +3865,37 @@ entities:
           - type: Transform
             parent: 1
             pos: 19.5,18.5
-      - uid: 624
+      - uid: 628
         components:
           - type: Transform
             parent: 1
             pos: 24.5,29.5
-      - uid: 630
+      - uid: 634
         components:
           - type: Transform
             parent: 1
             pos: 27.5,29.5
-      - uid: 632
+      - uid: 636
         components:
           - type: Transform
             parent: 1
             pos: 28.5,29.5
-      - uid: 648
+      - uid: 652
         components:
           - type: Transform
             parent: 1
             pos: 16.5,30.5
-      - uid: 685
+      - uid: 689
         components:
           - type: Transform
             parent: 1
             pos: 16.5,32.5
-      - uid: 841
+      - uid: 845
         components:
           - type: Transform
             parent: 1
             pos: 19.5,39.5
-      - uid: 843
+      - uid: 847
         components:
           - type: Transform
             parent: 1
@@ -3854,64 +3916,64 @@ entities:
             pos: 3.5,17.5
           - type: MetaData
             desc: "A body left behind in the virtual domain."
-      - uid: 452
+      - uid: 453
         components:
           - type: Transform
             parent: 1
             pos: 12.5,24.5
           - type: MetaData
             desc: "A body left behind in the virtual domain."
-      - uid: 748
+      - uid: 752
         components:
           - type: Transform
             parent: 1
             pos: 23.5,35.5
           - type: MetaData
             desc: "A body left behind in the virtual domain."
-      - uid: 752
+      - uid: 756
         components:
           - type: Transform
             parent: 1
             pos: 28.5,35.5
           - type: MetaData
             desc: "A body left behind in the virtual domain."
-  - proto: ShardGlassBitrunArt07f48180a24f
+  - proto: BitrunMapItemShardSpriteOffsetDefaultSpriteLayers0StateMedium
     entities:
       - uid: 296
         components:
           - type: Transform
             parent: 1
             pos: 20.5,17.5
-  - proto: ShardGlassBitrunArt2702a1d1a52a
+  - proto: BitrunMapItemShardSpriteOffsetDefaultSpriteLayers0StateLarge
     entities:
-      - uid: 514
+      - uid: 518
         components:
           - type: Transform
             parent: 1
             pos: 26.5,26.5
-      - uid: 654
+      - uid: 658
         components:
           - type: Transform
             parent: 1
             pos: 24.5,30.5
-      - uid: 866
+      - uid: 870
         components:
           - type: Transform
             parent: 1
             pos: 18.5,41.5
-  - proto: ShardGlassBitrunArt35c206ad7475
+  - proto: BitrunMapEffectDecalCleanableGlass
     entities:
-      - uid: 655
+      - uid: 659
         components:
           - type: Transform
             parent: 1
             pos: 25.5,30.5
-      - uid: 751
+      - uid: 755
         components:
           - type: Transform
             parent: 1
             pos: 25.5,35.5
-  - proto: ShuttersNormalBitrunArt5c2fa03eb674
+  - proto: BitrunMapMachineryDoorPoddoorShutters
     entities:
       - uid: 357
         components:
@@ -3938,61 +4000,61 @@ entities:
           - type: Transform
             parent: 1
             pos: 15.5,20.5
-      - uid: 434
+      - uid: 435
         components:
           - type: Transform
             parent: 1
             pos: 17.5,23.5
             rot: -90
-      - uid: 451
+      - uid: 452
         components:
           - type: Transform
             parent: 1
             pos: 9.5,24.5
             rot: 90
-      - uid: 456
+      - uid: 457
         components:
           - type: Transform
             parent: 1
             pos: 17.5,24.5
             rot: -90
-      - uid: 470
+      - uid: 472
         components:
           - type: Transform
             parent: 1
             pos: 9.5,25.5
             rot: 90
-      - uid: 473
+      - uid: 475
         components:
           - type: Transform
             parent: 1
             pos: 17.5,25.5
             rot: -90
-      - uid: 496
+      - uid: 499
         components:
           - type: Transform
             parent: 1
             pos: 9.5,26.5
             rot: 90
-      - uid: 650
+      - uid: 654
         components:
           - type: Transform
             parent: 1
             pos: 17.5,30.5
             rot: 90
-      - uid: 666
+      - uid: 670
         components:
           - type: Transform
             parent: 1
             pos: 17.5,31.5
             rot: 90
-      - uid: 687
+      - uid: 691
         components:
           - type: Transform
             parent: 1
             pos: 17.5,32.5
             rot: 90
-  - proto: ShuttleWindowBitrunArte9f2fbbfb4dc
+  - proto: BitrunMapStructureWindowReinforcedShuttle
     entities:
       - uid: 38
         components:
@@ -4034,33 +4096,33 @@ entities:
           - type: Transform
             parent: 1
             pos: 15.5,7.5
-  - proto: SignalButtonBitrunArtd4f5e40d41d4
+  - proto: BitrunMapMachineryButtonDoorSpriteOffsetDefault
     entities:
-      - uid: 517
+      - uid: 521
         components:
           - type: Transform
             parent: 1
             pos: 27.5,26.5
           - type: MetaData
             name: "Cargo Bay Lockdown"
-  - proto: TableBitrunArt01782f28577d
+  - proto: BitrunMapStructureTable
     entities:
       - uid: 175
         components:
           - type: Transform
             parent: 1
             pos: 21.5,11.5
-      - uid: 833
+      - uid: 837
         components:
           - type: Transform
             parent: 1
             pos: 12.5,39.5
-      - uid: 834
+      - uid: 838
         components:
           - type: Transform
             parent: 1
             pos: 13.5,39.5
-  - proto: TableReinforcedBitrunArt234d0deab64b
+  - proto: BitrunMapStructureTableReinforced
     entities:
       - uid: 62
         components:
@@ -4117,19 +4179,19 @@ entities:
           - type: Transform
             parent: 1
             pos: 2.5,19.5
-  - proto: TableWoodBitrunArtbdcc98a2fb9c
+  - proto: BitrunMapStructureTableWood
     entities:
-      - uid: 511
+      - uid: 515
         components:
           - type: Transform
             parent: 1
             pos: 25.5,26.5
-      - uid: 516
+      - uid: 520
         components:
           - type: Transform
             parent: 1
             pos: 27.5,26.5
-  - proto: ThrusterBitrunArt6ebba51689a8
+  - proto: BitrunMapMachineryPowerShuttleEnginePropulsion
     entities:
       - uid: 50
         components:
@@ -4143,14 +4205,7 @@ entities:
             parent: 1
             pos: 10.5,6.5
             rot: -90
-  - proto: ToolboxMechanicalBitrunArta0ce2b9344fe
-    entities:
-      - uid: 88
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,6.5
-  - proto: WallReinforcedBitrunArt05caa26e2337
+  - proto: BitrunMapClosedWallRWall
     entities:
       - uid: 111
         components:
@@ -4277,92 +4332,92 @@ entities:
           - type: Transform
             parent: 1
             pos: 19.5,11.5
-      - uid: 707
-        components:
-          - type: Transform
-            parent: 1
-            pos: 22.5,33.5
-      - uid: 708
-        components:
-          - type: Transform
-            parent: 1
-            pos: 23.5,33.5
-      - uid: 709
-        components:
-          - type: Transform
-            parent: 1
-            pos: 24.5,33.5
-      - uid: 710
-        components:
-          - type: Transform
-            parent: 1
-            pos: 26.5,33.5
       - uid: 711
         components:
           - type: Transform
             parent: 1
-            pos: 27.5,33.5
+            pos: 22.5,33.5
       - uid: 712
         components:
           - type: Transform
             parent: 1
-            pos: 28.5,33.5
+            pos: 23.5,33.5
       - uid: 713
         components:
           - type: Transform
             parent: 1
-            pos: 29.5,33.5
-      - uid: 730
+            pos: 24.5,33.5
+      - uid: 714
         components:
           - type: Transform
             parent: 1
-            pos: 22.5,34.5
+            pos: 26.5,33.5
+      - uid: 715
+        components:
+          - type: Transform
+            parent: 1
+            pos: 27.5,33.5
+      - uid: 716
+        components:
+          - type: Transform
+            parent: 1
+            pos: 28.5,33.5
+      - uid: 717
+        components:
+          - type: Transform
+            parent: 1
+            pos: 29.5,33.5
       - uid: 734
         components:
           - type: Transform
             parent: 1
+            pos: 22.5,34.5
+      - uid: 738
+        components:
+          - type: Transform
+            parent: 1
             pos: 29.5,34.5
-      - uid: 753
+      - uid: 757
         components:
           - type: Transform
             parent: 1
             pos: 29.5,35.5
-      - uid: 781
+      - uid: 785
         components:
           - type: Transform
             parent: 1
             pos: 29.5,36.5
-      - uid: 801
-        components:
-          - type: Transform
-            parent: 1
-            pos: 24.5,37.5
-      - uid: 802
-        components:
-          - type: Transform
-            parent: 1
-            pos: 25.5,37.5
-      - uid: 803
-        components:
-          - type: Transform
-            parent: 1
-            pos: 26.5,37.5
-      - uid: 804
-        components:
-          - type: Transform
-            parent: 1
-            pos: 27.5,37.5
       - uid: 805
         components:
           - type: Transform
             parent: 1
-            pos: 28.5,37.5
+            pos: 24.5,37.5
       - uid: 806
         components:
           - type: Transform
             parent: 1
+            pos: 25.5,37.5
+      - uid: 807
+        components:
+          - type: Transform
+            parent: 1
+            pos: 26.5,37.5
+      - uid: 808
+        components:
+          - type: Transform
+            parent: 1
+            pos: 27.5,37.5
+      - uid: 809
+        components:
+          - type: Transform
+            parent: 1
+            pos: 28.5,37.5
+      - uid: 810
+        components:
+          - type: Transform
+            parent: 1
             pos: 29.5,37.5
-  - proto: WallRockBitrunArt254ff9a35150
+  - proto: BitrunMapClosedMineral
     entities:
       - uid: 26
         components:
@@ -4549,152 +4604,152 @@ entities:
           - type: Transform
             parent: 1
             pos: 22.5,21.5
-      - uid: 413
+      - uid: 414
         components:
           - type: Transform
             parent: 1
             pos: 22.5,22.5
-      - uid: 436
-        components:
-          - type: Transform
-            parent: 1
-            pos: 22.5,23.5
       - uid: 437
         components:
           - type: Transform
             parent: 1
-            pos: 23.5,23.5
-      - uid: 443
+            pos: 22.5,23.5
+      - uid: 438
         components:
           - type: Transform
             parent: 1
-            pos: 29.5,23.5
+            pos: 23.5,23.5
       - uid: 444
         components:
           - type: Transform
             parent: 1
+            pos: 29.5,23.5
+      - uid: 445
+        components:
+          - type: Transform
+            parent: 1
             pos: 30.5,23.5
-      - uid: 460
+      - uid: 461
         components:
           - type: Transform
             parent: 1
             pos: 22.5,24.5
-      - uid: 463
+      - uid: 464
         components:
           - type: Transform
             parent: 1
             pos: 30.5,24.5
-      - uid: 486
+      - uid: 489
         components:
           - type: Transform
             parent: 1
             pos: 30.5,25.5
-      - uid: 716
+      - uid: 720
         components:
           - type: Transform
             parent: 1
             pos: 32.5,33.5
-      - uid: 717
+      - uid: 721
         components:
           - type: Transform
             parent: 1
             pos: 33.5,33.5
-      - uid: 746
+      - uid: 750
         components:
           - type: Transform
             parent: 1
             pos: 22.5,35.5
-      - uid: 771
+      - uid: 775
         components:
           - type: Transform
             parent: 1
             pos: 22.5,36.5
-      - uid: 772
+      - uid: 776
         components:
           - type: Transform
             parent: 1
             pos: 23.5,36.5
-      - uid: 800
+      - uid: 804
         components:
           - type: Transform
             parent: 1
             pos: 23.5,37.5
-      - uid: 846
+      - uid: 850
         components:
           - type: Transform
             parent: 1
             pos: 22.5,39.5
-      - uid: 847
+      - uid: 851
         components:
           - type: Transform
             parent: 1
             pos: 23.5,39.5
-      - uid: 854
+      - uid: 858
         components:
           - type: Transform
             parent: 1
             pos: 16.5,40.5
-      - uid: 856
+      - uid: 860
         components:
           - type: Transform
             parent: 1
             pos: 23.5,40.5
-      - uid: 857
+      - uid: 861
         components:
           - type: Transform
             parent: 1
             pos: 24.5,40.5
-      - uid: 865
-        components:
-          - type: Transform
-            parent: 1
-            pos: 16.5,41.5
       - uid: 869
         components:
           - type: Transform
             parent: 1
+            pos: 16.5,41.5
+      - uid: 873
+        components:
+          - type: Transform
+            parent: 1
             pos: 24.5,41.5
-      - uid: 870
+      - uid: 874
         components:
           - type: Transform
             parent: 1
             pos: 25.5,41.5
-      - uid: 875
+      - uid: 879
         components:
           - type: Transform
             parent: 1
             pos: 15.5,42.5
-      - uid: 876
-        components:
-          - type: Transform
-            parent: 1
-            pos: 16.5,42.5
-      - uid: 877
-        components:
-          - type: Transform
-            parent: 1
-            pos: 25.5,42.5
       - uid: 880
         components:
           - type: Transform
             parent: 1
-            pos: 15.5,43.5
-      - uid: 885
+            pos: 16.5,42.5
+      - uid: 881
         components:
           - type: Transform
             parent: 1
-            pos: 15.5,44.5
+            pos: 25.5,42.5
+      - uid: 884
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,43.5
       - uid: 889
         components:
           - type: Transform
             parent: 1
+            pos: 15.5,44.5
+      - uid: 893
+        components:
+          - type: Transform
+            parent: 1
             pos: 15.5,45.5
-      - uid: 890
+      - uid: 894
         components:
           - type: Transform
             parent: 1
             pos: 16.5,45.5
-  - proto: WallShuttleBitrunArteaee919965c1
+  - proto: BitrunMapClosedWallMineralTitanium
     entities:
       - uid: 36
         components:
@@ -4751,7 +4806,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 16.5,7.5
-  - proto: WallSolidBitrunArt7007f3a1737a
+  - proto: BitrunMapClosedWall
     entities:
       - uid: 140
         components:
@@ -4993,430 +5048,399 @@ entities:
           - type: Transform
             parent: 1
             pos: 10.5,22.5
-      - uid: 410
+      - uid: 411
         components:
           - type: Transform
             parent: 1
             pos: 17.5,22.5
-      - uid: 424
+      - uid: 425
         components:
           - type: Transform
             parent: 1
             pos: 4.5,23.5
-      - uid: 438
-        components:
-          - type: Transform
-            parent: 1
-            pos: 24.5,23.5
       - uid: 439
         components:
           - type: Transform
             parent: 1
-            pos: 25.5,23.5
+            pos: 24.5,23.5
       - uid: 440
         components:
           - type: Transform
             parent: 1
-            pos: 26.5,23.5
+            pos: 25.5,23.5
       - uid: 441
         components:
           - type: Transform
             parent: 1
-            pos: 27.5,23.5
+            pos: 26.5,23.5
       - uid: 442
         components:
           - type: Transform
             parent: 1
+            pos: 27.5,23.5
+      - uid: 443
+        components:
+          - type: Transform
+            parent: 1
             pos: 28.5,23.5
-      - uid: 447
+      - uid: 448
         components:
           - type: Transform
             parent: 1
             pos: 4.5,24.5
-      - uid: 466
+      - uid: 467
         components:
           - type: Transform
             parent: 1
             pos: 4.5,25.5
-      - uid: 477
+      - uid: 480
         components:
           - type: Transform
             parent: 1
             pos: 22.5,25.5
-      - uid: 489
+      - uid: 492
         components:
           - type: Transform
             parent: 1
             pos: 4.5,26.5
-      - uid: 505
+      - uid: 509
         components:
           - type: Transform
             parent: 1
             pos: 17.5,26.5
-      - uid: 507
+      - uid: 511
         components:
           - type: Transform
             parent: 1
             pos: 22.5,26.5
-      - uid: 520
+      - uid: 524
         components:
           - type: Transform
             parent: 1
             pos: 30.5,26.5
-      - uid: 523
-        components:
-          - type: Transform
-            parent: 1
-            pos: 4.5,27.5
       - uid: 527
         components:
           - type: Transform
             parent: 1
+            pos: 4.5,27.5
+      - uid: 531
+        components:
+          - type: Transform
+            parent: 1
             pos: 9.5,27.5
-      - uid: 545
+      - uid: 549
         components:
           - type: Transform
             parent: 1
             pos: 16.5,27.5
-      - uid: 546
+      - uid: 550
         components:
           - type: Transform
             parent: 1
             pos: 17.5,27.5
-      - uid: 547
-        components:
-          - type: Transform
-            parent: 1
-            pos: 18.5,27.5
       - uid: 551
         components:
           - type: Transform
             parent: 1
+            pos: 18.5,27.5
+      - uid: 555
+        components:
+          - type: Transform
+            parent: 1
             pos: 22.5,27.5
-      - uid: 559
-        components:
-          - type: Transform
-            parent: 1
-            pos: 30.5,27.5
-      - uid: 562
-        components:
-          - type: Transform
-            parent: 1
-            pos: 4.5,28.5
       - uid: 563
         components:
           - type: Transform
             parent: 1
-            pos: 5.5,28.5
-      - uid: 564
-        components:
-          - type: Transform
-            parent: 1
-            pos: 6.5,28.5
-      - uid: 565
-        components:
-          - type: Transform
-            parent: 1
-            pos: 7.5,28.5
+            pos: 30.5,27.5
       - uid: 566
         components:
           - type: Transform
             parent: 1
-            pos: 8.5,28.5
+            pos: 4.5,28.5
       - uid: 567
         components:
           - type: Transform
             parent: 1
-            pos: 9.5,28.5
+            pos: 5.5,28.5
       - uid: 568
         components:
           - type: Transform
             parent: 1
+            pos: 6.5,28.5
+      - uid: 569
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,28.5
+      - uid: 570
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,28.5
+      - uid: 571
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,28.5
+      - uid: 572
+        components:
+          - type: Transform
+            parent: 1
             pos: 10.5,28.5
-      - uid: 581
+      - uid: 585
         components:
           - type: Transform
             parent: 1
             pos: 16.5,28.5
-      - uid: 591
+      - uid: 595
         components:
           - type: Transform
             parent: 1
             pos: 22.5,28.5
-      - uid: 593
+      - uid: 597
         components:
           - type: Transform
             parent: 1
             pos: 30.5,28.5
-      - uid: 605
+      - uid: 609
         components:
           - type: Transform
             parent: 1
             pos: 10.5,29.5
-      - uid: 616
-        components:
-          - type: Transform
-            parent: 1
-            pos: 16.5,29.5
-      - uid: 617
-        components:
-          - type: Transform
-            parent: 1
-            pos: 17.5,29.5
-      - uid: 618
-        components:
-          - type: Transform
-            parent: 1
-            pos: 18.5,29.5
-      - uid: 619
-        components:
-          - type: Transform
-            parent: 1
-            pos: 19.5,29.5
       - uid: 620
         components:
           - type: Transform
             parent: 1
-            pos: 20.5,29.5
+            pos: 16.5,29.5
       - uid: 621
         components:
           - type: Transform
             parent: 1
-            pos: 21.5,29.5
+            pos: 17.5,29.5
       - uid: 622
         components:
           - type: Transform
             parent: 1
-            pos: 22.5,29.5
+            pos: 18.5,29.5
       - uid: 623
         components:
           - type: Transform
             parent: 1
-            pos: 23.5,29.5
-      - uid: 634
+            pos: 19.5,29.5
+      - uid: 624
         components:
           - type: Transform
             parent: 1
-            pos: 29.5,29.5
-      - uid: 635
+            pos: 20.5,29.5
+      - uid: 625
         components:
           - type: Transform
             parent: 1
-            pos: 30.5,29.5
-      - uid: 636
-        components:
-          - type: Transform
-            parent: 1
-            pos: 31.5,29.5
-      - uid: 638
-        components:
-          - type: Transform
-            parent: 1
-            pos: 33.5,29.5
-      - uid: 660
-        components:
-          - type: Transform
-            parent: 1
-            pos: 10.5,31.5
-      - uid: 682
-        components:
-          - type: Transform
-            parent: 1
-            pos: 10.5,32.5
-      - uid: 695
-        components:
-          - type: Transform
-            parent: 1
-            pos: 10.5,33.5
-      - uid: 696
-        components:
-          - type: Transform
-            parent: 1
-            pos: 11.5,33.5
-      - uid: 700
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,33.5
-      - uid: 701
-        components:
-          - type: Transform
-            parent: 1
-            pos: 16.5,33.5
-      - uid: 702
-        components:
-          - type: Transform
-            parent: 1
-            pos: 17.5,33.5
-      - uid: 703
-        components:
-          - type: Transform
-            parent: 1
-            pos: 18.5,33.5
-      - uid: 705
-        components:
-          - type: Transform
-            parent: 1
-            pos: 20.5,33.5
-      - uid: 706
-        components:
-          - type: Transform
-            parent: 1
-            pos: 21.5,33.5
-      - uid: 714
-        components:
-          - type: Transform
-            parent: 1
-            pos: 30.5,33.5
-      - uid: 715
-        components:
-          - type: Transform
-            parent: 1
-            pos: 31.5,33.5
-      - uid: 725
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,34.5
-      - uid: 741
-        components:
-          - type: Transform
-            parent: 1
-            pos: 11.5,35.5
-      - uid: 756
-        components:
-          - type: Transform
-            parent: 1
-            pos: 11.5,36.5
-      - uid: 760
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,36.5
-      - uid: 784
-        components:
-          - type: Transform
-            parent: 1
-            pos: 11.5,37.5
-      - uid: 785
-        components:
-          - type: Transform
-            parent: 1
-            pos: 12.5,37.5
-      - uid: 787
-        components:
-          - type: Transform
-            parent: 1
-            pos: 14.5,37.5
-      - uid: 788
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,37.5
-      - uid: 799
-        components:
-          - type: Transform
-            parent: 1
-            pos: 22.5,37.5
-      - uid: 809
-        components:
-          - type: Transform
-            parent: 1
-            pos: 11.5,38.5
-      - uid: 811
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,38.5
-      - uid: 820
-        components:
-          - type: Transform
-            parent: 1
-            pos: 21.5,38.5
-      - uid: 821
-        components:
-          - type: Transform
-            parent: 1
-            pos: 22.5,38.5
-      - uid: 831
-        components:
-          - type: Transform
-            parent: 1
-            pos: 11.5,39.5
-      - uid: 837
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,39.5
-      - uid: 838
-        components:
-          - type: Transform
-            parent: 1
-            pos: 16.5,39.5
-      - uid: 839
-        components:
-          - type: Transform
-            parent: 1
-            pos: 17.5,39.5
-      - uid: 845
-        components:
-          - type: Transform
-            parent: 1
-            pos: 21.5,39.5
-      - uid: 851
-        components:
-          - type: Transform
-            parent: 1
-            pos: 11.5,40.5
-      - uid: 852
-        components:
-          - type: Transform
-            parent: 1
-            pos: 12.5,40.5
-      - uid: 853
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,40.5
-  - proto: WeaponRevolverInspectorBitrunArt3bf5ec43779c
-    entities:
-      - uid: 260
-        components:
-          - type: Transform
-            parent: 1
-            pos: 12.5,16.5
-  - proto: WeaponShotgunBuckshotBitrunArt9257997b6bf8
-    entities:
-      - uid: 776
-        components:
-          - type: Transform
-            parent: 775
-            pos: 0,0
-      - uid: 777
-        components:
-          - type: Transform
-            parent: 775
-            pos: 0,0
-      - uid: 778
-        components:
-          - type: Transform
-            parent: 775
-            pos: 0,0
-  - proto: WeaponShotgunDoubleBarreledBitrunArt94a8bfb9e388
-    entities:
-      - uid: 773
-        components:
-          - type: Transform
-            parent: 1
-            pos: 24.5,36.5
-  - proto: WindowBitrunArte9f9c984f13f
-    entities:
+            pos: 21.5,29.5
       - uid: 626
         components:
           - type: Transform
             parent: 1
+            pos: 22.5,29.5
+      - uid: 627
+        components:
+          - type: Transform
+            parent: 1
+            pos: 23.5,29.5
+      - uid: 638
+        components:
+          - type: Transform
+            parent: 1
+            pos: 29.5,29.5
+      - uid: 639
+        components:
+          - type: Transform
+            parent: 1
+            pos: 30.5,29.5
+      - uid: 640
+        components:
+          - type: Transform
+            parent: 1
+            pos: 31.5,29.5
+      - uid: 642
+        components:
+          - type: Transform
+            parent: 1
+            pos: 33.5,29.5
+      - uid: 664
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,31.5
+      - uid: 686
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,32.5
+      - uid: 699
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,33.5
+      - uid: 700
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,33.5
+      - uid: 704
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,33.5
+      - uid: 705
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,33.5
+      - uid: 706
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,33.5
+      - uid: 707
+        components:
+          - type: Transform
+            parent: 1
+            pos: 18.5,33.5
+      - uid: 709
+        components:
+          - type: Transform
+            parent: 1
+            pos: 20.5,33.5
+      - uid: 710
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,33.5
+      - uid: 718
+        components:
+          - type: Transform
+            parent: 1
+            pos: 30.5,33.5
+      - uid: 719
+        components:
+          - type: Transform
+            parent: 1
+            pos: 31.5,33.5
+      - uid: 729
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,34.5
+      - uid: 745
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,35.5
+      - uid: 760
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,36.5
+      - uid: 764
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,36.5
+      - uid: 788
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,37.5
+      - uid: 789
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,37.5
+      - uid: 791
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,37.5
+      - uid: 792
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,37.5
+      - uid: 803
+        components:
+          - type: Transform
+            parent: 1
+            pos: 22.5,37.5
+      - uid: 813
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,38.5
+      - uid: 815
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,38.5
+      - uid: 824
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,38.5
+      - uid: 825
+        components:
+          - type: Transform
+            parent: 1
+            pos: 22.5,38.5
+      - uid: 835
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,39.5
+      - uid: 841
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,39.5
+      - uid: 842
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,39.5
+      - uid: 843
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,39.5
+      - uid: 849
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,39.5
+      - uid: 855
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,40.5
+      - uid: 856
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,40.5
+      - uid: 857
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,40.5
+  - proto: BitrunMapStructureWindowFulltile
+    entities:
+      - uid: 630
+        components:
+          - type: Transform
+            parent: 1
             pos: 25.5,29.5
-  - proto: WindowReinforcedDirectionalBitrunArt681de416b197Placement42ae6e72884d
+  - proto: BitrunMapStructureWindowReinforcedSpawnerDirectionalEastSpriteOffset00
     entities:
       - uid: 51
         components:
@@ -5442,31 +5466,31 @@ entities:
             parent: 1
             pos: 4.5,11.5
             rot: -90
-      - uid: 765
+      - uid: 769
         components:
           - type: Transform
             parent: 1
             pos: 17.5,36.5
             rot: -90
-      - uid: 792
+      - uid: 796
         components:
           - type: Transform
             parent: 1
             pos: 17.5,37.5
             rot: -90
-      - uid: 793
+      - uid: 797
         components:
           - type: Transform
             parent: 1
             pos: 17.5,37.5
             rot: 90
-      - uid: 817
+      - uid: 821
         components:
           - type: Transform
             parent: 1
             pos: 17.5,38.5
             rot: 90
-  - proto: filingCabinetBitrunArtdbf06c2155e5
+  - proto: BitrunMapStructureFilingcabinetSpriteOffsetDefault
     entities:
       - uid: 338
         components:

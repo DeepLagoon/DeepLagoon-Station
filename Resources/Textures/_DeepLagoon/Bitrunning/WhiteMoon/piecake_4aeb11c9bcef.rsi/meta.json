@@ -9,6 +9,9 @@
   "states": [
     {
       "name": "birthdaycake"
+    },
+    {
+      "name": "pie"
     }
   ]
 }

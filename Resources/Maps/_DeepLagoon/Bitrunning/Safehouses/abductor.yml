@@ -8,8 +8,8 @@ orphans: [1]
 nullspace: []
 tilemap:
   "0": Space
-  "1": BitrunTile1f1c16a414c0
-  "2": BitrunTile9d77d56719ee
+  "1": BitrunMapTileOpenFloorPlatingAbductor
+  "2": BitrunMapTileOpenFloorPlatingAbductor2
   "3": FloorXeno
 entities:
   - proto: ""
@@ -39,7 +39,7 @@ entities:
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
-  - proto: AirlockXenoBitrunArt05cd4b3ea2bc
+  - proto: BitrunMapMachineryDoorAirlockAbductor
     entities:
       - uid: 6
         components:
@@ -51,7 +51,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 3.5,5.5
-  - proto: BitrunAnimatedTile31bee6a4c5a9
+  - proto: BitrunMapFloorAnimationOpenFloorPlatingAbductor
     entities:
       - uid: 2
         components:
@@ -163,7 +163,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 6.5,5.5
-  - proto: BitrunArt2141f4b8d7d5
+  - proto: BitrunMapMachineryAbductorPad
     entities:
       - uid: 29
         components:
@@ -172,7 +172,7 @@ entities:
             pos: 1.5,4.5
           - type: MetaData
             desc: "A funky looking disc, built into the floor."
-  - proto: BitrunArtcc5895b4a070
+  - proto: BitrunMapMachineryAbductorConsole
     entities:
       - uid: 34
         components:
@@ -225,7 +225,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 1.5,3.5
-  - proto: WallSolidChitinBitrunArtf1915bf9d29f
+  - proto: BitrunMapClosedWallMineralAbductor
     entities:
       - uid: 3
         components:

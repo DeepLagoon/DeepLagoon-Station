@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/mob/clothing/feet.dmi.",
+  "states": [
+    {
+      "name": "clown",
+      "directions": 4
+    },
+    {
+      "name": "clown_prototype_off",
+      "directions": 4
+    },
+    {
+      "name": "cookflops",
+      "directions": 4
+    },
+    {
+      "name": "jackboots",
+      "directions": 4
+    },
+    {
+      "name": "laceups",
+      "directions": 4
+    },
+    {
+      "name": "magboots0",
+      "directions": 4
+    },
+    {
+      "name": "pirateboots",
+      "directions": 4
+    },
+    {
+      "name": "sneakers_back",
+      "directions": 4
+    },
+    {
+      "name": "sneakers_front",
+      "directions": 4
+    },
+    {
+      "name": "winterboots",
+      "directions": 4
+    },
+    {
+      "name": "wizard",
+      "directions": 4
+    },
+    {
+      "name": "workboots",
+      "directions": 4
+    }
+  ]
+}

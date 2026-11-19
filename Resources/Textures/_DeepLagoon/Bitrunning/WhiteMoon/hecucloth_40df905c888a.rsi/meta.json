@@ -15,6 +15,9 @@
     },
     {
       "name": "hecu_belt"
+    },
+    {
+      "name": "hecu_pack"
     }
   ]
 }

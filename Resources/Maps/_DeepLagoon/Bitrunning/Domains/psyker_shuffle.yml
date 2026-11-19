@@ -1,16 +1,16 @@
 meta:
   format: 7
   category: Grid
-  entityCount: 334
+  entityCount: 333
 maps: []
 grids: [1]
 orphans: [1]
 nullspace: []
 tilemap:
   "0": Space
-  "1": BitrunTile0c9b02979800
-  "2": BitrunTiled892e35ebc20
-  "3": BitrunTilee4972e87fe45
+  "1": BitrunMapTileOpenIndestructibleBitrunningTransport
+  "2": BitrunMapTileOpenFloorIronDark
+  "3": BitrunMapTileOpenFloorIronFreezer
   "4": FloorGreenCircuit
   "5": FloorSilver
 entities:
@@ -58,22 +58,22 @@ entities:
               version: 2
               nodes:
               - node:
-                  id: BitrunDecal00fbb4ffe948
+                  id: BitrunMapDecalEffectDecalCleanableBloodStateFloor1
                 decals:
                   "3": 14,3
               - node:
-                  id: BitrunDecal0d2658f34df4
+                  id: BitrunMapDecalEffectDecalCleanableDirtDust
                 decals:
                   "5": 11,4
                   "10": 10,6
                   "11": 11,6
                   "12": 12,6
               - node:
-                  id: BitrunDecalb4169e91243b
+                  id: BitrunMapDecalEffectDecalCleanableBloodSplatter
                 decals:
                   "1": 14,2
               - node:
-                  id: BitrunDecalde3e3f0d6787
+                  id: BitrunMapDecalEffectDecalCleanableDirt
                 decals:
                   "2": 10,3
                   "6": 13,4
@@ -89,21 +89,21 @@ entities:
                 decals:
                   "4": 14,3
                   "7": 14,4
-  - proto: AirlockFreezerBitrunArtafc3413d2318
+  - proto: BitrunMapMachineryDoorAirlockFreezer
     entities:
       - uid: 70
         components:
           - type: Transform
             parent: 1
             pos: 12.5,7.5
-  - proto: AirlockXenoBitrunArt05cd4b3ea2bc
+  - proto: BitrunMapMachineryDoorAirlockAbductor
     entities:
       - uid: 222
         components:
           - type: Transform
             parent: 1
             pos: 22.5,20.5
-  - proto: BitrunArt07632161c363Placement1046098c9493
+  - proto: BitrunMapStructureUrinalDirectionalWestSpriteOffset0Minus1
     entities:
       - uid: 35
         components:
@@ -111,21 +111,14 @@ entities:
             parent: 1
             pos: 10.5,4.5
             rot: -90
-  - proto: BitrunArt52b63f7ea0d0
-    entities:
-      - uid: 69
-        components:
-          - type: Transform
-            parent: 1
-            pos: 12.5,7.5
-  - proto: BitrunArt8f15c21d65b6Placementd35e240c0c72
+  - proto: BitrunMapItemToyGunSpriteOffset00Point09375
     entities:
       - uid: 212
         components:
           - type: Transform
             parent: 213
             pos: 0,0
-  - proto: BitrunArtc642e486a0ecPlacement42ae6e72884d
+  - proto: BitrunMapStructureSignPosterAbductorRandomDirectionalEastSpriteStateAyyNoSpriteOffset00
     entities:
       - uid: 36
         components:
@@ -344,6 +337,338 @@ entities:
             pos: 25.5,24.5
           - type: MetaData
             name: "crate_replacer"
+  - proto: BitrunMapStructureFansTiny
+    entities:
+      - uid: 69
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,7.5
+  - proto: BitrunMapMobLivingBasicMimicCrate
+    entities:
+      - uid: 124
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,12.5
+      - uid: 197
+        components:
+          - type: Transform
+            parent: 1
+            pos: 26.5,18.5
+      - uid: 237
+        components:
+          - type: Transform
+            parent: 1
+            pos: 22.5,21.5
+      - uid: 250
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,22.5
+      - uid: 258
+        components:
+          - type: Transform
+            parent: 1
+            pos: 26.5,22.5
+  - proto: BitrunMapItemGunBallisticAutomaticMiniUzi
+    entities:
+      - uid: 50
+        components:
+          - type: Transform
+            parent: 49
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticRevolverSpriteOffsetDefault
+    entities:
+      - uid: 59
+        components:
+          - type: Transform
+            parent: 49
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticRevolverSpriteOffset0Point031250Point03125
+    entities:
+      - uid: 53
+        components:
+          - type: Transform
+            parent: 49
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticRevolverSpriteOffset0Point15625Minus0Point0625
+    entities:
+      - uid: 57
+        components:
+          - type: Transform
+            parent: 49
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticRevolverSpriteOffset0Point156250Point09375
+    entities:
+      - uid: 55
+        components:
+          - type: Transform
+            parent: 49
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticRevolverSpriteOffsetMinus0Point1250Point0625
+    entities:
+      - uid: 58
+        components:
+          - type: Transform
+            parent: 49
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticRevolverSpriteOffsetMinus0Point093750
+    entities:
+      - uid: 56
+        components:
+          - type: Transform
+            parent: 49
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticRevolverSpriteOffsetMinus0Point031250Point15625
+    entities:
+      - uid: 54
+        components:
+          - type: Transform
+            parent: 49
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticRevolverSpriteOffset0Point06250Point09375
+    entities:
+      - uid: 51
+        components:
+          - type: Transform
+            parent: 49
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticRevolverSpriteOffsetMinus0Point1250Point09375
+    entities:
+      - uid: 52
+        components:
+          - type: Transform
+            parent: 49
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticRevolverMateba
+    entities:
+      - uid: 120
+        components:
+          - type: Transform
+            parent: 121
+            pos: 0,0
+      - uid: 153
+        components:
+          - type: Transform
+            parent: 152
+            pos: 0,0
+      - uid: 193
+        components:
+          - type: Transform
+            parent: 192
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticShotgunLethalSpriteOffsetDefault
+    entities:
+      - uid: 119
+        components:
+          - type: Transform
+            parent: 121
+            pos: 0,0
+      - uid: 245
+        components:
+          - type: Transform
+            parent: 246
+            pos: 0,0
+      - uid: 256
+        components:
+          - type: Transform
+            parent: 257
+            pos: 0,0
+  - proto: BitrunMapStructureClosetCrateEva
+    entities:
+      - uid: 92
+        components:
+          - type: Transform
+            parent: 1
+            pos: 25.5,8.5
+      - uid: 108
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,10.5
+      - uid: 159
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,15.5
+      - uid: 211
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,20.5
+  - proto: BitrunMapStructureClosetCrateFreezerSurplusLimbs
+    entities:
+      - uid: 183
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,17.5
+      - uid: 190
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,18.5
+  - proto: BitrunMapStructureClosetCrateHydroponics
+    entities:
+      - uid: 179
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,16.5
+  - proto: BitrunMapStructureClosetCrateInternals
+    entities:
+      - uid: 152
+        components:
+          - type: Transform
+            parent: 1
+            pos: 23.5,14.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [153]
+  - proto: BitrunMapStructureClosetCratePreopen
+    entities:
+      - uid: 49
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,6.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+      - uid: 121
+        components:
+          - type: Transform
+            parent: 1
+            pos: 26.5,11.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [119, 120]
+      - uid: 246
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,22.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [245]
+      - uid: 257
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,22.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [256]
+  - proto: BitrunMapStructureClosetCrateSecure
+    entities:
+      - uid: 107
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,10.5
+      - uid: 112
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,11.5
+      - uid: 132
+        components:
+          - type: Transform
+            parent: 1
+            pos: 25.5,12.5
+      - uid: 136
+        components:
+          - type: Transform
+            parent: 1
+            pos: 11.5,13.5
+      - uid: 137
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,13.5
+      - uid: 189
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,18.5
+      - uid: 195
+        components:
+          - type: Transform
+            parent: 1
+            pos: 23.5,18.5
+      - uid: 206
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,19.5
+      - uid: 238
+        components:
+          - type: Transform
+            parent: 1
+            pos: 23.5,21.5
+      - uid: 247
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,22.5
+      - uid: 248
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,22.5
+      - uid: 251
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,22.5
+      - uid: 255
+        components:
+          - type: Transform
+            parent: 1
+            pos: 20.5,22.5
+      - uid: 280
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,24.5
+      - uid: 284
+        components:
+          - type: Transform
+            parent: 1
+            pos: 26.5,24.5
+  - proto: BitrunMapStructureClosetCrateSecureLoot
+    entities:
+      - uid: 126
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,12.5
+  - proto: BitrunMapStructureClosetCrateWooden
+    entities:
+      - uid: 192
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,18.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [193]
+      - uid: 213
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,20.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [212]
   - proto: BitrunVirtualWall
     entities:
       - uid: 2
@@ -1366,197 +1691,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 28.5,25.5
-  - proto: CrateFreezerBitrunArtf20f77e78be2
-    entities:
-      - uid: 183
-        components:
-          - type: Transform
-            parent: 1
-            pos: 12.5,17.5
-      - uid: 190
-        components:
-          - type: Transform
-            parent: 1
-            pos: 7.5,18.5
-  - proto: CrateGenericSteelBitrunArt49537162290f
-    entities:
-      - uid: 179
-        components:
-          - type: Transform
-            parent: 1
-            pos: 17.5,16.5
-  - proto: CrateGenericSteelBitrunArtb64f761ca0ee
-    entities:
-      - uid: 92
-        components:
-          - type: Transform
-            parent: 1
-            pos: 25.5,8.5
-      - uid: 108
-        components:
-          - type: Transform
-            parent: 1
-            pos: 24.5,10.5
-      - uid: 152
-        components:
-          - type: Transform
-            parent: 1
-            pos: 23.5,14.5
-          - type: ContainerContainer
-            containers:
-              entity_storage: !type:Container
-                ents: [153]
-      - uid: 159
-        components:
-          - type: Transform
-            parent: 1
-            pos: 4.5,15.5
-      - uid: 211
-        components:
-          - type: Transform
-            parent: 1
-            pos: 2.5,20.5
-  - proto: CrateGenericSteelBitrunArtef78f2373e03
-    entities:
-      - uid: 49
-        components:
-          - type: Transform
-            parent: 1
-            pos: 11.5,6.5
-          - type: ContainerContainer
-            containers:
-              entity_storage: !type:Container
-                ents: [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 334]
-      - uid: 121
-        components:
-          - type: Transform
-            parent: 1
-            pos: 26.5,11.5
-          - type: ContainerContainer
-            containers:
-              entity_storage: !type:Container
-                ents: [119, 120]
-      - uid: 246
-        components:
-          - type: Transform
-            parent: 1
-            pos: 4.5,22.5
-          - type: ContainerContainer
-            containers:
-              entity_storage: !type:Container
-                ents: [245]
-      - uid: 257
-        components:
-          - type: Transform
-            parent: 1
-            pos: 21.5,22.5
-          - type: ContainerContainer
-            containers:
-              entity_storage: !type:Container
-                ents: [256]
-  - proto: CrateSecureBitrunArta37f03f11062
-    entities:
-      - uid: 107
-        components:
-          - type: Transform
-            parent: 1
-            pos: 21.5,10.5
-      - uid: 112
-        components:
-          - type: Transform
-            parent: 1
-            pos: 1.5,11.5
-      - uid: 126
-        components:
-          - type: Transform
-            parent: 1
-            pos: 16.5,12.5
-      - uid: 132
-        components:
-          - type: Transform
-            parent: 1
-            pos: 25.5,12.5
-      - uid: 136
-        components:
-          - type: Transform
-            parent: 1
-            pos: 11.5,13.5
-      - uid: 137
-        components:
-          - type: Transform
-            parent: 1
-            pos: 12.5,13.5
-      - uid: 189
-        components:
-          - type: Transform
-            parent: 1
-            pos: 2.5,18.5
-      - uid: 195
-        components:
-          - type: Transform
-            parent: 1
-            pos: 23.5,18.5
-      - uid: 206
-        components:
-          - type: Transform
-            parent: 1
-            pos: 21.5,19.5
-      - uid: 238
-        components:
-          - type: Transform
-            parent: 1
-            pos: 23.5,21.5
-      - uid: 247
-        components:
-          - type: Transform
-            parent: 1
-            pos: 7.5,22.5
-      - uid: 248
-        components:
-          - type: Transform
-            parent: 1
-            pos: 9.5,22.5
-      - uid: 251
-        components:
-          - type: Transform
-            parent: 1
-            pos: 16.5,22.5
-      - uid: 255
-        components:
-          - type: Transform
-            parent: 1
-            pos: 20.5,22.5
-      - uid: 280
-        components:
-          - type: Transform
-            parent: 1
-            pos: 21.5,24.5
-      - uid: 284
-        components:
-          - type: Transform
-            parent: 1
-            pos: 26.5,24.5
-  - proto: CrateWoodBitrunArt535c22143eea
-    entities:
-      - uid: 192
-        components:
-          - type: Transform
-            parent: 1
-            pos: 14.5,18.5
-          - type: ContainerContainer
-            containers:
-              entity_storage: !type:Container
-                ents: [193]
-      - uid: 213
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,20.5
-          - type: ContainerContainer
-            containers:
-              entity_storage: !type:Container
-                ents: [212]
-  - proto: ExtinguisherCabinetBitrunArt813774e00736Placement4cf9d9996ab2
+  - proto: BitrunMapStructureExtinguisherCabinetDirectionalEastSpriteOffset0Minus0Point90625
     entities:
       - uid: 60
         components:
@@ -1570,48 +1705,14 @@ entities:
             parent: 1
             pos: 13.5,6.5
             rot: 180
-  - proto: GrilleBitrunArt55b67fc37f21
+  - proto: BitrunMapStructureGrille
     entities:
       - uid: 22
         components:
           - type: Transform
             parent: 1
             pos: 14.5,2.5
-  - proto: Magazine45_ACPSubMachineGunFMJPlacement9204d19db554
-    entities:
-      - uid: 334
-        components:
-          - type: Transform
-            parent: 49
-            pos: 0,0
-  - proto: MobMimicBitrunArt89768582acd7
-    entities:
-      - uid: 124
-        components:
-          - type: Transform
-            parent: 1
-            pos: 4.5,12.5
-      - uid: 197
-        components:
-          - type: Transform
-            parent: 1
-            pos: 26.5,18.5
-      - uid: 237
-        components:
-          - type: Transform
-            parent: 1
-            pos: 22.5,21.5
-      - uid: 250
-        components:
-          - type: Transform
-            parent: 1
-            pos: 11.5,22.5
-      - uid: 258
-        components:
-          - type: Transform
-            parent: 1
-            pos: 26.5,22.5
-  - proto: PoweredSmallLightBitrunArtc9a32b7fe2e3Placement42ae6e72884d
+  - proto: BitrunMapMachineryLightSmallDirectionalEast
     entities:
       - uid: 29
         components:
@@ -1637,14 +1738,14 @@ entities:
             parent: 1
             pos: 14.5,6.5
             rot: 270
-  - proto: RailingBitrunArt78760ec387e4
+  - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
     entities:
       - uid: 43
         components:
           - type: Transform
             parent: 1
             pos: 14.5,5.5
-  - proto: RailingBitrunArtb5b1e39cbdf5
+  - proto: BitrunMapStructureRailingCornerEnd
     entities:
       - uid: 42
         components:
@@ -1652,7 +1753,7 @@ entities:
             parent: 1
             pos: 13.5,5.5
             rot: 90
-  - proto: ToiletEmptyBitrunArt6fd869c409af
+  - proto: BitrunMapStructureToiletSpriteOffsetDefault
     entities:
       - uid: 41
         components:
@@ -1660,7 +1761,7 @@ entities:
             parent: 1
             pos: 10.5,5.5
             rot: 90
-  - proto: WallSilverBitrunArta4d49b8beb38
+  - proto: BitrunMapClosedWallMineralSilver
     entities:
       - uid: 16
         components:
@@ -1762,111 +1863,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 15.5,7.5
-  - proto: WeaponRevolverInspectorBitrunArt3bf5ec43779c
-    entities:
-      - uid: 59
-        components:
-          - type: Transform
-            parent: 49
-            pos: 0,0
-  - proto: WeaponRevolverInspectorBitrunArt3bf5ec43779cPlacement0d3b1abb1de4
-    entities:
-      - uid: 53
-        components:
-          - type: Transform
-            parent: 49
-            pos: 0,0
-  - proto: WeaponRevolverInspectorBitrunArt3bf5ec43779cPlacement182aa7863d3c
-    entities:
-      - uid: 57
-        components:
-          - type: Transform
-            parent: 49
-            pos: 0,0
-  - proto: WeaponRevolverInspectorBitrunArt3bf5ec43779cPlacement381fb2c23a28
-    entities:
-      - uid: 55
-        components:
-          - type: Transform
-            parent: 49
-            pos: 0,0
-  - proto: WeaponRevolverInspectorBitrunArt3bf5ec43779cPlacement3d77a2fb8c02
-    entities:
-      - uid: 58
-        components:
-          - type: Transform
-            parent: 49
-            pos: 0,0
-  - proto: WeaponRevolverInspectorBitrunArt3bf5ec43779cPlacement67c02765f64e
-    entities:
-      - uid: 56
-        components:
-          - type: Transform
-            parent: 49
-            pos: 0,0
-  - proto: WeaponRevolverInspectorBitrunArt3bf5ec43779cPlacement9227d3aa47b6
-    entities:
-      - uid: 54
-        components:
-          - type: Transform
-            parent: 49
-            pos: 0,0
-  - proto: WeaponRevolverInspectorBitrunArt3bf5ec43779cPlacementc0b2b69a0019
-    entities:
-      - uid: 51
-        components:
-          - type: Transform
-            parent: 49
-            pos: 0,0
-  - proto: WeaponRevolverInspectorBitrunArt3bf5ec43779cPlacemente25e38957534
-    entities:
-      - uid: 52
-        components:
-          - type: Transform
-            parent: 49
-            pos: 0,0
-  - proto: WeaponRevolverInspectorBitrunArtee0ba92a0985
-    entities:
-      - uid: 120
-        components:
-          - type: Transform
-            parent: 121
-            pos: 0,0
-      - uid: 153
-        components:
-          - type: Transform
-            parent: 152
-            pos: 0,0
-      - uid: 193
-        components:
-          - type: Transform
-            parent: 192
-            pos: 0,0
-  - proto: WeaponShotgunDoubleBarreledBitrunArt94a8bfb9e388
-    entities:
-      - uid: 119
-        components:
-          - type: Transform
-            parent: 121
-            pos: 0,0
-      - uid: 245
-        components:
-          - type: Transform
-            parent: 246
-            pos: 0,0
-      - uid: 256
-        components:
-          - type: Transform
-            parent: 257
-            pos: 0,0
-  - proto: WeaponSubMachineGunDrozdBitrunArta0e46dff6a0f
-    entities:
-      - uid: 50
-        components:
-          - type: Transform
-            parent: 49
-            pos: 0,0
-  - proto: WindowBitrunArte9f9c984f13f
+  - proto: BitrunMapStructureWindowFulltile
     entities:
       - uid: 21
         components:

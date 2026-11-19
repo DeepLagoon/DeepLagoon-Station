@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/mob/clothing/head/hats.dmi.",
+  "states": [
+    {
+      "name": "blacksoft",
+      "directions": 4
+    },
+    {
+      "name": "capcap",
+      "directions": 4
+    },
+    {
+      "name": "fishing_hat",
+      "directions": 4
+    },
+    {
+      "name": "greensoft",
+      "directions": 4
+    },
+    {
+      "name": "hopcap",
+      "directions": 4
+    },
+    {
+      "name": "hoscap",
+      "directions": 4
+    },
+    {
+      "name": "mimesoft",
+      "directions": 4
+    },
+    {
+      "name": "tophat",
+      "directions": 4
+    }
+  ]
+}

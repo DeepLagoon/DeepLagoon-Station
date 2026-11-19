@@ -8,8 +8,8 @@ orphans: [1]
 nullspace: []
 tilemap:
   "0": Space
-  "1": BitrunTile737fdf53c76b
-  "2": BitrunTilee1e088f9d253
+  "1": BitrunMapTileOpenFloorPlating
+  "2": BitrunMapTileOpenFloor
 entities:
   - proto: ""
     entities:
@@ -86,7 +86,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 2.5,0.5
-  - proto: MobCorgiBitrunArt64a078c0a089
+  - proto: BitrunMapMobLivingBasicPetDogCorgi
     entities:
       - uid: 2
         components:

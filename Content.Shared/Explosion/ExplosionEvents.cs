@@ -10,6 +10,7 @@ namespace Content.Shared.Explosion;
 [ByRefEvent]
 public record struct GetExplosionResistanceEvent(string ExplosionPrototype) : IInventoryRelayEvent
 {
+    public bool CoveredArmorApplied;
     /// <summary>
     ///     A coefficient applied to overall explosive damage.
     /// </summary>

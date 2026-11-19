@@ -11,6 +11,8 @@
   - SheetSteel
   - IngotSilver
   - SheetPlasma
+  gear: BitrunOutfitDatumOutfitBitductor
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: ash_drake
@@ -23,12 +25,12 @@
   reward: 37500
   objective: Boss
   objectiveCount: 1
-  gear: BitrunExplorerGear
-  restrictLoadout: true
   loot:
   - SheetSteel
   - IngotSilver
   - SheetPlasma
+  gear: BitrunOutfitDatumOutfitJobMiner
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: beach_bar
@@ -55,11 +57,11 @@
   reward: 12500
   objective: Boss
   objectiveCount: 1
-  gear: BitrunExplorerGear
-  restrictLoadout: true
   loot:
   - SheetSteel
   - SheetGlass
+  gear: BitrunOutfitDatumOutfitJobMiner
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: breeze_bay
@@ -86,12 +88,12 @@
   reward: 37500
   objective: Boss
   objectiveCount: 1
-  gear: BitrunExplorerGear
-  restrictLoadout: true
   loot:
   - SheetSteel
   - IngotSilver
   - SheetPlasma
+  gear: BitrunOutfitDatumOutfitJobMiner
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: clown_planet
@@ -102,11 +104,11 @@
   cost: 1
   credits: 3
   reward: 12500
-  gear: ClownGear
-  restrictLoadout: true
   loot:
   - SheetSteel
   - SheetGlass
+  gear: BitrunOutfitDatumOutfitJobClown
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: colossus
@@ -119,11 +121,11 @@
   reward: 12500
   objective: Boss
   objectiveCount: 1
-  gear: BitrunExplorerGear
-  restrictLoadout: true
   loot:
   - SheetSteel
   - SheetGlass
+  gear: BitrunOutfitDatumOutfitJobMiner
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: fredingtonfastingbear
@@ -176,11 +178,11 @@
   reward: 12500
   objective: Ritual
   objectiveCount: 10
-  gear: BitrunExplorerGear
-  restrictLoadout: true
   loot:
   - SheetSteel
   - SheetGlass
+  gear: BitrunOutfitDatumOutfitVirtualDomainHeretic
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: hierophant
@@ -193,11 +195,11 @@
   reward: 12500
   objective: Boss
   objectiveCount: 1
-  gear: BitrunExplorerGear
-  restrictLoadout: true
   loot:
   - SheetSteel
   - SheetGlass
+  gear: BitrunOutfitDatumOutfitJobMiner
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: island_brawl
@@ -210,13 +212,13 @@
   reward: 50000
   objective: Island
   objectiveCount: 10
-  gear: BitrunSecurityGear
-  restrictLoadout: true
   loot:
   - SheetSteel
   - SheetPlasma
   - IngotSilver
   - IngotGold
+  gear: BitrunOutfitDatumOutfitBeachbumCombat
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: meta_central
@@ -227,13 +229,13 @@
   cost: 3
   credits: 10
   reward: 50000
-  gear: BitrunSecurityGear
-  restrictLoadout: true
   loot:
   - SheetSteel
   - SheetPlasma
   - IngotSilver
   - IngotGold
+  gear: BitrunOutfitDatumOutfitJobSecurityMod
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: pipedream
@@ -271,13 +273,13 @@
   cost: 1
   credits: 10
   reward: 37500
-  gear: BitrunExplorerGear
-  restrictLoadout: true
   echoVision: true
   loot:
   - SheetSteel
   - IngotSilver
   - SheetPlasma
+  gear: BitrunOutfitDatumOutfitEcholocator
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: psyker_zombies
@@ -288,13 +290,13 @@
   cost: 2
   credits: 10
   reward: 37500
-  gear: BitrunExplorerGear
-  restrictLoadout: true
   echoVision: true
   loot:
   - SheetSteel
   - IngotSilver
   - SheetPlasma
+  gear: BitrunOutfitDatumOutfitEcholocator
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: ancient_milsim
@@ -307,14 +309,14 @@
   reward: 75000
   objective: Stages
   objectiveCount: 1
-  gear: BitrunSecurityGear
-  restrictLoadout: true
   loot:
   - SheetSteel
   - SheetPlasma
   - IngotSilver
   - IngotGold
   - ClothingShoesBootsMag
+  gear: BitrunOutfitDatumOutfitTerragovBitrun
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: stairs_and_cliffs
@@ -328,6 +330,8 @@
   loot:
   - SheetSteel
   - SheetGlass
+  gear: BitrunOutfitDatumOutfitJobVirtualDomainIceclimber
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: syndicate_assault
@@ -367,11 +371,11 @@
   reward: 12500
   objective: Boss
   objectiveCount: 1
-  gear: BitrunExplorerGear
-  restrictLoadout: true
   loot:
   - SheetSteel
   - SheetGlass
+  gear: BitrunOutfitDatumOutfitJobMiner
+  restrictLoadout: true
 
 - type: bitrunDomain
   id: xeno_nest

@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/mob/inhands/weapons/swords_lefthand.dmi.",
+  "states": [
+    {
+      "name": "carrotshiv",
+      "directions": 4
+    },
+    {
+      "name": "cutlass",
+      "directions": 4
+    },
+    {
+      "name": "dualsaber0",
+      "directions": 4
+    },
+    {
+      "name": "e_cutlass",
+      "directions": 4
+    },
+    {
+      "name": "e_sword",
+      "directions": 4
+    },
+    {
+      "name": "energy_katana",
+      "directions": 4
+    },
+    {
+      "name": "plastitaniumshiv",
+      "directions": 4
+    },
+    {
+      "name": "sabre",
+      "directions": 4
+    }
+  ]
+}

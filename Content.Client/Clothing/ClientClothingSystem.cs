@@ -123,8 +123,12 @@ public sealed partial class ClientClothingSystem : ClothingSystem
 
         List<PrototypeLayerData>? layers = null;
 
+        if (TryComp<HumanoidAppearanceComponent>(args.Equipee, out var humanoid) &&
+            !EntityManager.System<Content.Client.Humanoid.HumanoidAppearanceSystem>().UsesPlantigradeClothing(humanoid))
+            item.ClothingVisuals.TryGetValue($"{args.Slot}-digitigrade", out layers);
+
         // first attempt to get species specific data.
-        if (inventory.SpeciesId != null)
+        if (layers == null && inventory.SpeciesId != null)
             item.ClothingVisuals.TryGetValue($"{args.Slot}-{inventory.SpeciesId}", out layers);
 
         // if that returned nothing, attempt to find generic data
@@ -324,6 +328,8 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         }
 
         if (plantigrade && slot == "shoes") displacementData = null;
+        if (!plantigrade && clothingComponent.ClothingVisuals.ContainsKey($"{slot}-digitigrade"))
+            displacementData = null;
         if (plantigrade && humanoid != null && _legPrototypes.Index(humanoid.Species).MarkingLegShape)
             displacementData = null;
 

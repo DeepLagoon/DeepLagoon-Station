@@ -1,17 +1,17 @@
 meta:
   format: 7
   category: Grid
-  entityCount: 121
+  entityCount: 118
 maps: []
 grids: [1]
 orphans: [1]
 nullspace: []
 tilemap:
   "0": Space
-  "1": BitrunTile0c9b02979800
-  "2": BitrunTile737fdf53c76b
-  "3": BitrunTile7e13274f00ac
-  "4": BitrunTilee1e088f9d253
+  "1": BitrunMapTileOpenIndestructibleBitrunningTransport
+  "2": BitrunMapTileOpenFloorPlating
+  "3": BitrunMapTileOpenFloorIronWhite
+  "4": BitrunMapTileOpenFloor
   "5": FloorShuttleBlack
 entities:
   - proto: ""
@@ -46,20 +46,20 @@ entities:
               version: 2
               nodes:
               - node:
-                  id: BitrunDecal00fbb4ffe948
+                  id: BitrunMapDecalEffectDecalCleanableBloodStateFloor1
                 decals:
                   "14": 2,2
               - node:
-                  id: BitrunDecal0d2658f34df4
+                  id: BitrunMapDecalEffectDecalCleanableDirtDust
                 decals:
                   "38": 4,4
               - node:
-                  id: BitrunDecala3852a93cf03
+                  id: BitrunMapDecalEffectTurfDecalSandVolcanic
                 decals:
                   "31": 1,4
                   "44": 3,5
               - node:
-                  id: BitrunDecalde3e3f0d6787
+                  id: BitrunMapDecalEffectDecalCleanableDirt
                 decals:
                   "2": 2,1
                   "9": 5,1
@@ -104,14 +104,14 @@ entities:
                   "40": 5,4
                   "42": 3,5
                   "43": 3,5
-  - proto: AirlockBitrunArt8259584ad10e
+  - proto: BitrunMapMachineryDoorAirlockHatch
     entities:
       - uid: 105
         components:
           - type: Transform
             parent: 1
             pos: 3.5,5.5
-  - proto: BitrunArt24b31f75969d
+  - proto: BitrunMapItemStoragePouchAmmo
     entities:
       - uid: 24
         components:
@@ -123,48 +123,14 @@ entities:
           - type: Transform
             parent: 46
             pos: 0,0
-  - proto: BitrunArt44f45851a23cPlacement42ae6e72884d
+  - proto: BitrunMapStructureSignDepartmentsMedbayAltDirectionalEastSpriteOffset00
     entities:
       - uid: 70
         components:
           - type: Transform
             parent: 1
             pos: 6.5,3.5
-  - proto: BitrunArt4ba897d5fe90
-    entities:
-      - uid: 42
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0
-      - uid: 66
-        components:
-          - type: Transform
-            parent: 46
-            pos: 0,0
-      - uid: 94
-        components:
-          - type: Transform
-            parent: 74
-            pos: 0,0
-  - proto: BitrunArt52742e570fbe
-    entities:
-      - uid: 25
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0
-      - uid: 49
-        components:
-          - type: Transform
-            parent: 46
-            pos: 0,0
-      - uid: 77
-        components:
-          - type: Transform
-            parent: 74
-            pos: 0,0
-  - proto: BitrunArt6b29759e872f
+  - proto: BitrunMapItemStoragePouchMedicalFirstaidStabilizer
     entities:
       - uid: 23
         components:
@@ -176,62 +142,28 @@ entities:
           - type: Transform
             parent: 46
             pos: 0,0
-  - proto: BitrunArta83e2bb1b69c
+  - proto: BitrunMapEffectDecalCleanableGeneric
     entities:
       - uid: 17
         components:
           - type: Transform
             parent: 1
             pos: 3.5,1.5
-  - proto: BitrunArtb821f5f06b99
-    entities:
-      - uid: 26
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0
-      - uid: 50
-        components:
-          - type: Transform
-            parent: 46
-            pos: 0,0
-      - uid: 78
-        components:
-          - type: Transform
-            parent: 74
-            pos: 0,0
-  - proto: BitrunArtbe1d631ccefe
+  - proto: BitrunMapItemTaperecorderEmpty
     entities:
       - uid: 67
         components:
           - type: Transform
             parent: 1
             pos: 4.5,3.5
-  - proto: BitrunArtc022c9380c9e
-    entities:
-      - uid: 41
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0
-      - uid: 65
-        components:
-          - type: Transform
-            parent: 46
-            pos: 0,0
-      - uid: 93
-        components:
-          - type: Transform
-            parent: 74
-            pos: 0,0
-  - proto: BitrunArtd3572127eebb
+  - proto: BitrunMapItemStoragePouchMedicalLoaded
     entities:
       - uid: 76
         components:
           - type: Transform
             parent: 74
             pos: 0,0
-  - proto: BitrunArte45f047cd214
+  - proto: BitrunMapItemStorageBeltMilitaryAssaultHecu
     entities:
       - uid: 34
         components:
@@ -248,7 +180,7 @@ entities:
           - type: Transform
             parent: 74
             pos: 0,0
-  - proto: BitrunArte805f44df7dd
+  - proto: BitrunMapItemStoragePouchMedicalFirstaidLoaded
     entities:
       - uid: 75
         components:
@@ -301,148 +233,21 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,1.5
-  - proto: BitrunHealthStationPlacement9fce7f7ec99f
+  - proto: BitrunMapMachineryIvDripHealthStationDirectionalEast
     entities:
       - uid: 43
         components:
           - type: Transform
             parent: 1
             pos: 5.5,2.5
-  - proto: BitrunMilsimLogBitrunArt379084841449
+  - proto: BitrunMapItemTapeRuinsAncientMilsimDevlogOne
     entities:
       - uid: 98
         components:
           - type: Transform
             parent: 1
             pos: 4.5,4.5
-  - proto: BoxSurvivalBitrunArt0ac73dd6b165
-    entities:
-      - uid: 27
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0
-      - uid: 51
-        components:
-          - type: Transform
-            parent: 46
-            pos: 0,0
-      - uid: 79
-        components:
-          - type: Transform
-            parent: 74
-            pos: 0,0
-  - proto: CombatKnifeBitrunArtf853e65c9f18
-    entities:
-      - uid: 29
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0
-      - uid: 53
-        components:
-          - type: Transform
-            parent: 46
-            pos: 0,0
-      - uid: 81
-        components:
-          - type: Transform
-            parent: 74
-            pos: 0,0
-  - proto: ComfyChairBitrunArtabcf3ff781d5
-    entities:
-      - uid: 68
-        components:
-          - type: Transform
-            parent: 1
-            pos: 5.5,3.5
-            rot: 180
-  - proto: ComputerTabletopCommsBitrunArtb2a50941dd3f
-    entities:
-      - uid: 99
-        components:
-          - type: Transform
-            parent: 1
-            pos: 5.5,4.5
-          - type: MetaData
-            name: "hovercraft console"
-            desc: "An armored hovercraft control computer. Doesn't work anymore... who would've thought."
-  - proto: CrateSecureBitrunArtef719da929ba
-    entities:
-      - uid: 22
-        components:
-          - type: Transform
-            parent: 1
-            pos: 1.5,2.5
-          - type: ContainerContainer
-            containers:
-              entity_storage: !type:Container
-                ents: [23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 119]
-      - uid: 46
-        components:
-          - type: Transform
-            parent: 1
-            pos: 1.5,3.5
-          - type: ContainerContainer
-            containers:
-              entity_storage: !type:Container
-                ents: [47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 120]
-      - uid: 74
-        components:
-          - type: Transform
-            parent: 1
-            pos: 1.5,4.5
-          - type: ContainerContainer
-            containers:
-              entity_storage: !type:Container
-                ents: [75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 121]
-  - proto: GauzeBitrunArta29acba2eec8
-    entities:
-      - uid: 39
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0
-      - uid: 63
-        components:
-          - type: Transform
-            parent: 46
-            pos: 0,0
-      - uid: 91
-        components:
-          - type: Transform
-            parent: 74
-            pos: 0,0
-  - proto: GauzeBitrunArtb5309bdfb685
-    entities:
-      - uid: 40
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0
-      - uid: 64
-        components:
-          - type: Transform
-            parent: 46
-            pos: 0,0
-      - uid: 92
-        components:
-          - type: Transform
-            parent: 74
-            pos: 0,0
-  - proto: GrilleBitrunArt55b67fc37f21
-    entities:
-      - uid: 107
-        components:
-          - type: Transform
-            parent: 1
-            pos: 4.5,5.5
-      - uid: 109
-        components:
-          - type: Transform
-            parent: 1
-            pos: 5.5,5.5
-  - proto: Magazine45_ACPPistolFMJBitrunArt0b5e404d1ce3
+  - proto: BitrunMapItemAmmoBoxMagazineC35solPistol
     entities:
       - uid: 31
         components:
@@ -489,7 +294,7 @@ entities:
           - type: Transform
             parent: 74
             pos: 0,0
-  - proto: Magazine45_ACPPistolHighCapacityFMJBitrunArt94ae10a1ae10
+  - proto: BitrunMapItemAmmoBoxMagazineC35solPistolStendo
     entities:
       - uid: 35
         components:
@@ -551,24 +356,243 @@ entities:
           - type: Transform
             parent: 74
             pos: 0,0
-  - proto: Magazine45_ACPSubMachineGunFMJPlacement9204d19db554
+  - proto: BitrunMapItemClothingGlassesHudHealthNight
     entities:
-      - uid: 119
+      - uid: 42
         components:
           - type: Transform
             parent: 22
             pos: 0,0
-      - uid: 120
+      - uid: 66
         components:
           - type: Transform
             parent: 46
             pos: 0,0
-      - uid: 121
+      - uid: 94
         components:
           - type: Transform
             parent: 74
             pos: 0,0
-  - proto: PlastitaniumWindowBitrunArtcd725a64eca7
+  - proto: BitrunMapItemClothingGlovesMilitary
+    entities:
+      - uid: 41
+        components:
+          - type: Transform
+            parent: 22
+            pos: 0,0
+      - uid: 65
+        components:
+          - type: Transform
+            parent: 46
+            pos: 0,0
+      - uid: 93
+        components:
+          - type: Transform
+            parent: 74
+            pos: 0,0
+  - proto: BitrunMapItemClothingHeadHelmetHecu
+    entities:
+      - uid: 25
+        components:
+          - type: Transform
+            parent: 22
+            pos: 0,0
+      - uid: 49
+        components:
+          - type: Transform
+            parent: 46
+            pos: 0,0
+      - uid: 77
+        components:
+          - type: Transform
+            parent: 74
+            pos: 0,0
+  - proto: BitrunMapItemClothingSuitArmorVestHecu
+    entities:
+      - uid: 26
+        components:
+          - type: Transform
+            parent: 22
+            pos: 0,0
+      - uid: 50
+        components:
+          - type: Transform
+            parent: 46
+            pos: 0,0
+      - uid: 78
+        components:
+          - type: Transform
+            parent: 74
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticAutomaticPistolSol
+    entities:
+      - uid: 30
+        components:
+          - type: Transform
+            parent: 22
+            pos: 0,0
+      - uid: 54
+        components:
+          - type: Transform
+            parent: 46
+            pos: 0,0
+      - uid: 82
+        components:
+          - type: Transform
+            parent: 74
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticAutomaticSolSmg
+    entities:
+      - uid: 28
+        components:
+          - type: Transform
+            parent: 22
+            pos: 0,0
+      - uid: 52
+        components:
+          - type: Transform
+            parent: 46
+            pos: 0,0
+      - uid: 80
+        components:
+          - type: Transform
+            parent: 74
+            pos: 0,0
+  - proto: BitrunMapItemKnifeCombat
+    entities:
+      - uid: 29
+        components:
+          - type: Transform
+            parent: 22
+            pos: 0,0
+      - uid: 53
+        components:
+          - type: Transform
+            parent: 46
+            pos: 0,0
+      - uid: 81
+        components:
+          - type: Transform
+            parent: 74
+            pos: 0,0
+  - proto: BitrunMapItemStorageToolboxEmergencySpriteOffsetDefault
+    entities:
+      - uid: 96
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,4.5
+  - proto: BitrunMapStructureClosetCrateSecureWeapon
+    entities:
+      - uid: 22
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,2.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
+      - uid: 46
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,3.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66]
+      - uid: 74
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,4.5
+          - type: ContainerContainer
+            containers:
+              entity_storage: !type:Container
+                ents: [75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94]
+  - proto: BitrunMapItemStorageBoxSurvivalSyndie
+    entities:
+      - uid: 27
+        components:
+          - type: Transform
+            parent: 22
+            pos: 0,0
+      - uid: 51
+        components:
+          - type: Transform
+            parent: 46
+            pos: 0,0
+      - uid: 79
+        components:
+          - type: Transform
+            parent: 74
+            pos: 0,0
+  - proto: BitrunMapStructureChairComfyShuttle
+    entities:
+      - uid: 68
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,3.5
+            rot: 180
+  - proto: BitrunMapMachineryComputerSpriteLayers3StateShuttleSpriteOffsetDefault
+    entities:
+      - uid: 99
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,4.5
+          - type: MetaData
+            name: "hovercraft console"
+            desc: "An armored hovercraft control computer. Doesn't work anymore... who would've thought."
+  - proto: BitrunMapItemStackMedicalMeshBloody
+    entities:
+      - uid: 39
+        components:
+          - type: Transform
+            parent: 22
+            pos: 0,0
+      - uid: 63
+        components:
+          - type: Transform
+            parent: 46
+            pos: 0,0
+      - uid: 91
+        components:
+          - type: Transform
+            parent: 74
+            pos: 0,0
+  - proto: BitrunMapItemStackMedicalSutureBloody
+    entities:
+      - uid: 40
+        components:
+          - type: Transform
+            parent: 22
+            pos: 0,0
+      - uid: 64
+        components:
+          - type: Transform
+            parent: 46
+            pos: 0,0
+      - uid: 92
+        components:
+          - type: Transform
+            parent: 74
+            pos: 0,0
+  - proto: BitrunMapStructureGrille
+    entities:
+      - uid: 107
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,5.5
+      - uid: 109
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,5.5
+  - proto: BitrunMapStructureWindowReinforcedPlasmaPlastitaniumIconSmoothModeCardinalFlags
     entities:
       - uid: 106
         components:
@@ -580,7 +604,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: PoweredSmallLightBitrunArtc9a32b7fe2e3Placement42ae6e72884d
+  - proto: BitrunMapMachineryLightSmallDirectionalEast
     entities:
       - uid: 16
         components:
@@ -605,14 +629,14 @@ entities:
           - type: Transform
             parent: 1
             pos: 2.5,4.5
-  - proto: TableReinforcedBitrunArt234d0deab64b
+  - proto: BitrunMapStructureTableReinforced
     entities:
       - uid: 97
         components:
           - type: Transform
             parent: 1
             pos: 4.5,4.5
-  - proto: ThrusterBitrunArt6ebba51689a8
+  - proto: BitrunMapMachineryPowerShuttleEnginePropulsion
     entities:
       - uid: 15
         components:
@@ -638,7 +662,7 @@ entities:
             parent: 1
             pos: 6.5,4.5
             rot: 90
-  - proto: ThrusterBitrunArta1903ff45aaa
+  - proto: BitrunMapMachineryPowerShuttleEngineHeater
     entities:
       - uid: 4
         components:
@@ -665,14 +689,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,0.5
-  - proto: ToolboxMechanicalBitrunArta0ce2b9344fe
-    entities:
-      - uid: 96
-        components:
-          - type: Transform
-            parent: 1
-            pos: 2.5,4.5
-  - proto: WallPlastitaniumBitrunArt5dc43d41aa54
+  - proto: BitrunMapClosedWallRWallPlastitaniumSyndicate
     entities:
       - uid: 2
         components:
@@ -769,37 +786,3 @@ entities:
           - type: Transform
             parent: 1
             pos: 6.5,5.5
-  - proto: WeaponPistolMk58BitrunArt5d8143478f7b
-    entities:
-      - uid: 30
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0
-      - uid: 54
-        components:
-          - type: Transform
-            parent: 46
-            pos: 0,0
-      - uid: 82
-        components:
-          - type: Transform
-            parent: 74
-            pos: 0,0
-  - proto: WeaponSubMachineGunDrozdBitrunArteaf3c7b17560
-    entities:
-      - uid: 28
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0
-      - uid: 52
-        components:
-          - type: Transform
-            parent: 46
-            pos: 0,0
-      - uid: 80
-        components:
-          - type: Transform
-            parent: 74
-            pos: 0,0

@@ -8,6 +8,9 @@
   "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/clothing/suits/jacket.dmi.",
   "states": [
     {
+      "name": "leather_trenchcoat"
+    },
+    {
       "name": "leatherjacket_biker"
     },
     {

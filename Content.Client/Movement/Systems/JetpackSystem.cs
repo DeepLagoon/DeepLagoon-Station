@@ -8,6 +8,7 @@ using Robust.Shared.Map.Components;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Timing;
 using Content.Shared.Clothing;
+using Content.Shared._Goobstation.Clothing.Components;
 
 namespace Content.Client.Movement.Systems;
 
@@ -34,7 +35,7 @@ public sealed partial class JetpackSystem : SharedJetpackSystem
     {
         // Magboots have their own visual state controlled!
         // by ToggleableVisuals.Enabled. :3 :3 :3 :3
-        if (HasComp<MagbootsComponent>(uid))
+        if (HasComp<MagbootsComponent>(uid) || HasComp<SealableClothingControlComponent>(uid))
             return;
 
         Appearance.TryGetData<bool>(

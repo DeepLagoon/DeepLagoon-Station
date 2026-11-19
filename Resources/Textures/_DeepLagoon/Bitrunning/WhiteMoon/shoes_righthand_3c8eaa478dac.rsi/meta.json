@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/mob/inhands/clothing/shoes_righthand.dmi.",
+  "states": [
+    {
+      "name": "clown_shoes",
+      "directions": 4
+    },
+    {
+      "name": "cookflops",
+      "directions": 4
+    },
+    {
+      "name": "jackboots",
+      "directions": 4
+    },
+    {
+      "name": "magboots",
+      "directions": 4
+    },
+    {
+      "name": "sneakers_back",
+      "directions": 4
+    },
+    {
+      "name": "wizshoe",
+      "directions": 4
+    }
+  ]
+}

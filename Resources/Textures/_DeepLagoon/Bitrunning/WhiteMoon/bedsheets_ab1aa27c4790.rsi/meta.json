@@ -20,6 +20,10 @@
       "directions": 4
     },
     {
+      "name": "sheetblack",
+      "directions": 4
+    },
+    {
       "name": "sheetpirate",
       "directions": 4
     }

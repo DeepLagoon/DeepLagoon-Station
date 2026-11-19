@@ -8,10 +8,19 @@
   "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/map_icons/clothing/head/_head.dmi.",
   "states": [
     {
+      "name": "state_2fc17ab80cb2"
+    },
+    {
+      "name": "state_60913c6bfcc0"
+    },
+    {
       "name": "state_86b024e0976e"
     },
     {
       "name": "state_dca69d39f877"
+    },
+    {
+      "name": "state_fe7f6d19ca82"
     }
   ]
 }

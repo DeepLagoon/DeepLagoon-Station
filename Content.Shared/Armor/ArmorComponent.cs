@@ -3,6 +3,7 @@ using Content.Shared.Inventory;
 using Robust.Shared.GameStates;
 using Robust.Shared.Serialization;
 using Robust.Shared.Utility;
+using Content.Shared._Shitmed.Targeting;
 
 namespace Content.Shared.Armor;
 
@@ -12,6 +13,9 @@ namespace Content.Shared.Armor;
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState] // goob edit - remove access restrictions
 public sealed partial class ArmorComponent : Component
 {
+    /// <summary>Optional source clothing coverage. Unspecified armour retains native behaviour.</summary>
+    [DataField, AutoNetworkedField] public TargetBodyPart? Coverage;
+    [DataField, AutoNetworkedField] public float CoveredExplosionCoefficient = 1;
     /// <summary>
     /// The damage reduction
     /// </summary>
@@ -38,6 +42,7 @@ public record struct ArmorExamineEvent(FormattedMessage Msg);
 /// </summary>
 public sealed class CoefficientQueryEvent : EntityEventArgs, IInventoryRelayEvent
 {
+    public bool CoveredArmorApplied;
     /// <summary>
     /// All slots to relay to
     /// </summary>

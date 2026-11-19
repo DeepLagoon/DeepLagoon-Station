@@ -1,0 +1,83 @@
+# Concrete bases for source-authored map clothing. The importer supplies WhiteMoon art.
+# The hidden bases have a valid fallback icon; every mapped child overrides its ground and worn art.
+
+- type: entity
+  id: BitrunImportedClothingEyesBase
+  parent: ClothingEyesBase
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bitrunner_uniform.rsi
+    state: bitrunner
+
+- type: entity
+  id: BitrunImportedClothingHandsBase
+  parent: ClothingHandsBase
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bitrunner_uniform.rsi
+    state: bitrunner
+
+- type: entity
+  id: BitrunImportedClothingHeadBase
+  parent: ClothingHeadBase
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bitrunner_uniform.rsi
+    state: bitrunner
+
+- type: entity
+  id: BitrunImportedClothingMaskBase
+  parent: ClothingMaskBase
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bitrunner_uniform.rsi
+    state: bitrunner
+
+- type: entity
+  id: BitrunImportedClothingNeckBase
+  parent: ClothingNeckBase
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bitrunner_uniform.rsi
+    state: bitrunner
+
+- type: entity
+  id: BitrunImportedClothingShoesBase
+  parent: ClothingShoesBase
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bitrunner_uniform.rsi
+    state: bitrunner
+
+- type: entity
+  id: BitrunImportedClothingOuterBase
+  parent: ClothingOuterBase
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bitrunner_uniform.rsi
+    state: bitrunner
+
+- type: entity
+  id: BitrunImportedClothingUniformBase
+  parent: ClothingUniformBase
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bitrunner_uniform.rsi
+    state: bitrunner
+
+- type: entity
+  id: BitrunImportedClothingOuterEVASuitBase
+  parent: ClothingOuterEVASuitBase
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bitrunner_uniform.rsi
+    state: bitrunner

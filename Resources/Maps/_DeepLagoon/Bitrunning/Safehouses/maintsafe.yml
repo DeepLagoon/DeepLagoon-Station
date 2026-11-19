@@ -8,10 +8,10 @@ orphans: [1]
 nullspace: []
 tilemap:
   "0": Space
-  "1": BitrunTile0c9b02979800
-  "2": BitrunTile293ecdba4dcd
-  "3": BitrunTile737fdf53c76b
-  "4": BitrunTilee1e088f9d253
+  "1": BitrunMapTileOpenIndestructibleBitrunningTransport
+  "2": BitrunMapTileEffectMappingHelpersBrokenFloor
+  "3": BitrunMapTileOpenFloorPlating
+  "4": BitrunMapTileOpenFloor
   "5": Plating
 entities:
   - proto: ""
@@ -46,7 +46,7 @@ entities:
               version: 2
               nodes:
               - node:
-                  id: BitrunDecal0d2658f34df4
+                  id: BitrunMapDecalEffectDecalCleanableDirtDust
                 decals:
                   "1": 1,1
                   "2": 3,1
@@ -58,14 +58,14 @@ entities:
                   "8": 4,3
                   "9": 2,4
                   "10": 3,4
-  - proto: AirlockBitrunArte49490be8c75
+  - proto: BitrunMapMachineryDoorAirlockMaintenanceHatch
     entities:
       - uid: 28
         components:
           - type: Transform
             parent: 1
             pos: 3.5,5.5
-  - proto: BitrunArt54fd8071b954Placement42ae6e72884d
+  - proto: BitrunMapStructureBrokenFlooringSideDirectionalNorthSpriteOffset00
     entities:
       - uid: 14
         components:
@@ -73,14 +73,14 @@ entities:
             parent: 1
             pos: 2.5,2.5
             rot: 180
-  - proto: BitrunArt7d942b58cecc
+  - proto: BitrunMapEffectDecalCleanableCobweb
     entities:
       - uid: 23
         components:
           - type: Transform
             parent: 1
             pos: 1.5,4.5
-  - proto: BitrunArtc99e3ddbd78aPlacement42ae6e72884d
+  - proto: BitrunMapStructureBrokenFlooringCornerDirectionalNorthSpriteOffset00
     entities:
       - uid: 13
         components:
@@ -88,7 +88,7 @@ entities:
             parent: 1
             pos: 1.5,2.5
             rot: 180
-  - proto: BitrunArtf61a72681e82Placement42ae6e72884d
+  - proto: BitrunMapStructureBrokenFlooringSingularDirectionalNorthSpriteOffset00
     entities:
       - uid: 15
         components:
@@ -142,7 +142,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 3.5,1.5
-  - proto: PoweredlightBitrunArtc99cdcd3ba4ePlacement42ae6e72884d
+  - proto: BitrunMapMachineryLightDirectionalEast
     entities:
       - uid: 19
         components:
@@ -156,14 +156,14 @@ entities:
             parent: 1
             pos: 5.5,3.5
             rot: 270
-  - proto: RailingBitrunArt6228dad01d87
+  - proto: BitrunMapStructureRailingCornerEndFlip
     entities:
       - uid: 16
         components:
           - type: Transform
             parent: 1
             pos: 3.5,2.5
-  - proto: RailingBitrunArt78760ec387e4
+  - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
     entities:
       - uid: 10
         components:
@@ -171,7 +171,7 @@ entities:
             parent: 1
             pos: 3.5,1.5
             rot: 90
-  - proto: WallSolidBitrunArt7007f3a1737a
+  - proto: BitrunMapClosedWall
     entities:
       - uid: 2
         components:

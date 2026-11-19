@@ -14,7 +14,16 @@
       "name": "breath"
     },
     {
+      "name": "clown"
+    },
+    {
       "name": "gas_alt"
+    },
+    {
+      "name": "gas_mining"
+    },
+    {
+      "name": "mad_mask"
     },
     {
       "name": "medical"
@@ -23,7 +32,13 @@
       "name": "party_horn"
     },
     {
+      "name": "sechailer"
+    },
+    {
       "name": "sterile"
+    },
+    {
+      "name": "swat"
     }
   ]
 }

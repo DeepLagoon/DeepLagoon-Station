@@ -8,13 +8,13 @@ orphans: [1]
 nullspace: []
 tilemap:
   "0": Space
-  "1": BitrunTile0c9b02979800
-  "2": BitrunTile45ab7f5a55e3
-  "3": BitrunTile655fb3f494ff
-  "4": BitrunTile737fdf53c76b
-  "5": BitrunTiled892e35ebc20
-  "6": BitrunTilee1988ab77323
-  "7": BitrunTilee8f67d3fa97d
+  "1": BitrunMapTileOpenIndestructibleBitrunningTransport
+  "2": BitrunMapTileOpenFloorIronDarkSmoothEdgeDirection1
+  "3": BitrunMapTileOpenFloorIronDarkTexturedLarge
+  "4": BitrunMapTileOpenFloorPlating
+  "5": BitrunMapTileOpenFloorIronDark
+  "6": BitrunMapTileOpenFloorIronDarkSmoothEdgeDirection4
+  "7": BitrunMapTileOpenFloorIronDarkSmoothEdgeDirection2
   "8": Plating
 entities:
   - proto: ""
@@ -49,7 +49,7 @@ entities:
               version: 2
               nodes:
               - node:
-                  id: BitrunDecal2535797f6e64
+                  id: BitrunMapDecalEffectTurfDecalTrimlineRed
                 decals:
                   "1": 1,1
                   "2": 2,1
@@ -68,7 +68,7 @@ entities:
                 decals:
                   "7": 5,2
                   "9": 5,3
-  - proto: AirlockExternalBitrunArt7071c1427123
+  - proto: BitrunMapMachineryDoorAirlockExternalRuin
     entities:
       - uid: 41
         components:
@@ -77,13 +77,6 @@ entities:
             pos: 3.5,5.5
           - type: MetaData
             name: "Mining External Airlock"
-  - proto: BitrunArt52b63f7ea0d0
-    entities:
-      - uid: 42
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,5.5
   - proto: BitrunAvatarSpawn
     entities:
       - uid: 47
@@ -130,35 +123,59 @@ entities:
           - type: Transform
             parent: 1
             pos: 4.5,1.5
-  - proto: ClosetO2FilledBitrunArtdaba4904fb42
+  - proto: BitrunMapStructureFansTiny
+    entities:
+      - uid: 42
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,5.5
+  - proto: BitrunMapMachinerySuitStorageUnitMining
+    entities:
+      - uid: 24
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,2.5
+      - uid: 29
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,3.5
+      - uid: 34
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,4.5
+  - proto: BitrunMapStructureTankDispenserOxygenSpriteOffsetDefault
     entities:
       - uid: 35
         components:
           - type: Transform
             parent: 1
             pos: 5.5,4.5
-  - proto: FlashlightLanternBitrunArtadced0c3348aPlacement544caafdba78
+  - proto: BitrunMapItemFlashlightLanternSpriteOffsetMinus0Point250Point25
     entities:
       - uid: 17
         components:
           - type: Transform
             parent: 1
             pos: 1.5,1.5
-  - proto: FlashlightLanternBitrunArtadced0c3348aPlacementb1fe1124abdb
+  - proto: BitrunMapItemFlashlightLanternSpriteOffset00Point125
     entities:
       - uid: 16
         components:
           - type: Transform
             parent: 1
             pos: 1.5,1.5
-  - proto: FlashlightLanternBitrunArtadced0c3348aPlacementb6dbb6ad6460
+  - proto: BitrunMapItemFlashlightLanternSpriteOffset0Point250
     entities:
       - uid: 15
         components:
           - type: Transform
             parent: 1
             pos: 1.5,1.5
-  - proto: GrilleBitrunArt55b67fc37f21
+  - proto: BitrunMapStructureGrille
     entities:
       - uid: 5
         components:
@@ -205,14 +222,14 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: PottedPlant0BitrunArtfa77506c5009
+  - proto: BitrunMapItemKirbyplantsRandomSpriteLayers0StatePlantMinus05
     entities:
       - uid: 18
         components:
           - type: Transform
             parent: 1
             pos: 5.5,1.5
-  - proto: PoweredlightBitrunArtc99cdcd3ba4ePlacement42ae6e72884d
+  - proto: BitrunMapMachineryLightDirectionalEast
     entities:
       - uid: 30
         components:
@@ -226,14 +243,14 @@ entities:
             parent: 1
             pos: 5.5,3.5
             rot: 270
-  - proto: RailingBitrunArt78760ec387e4
+  - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
     entities:
       - uid: 25
         components:
           - type: Transform
             parent: 1
             pos: 5.5,2.5
-  - proto: ReinforcedWindowBitrunArt9f81dfb3bf9d
+  - proto: BitrunMapStructureWindowReinforcedFulltile
     entities:
       - uid: 4
         components:
@@ -280,38 +297,21 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: SignCargoBitrunArt6b2fb2fe7237Placement42ae6e72884d
+  - proto: BitrunMapStructureSignDepartmentsCargoDirectionalWest
     entities:
       - uid: 19
         components:
           - type: Transform
             parent: 1
             pos: 5.5,0.5
-  - proto: SuitStorageBaseBitrunArt064d20bdb027
-    entities:
-      - uid: 24
-        components:
-          - type: Transform
-            parent: 1
-            pos: 1.5,2.5
-      - uid: 29
-        components:
-          - type: Transform
-            parent: 1
-            pos: 1.5,3.5
-      - uid: 34
-        components:
-          - type: Transform
-            parent: 1
-            pos: 1.5,4.5
-  - proto: TableBitrunArt01782f28577d
+  - proto: BitrunMapStructureTable
     entities:
       - uid: 14
         components:
           - type: Transform
             parent: 1
             pos: 1.5,1.5
-  - proto: WallSolidBitrunArt7007f3a1737a
+  - proto: BitrunMapClosedWall
     entities:
       - uid: 2
         components:

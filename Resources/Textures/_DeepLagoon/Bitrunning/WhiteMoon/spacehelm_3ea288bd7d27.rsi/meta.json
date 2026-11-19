@@ -8,10 +8,25 @@
   "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/clothing/head/spacehelm.dmi.",
   "states": [
     {
+      "name": "space"
+    },
+    {
+      "name": "spacebandana"
+    },
+    {
+      "name": "spaceold"
+    },
+    {
+      "name": "spacepirate"
+    },
+    {
       "name": "syndicate-helm-black-engie"
     },
     {
       "name": "syndicate-helm-orange"
+    },
+    {
+      "name": "void"
     }
   ]
 }

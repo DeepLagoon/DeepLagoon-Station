@@ -216,7 +216,8 @@ namespace Content.Shared.Damage
                 return null;
 
             // Shitmed Change Start
-            var partDamage = new TryChangePartDamageEvent(damage, origin, targetPart, ignoreResistances, canSever ?? true, canEvade ?? false, partMultiplier ?? 1.00f, OriginFlag: originFlag);
+            var partDamage = new TryChangePartDamageEvent(damage, origin, targetPart, ignoreResistances, canSever ?? true, canEvade ?? false, partMultiplier ?? 1.00f, OriginFlag: originFlag,
+                Tool: tool, ArmorPenetration: armorPenetration);
             RaiseLocalEvent(uid.Value, ref partDamage);
 
             if (partDamage.Evaded || partDamage.Cancelled)
@@ -231,8 +232,11 @@ namespace Content.Shared.Damage
                     _prototypeManager.Resolve(damageable.DamageModifierSetId, out var modifierSet))
                 {
                     // TODO: We need to add a check to see if the given armor covers the targeted part (if any) to modify or not.
+                    // Source damage coefficients are innate susceptibility, not clothing armour.
+                    var innatePenetration = tool is {} source && TryComp<Content.Shared.Armor.DamageArmorOverrideComponent>(source, out var armorSource) &&
+                        armorSource.SourceArmorPenetration ? 0 : armorPenetration;
                     damage = DamageSpecifier.ApplyModifierSet(damage,
-                        DamageSpecifier.PenetrateArmor(modifierSet, armorPenetration)); // Goob edit
+                        DamageSpecifier.PenetrateArmor(modifierSet, innatePenetration));
                 }
 
                 var ev = new DamageModifyEvent(damage, origin, armorPenetration, targetPart, tool); // Shitmed Change
@@ -493,7 +497,9 @@ namespace Content.Shared.Damage
         float PartMultiplier = 1.00f,
         bool Evaded = false,
         bool Cancelled = false,
-        DamageOriginFlag? OriginFlag = null);
+        DamageOriginFlag? OriginFlag = null,
+        EntityUid? Tool = null,
+        float ArmorPenetration = 0);
 
     /// <summary>
     ///     Raised on an entity when damage is about to be dealt,
@@ -504,6 +510,7 @@ namespace Content.Shared.Damage
     /// </summary>
     public sealed class DamageModifyEvent : EntityEventArgs, IInventoryRelayEvent
     {
+        public bool CoveredArmorApplied;
         // Whenever locational damage is a thing, this should just check only that bit of armour.
         public SlotFlags TargetSlots { get; } = ~SlotFlags.POCKET;
 

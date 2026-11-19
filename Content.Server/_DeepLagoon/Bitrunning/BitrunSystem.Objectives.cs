@@ -16,10 +16,21 @@ namespace Content.Server._DeepLagoon.Bitrunning;
 [RegisterComponent]
 public sealed partial class BitrunFishingRodComponent : Component;
 
+[RegisterComponent]
+public sealed partial class BitrunHuntTargetComponent : Component;
+
+[RegisterComponent]
+public sealed partial class BitrunMilsimEnemyComponent : Component;
+
+[RegisterComponent]
+public sealed partial class BitrunRitualOfferingComponent : Component
+{
+    [DataField] public int Value = 1;
+}
+
 public sealed partial class BitrunSystem
 {
     [Dependency] private SharedDoAfterSystem _doAfter = default!;
-    private static readonly TimeSpan IslandWaveDelay = TimeSpan.FromSeconds(8);
 
     private void InitializeObjectives()
     {
@@ -28,6 +39,38 @@ public sealed partial class BitrunSystem
         SubscribeLocalEvent<BitrunScenarioMarkerComponent, BitrunScenarioDoAfterEvent>(OnScenarioDoAfter);
         SubscribeLocalEvent<BitrunPodComponent, BitrunEjectDoAfterEvent>(OnEjectDoAfter);
         SubscribeLocalEvent<BitrunAvatarComponent, DrinkConsumedEvent>(OnDrinkConsumed);
+        SubscribeLocalEvent<BitrunRitualOfferingComponent, MoveEvent>(OnOfferingMoved);
+        SubscribeLocalEvent<BitrunRitualOfferingComponent, MobStateChangedEvent>(OnOfferingDied);
+    }
+
+    private void OnOfferingMoved(Entity<BitrunRitualOfferingComponent> offering, ref MoveEvent args)
+    {
+        if (!args.OnlyRotation)
+            TrySacrifice(offering);
+    }
+
+    private void OnOfferingDied(Entity<BitrunRitualOfferingComponent> offering, ref MobStateChangedEvent args)
+    {
+        if (args.NewMobState == MobState.Dead)
+            TrySacrifice(offering);
+    }
+
+    private bool TrySacrifice(Entity<BitrunRitualOfferingComponent> offering)
+    {
+        var xform = Transform(offering);
+        if (!_mobState.IsDead(offering) || xform.MapUid is not { } map || !_domains.TryGetValue(map, out var run) ||
+            run.Completed || run.Cache != null || run.Domain.Objective != BitrunObjective.Ritual ||
+            run.UsedScenarios.Contains(offering) || xform.GridUid is not { } grid ||
+            !TryComp<MapGridComponent>(grid, out var gridComp))
+            return false;
+        var position = _maps.CoordinatesToTile(grid, gridComp, xform.Coordinates);
+        if (!run.Scenarios.Any(marker => !TerminatingOrDeleted(marker) && MetaData(marker).EntityName == "loot_signal" &&
+            Transform(marker).GridUid == grid && _maps.CoordinatesToTile(grid, gridComp, Transform(marker).Coordinates) == position))
+            return false;
+        run.UsedScenarios.Add(offering);
+        AdvanceObjective(run, offering.Comp.Value, xform.Coordinates);
+        QueueDel(offering);
+        return true;
     }
 
     private void ConfigureObjectives(Run run)
@@ -39,21 +82,19 @@ public sealed partial class BitrunSystem
             case BitrunObjective.Boss:
                 foreach (var marker in run.Scenarios.Where(uid => MetaData(uid).EntityName == "boss"))
                 {
-                    if (mobs.FirstOrDefault(uid => MetaData(uid).EntityPrototype?.ID.StartsWith("BitrunMob", StringComparison.Ordinal) == true && IsNearby(marker, uid, 1.5f)) is { Valid: true } boss)
+                    // Imported appearance variants use BitrunMapMob... IDs.
+                    // Identify the actual boss capability, not its prototype spelling.
+                    if (mobs.FirstOrDefault(uid => HasComp<BitrunMegafaunaComponent>(uid) && IsNearby(marker, uid, 1.5f)) is { Valid: true } boss)
                         run.Targets.Add(boss);
                 }
                 break;
 
             case BitrunObjective.Hunt:
-                run.Targets.UnionWith(mobs.Where(uid => MetaData(uid).EntityPrototype?.ID == "BitrunHuntAnimal"));
-                break;
-
-            case BitrunObjective.Island:
-                run.IslandWaveAt = run.Started + IslandWaveDelay;
+                run.Targets.UnionWith(mobs.Where(uid => HasComp<BitrunHuntTargetComponent>(uid) || MetaData(uid).EntityPrototype?.ID == "BitrunHuntAnimal"));
                 break;
 
             case BitrunObjective.Stages:
-                run.Targets.UnionWith(mobs.Where(uid => MetaData(uid).EntityPrototype?.ID is
+                run.Targets.UnionWith(mobs.Where(uid => HasComp<BitrunMilsimEnemyComponent>(uid) || MetaData(uid).EntityPrototype?.ID is
                     "BitrunMilsimInfantry" or "BitrunMilsimRifleman"));
                 break;
         }
@@ -63,6 +104,14 @@ public sealed partial class BitrunSystem
             if (MetaData(marker).EntityName == "curiosity_spawn")
                 run.Curiosities.Add(Spawn("BitrunEncryptedCuriosity", Transform(marker).Coordinates));
         }
+    }
+
+    internal void RecordMegafaunaDeath(EntityUid boss)
+    {
+        if (Transform(boss).MapUid is not { } map || !_domains.TryGetValue(map, out var run) ||
+            run.Domain.Objective != BitrunObjective.Boss || !run.Targets.Remove(boss))
+            return;
+        AdvanceObjective(run, 1, Transform(boss).Coordinates);
     }
 
     private void PollObjectives(Run run)
@@ -81,8 +130,6 @@ public sealed partial class BitrunSystem
 
             if (run.Domain.Objective == BitrunObjective.Boss && run.Targets.Count == 0)
                 SpawnCache(run);
-            else if (run.Domain.Objective == BitrunObjective.Island && run.Targets.Count == 0 && run.Cache == null)
-                PollIslandWave(run);
         }
 
         if (run.Domain.Objective == BitrunObjective.Stages && run.StageOpened &&
@@ -126,57 +173,6 @@ public sealed partial class BitrunSystem
         }
     }
 
-    private void PollIslandWave(Run run)
-    {
-        run.IslandWaveAt ??= _timing.CurTime + IslandWaveDelay;
-        if (_timing.CurTime < run.IslandWaveAt)
-            return;
-
-        var attacker = run.Avatars.FirstOrDefault(uid => Comp<BitrunAvatarComponent>(uid).Side == BitrunSide.Attackers);
-        if (!attacker.Valid || Transform(attacker).GridUid is not { } gridUid ||
-            !TryComp<MapGridComponent>(gridUid, out var grid))
-            return;
-
-        const float waveRange = 9f;
-        var center = new Circle(_transform.GetWorldPosition(attacker), waveRange);
-        var attackerCoordinates = Transform(attacker).Coordinates;
-        var candidates = new List<EntityCoordinates>();
-        var nearby = new List<EntityCoordinates>();
-        foreach (var tile in _maps.GetTilesIntersecting(gridUid, grid, center))
-        {
-            if (_turf.IsSpace(tile) || !IsSpawnClear(tile, grid, avoidWater: true))
-                continue;
-
-            var coords = _maps.GridTileToLocal(gridUid, grid, tile.GridIndices);
-            if (!coords.TryDistance(EntityManager, attackerCoordinates, out var distance) || distance < 2f)
-                continue;
-
-            nearby.Add(coords);
-            if (_interaction.InRangeUnobstructed(attacker, coords, waveRange))
-                candidates.Add(coords);
-        }
-
-        if (candidates.Count == 0)
-            candidates = nearby.Count > 0 ? nearby : run.AttackerSpawns
-                .Where(coords => coords.TryDistance(EntityManager, attackerCoordinates, out var distance) && distance >= 1f)
-                .ToList();
-
-        var count = Math.Min(4, run.Domain.ObjectiveCount - run.ObjectiveProgress);
-        for (var index = 0; index < count && candidates.Count > 0; index++)
-        {
-            var coords = _random.PickAndTake(candidates);
-            var crab = Spawn("BitrunIslandCrab", coords);
-            EnsureComp<BitrunVirtualEntityComponent>(crab).Domain = run.Map;
-            run.Targets.Add(crab);
-        }
-
-        if (run.Targets.Count == 0)
-            return;
-
-        run.IslandWaveAt = null;
-        NotifyAvatars(run, Loc.GetString("bitrun-island-wave", ("count", run.Targets.Count)));
-    }
-
     private void OnDrinkConsumed(EntityUid uid, BitrunAvatarComponent link, DrinkConsumedEvent args)
     {
         if (link.Side == BitrunSide.Attackers && _runs.TryGetValue(link.Server, out var run) &&
@@ -195,16 +191,10 @@ public sealed partial class BitrunSystem
         if (run.Domain.Objective == BitrunObjective.Ritual && markerName == "loot_signal")
         {
             args.Handled = true;
-            var corpse = FindMapEntities<MobStateComponent>(run.Map).FirstOrDefault(mob =>
-                _mobState.IsDead(mob) && MetaData(mob).EntityPrototype?.ID == "BitrunRitualCrew" &&
-                !run.UsedScenarios.Contains(mob) && IsNearby(uid, mob, 1.5f));
-            if (corpse.Valid)
-            {
-                run.UsedScenarios.Add(corpse);
-                QueueDel(corpse);
-                AdvanceObjective(run, 2);
-            }
-            else
+            var accepted = false;
+            foreach (var corpse in FindMapEntities<BitrunRitualOfferingComponent>(run.Map))
+                accepted |= TrySacrifice((corpse, Comp<BitrunRitualOfferingComponent>(corpse)));
+            if (!accepted)
             {
                 _popup.PopupEntity(Loc.GetString("bitrun-ritual-needs-corpse"), uid, args.User);
             }
@@ -342,6 +332,18 @@ public sealed partial class BitrunSystem
 
     private static string GradeRun(Run run, TimeSpan elapsed)
     {
+        return ScoreRun(run, elapsed) switch
+        {
+            <= 4 => "D",
+            <= 7 => "C",
+            <= 10 => "B",
+            <= 13 => "A",
+            _ => "S",
+        };
+    }
+
+    private static int ScoreRun(Run run, TimeSpan elapsed)
+    {
         var timeScore = elapsed.TotalMinutes switch
         {
             <= 1 => 10,
@@ -351,14 +353,7 @@ public sealed partial class BitrunSystem
             _ => 1,
         };
 
-        return (run.Domain.Credits + timeScore * (run.Domain.Difficulty + 1)) switch
-        {
-            <= 4 => "D",
-            <= 7 => "C",
-            <= 10 => "B",
-            <= 13 => "A",
-            _ => "S",
-        };
+        return run.Threats.Count * 5 + run.Domain.Credits + timeScore * (run.Domain.Difficulty + 1);
     }
 
     private EntProtoId[] GetRewardLoot(Run run, string grade)

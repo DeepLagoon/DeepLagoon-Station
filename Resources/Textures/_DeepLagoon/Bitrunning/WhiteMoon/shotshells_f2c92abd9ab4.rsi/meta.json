@@ -8,7 +8,19 @@
   "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/modular_skyrat/modules/shotgunrebalance/icons/shotshells.dmi.",
   "states": [
     {
+      "name": "blshell"
+    },
+    {
+      "name": "bshell"
+    },
+    {
       "name": "gshell"
+    },
+    {
+      "name": "ishell"
+    },
+    {
+      "name": "rshell"
     }
   ]
 }

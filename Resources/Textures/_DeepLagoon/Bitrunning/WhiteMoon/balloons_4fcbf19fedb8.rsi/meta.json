@@ -11,6 +11,54 @@
       "name": "balloon"
     },
     {
+      "name": "balloon_ai"
+    },
+    {
+      "name": "balloon_banana"
+    },
+    {
+      "name": "balloon_cat"
+    },
+    {
+      "name": "balloon_clown"
+    },
+    {
+      "name": "balloon_dog"
+    },
+    {
+      "name": "balloon_ethereal"
+    },
+    {
+      "name": "balloon_fly"
+    },
+    {
+      "name": "balloon_guy"
+    },
+    {
+      "name": "balloon_lizard"
+    },
+    {
+      "name": "balloon_long"
+    },
+    {
+      "name": "balloon_moth"
+    },
+    {
+      "name": "balloon_nukie"
+    },
+    {
+      "name": "balloon_plasmaman"
+    },
+    {
+      "name": "balloon_podguy"
+    },
+    {
+      "name": "balloon_slime"
+    },
+    {
+      "name": "balloon_xeno"
+    },
+    {
       "name": "heart"
     }
   ]

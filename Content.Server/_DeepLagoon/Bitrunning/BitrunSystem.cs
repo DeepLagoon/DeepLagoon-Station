@@ -59,6 +59,8 @@ public sealed partial class BitrunSystem : EntitySystem
         InitializeAvatars();
         InitializeObjectives();
         InitializeGlitches();
+        InitializeGuests();
+        InitializeAbilities();
         InitializeRewards();
         SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => ResetRound());
         SubscribeLocalEvent<GameRunLevelChangedEvent>(OnRoundLevelChanged);
@@ -177,6 +179,11 @@ public sealed partial class BitrunSystem : EntitySystem
             }
 
             ConfigureObjectives(run);
+            if (domain.Objective == BitrunObjective.Boss && run.Targets.Count == 0)
+            {
+                Log.Error($"Bitrun boss domain {domain.ID} has no megafauna at its boss marker");
+                return false;
+            }
             if (domain.Objective == BitrunObjective.Cache)
                 SpawnCache(run);
 
@@ -375,7 +382,7 @@ public sealed partial class BitrunSystem : EntitySystem
         public readonly HashSet<EntityUid> Curiosities = new();
         public EntityUid? Cache;
         public int ObjectiveProgress;
-        public TimeSpan? IslandWaveAt;
+        public readonly HashSet<EntityUid> Threats = new();
         public bool StageOpened;
         public bool Completed;
         public TimeSpan? StopAt;

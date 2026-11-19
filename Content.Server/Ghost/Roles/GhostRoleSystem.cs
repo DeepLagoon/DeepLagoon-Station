@@ -538,6 +538,8 @@ public sealed partial class GhostRoleSystem : EntitySystem
 
         DebugTools.AssertNotNull(player.ContentData());
 
+        RaiseLocalEvent(mob, new GhostRoleMindTransferEvent(player));
+
         var newMind = _mindSystem.CreateMind(player.UserId,
             Comp<MetaDataComponent>(mob).EntityName);
 

@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/mob/inhands/items/drinks_lefthand.dmi.",
+  "states": [
+    {
+      "name": "atoxinbottle",
+      "directions": 4
+    },
+    {
+      "name": "beer",
+      "directions": 4
+    },
+    {
+      "name": "carton",
+      "directions": 4
+    },
+    {
+      "name": "coffee",
+      "directions": 4
+    },
+    {
+      "name": "cola",
+      "directions": 4
+    },
+    {
+      "name": "colocup",
+      "directions": 4
+    },
+    {
+      "name": "dr_gibb",
+      "directions": 4
+    },
+    {
+      "name": "golden_cup",
+      "directions": 4
+    },
+    {
+      "name": "lemon-lime",
+      "directions": 4
+    },
+    {
+      "name": "melon_soda",
+      "directions": 4
+    },
+    {
+      "name": "purple_can",
+      "directions": 4
+    },
+    {
+      "name": "space_mountain_wind",
+      "directions": 4
+    },
+    {
+      "name": "starkist",
+      "directions": 4
+    },
+    {
+      "name": "thirteen_loko",
+      "directions": 4
+    },
+    {
+      "name": "wellcheers",
+      "directions": 4
+    }
+  ]
+}

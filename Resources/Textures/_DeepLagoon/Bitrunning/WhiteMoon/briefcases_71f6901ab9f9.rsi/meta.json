@@ -11,7 +11,13 @@
       "name": "briefcase_black"
     },
     {
+      "name": "briefcase_inflate"
+    },
+    {
       "name": "briefcase_secure_black"
+    },
+    {
+      "name": "briefcase_suit"
     }
   ]
 }

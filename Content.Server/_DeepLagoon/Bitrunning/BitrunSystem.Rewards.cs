@@ -111,7 +111,7 @@ public sealed partial class BitrunSystem
 
         var time = _timing.CurTime - run.Started;
         var grade = GradeRun(run, time);
-        IncreaseGlitchThreat(run, grade);
+        IncreaseGlitchThreat(run, time);
         EntProtoId[] loot = elimination ? [] : GetRewardLoot(run, grade);
         var payout = new Payout(run, winner, points, grade, (int) time.TotalSeconds, loot);
         _payouts.Add(run.Id, payout);

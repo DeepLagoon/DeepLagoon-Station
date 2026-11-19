@@ -17,6 +17,9 @@
       "name": "moneybag"
     },
     {
+      "name": "random_wallet"
+    },
+    {
       "name": "wall_safe"
     }
   ]

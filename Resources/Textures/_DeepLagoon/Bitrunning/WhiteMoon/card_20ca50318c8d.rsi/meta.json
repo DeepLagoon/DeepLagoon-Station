@@ -11,6 +11,9 @@
       "name": "card_black"
     },
     {
+      "name": "card_grey"
+    },
+    {
       "name": "emag",
       "delays": [
         [

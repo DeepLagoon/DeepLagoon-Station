@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/mining.dmi as RSI for DeepLagoon.",
+  "states": [
+    {
+      "name": "markerrandom"
+    },
+    {
+      "name": "markerburgundy-on"
+    },
+    {
+      "name": "markerburgundy"
+    },
+    {
+      "name": "markerbronze-on"
+    },
+    {
+      "name": "markerbronze"
+    },
+    {
+      "name": "markeryellow-on"
+    },
+    {
+      "name": "markeryellow"
+    },
+    {
+      "name": "markerlime-on"
+    },
+    {
+      "name": "markerlime"
+    },
+    {
+      "name": "markerolive-on"
+    },
+    {
+      "name": "markerolive"
+    },
+    {
+      "name": "markerjade-on"
+    },
+    {
+      "name": "markerjade"
+    },
+    {
+      "name": "markerteal-on"
+    },
+    {
+      "name": "markerteal"
+    },
+    {
+      "name": "markercerulean-on"
+    },
+    {
+      "name": "markercerulean"
+    },
+    {
+      "name": "markerindigo-on"
+    },
+    {
+      "name": "markerindigo"
+    },
+    {
+      "name": "markerpurple-on"
+    },
+    {
+      "name": "markerpurple"
+    },
+    {
+      "name": "markerviolet-on"
+    },
+    {
+      "name": "markerviolet"
+    },
+    {
+      "name": "markerfuchsia-on"
+    },
+    {
+      "name": "markerfuchsia"
+    }
+  ]
+}

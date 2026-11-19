@@ -1,0 +1,540 @@
+# Source names and authored Russian names. Model numbers are part of the source.
+proto-kinetic accelerator	протокинетический ускоритель
+cooldown decrease	модкит уменьшения перезарядки
+damage increase	модкит увеличения урона
+range increase	модкит увеличения дальности
+Lionhunter's Rifle	охотничья винтовка «Левобой»
+Makarov pistol	пистолет Макарова
+Stechkin APS machine pistol	автоматический пистолет Стечкина
+Sakhno Precision Rifle	высокоточная винтовка Sakhno
+Sakhno M2442 Army	армейская винтовка Sakhno M2442
+Lanca Battle Rifle	боевая винтовка Lanca
+Lanca rifle magazine	магазин винтовки Lanca
+Miecz Submachine Gun	пистолет-пулемёт Miecz
+Miecz submachinegun magazine	магазин пистолета-пулемёта Miecz
+Sindano Submachine Gun	пистолет-пулемёт Sindano
+Type U3 Uzi	пистолет-пулемёт Uzi U3
+Uzi magazine (9mm)	магазин Uzi (9 мм)
+Desert Eagle	пистолет Desert Eagle
+Wespe Pistol	пистолет Wespe
+Unica 6 auto-revolver	автоматический револьвер Unica 6
+Bóbr 12 GA revolver	револьвер Bóbr (12 калибр)
+Golden revolver	золотой револьвер
+L6 SAW	ручной пулемёт L6 SAW
+C-20r SMG	пистолет-пулемёт C-20r
+NT-ARG 'Boarder'	абордажная винтовка NT-ARG
+Carp Lite	пистолет Carp Lite
+Terrygold	пистолет Terrygold
+WT-550 Autorifle	автомат WT-550
+WT-550 magazine	магазин WT-550
+Wyłom Anti-Materiel Rifle	крупнокалиберная винтовка Wyłom
+anti-materiel sniper rifle	крупнокалиберная снайперская винтовка
+anti-materiel rifle magazine	магазин крупнокалиберной винтовки
+anti-materiel magazine (.60 Strela)	магазин крупнокалиберной винтовки (.60 Strela)
+Dardo-RE Rocket Launcher	ракетная установка Dardo-RE
+Dardo HE rocket	осколочно-фугасная ракета Dardo
+HE rocket	осколочно-фугасная ракета
+Allstar SC-1 laser carbine	лазерный карабин Allstar SC-1
+Allstar SC-2 energy carbine	энергетический карабин Allstar SC-2
+Type 1 laser gun	лазерная винтовка Type 1
+Type 2 'hellfire' laser gun	лазерная винтовка Type 2 «Адское пламя»
+Type 6 X-ray laser gun	рентгеновская винтовка Type 6
+Gwiazda Plasma Sharpshooter	плазменная снайперская винтовка Gwiazda
+Słońce Plasma Projector	плазменный излучатель Słońce
+staff of the honkmother	посох Хонкоматери
+shrink ray blaster	уменьшающий бластер
+shrink ray	уменьшающий луч
+hybrid taser	гибридный тазер
+laser musket	лазерный мушкет
+woodstock shotgun	дробовик с деревянным прикладом
+shotgun	дробовик
+ammo box (9mm)	коробка патронов (9 мм)
+ammo box (.27-54 Cesarzowa piercing)	коробка бронебойных патронов (.27-54 Cesarzowa)
+ammo box (.310 Strilka piercing)	коробка бронебойных патронов (.310 Strilka)
+ammo box (.35 Sol Short lethal)	коробка боевых патронов (.35 Sol Short)
+Sol pistol magazine	магазин пистолета Sol
+Sol extended pistol magazine	увеличенный магазин пистолета Sol
+stechkin pistol magazine (9mm)	магазин пистолета Стечкина (9 мм)
+pistol magazine (9x25mm)	пистолетный магазин (9×25 мм)
+speed loader (.38)	спидлоадер (.38)
+speed loader (.38 Flare)	спидлоадер (.38, сигнальные)
+stripper clip (.310 Strilka)	обойма (.310 Strilka)
+stripper clip (.310 Surplus)	обойма (.310, армейский запас)
+stripper clip (.310 hunter)	обойма (.310, охотничьи)
+toploader magazine (.223)	магазин с верхней загрузкой (.223)
+box magazine (7mm)	коробчатый магазин (7 мм)
+.454 Trucidator handcannon magazine	магазин ручной пушки (.454 Trucidator)
+.460 Ceres SMG magazine	магазин пистолета-пулемёта (.460 Ceres)
+Slug ammo box	коробка пулевых патронов для дробовика
+Beanbag Slug ammo box	коробка травматических патронов для дробовика
+Incendiary Slug ammo box	коробка зажигательных патронов для дробовика
+box of shotgun shells (Less Lethal - Beanbag)	коробка травматических патронов для дробовика
+revolver cylinder	барабан револьвера
+detective revolver cylinder	барабан револьвера детектива
+12 GA revolver cylinder	барабан револьвера (12 калибр)
+bolt action rifle internal magazine	внутренний магазин винтовки со скользящим затвором
+lionhunter rifle internal magazine	внутренний магазин «Левобоя»
+riot shotgun internal magazine	внутренний магазин полицейского дробовика
+rocket launcher internal magazine	внутренний магазин ракетной установки
+shotgun internal magazine	внутренний магазин дробовика
+plasma power pack	плазменный энергоблок
+energy weapon lens	линза энергетического оружия
+low-power laser	маломощный лазерный луч
+hellfire laser	луч адского пламени
+X-ray beam	рентгеновский луч
+disabler beam	оглушающий луч
+kinetic force	кинетический заряд
+plasma globule	плазменный сгусток
+buckshot pellet	дробина
+buckshot shell	дробовой патрон
+shotgun slug	пуля для дробовика
+beanbag slug	травматическая пуля
+incendiary slug	зажигательная пуля
+rubber shot	резиновая пуля
+rubber shot pellet	резиновая дробина
+flare particle	сигнальный заряд
+projectile	снаряд
+laser	лазерный луч
+hunter's .310 bullet	охотничья пуля (.310)
+hunter's rifle round	охотничий винтовочный патрон
+armor vest	бронежилет
+armored security vest	бронированный жилет охраны
+bulletproof armor	пуленепробиваемый бронежилет
+bulletproof helmet	пуленепробиваемый шлем
+armored trenchcoat	бронированный плащ
+ominous armor	зловещие одеяния
+station defender's coat	пальто защитника станции
+winter coat	зимняя куртка
+letterman jacket	университетская куртка
+red letterman jacket	красная университетская куртка
+blood-red letterman jacket	кроваво-красная университетская куртка
+blue letterman jacket	синяя университетская куртка
+biker jacket	байкерская куртка
+military jacket	военная куртка
+combat vest	боевой бронежилет
+combat helmet	боевой шлем
+combat uniform	боевая форма
+GZ-03 armor vest	бронежилет GZ-03
+GZ-03 combat helmet	боевой шлем GZ-03
+CIN combat uniform	боевая форма CIN
+CIN military backpack	армейский рюкзак CIN
+Mk-honk prototype shoes	прототип ботинок MK-HONK
+mk-honk prototype shoes	прототип ботинок MK-HONK
+gold necklace	золотое ожерелье
+plastic bead necklace	ожерелье из пластиковых бусин
+pet collar	ошейник
+agent headgear	головной убор агента
+coordinator cap	фуражка координатора
+fancy hat	нарядная шляпа
+athletic shorts	спортивные шорты
+button-down shirt with slacks	рубашка с классическими брюками
+coveralls	рабочий комбинезон
+hawaiian overshirt	гавайская рубашка
+jeans	джинсы
+executive suit	деловой костюм
+bow tie	галстук-бабочка
+suspicious looking striped scarf	подозрительный полосатый шарф
+adjustable balaclava	регулируемая балаклава
+bear mask	маска медведя
+carp costume	костюм карпа
+carp hood	капюшон карпа
+foam lobster head	голова поролонового омара
+foam lobster suit	костюм поролонового омара
+jabroni outfit	костюм джаброни
+pirate captain coat	пальто пиратского капитана
+pirate coat	пиратское пальто
+pirate outfit	пиратская форма
+pirate bandana	пиратская бандана
+pirate hat	пиратская шляпа
+pirate boots	пиратские сапоги
+sailor suit	матросская форма
+combat boots	боевые ботинки
+combat gloves	боевые перчатки
+military gloves	военные перчатки
+guerrilla gloves	партизанские перчатки
+gorilla gloves	перчатки гориллы
+fingerless gloves	перчатки без пальцев
+grilling sandals	сандалии для барбекю
+flip-flops	шлёпанцы
+laceup shoes	туфли на шнуровке
+work boots	рабочие ботинки
+insulated gloves	изолирующие перчатки
+security uniform	форма службы безопасности
+security garrison cap	пилотка службы безопасности
+security gas mask	противогаз службы безопасности
+security gloves	перчатки службы безопасности
+security jackboots	сапоги службы безопасности
+syndicate beret	берет Синдиката
+syndicate captain's vest	жилет капитана Синдиката
+syndicate mask	маска Синдиката
+tactical skirtleneck	тактическая водолазка с юбкой
+tactical turtleneck	тактическая водолазка
+tacticool turtleneck	тактикульная водолазка
+health scanner HUD	медицинский визор
+night vision health scanner HUD	медицинский визор ночного видения
+night vision meson scanner	мезонный сканер ночного видения
+night vision goggles	очки ночного видения
+security HUD	визор службы безопасности
+security HUDSunglasses	солнцезащитные очки с визором СБ
+sunglasses	солнцезащитные очки
+aesthetic sunglasses	стильные солнцезащитные очки
+heat goggles	жаростойкие очки
+cold goggles	холодозащитные очки
+colored glasses	цветные очки
+beer goggles	пивные очки
+blind personnel blindfold	повязка для незрячих
+EVA suit	скафандр EVA
+EVA helmet	шлем EVA
+modified EVA suit	модифицированный скафандр EVA
+modified EVA helmet	модифицированный шлем EVA
+Engineering Voidsuit	инженерный скафандр
+Engineering Void Helmet	шлем инженерного скафандра
+black engineering space helmet	чёрный шлем инженерного скафандра
+black engineering space suit	чёрный инженерный скафандр
+orange space helmet	оранжевый шлем скафандра
+orange space suit	оранжевый скафандр
+emergency firesuit	аварийный пожарный костюм
+explorer suit	костюм исследователя
+explorer gas mask	противогаз исследователя
+bio suit	костюм биозащиты
+bio hood	капюшон биозащиты
+chest rig	нагрудная разгрузка
+bandolier	патронташ
+championship belt	чемпионский пояс
+armory closet	оружейный шкаф
+armory tac locker	тактический оружейный шкаф
+alien locker	инопланетный шкаф
+athletic wardrobe	спортивный гардероб
+bartender's closet	шкаф бармена
+booze storage	хранилище алкоголя
+cream pie closet	шкаф с кремовыми пирогами
+emergency closet	аварийный шкаф
+fire-safety closet	противопожарный шкаф
+formal closet	шкаф с парадной одеждой
+personal closet	личный шкаф
+contraband locker	шкаф с контрабандой
+suit storage unit	хранилище скафандров
+blood freezer	морозильник с кровью
+meat fridge	холодильник с мясом
+kitchen cabinet	кухонный шкаф
+freezer	морозильник
+cabinet	шкафчик
+abandoned crate	заброшенный ящик
+secure crate	защищённый ящик
+wooden crate	деревянный ящик
+weapons crate	ящик с оружием
+gear crate	ящик со снаряжением
+cargo crate	грузовой ящик
+gold crate	золотой ящик
+EVA crate	ящик EVA
+hydroponics crate	ящик гидропоники
+internals crate	ящик с дыхательным снаряжением
+cardboard box	картонная коробка
+Mothic Fleet box	ящик флота молей
+surplus syndicrate	ящик излишков Синдиката
+surplus prosthetic limbs	ящик излишков протезов
+surplus prosthetic left arm	устаревший протез левой руки
+surplus prosthetic right arm	устаревший протез правой руки
+surplus prosthetic left leg	устаревший протез левой ноги
+surplus prosthetic right leg	устаревший протез правой ноги
+laundry cart	тележка для белья
+trash cart	мусорная тележка
+trash bin	мусорная корзина
+burial mound	могильный холм
+virtual bartender sleeper	капсула виртуального бармена
+virtual beach bum sleeper	капсула виртуального отдыхающего
+virtual lifeguard sleeper	капсула виртуального спасателя
+Virtual Pirate Remains	останки виртуального пирата
+Virtual Syndicate Sleeper	капсула виртуального оперативника Синдиката
+Islander	островитянин
+Abductor Agent	агент похитителей
+Syndicate Operative	оперативник Синдиката
+Syndicate Salvage Pilot	пилот утилизаторов Синдиката
+Syndicate Stormtrooper	штурмовик Синдиката
+Coalition Operative	оперативник Коалиции
+Bitrunning SNPC CIN Operative	оперативник CIN
+Pirate Gunner	пират-стрелок
+Pirate Swashbuckler	пират-головорез
+Space Pirate Gunner	космический пират-стрелок
+Space Pirate Swashbuckler	космический пират-головорез
+Revolutionary	революционер
+Shambling Corpse	ковыляющий мертвец
+Raw Prophet	сырой пророк
+Clown	клоун
+Cleanbot	уборочный робот
+hivebot	ульеробот
+strong hivebot	усиленный ульеробот
+doe	лань
+ancient polar bear	древний полярный медведь
+space polar bear	космический полярный медведь
+combat bear	боевой медведь
+fight pit bear	аренный медведь
+alien drone	трутень ксеноморфов
+alien hunter	охотник ксеноморфов
+alien sentinel	страж ксеноморфов
+alien empress	императрица ксеноморфов
+alien	ксеноморф
+space cat	космический кот
+crab	краб
+butterfly	бабочка
+chicken	курица
+parrot	попугай
+fox	лиса
+corgi	корги
+gondola	гондола
+Proc	Прок
+.357 revolver	револьвер .357
+.38 revolver	револьвер .38
+12g shotgun slug	пуля 12 калибра
+Kreb	Креб
+M40 gas mask	противогаз M40
+MOD control unit	блок управления МОД
+PSC survival pack	набор выживания Содружества
+SWAT helmet	шлем спецназа
+SWAT mask	маска спецназа
+T-ray scanner	Т-лучевой сканер
+X-4 charge	заряд X-4
+abyssal mask	маска бездны
+alien jumpsuit	инопланетный комбинезон
+amber focus	янтарный фокус
+assistant	ассистент
+assistant PDA	КПК ассистента
+automatic mining scanner	автоматический шахтёрский сканер
+backpack	рюкзак
+banana	банан
+banana cream pie	банановый кремовый пирог
+baseball bat	бейсбольная бита
+bike horn	велосипедный клаксон
+black cap	чёрная кепка
+black gloves	чёрные перчатки
+black jumpsuit	чёрный комбинезон
+black shoes	чёрные туфли
+blindfold	повязка на глаза
+blood pack	пакет крови
+blood type compatibility reference	справочник совместимости групп крови
+body bag	мешок для тела
+breath mask	дыхательная маска
+brown shoes	коричневые туфли
+butcher's cleaver	мясницкий тесак
+chef's hat	поварской колпак
+chief engineer	старший инженер
+chief engineer PDA	КПК старшего инженера
+chief engineer's jumpsuit	комбинезон старшего инженера
+chief engineer's toolbelt	пояс инструментов старшего инженера
+chief medical officer	главный врач
+chief medical officer PDA	КПК главного врача
+chief medical officer's jumpsuit	комбинезон главного врача
+chief medical officer's labcoat	халат главного врача
+cleaner grenade	чистящая граната
+clown PDA	КПК клоуна
+clown shoes	клоунские туфли
+clown suit	клоунский костюм
+clown wig and mask	клоунский парик с маской
+clown's rubber stamp	печать клоуна
+collectable HoP hat	коллекционная фуражка главы персонала
+collectable HoS hat	коллекционная фуражка главы службы безопасности
+collectable paper hat	коллекционная бумажная шляпа
+colo cup	бумажный стакан
+combat knife	боевой нож
+cook's apron	поварской фартук
+crate	ящик
+crew pinpointer	пинпоинтер экипажа
+cyborg knife	нож киборга
+damp rag	влажная тряпка
+dank pizza slice	ломтик необычной пиццы
+double-bladed energy sword	двухклинковый энергетический меч
+duffel bag	вещмешок
+electrode	электрод
+emergency crowbar	аварийный лом
+emergency medkit	аварийная аптечка
+emergency oxygen tank	аварийный кислородный баллон
+emergency space suit case	набор аварийного скафандра
+emergency toolbox	аварийный ящик инструментов
+energy cutlass	энергетический палаш
+energy sword	энергетический меч
+engineer	инженер
+engineer's jumpsuit	комбинезон инженера
+engineering PDA	КПК инженера
+engineering radio headset	инженерная гарнитура
+envy's knife	нож зависти
+eternal candle	вечная свеча
+eyepatch	глазная повязка
+faction bowman headset	боевая гарнитура фракции
+fire extinguisher	огнетушитель
+firefighter helmet	пожарный шлем
+flash	вспышка
+flour sack	мешок муки
+garbage spawner	куча мусора
+gas analyzer	газоанализатор
+gas mask	противогаз
+gilded bike horn	позолоченный велосипедный клаксон
+green cap	зелёная кепка
+grey jumpsuit	серый комбинезон
+handcuffs	наручники
+hard hat	защитная каска
+hatchet	топорик
+head of security	глава службы безопасности
+head of security PDA	КПК главы службы безопасности
+head of security's beret	берет главы службы безопасности
+head of security's uniform	форма главы службы безопасности
+hecu backpack	рюкзак HECU
+helmet	шлем
+hunting knife	охотничий нож
+inflatable barrier box	коробка надувных барьеров
+jackboots	сапоги
+jet harness (oxygen)	реактивная система (кислород)
+jetpack (carbon dioxide)	реактивный ранец (углекислый газ)
+kitchen knife	кухонный нож
+labcoat	лабораторный халат
+leather satchel	кожаная сумка
+leather trenchcoat	кожаный плащ
+legendary fishing hat	легендарная рыбацкая шляпа
+magboots	магнитные ботинки
+medical PDA	КПК врача
+medical doctor	врач
+medical doctor's jumpsuit	комбинезон врача
+medical mask	медицинская маска
+medical radio headset	медицинская гарнитура
+mining boots	шахтёрские ботинки
+mining radio headset	шахтёрская гарнитура
+mining satchel	шахтёрская сумка
+monkey meat	обезьянье мясо
+neurotoxin spit	нейротоксичный плевок
+officer's sabre	офицерская сабля
+oxygen tank	кислородный баллон
+paramedic penlight	фонарик парамедика
+party hat	праздничный колпак
+party horn	праздничная дуделка
+pda	КПК
+penlight	медицинский фонарик
+plastitanium shiv	пластитановая заточка
+pocket fire extinguisher	карманный огнетушитель
+psychic headset	псионическая гарнитура
+radio headset	радиогарнитура
+rice sack	мешок риса
+sandals	сандалии
+satchel	сумка
+seclite	фонарик охраны
+security PDA	КПК службы безопасности
+security bowman headset	боевая гарнитура службы безопасности
+security officer	офицер службы безопасности
+service radio headset	сервисная гарнитура
+shaft miner PDA	КПК шахтёра
+shaft miner's jumpsuit	комбинезон шахтёра
+sheriff hat	шляпа шерифа
+sickly blade	болезненный клинок
+smart metal foam grenade	граната с умной металлической пеной
+smoke grenade	дымовая граната
+space helmet	шлем скафандра
+space suit	скафандр
+sterile mask	стерильная маска
+stethoscope	стетоскоп
+stun baton	электрошоковая дубинка
+sugar sack	мешок сахара
+surgical medkit	хирургическая аптечка
+survival emergency medipen	аварийный автоинъектор выживания
+survival knife	нож выживания
+synthesizer	синтезатор
+the chief engineer's headset	гарнитура старшего инженера
+the chief medical officer's headset	гарнитура главного врача
+the head of security's bowman headset	боевая гарнитура главы службы безопасности
+toolbelt	пояс для инструментов
+top-hat	цилиндр
+torch	факел
+trash bag	мусорный мешок
+urban camouflage BDU	форма с городским камуфляжем
+ushanka	ушанка
+wallet	кошелёк
+warning cone	предупреждающий конус
+welding hard hat	каска сварщика
+welding helmet	сварочная маска
+wet floor sign	табличка «Мокрый пол»
+white cap	белая кепка
+white shoes	белые туфли
+winter boots	зимние ботинки
+clf3 grenade	граната с трифторидом хлора
+evidence bag	пакет для улик
+marker beacon	сигнальный маячок
+portable ethereal disco ball	переносной эфириальный диско-шар
+water flower	цветок-брызгалка
+waistcoat	жилетка
+silver-capped telescopic baton	телескопическая дубинка с серебряным наконечником
+chain of command	цепь командования
+hoverboard	ховерборд
+mirage grenade	граната «Мираж»
+laser pointer	лазерная указка
+carving knife	рунический резец
+Dish Drive	плата накопителя посуды
+Dutch hot coco	голландский горячий какао
+SEVA mask	маска СЕВА
+SEVA suit	костюм СЕВА
+advanced baton	четырёхрежимная дубинка
+balloon ai core	ядро ИИ из шариков
+balloon banana	банан из шариков
+balloon cat	кот из шариков
+balloon clown	клоун из шариков
+balloon dog	собака из шариков
+balloon ethereal	эфириал из шариков
+balloon fly	мухолюд из шариков
+balloon guy	человечек из шариков
+balloon lizard	ящер из шариков
+balloon moth	моль из шариков
+balloon nukie	ядерный оперативник из шариков
+balloon plasmaman	плазмамен из шариков
+balloon podguy	подмен из шариков
+balloon slime	слайм из шариков
+balloon xeno	ксеноморф из шариков
+box of long balloons	коробка длинных шариков
+dish drive	накопитель посуды
+explorer suit harness	разведывательная сбруя
+explorer tailcoat	разведывательный фрак
+heeled mining boots	шахтёрские ботильоны
+long balloon	длинный шарик
+mining bomber jacket	шахтёрская куртка-бомбер
+mining equipment order console	консоль заказа шахтёрского снаряжения
+mining winter coat	зимняя шахтёрская куртка
+shaft miner's bowtie	шахтёрская бабочка
+shaft miner's bunny ears	шахтёрские заячьи ушки
+shaft miner's bunny suit	шахтёрский костюм зайчика
+suit voucher	ваучер на костюм
+Bunny Kit	заячий шахтёрский набор
+Nanotrasen minebot	шахтёрский бот Nanotrasen
+bag of dice	мешочек игральных костей
+bluespace shelter capsule	блюспейс-капсула убежища
+carrot	морковь
+carrot lunchbox	морковный ланчбокс
+carrot shiv	морковная заточка
+cowboy hat	ковбойская шляпа
+destabilizing force	дестабилизирующий импульс
+explorer's webbing	разведывательная разгрузка
+extraction beacon assembly kit	комплект маяка эвакуации
+fulton extraction pack	комплект эвакуации «Фултон»
+guitar	гитара
+minebot passthrough	проникновение сквозь шахтёрских ботов
+mining ID	шахтёрская ID-карта
+mining conscription kit	набор помощника шахтёра
+mining radio encryption key	ключ шифрования шахтёрского канала
+mining voucher	шахтёрский ваучер
+optical meson scanner	оптический мезонный сканер
+proto-kinetic crusher	протокинетический крашер
+punching mitts	ударные перчатки
+resonator	резонатор
+survival pod storage	хранилище убежища
+upgraded industrial welding tool	усовершенствованный промышленный сварочный аппарат
+warm Donk-pocket	горячий донк-покет
+MOD advanced ion jetpack module	продвинутый ионный джетпак MOD
+MOD elite hat stabilizer module	элитный держатель шляпы MOD
+MOD hearing protection module	модуль защиты слуха MOD
+MOD ionic jump jet module	ионный прыжковый модуль MOD
+MOD magnetic harness module	магнитная подвеска MOD
+MOD night vision module	модуль ночного зрения MOD
+MOD restraint assist module	модуль ускоренного надевания наручников MOD
+MOD shock absorption module	модуль защиты от сбивания с ног MOD
+MOD syndicate storage module	модуль хранилища Синдиката MOD
+MODsuit flash-protected optical suite	светозащитный оптический комплекс MOD
+bluespace power cell	блюспейс-батарея
+elite MOD boots	ботинки элитного MOD
+elite MOD chestplate	нагрудник элитного MOD
+elite MOD control unit	блок управления элитным MOD
+elite MOD gauntlets	перчатки элитного MOD
+elite MOD helmet	шлем элитного MOD

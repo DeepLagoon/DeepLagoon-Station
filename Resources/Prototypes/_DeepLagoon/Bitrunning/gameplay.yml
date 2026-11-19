@@ -165,7 +165,7 @@
   - type: Sprite
     state: datadisk2
   - type: BitrunProgramDisk
-    item: WeaponProtoKineticAccelerator
+    item: BitrunSourceObjItemGunEnergyRechargeKineticAccelerator
 
 - type: entity
   parent: BitrunProgramDisk
@@ -185,7 +185,7 @@
   - type: Sprite
     state: datadisk4
   - type: BitrunProgramDisk
-    action: ActionForceWall
+    action: ActionBitrunForceWall
 
 - type: bitrunShop
   id: medical
@@ -255,6 +255,32 @@
       jumpsuit:
       - sprite: _DeepLagoon/Bitrunning/bitrunner_uniform_equipped.rsi
         state: bitrunner
+      jumpsuit-digitigrade:
+      - sprite: _DeepLagoon/Bitrunning/bitrunner_uniform_equipped.rsi
+        state: bitrunner_d
+
+- type: entity
+  id: ActionBitrunForceWall
+  parent: ActionForceWall
+  categories: [HideSpawnMenu]
+  components:
+  - type: InstantAction
+    event: !type:BitrunForceWallEvent
+
+- type: entity
+  id: ActionBitrunBananaShoes
+  parent: ActionToggleMagboots
+  name: Toggle prototype clown shoes
+  description: Leave banana peels behind while walking. Requires bananium sheets.
+  categories: [HideSpawnMenu]
+
+- type: entity
+  id: BitrunForceWall
+  parent: WallForce
+  categories: [HideSpawnMenu]
+  components:
+  - type: TimedDespawn
+    lifetime: 30
 
 - type: startingGear
   id: BitrunExplorerGear
@@ -265,7 +291,7 @@
     pocket1: FlashlightLantern
     pocket2: Crowbar
   inhand:
-  - WeaponProtoKineticAccelerator
+  - BitrunSourceObjItemGunEnergyRechargeKineticAccelerator
 
 - type: startingGear
   id: BitrunMedicGear
@@ -287,7 +313,7 @@
     pocket1: FlashlightLantern
     pocket2: Crowbar
   inhand:
-  - WeaponProtoKineticAccelerator
+  - BitrunSourceObjItemGunEnergyRechargeKineticAccelerator
 
 - type: entity
   parent: TechDiskBase
@@ -318,4 +344,4 @@
     shoes: ClothingShoesBootsWork
     pocket1: FlashlightLantern
   inhand:
-  - WeaponProtoKineticAccelerator
+  - BitrunSourceObjItemGunEnergyRechargeKineticAccelerator

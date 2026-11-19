@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/modular_skyrat/modules/GAGS/icons/beret.dmi.",
+  "states": [
+    {
+      "name": "badge_worn",
+      "directions": 4
+    },
+    {
+      "name": "beret_worn",
+      "directions": 4
+    }
+  ]
+}

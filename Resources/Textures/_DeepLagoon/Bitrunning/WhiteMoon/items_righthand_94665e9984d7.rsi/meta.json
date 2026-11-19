@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/mob/inhands/items_righthand.dmi.",
+  "states": [
+    {
+      "name": "beachball",
+      "directions": 4
+    },
+    {
+      "name": "beaker",
+      "directions": 4
+    },
+    {
+      "name": "binoculars",
+      "directions": 4
+    },
+    {
+      "name": "buildpipe",
+      "directions": 4
+    },
+    {
+      "name": "candle",
+      "directions": 4
+    },
+    {
+      "name": "cigaron",
+      "directions": 4,
+      "delays": [
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "fire_extinguisher",
+      "directions": 4
+    },
+    {
+      "name": "headset",
+      "directions": 4
+    },
+    {
+      "name": "hoverboard_red",
+      "directions": 4
+    },
+    {
+      "name": "lampgreen",
+      "directions": 4
+    },
+    {
+      "name": "ltube",
+      "directions": 4
+    },
+    {
+      "name": "miniFE",
+      "directions": 4
+    },
+    {
+      "name": "paper",
+      "directions": 4
+    },
+    {
+      "name": "pen",
+      "directions": 4
+    },
+    {
+      "name": "rods",
+      "directions": 4
+    },
+    {
+      "name": "stamp",
+      "directions": 4
+    },
+    {
+      "name": "torch",
+      "directions": 4
+    },
+    {
+      "name": "zippo",
+      "directions": 4
+    }
+  ]
+}

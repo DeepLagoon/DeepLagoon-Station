@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/mob/inhands/equipment/medical_righthand.dmi.",
+  "states": [
+    {
+      "name": "atropen",
+      "directions": 4
+    },
+    {
+      "name": "bonesetter",
+      "directions": 4
+    },
+    {
+      "name": "cautery",
+      "directions": 4
+    },
+    {
+      "name": "contvapour",
+      "directions": 4
+    },
+    {
+      "name": "hemostat",
+      "directions": 4
+    },
+    {
+      "name": "hypo",
+      "directions": 4
+    },
+    {
+      "name": "medkit",
+      "directions": 4
+    },
+    {
+      "name": "medkit-brute",
+      "directions": 4
+    },
+    {
+      "name": "medkit-emergency",
+      "directions": 4
+    },
+    {
+      "name": "medkit-o2",
+      "directions": 4
+    },
+    {
+      "name": "medkit-ointment",
+      "directions": 4
+    },
+    {
+      "name": "medkit-surgical",
+      "directions": 4
+    },
+    {
+      "name": "medkit-tactical-premium",
+      "directions": 4
+    },
+    {
+      "name": "retractor",
+      "directions": 4
+    },
+    {
+      "name": "scalpel",
+      "directions": 4
+    },
+    {
+      "name": "stimpen",
+      "directions": 4
+    },
+    {
+      "name": "syringe_0",
+      "directions": 4
+    },
+    {
+      "name": "syringe_kit",
+      "directions": 4
+    }
+  ]
+}

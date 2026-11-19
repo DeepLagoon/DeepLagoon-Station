@@ -6,7 +6,10 @@ namespace Content.Server._DeepLagoon.Modsuits;
 /// Protects a powered suit's own cell while the EMP shield module is active.
 /// </summary>
 [RegisterComponent]
-public sealed partial class ModEmpShieldComponent : Component;
+public sealed partial class ModEmpShieldComponent : Component
+{
+    [DataField] public float? PulseCost;
+}
 
 public sealed partial class ModSystem
 {
@@ -24,7 +27,7 @@ public sealed partial class ModSystem
             installedCell != args.Cell)
             return;
 
-        var cost = 10 + 5 * Complexity((suit.Owner, control));
+        var cost = suit.Comp.PulseCost ?? 10 + 5 * Complexity((suit.Owner, control));
         if (_power.TryUseCharge(suit, cost))
             args.Cancelled = true;
     }

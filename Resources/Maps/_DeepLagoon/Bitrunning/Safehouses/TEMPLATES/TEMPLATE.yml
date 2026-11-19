@@ -8,7 +8,7 @@ orphans: [1]
 nullspace: []
 tilemap:
   "0": Space
-  "1": BitrunTile737fdf53c76b
+  "1": BitrunMapTileOpenFloorPlating
   "2": Plating
 entities:
   - proto: ""
@@ -38,16 +38,9 @@ entities:
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
-  - proto: AirlockExternalBitrunArt7071c1427123
+  - proto: BitrunMapMachineryDoorAirlockExternalRuin
     entities:
       - uid: 27
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,5.5
-  - proto: BitrunArt52b63f7ea0d0
-    entities:
-      - uid: 28
         components:
           - type: Transform
             parent: 1
@@ -98,7 +91,14 @@ entities:
           - type: Transform
             parent: 1
             pos: 4.5,1.5
-  - proto: GrilleBitrunArt55b67fc37f21
+  - proto: BitrunMapStructureFansTiny
+    entities:
+      - uid: 28
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,5.5
+  - proto: BitrunMapStructureGrille
     entities:
       - uid: 5
         components:
@@ -140,7 +140,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: ReinforcedWindowBitrunArt9f81dfb3bf9d
+  - proto: BitrunMapStructureWindowReinforcedFulltile
     entities:
       - uid: 4
         components:
@@ -182,7 +182,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: WallSolidBitrunArt7007f3a1737a
+  - proto: BitrunMapClosedWall
     entities:
       - uid: 2
         components:

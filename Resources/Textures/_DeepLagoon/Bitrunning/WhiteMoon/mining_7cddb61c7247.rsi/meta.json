@@ -8,6 +8,9 @@
   "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/mining.dmi.",
   "states": [
     {
+      "name": "capsule"
+    },
+    {
       "name": "crusher"
     },
     {
@@ -50,6 +53,9 @@
       "name": "markeryellow-on"
     },
     {
+      "name": "mining_voucher"
+    },
+    {
       "name": "minipick"
     },
     {
@@ -57,6 +63,12 @@
     },
     {
       "name": "pickaxe"
+    },
+    {
+      "name": "resonator"
+    },
+    {
+      "name": "satchel"
     },
     {
       "name": "shovel"

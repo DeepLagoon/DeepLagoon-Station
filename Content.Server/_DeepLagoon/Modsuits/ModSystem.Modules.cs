@@ -12,6 +12,9 @@ using Content.Shared.Movement.Components;
 using Content.Shared.Movement.Systems;
 using Content.Shared.Storage;
 using Content.Shared.Storage.EntitySystems;
+using Content.Shared.Item;
+using System.Linq;
+using Content.Shared.Armor;
 using Robust.Server.GameObjects;
 using Robust.Shared.Containers;
 
@@ -32,7 +35,7 @@ public sealed partial class ModSystem
 
     private void OnDamageModify(Entity<ModControlComponent> suit, ref InventoryRelayedEvent<DamageModifyEvent> args)
     {
-        if (!IsSealed(suit))
+        if (!IsSealed(suit) || args.Args.Tool is {} tool && TryComp<DamageArmorOverrideComponent>(tool, out var bypass) && bypass.IgnoreArmor)
             return;
 
         foreach (var uid in suit.Comp.Modules.ContainedEntities)
@@ -60,6 +63,12 @@ public sealed partial class ModSystem
         if (_timing.CurTime < comp.NextUse || !TryGetEffectTarget(suit, comp, user, out var target))
             return;
 
+        if (comp.Mode == ModModuleMode.JumpJet)
+        {
+            StartJumpJet(suit, module, user);
+            return;
+        }
+
         if (!_power.HasCharge(suit, comp.UseCharge, user: user))
             return;
 
@@ -85,7 +94,7 @@ public sealed partial class ModSystem
 
     private bool TryGetEffectTarget(EntityUid suit, ModModuleComponent module, EntityUid user, out EntityUid target)
     {
-        target = suit;
+        target = module.AffectsWearer ? user : suit;
         if (module.Mode == ModModuleMode.Cloak &&
             _deployment.GetAttachedToggleStatus(suit) != ToggleableClothingAttachedStatus.AllToggled)
             return false;
@@ -98,7 +107,9 @@ public sealed partial class ModSystem
             attached.AttachedUid != suit)
             return false;
 
-        target = equipped.Value;
+        if (TryComp<Content.Shared._Goobstation.Clothing.Components.SealableClothingComponent>(equipped, out var part) && !part.IsSealed)
+            return false;
+        target = module.AffectsWearer ? user : equipped.Value;
         return true;
     }
 
@@ -120,7 +131,17 @@ public sealed partial class ModSystem
         if (module.Comp.Mode == ModModuleMode.Storage && module.Comp.Host == null &&
             args.Container.ID == StorageComponent.ContainerId)
             args.Cancel();
+
+        if (args.Container.ID != StorageComponent.ContainerId || args.Container.Contains(args.EntityUid)) return;
+        if (module.Comp.StorageMaxItems > 0 && !args.AssumeEmpty && args.Container.Count >= module.Comp.StorageMaxItems ||
+            module.Comp.StorageMaxWeight > 0 && (args.AssumeEmpty ? 0 : args.Container.ContainedEntities.Sum(SourceStorageWeight)) + SourceStorageWeight(args.EntityUid) > module.Comp.StorageMaxWeight)
+            args.Cancel();
     }
+
+    private int SourceStorageWeight(EntityUid uid) => CompOrNull<ItemComponent>(uid)?.Size.Id switch
+    {
+        "Tiny" => 1, "Small" => 2, "Normal" => 3, "Large" => 4, "Huge" => 5, "Ginormous" => 6, _ => 6,
+    };
 
     private void CloseModuleStorage(EntityUid suit)
     {
@@ -275,7 +296,10 @@ public sealed partial class ModSystem
 
             EntityManager.AddComponents(target, new Robust.Shared.Prototypes.ComponentRegistry { [name] = entry }, removeExisting: false);
             if (EntityManager.TryGetComponent(target, type, out var applied))
+            {
                 module.AppliedEffects.Add(applied);
+                BindSourceEffect(applied, module.Host);
+            }
         }
 
         module.EffectTarget = target;
@@ -361,6 +385,13 @@ public sealed partial class ModSystem
         {
             if (!TryComp<ModModuleComponent>(uid, out var module))
                 continue;
+
+            var draw = module.Active && module.Mode != ModModuleMode.Passive ? module.ActiveCharge : module.IdleCharge;
+            if (draw > 0 && !_power.TryUseCharge(suit, draw * TickInterval))
+            {
+                StopModules(suit);
+                return;
+            }
 
             if (!TryGetEffectTarget(suit, module, user, out var target) ||
                 module.Active && module.Mode != ModModuleMode.Cloak && module.EffectTarget != null && module.EffectTarget != target ||

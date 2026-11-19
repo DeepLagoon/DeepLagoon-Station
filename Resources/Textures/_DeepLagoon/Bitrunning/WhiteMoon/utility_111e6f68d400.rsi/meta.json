@@ -12,6 +12,12 @@
     },
     {
       "name": "caution"
+    },
+    {
+      "name": "explorer"
+    },
+    {
+      "name": "firesuit"
     }
   ]
 }

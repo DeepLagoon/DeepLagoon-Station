@@ -1,0 +1,206 @@
+- type: entity
+  id: BitrunDrakeFlame
+  name: drake flame
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/drake_flame.rsi
+    state: light
+    drawdepth: FloorObjects
+  - type: DamageArmorOverride
+    ignoreArmor: true
+
+- type: entity
+  id: BitrunDrakeLavaWarning
+  name: lava warning
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/drake_warning.rsi
+    state: lavastaff_warn
+    drawdepth: FloorObjects
+  - type: DamageArmorOverride
+    ignoreArmor: true
+
+- type: entity
+  id: BitrunDrakeMeteor
+  name: falling fireball
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    drawdepth: FloorObjects
+    layers:
+    - sprite: _DeepLagoon/Bitrunning/boss_target.rsi
+      state: sniper_zoom
+    - sprite: _DeepLagoon/Bitrunning/drake_fireball.rsi
+      state: fireball
+  - type: DamageArmorOverride
+    ignoreArmor: true
+
+- type: entity
+  id: BitrunDrakeLanding
+  name: drake landing
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/drake_landing.rsi
+    state: landing
+    color: '#FF0000'
+    drawdepth: FloorObjects
+  - type: TimedDespawn
+    lifetime: 1
+
+- type: entity
+  id: BitrunDrakeSafeGround
+  name: safe ground
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/drake_safe_ground.rsi
+    state: trap-earth
+    drawdepth: FloorObjects
+  - type: TimedDespawn
+    lifetime: 1.3
+
+- type: entity
+  id: BitrunDrakeBarrier
+  name: fire barrier
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/drake_flame.rsi
+    state: light
+    color: '#FF8C00'
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      wall:
+        shape: !type:PhysShapeAabb
+          bounds: '-0.49,-0.49,0.49,0.49'
+        layer: [WallLayer]
+        mask: [MobMask, BulletImpassable]
+        hard: true
+
+- type: entity
+  id: BitrunTemporaryLava
+  parent: FloorLavaEntity
+  categories: [HideSpawnMenu]
+  components:
+  - type: DamageArmorOverride
+    ignoreArmor: true
+
+- type: entity
+  id: BitrunHierophantBlast
+  name: vortex blast
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/hierophant_effects.rsi
+    state: hierophant_blast
+    drawdepth: FloorObjects
+  - type: DamageArmorOverride
+    armorType: Blunt
+
+- type: entity
+  id: BitrunHierophantBarrier
+  parent: BitrunDrakeBarrier
+  name: vortex wall
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/hierophant_wall.rsi
+    state: hierophant_wall_temp-0
+    color: '#FFFFFF'
+
+- type: entity
+  id: BitrunHierophantTelegraph
+  name: vortex energy
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/hierophant_telegraph.rsi
+    state: hierophant_telegraph
+    drawdepth: FloorObjects
+  - type: TimedDespawn
+    lifetime: 0.9
+
+- type: entity
+  id: BitrunHierophantChaser
+  name: vortex chaser
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/hierophant_effects.rsi
+    state: hierophant_squares_indefinite
+    drawdepth: FloorObjects
+
+- type: entity
+  id: BitrunBubblegumHallucination
+  name: Bubblegum's hallucination
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bubblegum.rsi
+    state: bubblegum
+    offset: 0, 1
+    color: '#FFFFFF80'
+    noRot: true
+    drawdepth: Mobs
+
+- type: entity
+  id: BitrunBubblegumLanding
+  parent: BitrunDrakeLanding
+  name: charge warning
+
+- type: entity
+  id: BitrunBloodRightSmack
+  name: blood hand
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bubblegum_effects.rsi
+    state: rightsmack
+    drawdepth: Effects
+  - type: TimedDespawn
+    lifetime: 0.9
+
+- type: entity
+  id: BitrunBloodRightGrab
+  name: blood hand
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bubblegum_effects.rsi
+    layers:
+    - state: rightpawgrab
+    - state: rightthumbgrab
+    drawdepth: Effects
+  - type: TimedDespawn
+    lifetime: 0.9
+
+- type: entity
+  id: BitrunBloodLeftSmack
+  name: blood hand
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bubblegum_effects.rsi
+    state: leftsmack
+    drawdepth: Effects
+  - type: TimedDespawn
+    lifetime: 0.9
+
+- type: entity
+  id: BitrunBloodLeftGrab
+  name: blood hand
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/bubblegum_effects.rsi
+    layers:
+    - state: leftpawgrab
+    - state: leftthumbgrab
+    drawdepth: Effects
+  - type: TimedDespawn
+    lifetime: 0.9

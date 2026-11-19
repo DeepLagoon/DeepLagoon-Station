@@ -506,7 +506,7 @@ namespace Content.Shared.Cuffs
                 return false;
             }
 
-            var cuffTime = handcuffComponent.CuffTime;
+            var cuffTime = GetCuffingTime(user, handcuffComponent.CuffTime);
 
             if (HasComp<StunnedComponent>(target))
                 cuffTime = MathF.Max(0.1f, cuffTime - handcuffComponent.StunBonus);
@@ -546,6 +546,9 @@ namespace Content.Shared.Cuffs
             _audio.PlayPredicted(handcuffComponent.StartCuffSound, handcuff, user);
             return true;
         }
+
+        public float GetCuffingTime(EntityUid user, float duration) =>
+            TryComp<CuffingTimeModifierComponent>(user, out var modifier) ? duration * modifier.Multiplier : duration;
 
         /// <summary>
         /// Checks if the target is handcuffed.

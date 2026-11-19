@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/mob/inhands/clothing/masks_lefthand.dmi.",
+  "states": [
+    {
+      "name": "balaclava",
+      "directions": 4
+    },
+    {
+      "name": "explorer_gasmask",
+      "directions": 4
+    },
+    {
+      "name": "facehugger_inactive",
+      "directions": 4
+    },
+    {
+      "name": "gas_alt",
+      "directions": 4
+    },
+    {
+      "name": "m_mask",
+      "directions": 4
+    },
+    {
+      "name": "s_mask",
+      "directions": 4
+    },
+    {
+      "name": "sechailer",
+      "directions": 4
+    },
+    {
+      "name": "swat",
+      "directions": 4
+    },
+    {
+      "name": "syndicate_gasmask",
+      "directions": 4
+    },
+    {
+      "name": "welding",
+      "directions": 4
+    }
+  ]
+}

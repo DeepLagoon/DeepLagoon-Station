@@ -23,6 +23,9 @@
       "name": "medkit_o2"
     },
     {
+      "name": "medkit_surgery"
+    },
+    {
       "name": "medkit_tactical_premium"
     }
   ]

@@ -8,9 +8,9 @@ orphans: [1]
 nullspace: []
 tilemap:
   "0": Space
-  "1": BitrunTile0c9b02979800
-  "2": BitrunTile43efc592a59e
-  "3": BitrunTile737fdf53c76b
+  "1": BitrunMapTileOpenIndestructibleBitrunningTransport
+  "2": BitrunMapTileOpenFloorWoodStateWood
+  "3": BitrunMapTileOpenFloorPlating
   "4": FloorWood
   "5": Plating
 entities:
@@ -50,28 +50,21 @@ entities:
                 decals:
                   "1": 5,3
                   "2": 5,4
-  - proto: AirlockBitrunArtd1c6b1e76310
+  - proto: BitrunMapMachineryDoorAirlockWood
     entities:
       - uid: 41
         components:
           - type: Transform
             parent: 1
             pos: 3.5,5.5
-  - proto: BitrunArt20a103267925
+  - proto: BitrunMapItemNewspaper
     entities:
       - uid: 15
         components:
           - type: Transform
             parent: 1
             pos: 5.5,1.5
-  - proto: BitrunArt52b63f7ea0d0
-    entities:
-      - uid: 42
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,5.5
-  - proto: BitrunArt80791ee675ccPlacement42ae6e72884d
+  - proto: BitrunMapStructureSignPosterRandomDirectionalEastSpriteStateHereForYourSafetySpriteOffset00
     entities:
       - uid: 21
         components:
@@ -124,7 +117,14 @@ entities:
           - type: Transform
             parent: 1
             pos: 4.5,1.5
-  - proto: CarpetGreenBitrunArtff3f64ecec16
+  - proto: BitrunMapStructureFansTiny
+    entities:
+      - uid: 42
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,5.5
+  - proto: BitrunMapOpenFloorCarpetGreen
     entities:
       - uid: 18
         components:
@@ -156,7 +156,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 4.5,3.5
-  - proto: GrilleBitrunArt55b67fc37f21
+  - proto: BitrunMapStructureGrille
     entities:
       - uid: 4
         components:
@@ -188,14 +188,14 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: PottedPlant0BitrunArtadba5d603f9a
+  - proto: BitrunMapItemKirbyplantsRandomFullysynthetic
     entities:
       - uid: 34
         components:
           - type: Transform
             parent: 1
             pos: 2.5,4.5
-  - proto: PoweredSmallLightBitrunArtc9a32b7fe2e3Placement42ae6e72884d
+  - proto: BitrunMapMachineryLightSmallDirectionalEast
     entities:
       - uid: 12
         components:
@@ -221,14 +221,14 @@ entities:
             parent: 1
             pos: 5.5,4.5
             rot: 270
-  - proto: RailingBitrunArt78760ec387e4
+  - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
     entities:
       - uid: 29
         components:
           - type: Transform
             parent: 1
             pos: 5.5,3.5
-  - proto: RailingBitrunArtb5b1e39cbdf5
+  - proto: BitrunMapStructureRailingCornerEnd
     entities:
       - uid: 28
         components:
@@ -236,14 +236,14 @@ entities:
             parent: 1
             pos: 4.5,3.5
             rot: 90
-  - proto: TableWoodBitrunArtbdcc98a2fb9c
+  - proto: BitrunMapStructureTableWood
     entities:
       - uid: 14
         components:
           - type: Transform
             parent: 1
             pos: 5.5,1.5
-  - proto: WallWoodBitrunArt1c31d3e591bb
+  - proto: BitrunMapClosedWallMineralWood
     entities:
       - uid: 2
         components:
@@ -320,7 +320,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 6.5,5.5
-  - proto: WindowBitrunArte9f9c984f13f
+  - proto: BitrunMapStructureWindowFulltile
     entities:
       - uid: 3
         components:

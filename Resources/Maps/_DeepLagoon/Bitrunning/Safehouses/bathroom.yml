@@ -8,8 +8,8 @@ orphans: [1]
 nullspace: []
 tilemap:
   "0": Space
-  "1": BitrunTile0c9b02979800
-  "2": BitrunTilee4972e87fe45
+  "1": BitrunMapTileOpenIndestructibleBitrunningTransport
+  "2": BitrunMapTileOpenFloorIronFreezer
   "3": FloorSilver
 entities:
   - proto: ""
@@ -44,22 +44,22 @@ entities:
               version: 2
               nodes:
               - node:
-                  id: BitrunDecal00fbb4ffe948
+                  id: BitrunMapDecalEffectDecalCleanableBloodStateFloor1
                 decals:
                   "3": 5,1
               - node:
-                  id: BitrunDecal0d2658f34df4
+                  id: BitrunMapDecalEffectDecalCleanableDirtDust
                 decals:
                   "5": 2,2
                   "10": 1,4
                   "11": 2,4
                   "12": 3,4
               - node:
-                  id: BitrunDecalb4169e91243b
+                  id: BitrunMapDecalEffectDecalCleanableBloodSplatter
                 decals:
                   "1": 5,0
               - node:
-                  id: BitrunDecalde3e3f0d6787
+                  id: BitrunMapDecalEffectDecalCleanableDirt
                 decals:
                   "2": 1,1
                   "6": 4,2
@@ -75,14 +75,14 @@ entities:
                 decals:
                   "4": 5,1
                   "7": 5,2
-  - proto: AirlockFreezerBitrunArtafc3413d2318
+  - proto: BitrunMapMachineryDoorAirlockFreezer
     entities:
       - uid: 33
         components:
           - type: Transform
             parent: 1
             pos: 3.5,5.5
-  - proto: BitrunArt07632161c363Placement1046098c9493
+  - proto: BitrunMapStructureUrinalDirectionalWestSpriteOffset0Minus1
     entities:
       - uid: 15
         components:
@@ -90,14 +90,7 @@ entities:
             parent: 1
             pos: 1.5,2.5
             rot: -90
-  - proto: BitrunArt52b63f7ea0d0
-    entities:
-      - uid: 32
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,5.5
-  - proto: BitrunArt544c9ecb88e7Placement42ae6e72884d
+  - proto: BitrunMapStructureSignPosterAbductorRandomDirectionalEastSpriteStateAyyRecruitmentSpriteOffset00
     entities:
       - uid: 16
         components:
@@ -150,7 +143,14 @@ entities:
           - type: Transform
             parent: 1
             pos: 4.5,1.5
-  - proto: ExtinguisherCabinetBitrunArt813774e00736Placement4cf9d9996ab2
+  - proto: BitrunMapStructureFansTiny
+    entities:
+      - uid: 32
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,5.5
+  - proto: BitrunMapStructureExtinguisherCabinetDirectionalEastSpriteOffset0Minus0Point90625
     entities:
       - uid: 25
         components:
@@ -164,14 +164,14 @@ entities:
             parent: 1
             pos: 4.5,4.5
             rot: 180
-  - proto: GrilleBitrunArt55b67fc37f21
+  - proto: BitrunMapStructureGrille
     entities:
       - uid: 8
         components:
           - type: Transform
             parent: 1
             pos: 5.5,0.5
-  - proto: PoweredSmallLightBitrunArtc9a32b7fe2e3Placement42ae6e72884d
+  - proto: BitrunMapMachineryLightSmallDirectionalEast
     entities:
       - uid: 11
         components:
@@ -197,14 +197,14 @@ entities:
             parent: 1
             pos: 5.5,4.5
             rot: 270
-  - proto: RailingBitrunArt78760ec387e4
+  - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
     entities:
       - uid: 21
         components:
           - type: Transform
             parent: 1
             pos: 5.5,3.5
-  - proto: RailingBitrunArtb5b1e39cbdf5
+  - proto: BitrunMapStructureRailingCornerEnd
     entities:
       - uid: 20
         components:
@@ -212,7 +212,7 @@ entities:
             parent: 1
             pos: 4.5,3.5
             rot: 90
-  - proto: ToiletEmptyBitrunArt6fd869c409af
+  - proto: BitrunMapStructureToiletSpriteOffsetDefault
     entities:
       - uid: 19
         components:
@@ -220,7 +220,7 @@ entities:
             parent: 1
             pos: 1.5,3.5
             rot: 90
-  - proto: WallSilverBitrunArta4d49b8beb38
+  - proto: BitrunMapClosedWallMineralSilver
     entities:
       - uid: 2
         components:
@@ -322,7 +322,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 6.5,5.5
-  - proto: WindowBitrunArte9f9c984f13f
+  - proto: BitrunMapStructureWindowFulltile
     entities:
       - uid: 7
         components:

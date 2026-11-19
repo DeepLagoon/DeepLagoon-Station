@@ -8,11 +8,11 @@ orphans: [1]
 nullspace: []
 tilemap:
   "0": Space
-  "1": BitrunTile0c9b02979800
-  "2": BitrunTile2841f6e1ad7d
-  "3": BitrunTile49c12d5ddc55
-  "4": BitrunTile737fdf53c76b
-  "5": BitrunTileef968f4fb170
+  "1": BitrunMapTileOpenIndestructibleBitrunningTransport
+  "2": BitrunMapTileOpenFloorPodLight
+  "3": BitrunMapTileOpenFloorPodDark
+  "4": BitrunMapTileOpenFloorPlating
+  "5": BitrunMapTileOpenFloorPod
   "6": Plating
 entities:
   - proto: ""
@@ -47,13 +47,13 @@ entities:
               version: 2
               nodes:
               - node:
-                  id: BitrunDecal0d2658f34df4
+                  id: BitrunMapDecalEffectDecalCleanableDirtDust
                 decals:
                   "4": 5,1
                   "11": 1,4
                   "15": 5,4
               - node:
-                  id: BitrunDecal2535797f6e64
+                  id: BitrunMapDecalEffectTurfDecalTrimlineRed
                 decals:
                   "1": 2,1
                   "2": 3,1
@@ -71,21 +71,14 @@ entities:
                   "9": 5,3
                   "10": 5,3
                   "16": 5,4
-  - proto: AirlockBitrunArt6715e1d4b7b5
+  - proto: BitrunMapMachineryDoorAirlockGrunge
     entities:
       - uid: 51
         components:
           - type: Transform
             parent: 1
             pos: 3.5,5.5
-  - proto: BitrunArt52b63f7ea0d0
-    entities:
-      - uid: 52
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,5.5
-  - proto: BitrunArta83e2bb1b69c
+  - proto: BitrunMapEffectDecalCleanableGeneric
     entities:
       - uid: 20
         components:
@@ -97,7 +90,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 3.5,4.5
-  - proto: BitrunArtd274ed7b2aecPlacement42ae6e72884d
+  - proto: BitrunMapStructureSignPosterContrabandHackingGuideDirectionalEastSpriteOffset00
     entities:
       - uid: 38
         components:
@@ -150,7 +143,14 @@ entities:
           - type: Transform
             parent: 1
             pos: 4.5,1.5
-  - proto: ChairOfficeDarkBitrunArte95690fce3d2
+  - proto: BitrunMapStructureFansTiny
+    entities:
+      - uid: 52
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,5.5
+  - proto: BitrunMapStructureChairOfficeSpriteOffsetDefault
     entities:
       - uid: 21
         components:
@@ -158,7 +158,7 @@ entities:
             parent: 1
             pos: 5.5,1.5
             rot: 180
-  - proto: GrilleBitrunArt55b67fc37f21
+  - proto: BitrunMapStructureGrille
     entities:
       - uid: 5
         components:
@@ -205,7 +205,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: PoweredSmallLightBitrunArtc9a32b7fe2e3Placement42ae6e72884d
+  - proto: BitrunMapMachineryLightSmallDirectionalEast
     entities:
       - uid: 19
         components:
@@ -231,14 +231,14 @@ entities:
             parent: 1
             pos: 5.5,4.5
             rot: 270
-  - proto: RailingBitrunArt78760ec387e4
+  - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
     entities:
       - uid: 37
         components:
           - type: Transform
             parent: 1
             pos: 5.5,3.5
-  - proto: RailingBitrunArtb5b1e39cbdf5
+  - proto: BitrunMapStructureRailingCornerEnd
     entities:
       - uid: 36
         components:
@@ -246,7 +246,7 @@ entities:
             parent: 1
             pos: 4.5,3.5
             rot: 90
-  - proto: ReinforcedWindowBitrunArt9f81dfb3bf9d
+  - proto: BitrunMapStructureWindowReinforcedFulltile
     entities:
       - uid: 4
         components:
@@ -293,7 +293,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: ShuttersNormalOpenBitrunArt4ebc274fa320
+  - proto: BitrunMapMachineryDoorPoddoorShuttersPreopen
     entities:
       - uid: 6
         components:
@@ -347,21 +347,21 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: SignCargoBitrunArt6b2fb2fe7237Placement42ae6e72884d
+  - proto: BitrunMapStructureSignDepartmentsCargoDirectionalWest
     entities:
       - uid: 41
         components:
           - type: Transform
             parent: 1
             pos: 0.5,4.5
-  - proto: SignalButtonBitrunArtd4f5e40d41d4Placement26bb0da4cd14
+  - proto: BitrunMapMachineryButtonDoorSpriteOffset0Point1250Point125
     entities:
       - uid: 31
         components:
           - type: Transform
             parent: 1
             pos: 5.5,2.5
-  - proto: TableReinforcedBitrunArt36d5e6794a50
+  - proto: BitrunMapStructureTableReinforcedPlastitaniumglass
     entities:
       - uid: 29
         components:
@@ -373,14 +373,14 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,2.5
-  - proto: VendingMachineColaBitrunArt046066d3992a
+  - proto: BitrunMapMachineryVendingCola
     entities:
       - uid: 18
         components:
           - type: Transform
             parent: 1
             pos: 1.5,1.5
-  - proto: WallSolidBitrunArt7007f3a1737a
+  - proto: BitrunMapClosedWall
     entities:
       - uid: 2
         components:

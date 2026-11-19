@@ -11,6 +11,9 @@
       "name": "buckknife"
     },
     {
+      "name": "carrotshiv"
+    },
+    {
       "name": "envyknife",
       "delays": [
         [
@@ -28,6 +31,9 @@
     },
     {
       "name": "plastitaniumshiv"
+    },
+    {
+      "name": "survivalknife"
     }
   ]
 }

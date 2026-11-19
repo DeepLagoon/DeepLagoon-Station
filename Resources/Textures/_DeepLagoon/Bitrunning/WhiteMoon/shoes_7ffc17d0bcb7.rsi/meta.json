@@ -8,10 +8,16 @@
   "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/clothing/shoes.dmi.",
   "states": [
     {
+      "name": "clown"
+    },
+    {
       "name": "clown_prototype_off"
     },
     {
       "name": "cookflops"
+    },
+    {
+      "name": "jackboots"
     },
     {
       "name": "laceups"
@@ -20,7 +26,16 @@
       "name": "magboots0"
     },
     {
+      "name": "pirateboots"
+    },
+    {
+      "name": "winterboots"
+    },
+    {
       "name": "wizard"
+    },
+    {
+      "name": "workboots"
     }
   ]
 }

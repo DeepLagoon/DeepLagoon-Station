@@ -1,0 +1,312 @@
+- type: entity
+  id: BitrunShelterFan
+  name: environmental regulation system
+  description: A large machine releasing a constant gust of air.
+  parent: BaseStructure
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _NF/Structures/Piping/Atmospherics/vent.rsi
+    state: vent_off
+  - type: Airtight
+    airBlocked: true
+    noAirWhenFullyAirBlocked: false
+
+- type: entity
+  id: BitrunShelterTinyFan
+  name: tiny fan
+  description: A tiny fan, releasing a thin gust of air.
+  parent: BitrunShelterFan
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Physics
+    canCollide: false
+
+- type: entity
+  id: BitrunMinebot
+  abstract: true
+  parent: BaseMobAsteroid
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: HTN
+    enabled: false
+    rootTask:
+      task: IdleCompound
+  - type: NpcFactionMember
+    factions: [ NanoTrasen ]
+  - type: Damageable
+    damageContainer: Inorganic
+  - type: Destructible
+    thresholds: []
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/minebot.rsi
+    layers:
+    - state: mining_drone
+      map: [ minebot ]
+  - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.ToggleableVisuals.Enabled:
+        minebot:
+          True: { state: mining_drone_offense }
+          False: { state: mining_drone }
+  - type: MobThresholds
+    thresholds: { 0: Alive, 125: Dead }
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 2.5
+    baseSprintSpeed: 4
+  - type: PointLight
+    enabled: false
+    color: "#ff9933"
+    radius: 6
+    energy: 0.6
+  - type: MeleeWeapon
+    damage:
+      types: { Blunt: 15, Structural: 10 }
+
+- type: entity
+  id: BitrunResonanceField
+  name: resonance field
+  description: A resonating field that crushes rock and anything caught inside.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/resonance.rsi
+    state: shield1
+    shader: unshaded
+  - type: BitrunResonanceField
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      field:
+        shape: !type:PhysShapeAabb
+          bounds: -0.49,-0.49,0.49,0.49
+        hard: false
+        layer: [ LowImpassable ]
+  - type: StepTrigger
+    stepOn: true
+    requiredTriggeredSpeed: 0
+
+- type: entity
+  id: BitrunAbductorEnergyCuffs
+  name: hard-light energy field
+  description: A hard-light field restraining the hands.
+  parent: Handcuffs
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Handcuff
+    cuffTime: 3
+    stunBonus: 0
+    breakoutTime: 45
+    breakOnRemove: true
+
+- type: entity
+  id: BitrunDishDrive
+  name: dish drive
+  parent: [ BaseMachinePowered, ConstructibleMachine ]
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: BitrunDishDrive
+  - type: Machine
+    board: BitrunSourceObjItemCircuitboardMachineDishDrive
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/dish_drive.rsi
+    state: synthesizer
+  - type: ApcPowerReceiver
+    powerLoad: 40
+  - type: Physics
+    canCollide: false
+
+- type: entity
+  id: BitrunCarvingBase
+  abstract: true
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Clickable
+  - type: InteractionOutline
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/carvings.rsi
+    drawdepth: FloorObjects
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      rune:
+        shape: !type:PhysShapeAabb
+          bounds: -0.4,-0.4,0.4,0.4
+        hard: false
+        layer: [ LowImpassable ]
+  - type: StepTrigger
+    stepOn: true
+    requiredTriggeredSpeed: 0
+  - type: BitrunCarvedRune
+  - type: Damageable
+    damageContainer: Inorganic
+  - type: Destructible
+    thresholds:
+    - trigger: !type:DamageTrigger
+        damage: 60
+      behaviors:
+      - !type:DoActsBehavior
+        acts: [ Destruction ]
+
+- type: entity
+  id: BitrunAlertCarving
+  name: alert carving
+  parent: BitrunCarvingBase
+  components:
+  - type: Sprite
+    state: alert_rune
+    color: "#ffffff0a"
+  - type: BitrunCarvedRune
+    kind: 0
+
+- type: entity
+  id: BitrunGraspingCarving
+  name: grasping carving
+  parent: BitrunCarvingBase
+  components:
+  - type: Sprite
+    state: tentacle_rune
+  - type: BitrunCarvedRune
+    kind: 1
+    charges: 1
+
+- type: entity
+  id: BitrunMadCarving
+  name: mad carving
+  parent: BitrunCarvingBase
+  components:
+  - type: Sprite
+    state: madness_rune
+  - type: BitrunCarvedRune
+    kind: 2
+    charges: 2
+
+- type: entity
+  id: BitrunBlueLaserDot
+  name: laser dot
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/laser_pointer.rsi
+    state: blue_laser
+    drawdepth: Effects
+  - type: TimedDespawn
+    lifetime: 1
+
+- type: entity
+  id: BitrunMirage
+  parent: ModLinkProjectionAvatar
+  name: mirage
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    color: "#ffffffff"
+  - type: BitrunMirage
+  - type: Clickable
+  - type: InteractionOutline
+  - type: Damageable
+    damageContainer: Biological
+  - type: MobState
+  - type: MobThresholds
+    thresholds: { 0: Alive, 100: Dead }
+  - type: TimedDespawn
+    lifetime: 15
+
+- type: stack
+  id: BitrunMarkerBeacon
+  name: bitrun-marker-beacon-name
+  icon: { sprite: _DeepLagoon/Bitrunning/marker_beacon.rsi, state: markerrandom }
+  spawn: BitrunSourceObjItemStackMarkerBeacon
+  maxCount: 100
+
+- type: entity
+  id: BitrunRiddenHoverboard
+  name: hoverboard
+  parent: BaseVehicleRideable
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/hoverboard.rsi
+    state: hoverboard_red
+    noRot: true
+  - type: BitrunHoverboard
+  - type: Vehicle
+    hasKey: true
+    hornAction: null
+    useHand: false
+    autoAnimate: false
+  - type: Strap
+    buckleOffset: 0, 0
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 4
+    baseSprintSpeed: 6
+  - type: AmbientSound
+    enabled: false
+
+- type: entity
+  id: BitrunPlacedMarkerBeacon
+  name: marker beacon
+  description: An anchored light marking a path. Activate to pick it up.
+  parent: BaseItem
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/marker_beacon.rsi
+    layers:
+    - state: markercerulean-on
+      map: [beacon]
+  - type: Appearance
+  - type: BitrunBeaconColor
+  - type: GenericVisualizer
+    visuals:
+      enum.BitrunEquipmentVisuals.Mode:
+        beacon:
+          burgundy: {state: markerburgundy-on}
+          bronze: {state: markerbronze-on}
+          yellow: {state: markeryellow-on}
+          lime: {state: markerlime-on}
+          olive: {state: markerolive-on}
+          jade: {state: markerjade-on}
+          teal: {state: markerteal-on}
+          cerulean: {state: markercerulean-on}
+          indigo: {state: markerindigo-on}
+          purple: {state: markerpurple-on}
+          violet: {state: markerviolet-on}
+          fuchsia: {state: markerfuchsia-on}
+  - type: BitrunPlacedBeacon
+  - type: PointLight
+    radius: 2
+    energy: 3
+  - type: Transform
+    anchored: true
+
+- type: entity
+  id: BitrunEtherealDiscoBall
+  name: ethereal disco ball
+  description: The ethics of this disco ball are questionable.
+  parent: BaseStructure
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/disco_ball.rsi
+    layers:
+    - state: ethdisco_base
+    - state: ethdisco_head_0
+      map: [ "enum.ToggleableVisuals.Layer" ]
+  - type: BitrunDiscoBall
+  - type: ItemToggle
+  - type: ItemTogglePointLight
+  - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.ToggleableVisuals.Enabled:
+        enum.ToggleableVisuals.Layer:
+          True: { state: ethdisco_head_1 }
+          False: { state: ethdisco_head_0 }
+  - type: PointLight
+    enabled: false
+    radius: 7
+    energy: 3

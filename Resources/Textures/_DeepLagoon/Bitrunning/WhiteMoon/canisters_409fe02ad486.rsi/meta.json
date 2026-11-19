@@ -20,7 +20,16 @@
       "name": "jetpack-black"
     },
     {
+      "name": "jetpack-mini"
+    },
+    {
       "name": "oxygen"
+    },
+    {
+      "name": "oxygen_f"
+    },
+    {
+      "name": "oxygen_fr"
     }
   ]
 }

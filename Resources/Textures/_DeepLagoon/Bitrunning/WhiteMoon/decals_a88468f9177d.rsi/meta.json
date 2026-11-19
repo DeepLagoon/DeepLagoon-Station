@@ -80,6 +80,9 @@
       "name": "delivery"
     },
     {
+      "name": "mining"
+    },
+    {
       "name": "sandyfloor"
     },
     {
@@ -87,6 +90,10 @@
     },
     {
       "name": "stand_clear",
+      "directions": 4
+    },
+    {
+      "name": "survival",
       "directions": 4
     },
     {

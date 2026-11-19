@@ -1,21 +1,21 @@
 meta:
   format: 7
   category: Grid
-  entityCount: 87
+  entityCount: 86
 maps: []
 grids: [1]
 orphans: [1]
 nullspace: []
 tilemap:
   "0": Space
-  "1": BitrunTile0c9b02979800
-  "2": BitrunTile45ab7f5a55e3
-  "3": BitrunTile655fb3f494ff
-  "4": BitrunTile737fdf53c76b
-  "5": BitrunTiled892e35ebc20
-  "6": BitrunTiledefb441fe28f
-  "7": BitrunTilee1988ab77323
-  "8": BitrunTilee8f67d3fa97d
+  "1": BitrunMapTileOpenIndestructibleBitrunningTransport
+  "2": BitrunMapTileOpenFloorIronDarkSmoothEdgeDirection1
+  "3": BitrunMapTileOpenFloorIronDarkTexturedLarge
+  "4": BitrunMapTileOpenFloorPlating
+  "5": BitrunMapTileOpenFloorIronDark
+  "6": BitrunMapTileOpenFloorIronDarkSmoothEdgeDirection8
+  "7": BitrunMapTileOpenFloorIronDarkSmoothEdgeDirection4
+  "8": BitrunMapTileOpenFloorIronDarkSmoothEdgeDirection2
   "9": Plating
 entities:
   - proto: ""
@@ -50,7 +50,7 @@ entities:
               version: 2
               nodes:
               - node:
-                  id: BitrunDecal2535797f6e64
+                  id: BitrunMapDecalEffectTurfDecalTrimlineRed
                 decals:
                   "1": 1,1
                   "2": 2,1
@@ -69,7 +69,7 @@ entities:
                   id: DirtLight
                 decals:
                   "9": 5,3
-  - proto: AirlockExternalBitrunArt7071c1427123
+  - proto: BitrunMapMachineryDoorAirlockExternalRuin
     entities:
       - uid: 74
         components:
@@ -78,90 +78,6 @@ entities:
             pos: 3.5,5.5
           - type: MetaData
             name: "Mining External Airlock"
-  - proto: BitrunArt040b0b6e864c
-    entities:
-      - uid: 37
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,2.5
-  - proto: BitrunArt040b0b6e864cPlacementb1fe1124abdb
-    entities:
-      - uid: 36
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,2.5
-  - proto: BitrunArt040b0b6e864cPlacementd6725c559b48
-    entities:
-      - uid: 35
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,2.5
-  - proto: BitrunArt4cdaf3df0b27Placement93de1a65e150
-    entities:
-      - uid: 33
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,2.5
-  - proto: BitrunArt4cdaf3df0b27Placementb6dbb6ad6460
-    entities:
-      - uid: 34
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,2.5
-  - proto: BitrunArt4cdaf3df0b27Placementded6cd978b66
-    entities:
-      - uid: 32
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,2.5
-  - proto: BitrunArt5123c269808a
-    entities:
-      - uid: 24
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0
-  - proto: BitrunArt52b63f7ea0d0
-    entities:
-      - uid: 75
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,5.5
-  - proto: BitrunArt9363549eed6bPlacement544caafdba78
-    entities:
-      - uid: 38
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,2.5
-  - proto: BitrunArt9363549eed6bPlacement66653112db20
-    entities:
-      - uid: 39
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,2.5
-  - proto: BitrunArt9363549eed6bPlacementfd060a62351e
-    entities:
-      - uid: 40
-        components:
-          - type: Transform
-            parent: 1
-            pos: 3.5,2.5
-  - proto: BitrunArtb2aeb068f1fa
-    entities:
-      - uid: 49
-        components:
-          - type: Transform
-            parent: 43
-            pos: 0,0
   - proto: BitrunAvatarSpawn
     entities:
       - uid: 80
@@ -203,7 +119,28 @@ entities:
           - type: Transform
             parent: 1
             pos: 4.5,1.5
-  - proto: CartridgeRocketBitrunArt65201b1083ca
+  - proto: BitrunMapStructureFansTiny
+    entities:
+      - uid: 75
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,5.5
+  - proto: BitrunMapItemAmmoBoxMagazineM7mm
+    entities:
+      - uid: 49
+        components:
+          - type: Transform
+            parent: 43
+            pos: 0,0
+  - proto: BitrunMapItemAmmoBoxMagazineSniperRounds
+    entities:
+      - uid: 24
+        components:
+          - type: Transform
+            parent: 22
+            pos: 0,0
+  - proto: BitrunMapItemAmmoCasingRocket
     entities:
       - uid: 45
         components:
@@ -220,14 +157,165 @@ entities:
           - type: Transform
             parent: 43
             pos: 0,0
-  - proto: ClosetO2FilledBitrunArtdaba4904fb42
+  - proto: BitrunMapItemBorgUpgradeModkitCooldownSpriteOffsetMinus0Point250Point25
+    entities:
+      - uid: 38
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,2.5
+  - proto: BitrunMapItemBorgUpgradeModkitCooldownSpriteOffsetMinus0Point250Point125
+    entities:
+      - uid: 39
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,2.5
+  - proto: BitrunMapItemBorgUpgradeModkitCooldownSpriteOffsetMinus0Point250
+    entities:
+      - uid: 40
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,2.5
+  - proto: BitrunMapItemBorgUpgradeModkitDamageSpriteOffset0Point250Point125
+    entities:
+      - uid: 33
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,2.5
+  - proto: BitrunMapItemBorgUpgradeModkitDamageSpriteOffset0Point250
+    entities:
+      - uid: 34
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,2.5
+  - proto: BitrunMapItemBorgUpgradeModkitDamageSpriteOffset0Point250Point25
+    entities:
+      - uid: 32
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,2.5
+  - proto: BitrunMapItemBorgUpgradeModkitRangeSpriteOffsetDefault
+    entities:
+      - uid: 37
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,2.5
+  - proto: BitrunMapItemBorgUpgradeModkitRangeSpriteOffset00Point125
+    entities:
+      - uid: 36
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,2.5
+  - proto: BitrunMapItemBorgUpgradeModkitRangeSpriteOffset00Point25
+    entities:
+      - uid: 35
+        components:
+          - type: Transform
+            parent: 1
+            pos: 3.5,2.5
+  - proto: BitrunMapItemClothingGlassesMesonNight
+    entities:
+      - uid: 18
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,1.5
+      - uid: 19
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,1.5
+      - uid: 20
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,1.5
+  - proto: BitrunMapItemGunBallisticAutomaticL6SawUnrestricted
+    entities:
+      - uid: 23
+        components:
+          - type: Transform
+            parent: 22
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticRifleSniperRifle
+    entities:
+      - uid: 25
+        components:
+          - type: Transform
+            parent: 22
+            pos: 0,0
+  - proto: BitrunMapItemGunBallisticRocketlauncherUnrestrictedSpriteOffsetMinus0Point250
+    entities:
+      - uid: 44
+        components:
+          - type: Transform
+            parent: 43
+            pos: 0,0
+  - proto: BitrunMapItemGunEnergyRechargeKineticAcceleratorSpriteOffsetMinus0Point031250Point03125
+    entities:
+      - uid: 56
+        components:
+          - type: Transform
+            parent: 58
+            pos: 0,0
+  - proto: BitrunMapItemGunEnergyRechargeKineticAcceleratorSpriteOffset0Point125Minus0Point125
+    entities:
+      - uid: 57
+        components:
+          - type: Transform
+            parent: 58
+            pos: 0,0
+  - proto: BitrunMapItemGunEnergyRechargeKineticAcceleratorSpriteOffsetMinus0Point18750Point1875
+    entities:
+      - uid: 55
+        components:
+          - type: Transform
+            parent: 58
+            pos: 0,0
+  - proto: BitrunMapItemKineticCrusher
+    entities:
+      - uid: 59
+        components:
+          - type: Transform
+            parent: 58
+            pos: 0,0
+      - uid: 60
+        components:
+          - type: Transform
+            parent: 58
+            pos: 0,0
+  - proto: BitrunMapMachinerySuitStorageUnitMining
+    entities:
+      - uid: 30
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,2.5
+      - uid: 53
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,3.5
+      - uid: 65
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,4.5
+  - proto: BitrunMapStructureTankDispenserOxygenSpriteOffsetDefault
     entities:
       - uid: 68
         components:
           - type: Transform
             parent: 1
             pos: 5.5,4.5
-  - proto: ClosetSteelBaseBitrunArt20155ad0881a
+  - proto: BitrunMapStructureCloset
     entities:
       - uid: 22
         components:
@@ -237,7 +325,7 @@ entities:
           - type: ContainerContainer
             containers:
               entity_storage: !type:Container
-                ents: [23, 24, 25, 87]
+                ents: [23, 24, 25]
       - uid: 43
         components:
           - type: Transform
@@ -256,45 +344,28 @@ entities:
             containers:
               entity_storage: !type:Container
                 ents: [55, 56, 57, 59, 60]
-  - proto: ClothingEyesGlassesMesonBitrunArt4a1aa74f8e73
-    entities:
-      - uid: 18
-        components:
-          - type: Transform
-            parent: 1
-            pos: 1.5,1.5
-      - uid: 19
-        components:
-          - type: Transform
-            parent: 1
-            pos: 1.5,1.5
-      - uid: 20
-        components:
-          - type: Transform
-            parent: 1
-            pos: 1.5,1.5
-  - proto: EmergencyMedipenBitrunArt7ba8c86919a8Placementa4405cddde0c
+  - proto: BitrunMapItemReagentContainersHyposprayMedipenSurvivalLuxurySpriteOffset0Point18750Point1875
     entities:
       - uid: 41
         components:
           - type: Transform
             parent: 1
             pos: 3.5,2.5
-  - proto: EmergencyMedipenBitrunArt7ba8c86919a8Placementca76a3e6a0bc
+  - proto: BitrunMapItemReagentContainersHyposprayMedipenSurvivalLuxurySpriteOffset0Point18750
     entities:
       - uid: 42
         components:
           - type: Transform
             parent: 1
             pos: 3.5,2.5
-  - proto: EnergyKatanaBitrunArt76335dff32ab
+  - proto: BitrunMapItemEnergyKatana
     entities:
       - uid: 48
         components:
           - type: Transform
             parent: 43
             pos: 0,0
-  - proto: ExtinguisherCabinetBitrunArt813774e00736Placement4cf9d9996ab2
+  - proto: BitrunMapStructureExtinguisherCabinetDirectionalEastSpriteOffset0Minus0Point90625
     entities:
       - uid: 66
         components:
@@ -308,28 +379,28 @@ entities:
             parent: 1
             pos: 4.5,4.5
             rot: 180
-  - proto: FlashlightLanternBitrunArtadced0c3348aPlacement544caafdba78
+  - proto: BitrunMapItemFlashlightLanternSpriteOffsetMinus0Point250Point25
     entities:
       - uid: 17
         components:
           - type: Transform
             parent: 1
             pos: 1.5,1.5
-  - proto: FlashlightLanternBitrunArtadced0c3348aPlacementb1fe1124abdb
+  - proto: BitrunMapItemFlashlightLanternSpriteOffset00Point125
     entities:
       - uid: 16
         components:
           - type: Transform
             parent: 1
             pos: 1.5,1.5
-  - proto: FlashlightLanternBitrunArtadced0c3348aPlacementb6dbb6ad6460
+  - proto: BitrunMapItemFlashlightLanternSpriteOffset0Point250
     entities:
       - uid: 15
         components:
           - type: Transform
             parent: 1
             pos: 1.5,1.5
-  - proto: GrilleBitrunArt55b67fc37f21
+  - proto: BitrunMapStructureGrille
     entities:
       - uid: 5
         components:
@@ -376,14 +447,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: Magazine45_ACPSubMachineGunFMJPlacement9204d19db554
-    entities:
-      - uid: 87
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0
-  - proto: PoweredlightBitrunArtc99cdcd3ba4ePlacement42ae6e72884d
+  - proto: BitrunMapMachineryLightDirectionalEast
     entities:
       - uid: 54
         components:
@@ -397,14 +461,14 @@ entities:
             parent: 1
             pos: 5.5,3.5
             rot: 270
-  - proto: RailingBitrunArt78760ec387e4
+  - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
     entities:
       - uid: 62
         components:
           - type: Transform
             parent: 1
             pos: 5.5,3.5
-  - proto: ReinforcedWindowBitrunArt9f81dfb3bf9d
+  - proto: BitrunMapStructureWindowReinforcedFulltile
     entities:
       - uid: 4
         components:
@@ -451,31 +515,14 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: SignCargoBitrunArt6b2fb2fe7237Placement42ae6e72884d
+  - proto: BitrunMapStructureSignDepartmentsCargoDirectionalWest
     entities:
       - uid: 21
         components:
           - type: Transform
             parent: 1
             pos: 5.5,0.5
-  - proto: SuitStorageBaseBitrunArt064d20bdb027
-    entities:
-      - uid: 30
-        components:
-          - type: Transform
-            parent: 1
-            pos: 1.5,2.5
-      - uid: 53
-        components:
-          - type: Transform
-            parent: 1
-            pos: 1.5,3.5
-      - uid: 65
-        components:
-          - type: Transform
-            parent: 1
-            pos: 1.5,4.5
-  - proto: TableBitrunArt01782f28577d
+  - proto: BitrunMapStructureTable
     entities:
       - uid: 14
         components:
@@ -487,7 +534,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 3.5,2.5
-  - proto: WallSolidBitrunArt7007f3a1737a
+  - proto: BitrunMapClosedWall
     entities:
       - uid: 2
         components:
@@ -549,57 +596,3 @@ entities:
           - type: Transform
             parent: 1
             pos: 6.5,5.5
-  - proto: WeaponCrusherBitrunArt2816746f1f3d
-    entities:
-      - uid: 59
-        components:
-          - type: Transform
-            parent: 58
-            pos: 0,0
-      - uid: 60
-        components:
-          - type: Transform
-            parent: 58
-            pos: 0,0
-  - proto: WeaponPistolMk58BitrunArtee70c986c39b
-    entities:
-      - uid: 25
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0
-  - proto: WeaponPistolMk58BitrunArtf42dd74573d3Placementfd060a62351e
-    entities:
-      - uid: 44
-        components:
-          - type: Transform
-            parent: 43
-            pos: 0,0
-  - proto: WeaponProtoKineticAcceleratorBitrunArt07ae8f0bb77aPlacement20f57c0b0f1a
-    entities:
-      - uid: 56
-        components:
-          - type: Transform
-            parent: 58
-            pos: 0,0
-  - proto: WeaponProtoKineticAcceleratorBitrunArt07ae8f0bb77aPlacementd5a645cb4dca
-    entities:
-      - uid: 57
-        components:
-          - type: Transform
-            parent: 58
-            pos: 0,0
-  - proto: WeaponProtoKineticAcceleratorBitrunArt07ae8f0bb77aPlacementf9866b1ca3d9
-    entities:
-      - uid: 55
-        components:
-          - type: Transform
-            parent: 58
-            pos: 0,0
-  - proto: WeaponSubMachineGunDrozdBitrunArtf456b3bc7564
-    entities:
-      - uid: 23
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0

@@ -27,6 +27,23 @@ from dmi_states import states as dmi_states
 
 # None selects every state from a dedicated bitrunning or boss atlas.
 ATLAS_EXPORTS = (
+    ("drake_warning", "icons/effects/effects.dmi", ("lavastaff_warn",)),
+    ("drake_landing", "icons/effects/96x96.dmi", ("landing",)),
+    ("elite_mod_inventory", "icons/obj/clothing/modsuit/mod_clothing.dmi", tuple('elite-' + part + suffix for part in ('control', 'helmet', 'chestplate', 'gauntlets', 'boots') for suffix in ('', '-sealed'))),
+    ("elite_mod_worn", "icons/mob/clothing/modsuit/mod_clothing.dmi", tuple('elite-' + part + suffix for part in ('control', 'helmet', 'chestplate', 'gauntlets', 'boots') for suffix in ('', '-sealed'))),
+    ("elite_mod_anthro", "modular_skyrat/master_files/icons/mob/mod.dmi", tuple('elite-' + part + suffix for part in ('helmet', 'chestplate', 'boots') for suffix in ('', '-sealed'))),
+    ("elite_mod_modules", "icons/obj/clothing/modsuit/mod_modules.dmi", ('storage_syndi', 'no_baton', 'empshield', 'mag_harness', 'jump_jet', 'flashlight', 'hat_holder', 'welding')),
+    ("minebot", "icons/mob/silicon/aibots.dmi", ("mining_drone", "mining_drone_offense", "mining_drone_grey", "mining_drone_offense_grey")),
+    ("resonance", "icons/effects/effects.dmi", ("shield1", "shield2")),
+    ("long_balloons", "icons/obj/toys/balloons.dmi", tuple(f"balloon_long_{color}" for color in ("red", "blue", "green", "yellow", "orange", "purple"))),
+    ("long_balloons_left", "icons/mob/inhands/items/balloons_lefthand.dmi", tuple(f"balloon_long_{color}" for color in ("red", "blue", "green", "yellow", "orange", "purple"))),
+    ("long_balloons_right", "icons/mob/inhands/items/balloons_righthand.dmi", tuple(f"balloon_long_{color}" for color in ("red", "blue", "green", "yellow", "orange", "purple"))),
+    ("dish_drive", "icons/obj/machines/kitchen.dmi", ("synthesizer",)),
+    ("carvings", "icons/obj/service/hand_of_god_structures.dmi", ("alert_rune", "tentacle_rune", "madness_rune")),
+    ("laser_pointer", "icons/obj/weapons/guns/projectiles.dmi", ("blue_laser",)),
+    ("hoverboard", "icons/mob/rideables/vehicles.dmi", ("hoverboard_red",)),
+    ("disco_ball", "icons/obj/machines/floor.dmi", ("ethdisco_head_0", "ethdisco_head_1", "ethdisco_base")),
+    ("marker_beacon", "icons/obj/mining.dmi", tuple("marker" + color + suffix for color in ("random", "burgundy", "bronze", "yellow", "lime", "olive", "jade", "teal", "cerulean", "indigo", "purple", "violet", "fuchsia") for suffix in ("", "-on") if color != "random" or not suffix)),
     ("machines", "icons/obj/machines/bitrunning.dmi", None),
     ("effects", "icons/effects/bitrunning.dmi", None),
     ("effects_48", "icons/effects/bitrunning_48.dmi", None),

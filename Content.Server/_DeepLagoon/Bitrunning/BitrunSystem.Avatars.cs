@@ -12,6 +12,7 @@ using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Mind;
 using Content.Shared.Ghost;
 using Content.Shared.Humanoid;
+using Content.Shared.Humanoid.Prototypes;
 using Content.Shared.Interaction;
 using Content.Shared.Mind.Components;
 using Content.Shared.Mobs;
@@ -25,6 +26,7 @@ using Robust.Shared.Map;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Random;
 
 namespace Content.Server._DeepLagoon.Bitrunning;
 
@@ -168,7 +170,10 @@ public sealed partial class BitrunSystem
         EntityUid? avatar = null;
         try
         {
-            var player = Spawn("MobHuman", point);
+            var avatarPrototype = TryComp<HumanoidAppearanceComponent>(body, out var bodyAppearance)
+                ? _prototypes.Index<SpeciesPrototype>(bodyAppearance.Species).Prototype
+                : new EntProtoId("MobHuman");
+            var player = Spawn(avatarPrototype, point);
             avatar = player;
             var connection = AddComp<BitrunAvatarComponent>(player);
             connection.Body = body;
@@ -189,7 +194,26 @@ public sealed partial class BitrunSystem
                 "security" when !run.Domain.RestrictLoadout => "BitrunSecurityGear",
                 _ => "BitrunExplorerGear",
             };
+            if (run.Domain.Objective == BitrunObjective.Island)
+            {
+                var islandOutfits = _prototypes.EnumeratePrototypes<StartingGearPrototype>()
+                    .Where(outfit => outfit.ID.StartsWith("BitrunOutfitDatumOutfitBeachbumCombatWeapon", StringComparison.Ordinal))
+                    .ToArray();
+                if (islandOutfits.Length > 0)
+                    gear = _random.Pick(islandOutfits).ID;
+            }
+            if (side == BitrunSide.Defenders && DefenderGear(run) is { } defenderGear)
+                gear = defenderGear;
             _spawning.EquipStartingGear(player, gear, raiseEvent: false);
+            if (run.Domain.ID == "heretic_hunt")
+            {
+                _npcFactions.AddFaction(player, "BitrunHeretic");
+                EnsureComp<BitrunHereticActorComponent>(player);
+            }
+            if (side == BitrunSide.Defenders)
+                MakeDomainNpcFriendly(player);
+            if (run.Domain.Objective == BitrunObjective.Island)
+                EnsureComp<BitrunDomainGuestComponent>(player).Islander = true;
             _actions.AddAction(player, "ActionBitrunDisconnect");
             ConfigureAvatarVision(run, player);
             ApplyProgram(run, component, player);
