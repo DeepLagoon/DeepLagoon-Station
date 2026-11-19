@@ -5,6 +5,8 @@
   id: MobResomi
   # Monolith - Start - Mono/EE Languages
   components:
+  - type: Puller
+    needsHands: false
   - type: LanguageKnowledge
     speaks:
     - TauCetiBasic
