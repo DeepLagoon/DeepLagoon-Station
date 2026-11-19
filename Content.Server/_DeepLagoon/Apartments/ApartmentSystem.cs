@@ -46,6 +46,7 @@ namespace Content.Server._DeepLagoon.Apartments;
 /// <summary>Apartment prototype. Runtime instances, visits and layout storage have separate lifetimes.</summary>
 public sealed partial class ApartmentSystem : EntitySystem
 {
+    public bool ContainsRecoveryIdentity(Guid identity) => Store.ContainsRecoveryIdentity(identity);
     [Dependency] private IConfigurationManager _config = default!;
     [Dependency] private IResourceManager _resources = default!;
     [Dependency] private IPrototypeManager _prototypes = default!;
@@ -490,6 +491,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         // independent of the apartment owner and of the apartment grid's lifetime.
         var escrow = Spawn(null, new EntityCoordinates(_escrowMap, Vector2.Zero));
         visit.Escrow = _containers.EnsureContainer<Container>(escrow, "apartment-gear");
+        EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().RegisterEscrow(escrow, body);
         if (TryComp<PullerComponent>(body, out var puller) && puller.Pulling is { } pulled && TryComp<PullableComponent>(pulled, out var pulledComp)) _pulling.TryStopPull(pulled, pulledComp);
         if (TryComp<PullableComponent>(body, out var bodyPullable)) _pulling.TryStopPull(body, bodyPullable);
         if (TryComp<InventoryComponent>(body, out var inventory))
@@ -508,6 +510,8 @@ public sealed partial class ApartmentSystem : EntitySystem
                 if (_inventory.TryGetSlotEntity(body, slot, out var current) && current == item &&
                     !_inventory.TryUnequip(body, slot, out _, silent: true, force: true)) throw new InvalidOperationException("Cannot deposit equipped item.");
                 visit.Gear.Add((item, slot, null));
+                if (TryComp<Content.Server._DeepLagoon.CrashRecovery.RecoveryEscrowComponent>(escrow, out var recoveryEscrow))
+                    recoveryEscrow.ReturnPaths[item] = [slot];
                 if (!_containers.Insert(item, visit.Escrow)) throw new InvalidOperationException("Cannot store equipped item.");
             }
         }
@@ -517,6 +521,8 @@ public sealed partial class ApartmentSystem : EntitySystem
             if (hand.HeldEntity is not { } item) continue;
             if (!_hands.TryDrop(body, hand, checkActionBlocker: false, doDropInteraction: false)) throw new InvalidOperationException("Cannot deposit held item.");
             visit.Gear.Add((item, null, name));
+            if (TryComp<Content.Server._DeepLagoon.CrashRecovery.RecoveryEscrowComponent>(escrow, out var recoveryEscrow))
+                recoveryEscrow.ReturnPaths[item] = [hand.Container?.ID ?? name];
             if (!_containers.Insert(item, visit.Escrow)) throw new InvalidOperationException("Cannot store held item.");
         }
     }

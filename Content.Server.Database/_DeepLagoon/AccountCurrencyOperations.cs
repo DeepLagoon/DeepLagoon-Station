@@ -70,7 +70,7 @@ public static class AccountCurrencyOperations
     }
 
     public static async Task<int> WithdrawBank(ServerDbContext db, Guid user, int slot, int expectedBalance, int amount,
-        CancellationToken cancel = default)
+        CancellationToken cancel = default, RecoveryPayment? recovery = null)
     {
         if (amount <= 0 || expectedBalance < amount)
             throw new InvalidOperationException("Insufficient character bank balance.");
@@ -80,7 +80,8 @@ public static class AccountCurrencyOperations
         if (profile.BankBalance != expectedBalance)
             throw new InvalidOperationException("Character bank balance changed; retry the payment.");
         profile.BankBalance -= amount;
-        BankFinancialOperation.Record(db, user, profile, amount, "bank_withdrawal");
+        var transactionId = BankFinancialOperation.Record(db, user, profile, amount, "bank_withdrawal");
+        if (recovery != null) CrashRecoveryOperations.RecordPayment(db, recovery, user, profile, transactionId);
         await db.SaveChangesAsync(cancel);
         await transaction.CommitAsync(cancel);
         return profile.BankBalance;
@@ -113,7 +114,7 @@ public static class AccountCurrencyOperations
 
     public static async Task<int> DepositBank(ServerDbContext db, Guid user, int profileSlot,
         int expectedBankBalance, int amount, CancellationToken cancel = default,
-        IReadOnlyList<SpawnedCashSource>? origins = null)
+        IReadOnlyList<SpawnedCashSource>? origins = null, RecoveryRemoval? recovery = null)
     {
         if (amount <= 0 || expectedBankBalance < 0)
             throw new ArgumentOutOfRangeException(nameof(amount));
@@ -124,6 +125,7 @@ public static class AccountCurrencyOperations
             throw new InvalidOperationException("Character bank balance changed; retry the deposit.");
         profile.BankBalance = checked(profile.BankBalance + amount);
         BankFinancialOperation.Record(db, user, profile, amount, "bank_deposit", origins);
+        if (recovery != null) await CrashRecoveryOperations.RemoveInTransaction(db, recovery, cancel);
         await db.SaveChangesAsync(cancel);
         await transaction.CommitAsync(cancel);
         return profile.BankBalance;

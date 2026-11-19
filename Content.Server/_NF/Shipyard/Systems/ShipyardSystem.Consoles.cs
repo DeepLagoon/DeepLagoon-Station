@@ -209,6 +209,14 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
         // Keep track of whether or not a voucher was used.
         // TODO: voucher purchase should be done in a separate function.
         bool voucherUsed = false;
+        var recovery = EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>();
+        if (voucher == null && vessel.Price > 0 && !recovery.CanProtectBuyer(player))
+        {
+            Del(shuttleUid);
+            PlayDenySound(player, shipyardConsoleUid, component);
+            return;
+        }
+        var recoveryPayment = voucher == null ? recovery.BeginPurchase(player, vessel.Price) : null;
         if (voucher is not null)
         {
 			// Mono: Check if voucher has a purchase cooldown, and if it is still in cooldown cancel purchase
@@ -261,7 +269,9 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
             if (_cash.TryCashPayment(shipyardConsoleUid, vessel.Price, out var remainingDebt, true)) // Mono
                 cashBalance = Math.Max(cashBalance - vessel.Price,0);
             if (remainingDebt > 0) // Mono
-                _bank.TryBankWithdraw(player, remainingDebt); // Mono
+                _bank.TryBankWithdraw(player, remainingDebt, recoveryPayment); // Mono
+            recovery.AttachPurchase(shuttleUid, recoveryPayment, cashOnly: remainingDebt <= 0);
+            recovery.BindPurchasedShip(recoveryPayment, shuttleUid);
         }
 
         // Add company information to the shuttle from the ID card or voucher

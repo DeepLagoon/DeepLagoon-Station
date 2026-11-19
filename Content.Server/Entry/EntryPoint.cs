@@ -190,6 +190,8 @@ namespace Content.Server.Entry
 
         protected override void Dispose(bool disposing)
         {
+            if (_sysMan != null && _sysMan.TryGetEntitySystem<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>(out var recovery))
+                recovery.StopWorker().GetAwaiter().GetResult();
             _playTimeTracking?.Shutdown();
             _dbManager?.Shutdown();
             IoCManager.Resolve<ServerApi>().Shutdown();

@@ -134,6 +134,8 @@ public sealed partial class ServerUpdateManager : IPostInjectInit
 
     private void DoShutdown()
     {
+        IoCManager.Resolve<IEntityManager>().System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>()
+            .CloseNormally().GetAwaiter().GetResult();
         _sawmill.Debug($"Shutting down via {nameof(ServerUpdateManager)}!");
         var reason = _updateOnRoundEnd ? "server-updates-shutdown" : "server-updates-shutdown-uptime";
         _server.Shutdown(Loc.GetString(reason));

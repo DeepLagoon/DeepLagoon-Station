@@ -2173,13 +2173,13 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
             int characterIndex,
             string ownerName,
             EntProtoId protoId,
-            CancellationToken cancel = default)
+            CancellationToken cancel = default, Guid? identity = null)
         {
             await using var db = await GetDb(cancel);
 
             var box = new WayfarerSafetyDepositBox
             {
-                BoxId = Guid.NewGuid(),
+                BoxId = identity ?? Guid.NewGuid(),
                 OwnerUserId = ownerUserId,
                 CharacterIndex = characterIndex,
                 OwnerName = ownerName,

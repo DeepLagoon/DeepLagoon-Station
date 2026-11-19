@@ -58,6 +58,7 @@ namespace Content.Server.VendingMachines
         [Dependency] private IAdminLogManager _adminLogger = default!; // Frontier
         [Dependency] private VendingMachinePurchaseSystem _vendingPurchase = default!; // Mono
         [Dependency] private SharedCreditReceiverSystem _cash = default!; // Mono - Pwease chwose two pway wiw cawsh ow cwedit
+        [Dependency] private Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem _crashRecovery = default!;
 
         private const float WallVendEjectDistanceFromWall = 1f;
 
@@ -340,6 +341,11 @@ namespace Content.Server.VendingMachines
                 return;
 
             var totalPrice = GetPurchasePrice(uid, proto, component);
+            if (totalPrice > 0 && !_crashRecovery.CanProtectBuyer(sender))
+            {
+                Deny(uid, component);
+                return;
+            }
 
             if (IsAuthorized(uid, sender, component))
             {
@@ -358,15 +364,17 @@ namespace Content.Server.VendingMachines
 
                 if (TryEjectVendorItem(uid, type, itemId, component.CanShoot, component))
                 {
+                    var recoveryPayment = _crashRecovery.BeginPurchase(sender, totalPrice);
                     // Keep rejected requests from overwriting the price of an item already being dispensed.
                     component.LastPurchasePrice = totalPrice;
                     var paidFully = _cash.TryCashPayment(uid, totalPrice, out var _, true);
 
                     if (totalPrice > cashSlotBalance && !HasComp<IronmanComponent>(sender))
-                        paidFully = _bankSystem.TryBankWithdraw(sender, totalPrice - cashSlotBalance);
+                        paidFully = _bankSystem.TryBankWithdraw(sender, totalPrice - cashSlotBalance, recoveryPayment);
 
                     if (paidFully)
                     {
+                        _crashRecovery.AttachPurchase(component, recoveryPayment, cashOnly: totalPrice <= cashSlotBalance);
                         if (totalPrice > 0)
                         {
                             var purchases = component.Purchases.GetValueOrDefault(itemId);
@@ -569,6 +577,7 @@ namespace Content.Server.VendingMachines
             }
 
             var ent = _expeditionLoot.SpawnLoot(uid, vendComponent.NextItemToEject, spawnCoordinates);
+            _crashRecovery.BindPurchasedProduct(vendComponent, ent);
 
             // Mono: Track vending machine purchases for pricing modifications
             // Only track if this was a paid purchase (not a random eject or force eject)

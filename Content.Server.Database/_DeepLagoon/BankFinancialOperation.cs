@@ -25,12 +25,13 @@ public sealed class BankFinancialOperation
     public string? OriginJson { get; set; }
     public bool Delivered { get; set; }
 
-    internal static void Record(ServerDbContext db, Guid userId, Profile profile, int amount, string kind,
+    internal static Guid Record(ServerDbContext db, Guid userId, Profile profile, int amount, string kind,
         IReadOnlyList<SpawnedCashSource>? origins = null, Guid? recipientId = null, Profile? recipient = null)
     {
+        var id = Guid.NewGuid();
         db.BankFinancialOperations.Add(new BankFinancialOperation
         {
-            TransactionId = Guid.NewGuid(),
+            TransactionId = id,
             CreatedAt = DateTime.UtcNow,
             Kind = kind,
             Amount = amount,
@@ -42,6 +43,7 @@ public sealed class BankFinancialOperation
             RecipientBalance = recipient?.BankBalance,
             OriginJson = origins is { Count: > 0 } ? JsonSerializer.Serialize(origins) : null,
         });
+        return id;
     }
 
     public static Task<List<BankFinancialOperation>> Pending(ServerDbContext db, bool alerts,

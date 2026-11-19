@@ -46,6 +46,12 @@ public sealed class ParkingStore : IDisposable
         Execute("UPDATE parking_slots SET phase='stored' WHERE phase='saving'");
     }
     public static string Hash(string grid) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(grid)));
+    public bool ContainsRecoveryIdentity(Guid identity)
+    {
+        using var command = Command("SELECT 1 FROM parking_slots WHERE ship IS NOT NULL AND instr(lower(ship),$identity)>0 LIMIT 1",
+            ("$identity", identity.ToString().ToLowerInvariant()));
+        return command.ExecuteScalar() != null;
+    }
     public List<ParkingSlot> Slots(Guid owner)
     {
         using var cmd = Command("SELECT id,category,ship,phase,operation,character,paid FROM parking_slots WHERE owner=$owner ORDER BY category,rowid", ("$owner", owner.ToString()));

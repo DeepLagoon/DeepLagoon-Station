@@ -217,7 +217,10 @@ namespace Content.Server.Cargo.Systems
                 return;
             }
 
-            if (cost > 0 && !_bank.TryBankWithdraw(player, cost))
+            var recovery = EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>();
+            if (!recovery.CanProtectBuyer(player)) return;
+            var recoveryPayment = recovery.BeginPurchase(player, cost, order.OrderQuantity);
+            if (cost > 0 && !_bank.TryBankWithdraw(player, cost, recoveryPayment))
             {
                 ConsolePopup(player, Loc.GetString("cargo-console-payment-failed"));
                 PlayDenySound(uid, component);
@@ -225,6 +228,7 @@ namespace Content.Server.Cargo.Systems
             }
 
             // Frontier: no cargo fulfillment check
+            recovery.AttachPurchase(order, recoveryPayment);
             //var ev = new FulfillCargoOrderEvent((station.Value, stationData), order, (uid, component));
             //RaiseLocalEvent(ref ev); // Frontier
             //ev.FulfillmentEntity ??= station.Value; // Frontier
@@ -605,6 +609,7 @@ namespace Content.Server.Cargo.Systems
             try
             {
                 item = Spawn(order.ProductId, spawn);
+                EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().BindPurchasedProduct(order, item);
             }
             catch (EntityCreationException e)
             {

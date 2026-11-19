@@ -1,5 +1,8 @@
 ﻿using Content.Server._NF.CrateMachine;
 using Content.Server._NF.Market.Components;
+using System.Linq;
+using Content.Shared.Stacks;
+using Robust.Shared.Prototypes;
 using Content.Server._NF.Market.Extensions;
 using Content.Shared._NF.Market;
 using Content.Shared._NF.Market.Components;
@@ -76,7 +79,24 @@ public sealed partial class MarketSystem
 
         // Withdraw spesos from player
         var spawnCost = int.Abs(MarketDataExtensions.GetMarketValue(consoleComponent.CartDataList, marketMod));
-        if (!_bankSystem.TryBankWithdraw(player, spawnCost))
+        var recovery = EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>();
+        if (!recovery.CanProtectBuyer(player)) return;
+        var recoveryPrices = new List<int>();
+        foreach (var lot in consoleComponent.CartDataList)
+        {
+            var stack = GetMarketStack(lot);
+            var perStack = lot.Quantity;
+            if (stack != null)
+            {
+                _prototypeManager.Index<EntityPrototype>(stack.Spawn).TryComp<StackComponent>(out var componentStack, EntityManager.ComponentFactory);
+                perStack = _stackSystem.GetMaxCount(componentStack);
+            }
+            var count = stack != null ? (lot.Quantity - 1) / Math.Max(1, perStack) + 1 : lot.Quantity;
+            var lotCost = (int)Math.Round(lot.Price * lot.Quantity * marketMod);
+            for (var i = 0; i < count; i++) recoveryPrices.Add(lotCost / count + (i < lotCost % count ? 1 : 0));
+        }
+        var recoveryPayment = recovery.BeginPurchase(player, spawnCost, recoveryPrices.Count, recoveryPrices.ToArray());
+        if (!_bankSystem.TryBankWithdraw(player, spawnCost, recoveryPayment))
         {
             _popup.PopupEntity(Loc.GetString("market-insufficient-funds"), consoleUid, player);
             _audio.PlayPredicted(consoleComponent.ErrorSound, consoleUid, null, AudioParams.Default.WithMaxDistance(5f));
@@ -84,13 +104,15 @@ public sealed partial class MarketSystem
         }
         _audio.PlayPredicted(consoleComponent.SuccessSound, consoleUid, null, AudioParams.Default.WithMaxDistance(5f));
 
-        EnsureComp<MarketPendingShipmentComponent>(crateMachineUid).Items = consoleComponent.CartDataList;
+        var pending = EnsureComp<MarketPendingShipmentComponent>(crateMachineUid);
+        pending.Items = consoleComponent.CartDataList;
+        recovery.AttachPurchase(pending, recoveryPayment);
         consoleComponent.CartDataList = [];
         _crateMachine.OpenFor(crateMachineUid, component);
         RefreshState(consoleUid, playerBank.Balance, marketMod, consoleComponent);
     }
 
-    private void SpawnCrateItems(List<MarketLot> spawnList, EntityUid targetCrate)
+    private void SpawnCrateItems(List<MarketLot> spawnList, EntityUid targetCrate, object recoveryKey)
     {
         var coordinates = Transform(targetCrate).Coordinates;
         foreach (var data in spawnList)
@@ -100,6 +122,7 @@ public sealed partial class MarketSystem
                 var entityList = _stackSystem.SpawnMultiple(stackPrototype.Spawn, data.Quantity, coordinates);
                 foreach (var entity in entityList)
                 {
+                    EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().BindPurchasedProduct(recoveryKey, entity);
                     InsertPurchasedItem(entity, targetCrate, data.CraftedUnitLimit);
                 }
             }
@@ -109,6 +132,7 @@ public sealed partial class MarketSystem
                 for (int i = 0; i < data.Quantity; i++)
                 {
                     var spawn = Spawn(data.Prototype, coordinates);
+                    EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().BindPurchasedProduct(recoveryKey, spawn);
                     InsertPurchasedItem(spawn, targetCrate, data.CraftedUnitLimit);
                 }
             }
@@ -131,6 +155,6 @@ public sealed partial class MarketSystem
         var items = shipment.Items;
         RemComp<MarketPendingShipmentComponent>(uid);
         var targetCrate = _crateMachine.SpawnCrate(uid, component);
-        SpawnCrateItems(items, targetCrate);
+        SpawnCrateItems(items, targetCrate, shipment);
     }
 }

@@ -52,9 +52,9 @@ namespace Content.Server.Database
         #endregion
 
         #region Currencies
-        Task<int> WithdrawBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default);
+        Task<int> WithdrawBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default, RecoveryPayment? recovery = null);
         Task<int> DepositBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default,
-            IReadOnlyList<SpawnedCashSource>? origins = null);
+            IReadOnlyList<SpawnedCashSource>? origins = null, RecoveryRemoval? recovery = null);
         Task<BankTransfer> TransferBankAsync(NetUserId sender, int senderSlot, int senderBalance,
             NetUserId recipient, int recipientSlot, int recipientBalance, int amount, CancellationToken cancel = default);
         Task<long> GetLagoonCoinsAsync(NetUserId user, CancellationToken cancel = default);
@@ -398,7 +398,7 @@ namespace Content.Server.Database
 
         #region Wayfarer Safety Deposit Box
 
-        Task<WayfarerSafetyDepositBox> PurchaseSafetyDepositBox(Guid ownerUserId, int characterIndex, string ownerName, string boxSize, CancellationToken cancel = default);
+        Task<WayfarerSafetyDepositBox> PurchaseSafetyDepositBox(Guid ownerUserId, int characterIndex, string ownerName, string boxSize, CancellationToken cancel = default, Guid? identity = null);
         Task<List<WayfarerSafetyDepositBox>> GetPlayerSafetyDepositBoxes(Guid ownerUserId, int characterIndex, CancellationToken cancel = default);
         Task<WayfarerSafetyDepositBox?> GetSafetyDepositBox(Guid boxId, CancellationToken cancel = default);
         Task DepositSafetyDepositBoxItems(Guid boxId, List<string> entityDataList, CancellationToken cancel = default);
@@ -1185,10 +1185,10 @@ namespace Content.Server.Database
 
         #region Wayfarer Safety Deposit Box
 
-        public Task<WayfarerSafetyDepositBox> PurchaseSafetyDepositBox(Guid ownerUserId, int characterIndex, string ownerName, string boxSize, CancellationToken cancel = default)
+        public Task<WayfarerSafetyDepositBox> PurchaseSafetyDepositBox(Guid ownerUserId, int characterIndex, string ownerName, string boxSize, CancellationToken cancel = default, Guid? identity = null)
         {
             DbWriteOpsMetric.Inc();
-            return RunDbCommand(() => _db.PurchaseSafetyDepositBox(ownerUserId, characterIndex, ownerName, boxSize, cancel));
+            return RunDbCommand(() => _db.PurchaseSafetyDepositBox(ownerUserId, characterIndex, ownerName, boxSize, cancel, identity));
         }
 
         public Task<List<WayfarerSafetyDepositBox>> GetPlayerSafetyDepositBoxes(Guid ownerUserId, int characterIndex, CancellationToken cancel = default)

@@ -33,10 +33,13 @@ namespace Content.Server.Research.Disk
 
         public bool TryUpload(Entity<ResearchDiskComponent> disk, Entity<ResearchServerComponent> server, EntityUid? user)
         {
+            if (!EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().CanAcceptCriticalChange) return false;
+            if (disk.Comp.Points <= 0 || (long)server.Comp.Points + disk.Comp.Points > int.MaxValue) return false;
             if (TerminatingOrDeleted(server) || !TryQueueDel(disk))
                 return false;
 
             _research.ModifyServerPoints(server, disk.Comp.Points, server.Comp);
+            EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().ResearchDiskUploaded(disk, server);
             var message = Loc.GetString("research-disk-inserted", ("points", disk.Comp.Points));
             if (user is { } uid)
                 _popupSystem.PopupEntity(message, server, uid);

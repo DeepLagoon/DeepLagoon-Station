@@ -284,7 +284,10 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
         }
 
         // Withdraw from bank
-        if (!_bankSystem.TryBankWithdraw(session!, prefs!, profile, (int)(initialBankBalance - bankBalance), out var newBalance))
+        var recovery = EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>();
+        if (!recovery.CanProtectBuyer(player)) return;
+        var recoveryPayment = recovery.BeginPurchase(player, cost);
+        if (!_bankSystem.TryBankWithdraw(session!, prefs!, profile, (int)(initialBankBalance - bankBalance), out var newBalance, recoveryPayment))
         {
             ConsolePopup(player, "Transaction failed.");
             PlayDenySound(uid, component);
@@ -296,7 +299,7 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
         var characterIndex = prefs.SelectedCharacterIndex;
         var characterName = MetaData(player).EntityName;
 
-        PurchaseBoxAsync(uid, component, player, userId.UserId, characterIndex, characterName, prototypeId, cost);
+        PurchaseBoxAsync(uid, component, player, userId.UserId, characterIndex, characterName, prototypeId, cost, recoveryPayment);
     }
 
     // got tired of doing this
@@ -317,10 +320,11 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
         int characterIndex,
         string characterName,
         EntityPrototype prototypeId,
-        int cost)
+        int cost, Content.Server.Database.RecoveryPayment? recoveryPayment)
     {
         // Create box in database
-        var box = await _dbManager.PurchaseSafetyDepositBox(userId, characterIndex, characterName, prototypeId.ID);
+        var box = await _dbManager.PurchaseSafetyDepositBox(userId, characterIndex, characterName, prototypeId.ID,
+            identity: recoveryPayment?.Products[0]);
 
         // Spawn the physical box
         var boxEntity = Spawn(prototypeId.ID, Transform(player).Coordinates);
@@ -331,6 +335,9 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
         boxComp.CharacterIndex = characterIndex;
         boxComp.OwnerName = characterName;
         Dirty(boxEntity, boxComp);
+        var recovery = EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>();
+        recovery.AttachPurchase(boxEntity, recoveryPayment);
+        recovery.BindPurchasedProduct(boxEntity, boxEntity);
 
         // Try to put it in player's hands
         if (!_hands.TryPickupAnyHand(player, boxEntity))

@@ -17,6 +17,7 @@ public sealed partial class PointDiskConsoleSystem : EntitySystem
     [Dependency] private AudioSystem _audio = default!;
     [Dependency] private ResearchSystem _research = default!;
     [Dependency] private UserInterfaceSystem _ui = default!;
+    [Dependency] private Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem _recovery = default!;
 
     /// <inheritdoc/>
     public override void Initialize()
@@ -41,20 +42,21 @@ public sealed partial class PointDiskConsoleSystem : EntitySystem
             if (printing.FinishTime > _timing.CurTime)
                 continue;
 
-            RemComp(uid, printing);
             if (printing.Disk1K)
-                Spawn(console.Disk1KPrototype, xform.Coordinates);
+                _recovery.ResearchPrintCompleted(uid, Spawn(console.Disk1KPrototype, xform.Coordinates));
 
             if (printing.Disk5K)
-                Spawn(console.Disk5KPrototype, xform.Coordinates);
+                _recovery.ResearchPrintCompleted(uid, Spawn(console.Disk5KPrototype, xform.Coordinates));
 
             if (printing.Disk10K)
-                Spawn(console.Disk10KPrototype, xform.Coordinates);
+                _recovery.ResearchPrintCompleted(uid, Spawn(console.Disk10KPrototype, xform.Coordinates));
+            RemComp(uid, printing);
         }
     }
 
     private void OnPrint1KDisk(EntityUid uid, PointDiskConsoleComponent component, PointDiskConsolePrint1KDiskMessage args)
     {
+        if (!_recovery.CanAcceptCriticalChange) return;
         if (HasComp<PointDiskConsolePrintingComponent>(uid))
             return;
 
@@ -65,6 +67,7 @@ public sealed partial class PointDiskConsoleSystem : EntitySystem
             return;
 
         _research.ModifyServerPoints(server.Value, -component.PricePer1KDisk, serverComp);
+        _recovery.ResearchPrintStarted(uid, server.Value, 1000);
         _audio.PlayPvs(component.PrintSound, uid);
 
 
@@ -76,6 +79,7 @@ public sealed partial class PointDiskConsoleSystem : EntitySystem
 
     private void OnPrint5KDisk(EntityUid uid, PointDiskConsoleComponent component, PointDiskConsolePrint5KDiskMessage args)
     {
+        if (!_recovery.CanAcceptCriticalChange) return;
         if (HasComp<PointDiskConsolePrintingComponent>(uid))
             return;
 
@@ -86,6 +90,7 @@ public sealed partial class PointDiskConsoleSystem : EntitySystem
             return;
 
         _research.ModifyServerPoints(server.Value, -component.PricePer5KDisk, serverComp);
+        _recovery.ResearchPrintStarted(uid, server.Value, 5000);
         _audio.PlayPvs(component.PrintSound, uid);
 
         var printing = EnsureComp<PointDiskConsolePrintingComponent>(uid);
@@ -96,6 +101,7 @@ public sealed partial class PointDiskConsoleSystem : EntitySystem
 
     private void OnPrint10KDisk(EntityUid uid, PointDiskConsoleComponent component, PointDiskConsolePrint10KDiskMessage args)
     {
+        if (!_recovery.CanAcceptCriticalChange) return;
         if (HasComp<PointDiskConsolePrintingComponent>(uid))
             return;
 
@@ -106,6 +112,7 @@ public sealed partial class PointDiskConsoleSystem : EntitySystem
             return;
 
         _research.ModifyServerPoints(server.Value, -component.PricePer10KDisk, serverComp);
+        _recovery.ResearchPrintStarted(uid, server.Value, 10000);
         _audio.PlayPvs(component.PrintSound, uid);
 
         var printing = EnsureComp<PointDiskConsolePrintingComponent>(uid);
@@ -155,6 +162,7 @@ public sealed partial class PointDiskConsoleSystem : EntitySystem
 
     private void OnShutdown(EntityUid uid, PointDiskConsolePrintingComponent component, ComponentShutdown args)
     {
+        _recovery.ResearchPrintCancelled(uid);
         UpdateUserInterface(uid);
     }
 }

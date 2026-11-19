@@ -41,17 +41,17 @@ public abstract partial class ServerDbBase
         await AccountCurrencyOperations.CompleteLagoonCoinWebhook(db.DbContext, user, key, owner, cancel);
     }
 
-    public async Task<int> WithdrawBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default)
+    public async Task<int> WithdrawBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default, RecoveryPayment? recovery = null)
     {
         await using var db = await GetDb(cancel);
-        return await AccountCurrencyOperations.WithdrawBank(db.DbContext, user.UserId, slot, expectedBalance, amount, cancel);
+        return await AccountCurrencyOperations.WithdrawBank(db.DbContext, user.UserId, slot, expectedBalance, amount, cancel, recovery);
     }
 
     public async Task<int> DepositBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default,
-        IReadOnlyList<SpawnedCashSource>? origins = null)
+        IReadOnlyList<SpawnedCashSource>? origins = null, RecoveryRemoval? recovery = null)
     {
         await using var db = await GetDb(cancel);
-        return await AccountCurrencyOperations.DepositBank(db.DbContext, user.UserId, slot, expectedBalance, amount, cancel, origins);
+        return await AccountCurrencyOperations.DepositBank(db.DbContext, user.UserId, slot, expectedBalance, amount, cancel, origins, recovery);
     }
 
     public async Task<BankTransfer> TransferBankAsync(NetUserId sender, int senderSlot, int senderBalance,

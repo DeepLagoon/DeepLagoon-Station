@@ -78,7 +78,9 @@ public sealed partial class BankSystem
         state.Enabled = true;
 
         // try to actually withdraw from the bank. Validation happens on the banking system but we still indicate error.
-        if (!TryBankWithdraw(player, args.Amount))
+        var recovery = EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>();
+        var conversion = recovery.BeginPurchase(player, args.Amount);
+        if (!TryBankWithdraw(player, args.Amount, conversion))
         {
             ConsolePopup(args.Actor, Loc.GetString("bank-atm-menu-transaction-denied"));
             PlayDenySound(uid, component);
@@ -94,7 +96,9 @@ public sealed partial class BankSystem
 
         //spawn the cash stack of whatever cash type the ATM is configured to.
         var stackPrototype = _prototypeManager.Index<StackPrototype>(component.CashType);
-        _stackSystem.Spawn(args.Amount, stackPrototype, uid.ToCoordinates());
+        var cash = _stackSystem.Spawn(args.Amount, stackPrototype, uid.ToCoordinates());
+        recovery.AttachPurchase(cash, conversion);
+        recovery.BindPurchasedProduct(cash, cash);
 
         _uiSystem.SetUiState(uid, args.UiKey, state);
     }
@@ -160,7 +164,8 @@ public sealed partial class BankSystem
             .GroupBy(part => part.Spawner)
             .Select(group => new SpawnedCashSource(group.Key.UserId, group.First().Name, group.Sum(part => part.Units)))
             .ToArray();
-        if (!TryBankDeposit(player, deposit, origins))
+        var consumed = EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().ConsumedItems(cashSlot.ContainedEntities);
+        if (!TryBankDeposit(player, deposit, origins, consumed))
         {
             ConsolePopup(args.Actor, Loc.GetString("bank-atm-menu-transaction-denied"));
             PlayDenySound(uid, component);

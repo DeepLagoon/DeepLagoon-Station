@@ -516,6 +516,8 @@ namespace Content.Server.GameTicking
             DebugTools.Assert(RunLevel == GameRunLevel.InRound);
             _sawmill.Info("Ending round!");
 
+            // Persist the normal-end fence before post-round cleanup can invalidate player property.
+            EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().CloseNormally().GetAwaiter().GetResult();
             RunLevel = GameRunLevel.PostRound;
 
             try
@@ -991,6 +993,7 @@ namespace Content.Server.GameTicking
             TryResetPreset();
 
             _sawmill.Info("Restarting round!");
+            EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().CloseNormally().GetAwaiter().GetResult();
 
             SendServerMessage(Loc.GetString("game-ticker-restart-round"));
 

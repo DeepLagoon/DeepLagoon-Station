@@ -68,6 +68,7 @@ public sealed partial class ParkingSystem : EntitySystem
     [Dependency] private FollowerSystem _follower = default!;
     [Dependency] private GameTicker _ticker = default!;
     private ParkingStore _store = default!;
+    public bool ContainsRecoveryIdentity(Guid identity) => _store != null && _store.ContainsRecoveryIdentity(identity);
     private readonly HashSet<Guid> _busy = [];
     private readonly Dictionary<EntityUid, HashSet<EntityUid>> _viewers = [];
     private readonly Dictionary<EntityUid, EntityUid> _parkingMaps = [];
@@ -131,6 +132,7 @@ public sealed partial class ParkingSystem : EntitySystem
     }
     private void OnPurchased(ShipyardShuttlePurchaseEvent ev)
     {
+        EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().RegisterOwnedShip(ev.Shuttle, ev.Purchaser);
         if (!TryComp<ActorComponent>(ev.Purchaser, out var actor) || !TryComp<VesselComponent>(ev.Shuttle, out var vessel)
             || !_prototypes.TryIndex(vessel.VesselId, out var prototype)) return;
         RegisterPurchasedShip(ev.Shuttle, actor.PlayerSession.UserId.UserId, prototype.Price, prototype.ID, Name(ev.Purchaser));

@@ -263,6 +263,7 @@ public sealed partial class MindSystem : SharedMindSystem
             component!.Mind = mindId;
             mind.OwnedEntity = entity;
             mind.OriginalOwnedEntity ??= GetNetEntity(mind.OwnedEntity);
+            EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().MindBodyChanged(mindId, entity.Value);
             Entity<MindComponent> mindEnt = (mindId, mind);
             Entity<MindContainerComponent> containerEnt = (entity.Value, component);
             RaiseLocalEvent(entity.Value, new MindAddedMessage(mindEnt, containerEnt));

@@ -481,6 +481,8 @@ public sealed partial class ParkingSystem
         // FULL synchronous SQLite commit precedes all irreversible world mutations.
         _store.Save(user, slot, new(ship.Identity, Name(grid), ship.OwnerName, GetCategory(grid), ship.OriginalPrice, snapshot,
             ParkingStore.Hash(snapshot), SavedShift: _shift), payout);
+        EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().ResearchPersisted(retained);
+        EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().Persisted(retained);
         excluded.UnionWith(omitted);
         ReturnParkingItems(grid, context.Console, excluded, confiscated, retained);
 

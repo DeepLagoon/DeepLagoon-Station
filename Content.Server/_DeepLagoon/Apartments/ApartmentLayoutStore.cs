@@ -24,6 +24,7 @@ public interface IApartmentLayoutStore : IDisposable
     ApartmentItemOrder? PendingItemOrder(Guid owner);
     void CancelItemOrder(Guid owner, Guid id);
     void FinishRound();
+    bool ContainsRecoveryIdentity(Guid identity) => false;
 }
 
 /// <summary>Separate prototype DB. Never touches donation balances or the production schema.</summary>
@@ -47,6 +48,14 @@ public sealed class ApartmentLayoutStore : IApartmentLayoutStore
     }
 
     private static readonly JsonSerializerOptions SnapshotJson = new() { IncludeFields = true };
+
+    public bool ContainsRecoveryIdentity(Guid identity)
+    {
+        using var command = _connection.CreateCommand();
+        command.CommandText = "SELECT 1 FROM apartment_snapshots WHERE instr(lower(data),$identity)>0 LIMIT 1";
+        command.Parameters.AddWithValue("$identity", identity.ToString().ToLowerInvariant());
+        return command.ExecuteScalar() != null;
+    }
 
     public ApartmentSnapshot? LoadSnapshot(Guid owner, string template)
     {

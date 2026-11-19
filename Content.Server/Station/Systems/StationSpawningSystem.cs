@@ -274,8 +274,11 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             }
             var totalCost = (int)(initialBankBalance - plannedBalance);
             int? paidBankBalance = null;
-            if (totalCost > 0 && !_bank.TryBankWithdraw(session!, prefs!, profile!, totalCost, out paidBankBalance))
+            var recovery = EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>();
+            var recoveryPayment = session == null ? null : recovery.BeginProfilePurchase(session.UserId.UserId, totalCost);
+            if (totalCost > 0 && !_bank.TryBankWithdraw(session!, prefs!, profile!, totalCost, out paidBankBalance, recoveryPayment))
                 bankBalance = 0;
+            using var recoverySpawnScope = recovery.SpawnPurchaseScope(paidBankBalance != null ? recoveryPayment : null);
 
             // Order loadout selections by the order they appear on the prototype.
             foreach (var group in loadout.SelectedLoadouts.OrderBy(x => roleProto!.Groups.FindIndex(e => e == x.Key)))

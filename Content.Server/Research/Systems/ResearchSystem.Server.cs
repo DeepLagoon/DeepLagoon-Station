@@ -23,6 +23,7 @@ public sealed partial class ResearchSystem
 
     private void OnServerShutdown(EntityUid uid, ResearchServerComponent component, ComponentShutdown args)
     {
+        EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().ResearchServerRemoved(uid);
         foreach (var client in new List<EntityUid>(component.Clients))
         {
             UnregisterClient(client, uid, serverComponent: component, dirtyServer: false);
@@ -162,6 +163,7 @@ public sealed partial class ResearchSystem
         if (!Resolve(uid, ref component))
             return;
         component.Points += points;
+        EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().ResearchChanged(uid);
         var ev = new ResearchServerPointsChangedEvent(uid, component.Points, points);
         foreach (var client in component.Clients)
         {
