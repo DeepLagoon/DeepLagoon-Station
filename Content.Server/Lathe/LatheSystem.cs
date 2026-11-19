@@ -40,6 +40,9 @@ using Content.Server._NF.Contraband.Systems;
 using Content.Server.Storage.Components;
 using Robust.Shared.Containers;
 using Robust.Shared.Utility; // Frontier
+using System.Numerics;
+using Robust.Shared.Physics.Components;
+using Robust.Shared.Physics;
 
 namespace Content.Server.Lathe
 {
@@ -47,6 +50,7 @@ namespace Content.Server.Lathe
     public sealed partial class LatheSystem : SharedLatheSystem
     {
         [Dependency] private IGameTiming _timing = default!;
+        [Dependency] private EntityLookupSystem _lookup = default!;
         [Dependency] private IPrototypeManager _proto = default!;
         [Dependency] private IAdminLogManager _adminLogger = default!;
         [Dependency] private AtmosphereSystem _atmosphere = default!;
@@ -377,7 +381,59 @@ namespace Content.Server.Lathe
 
                     for (var i = 0; i < recipe.ResultCount; i++) // mono
                     {
-                        var result = Spawn(resultProto, Transform(uid).Coordinates);
+                        var xform = Transform(uid);
+                        var coordinates = xform.Coordinates;
+
+                        if (comp.OutputOffset > 0f)
+                        {
+                            var directions = new[]
+                            {
+                              new Vector2(0, -1), // Спереди
+                              new Vector2(0, 1),  // сзади
+                              new Vector2(-1, 0), // слева
+                              new Vector2(1, 0),  // справа
+                            };
+
+                            var nearby = new HashSet<EntityUid>();
+
+                            //Проверяйет близлежащие статические объекты только один раз.
+                            _lookup.GetEntitiesInRange(uid, 1.6f, nearby, LookupFlags.Static);
+
+                            foreach (var direction in directions)
+                            {
+                                var offset = xform.LocalRotation.RotateVec(direction);
+
+                                //Проверяет на расстоянии одной клетки, и создает объект лишь немного впереди.
+                                var target = coordinates.Offset(offset);
+                                var blocked = false;
+
+                                foreach (var entity in nearby)
+                                {
+                                    if (entity == uid ||
+                                        !HasComp<FixturesComponent>(entity))
+                                        continue;
+
+                                    var other = Transform(entity).Coordinates;
+
+                                    if (other.EntityId != target.EntityId)
+                                        continue;
+
+                                    if (Vector2.DistanceSquared(other.Position, target.Position) < 0.25f)
+                                    {
+                                        blocked = true;
+                                        break;
+                                    }
+                                }
+
+                                if (blocked)
+                                    continue;
+
+                                coordinates = coordinates.Offset(offset * comp.OutputOffset);
+                                break;
+                            }
+                        }
+
+                        var result = Spawn(resultProto, coordinates);
 
                         // Frontier: adjust price before merge (stack prices changed once)
                         if (result.Valid)

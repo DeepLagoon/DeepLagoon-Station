@@ -75,6 +75,7 @@ public sealed partial class BorgSystem
         _metaData.SetEntityName(uid, name, metaData);
     }
 
+
     private void OnRemoveModuleBuiMessage(EntityUid uid, BorgChassisComponent component, BorgRemoveModuleBuiMessage args)
     {
         var module = GetEntity(args.Module);
@@ -85,13 +86,24 @@ public sealed partial class BorgSystem
         if (!CanRemoveModule((uid, component), (module, Comp<BorgModuleComponent>(module)), args.Actor))
             return;
 
+        // Сначала отключаем активный модуль.
+        if (component.SelectedModule == module)
+        {
+            UnselectModule(uid, component);
+        }
+
         _adminLog.Add(LogType.Action, LogImpact.Medium,
             $"{ToPrettyString(args.Actor):player} removed module {ToPrettyString(module)} from borg {ToPrettyString(uid)}");
+
         _container.Remove(module, component.ModuleContainer);
-        _hands.TryPickupAnyHand(args.Actor, module);
+
+        // Не возвращать! "автоматическое помещение в руки"
+        // _hands.TryPickupAnyHand(args.Actor, module);
 
         UpdateUI(uid, component);
+
     }
+
 
     public void UpdateUI(EntityUid uid, BorgChassisComponent? component = null)
     {

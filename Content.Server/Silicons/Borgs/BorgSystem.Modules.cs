@@ -182,15 +182,20 @@ public sealed partial class BorgSystem
         RemoveProvidedItems(args.Chassis, uid, component: component);
     }
 
-    private void ProvideItems(EntityUid chassis, EntityUid uid, BorgChassisComponent? chassisComponent = null, ItemBorgModuleComponent? component = null)
+
+    private void ProvideItems(EntityUid chassis, EntityUid uid,
+        BorgChassisComponent? chassisComponent = null,
+        ItemBorgModuleComponent? component = null)
     {
-        if (!Resolve(chassis, ref chassisComponent) || !Resolve(uid, ref component))
+        if (!Resolve(chassis, ref chassisComponent) ||
+            !Resolve(uid, ref component))
             return;
 
         if (!TryComp<HandsComponent>(chassis, out var hands))
             return;
 
         var xform = Transform(chassis);
+
         foreach (var itemProto in component.Items)
         {
             EntityUid item;
@@ -203,9 +208,10 @@ public sealed partial class BorgSystem
             {
                 item = component.ProvidedContainer.ContainedEntities
                     .FirstOrDefault(ent => Prototype(ent)?.ID == itemProto.Id);
+
                 if (!item.IsValid())
                 {
-                    Log.Debug($"no items found: {component.ProvidedContainer.ContainedEntities.Count}");
+                    Log.Error($"Missing stored borg item {itemProto.Id}");
                     continue;
                 }
 
@@ -213,15 +219,14 @@ public sealed partial class BorgSystem
             }
 
             if (!item.IsValid())
-            {
-                Log.Debug("no valid item");
                 continue;
-            }
 
             var handId = $"{uid}-item{component.HandCounter}";
             component.HandCounter++;
+
             _hands.AddHand(chassis, handId, HandLocation.Middle, hands);
             _hands.DoPickup(chassis, hands.Hands[handId], item, hands);
+
             EnsureComp<UnremoveableComponent>(item);
             component.ProvidedItems.Add(handId, item);
         }
@@ -229,9 +234,14 @@ public sealed partial class BorgSystem
         component.ItemsCreated = true;
     }
 
-    private void RemoveProvidedItems(EntityUid chassis, EntityUid uid, BorgChassisComponent? chassisComponent = null, ItemBorgModuleComponent? component = null)
+
+
+    private void RemoveProvidedItems(EntityUid chassis, EntityUid uid,
+        BorgChassisComponent? chassisComponent = null,
+        ItemBorgModuleComponent? component = null)
     {
-        if (!Resolve(chassis, ref chassisComponent) || !Resolve(uid, ref component))
+        if (!Resolve(chassis, ref chassisComponent) ||
+            !Resolve(uid, ref component))
             return;
 
         if (!TryComp<HandsComponent>(chassis, out var hands))
@@ -250,13 +260,37 @@ public sealed partial class BorgSystem
 
         foreach (var (handId, item) in component.ProvidedItems)
         {
-            if (LifeStage(item) <= EntityLifeStage.MapInitialized)
+            if (TerminatingOrDeleted(item))
             {
-                RemComp<UnremoveableComponent>(item);
-                _container.Insert(item, component.ProvidedContainer);
+                _hands.RemoveHand(chassis, handId, hands);
+                continue;
             }
+
+            // Разрешаем убрать предмет из руки.
+            RemComp<UnremoveableComponent>(item);
+
+            // Переносим предмет из руки напрямую в контейнер модуля.
+            var success = _hands.TryDropIntoContainer(
+                chassis,
+                item,
+                component.ProvidedContainer,
+                checkActionBlocker: false,
+                handsComp: hands
+            );
+
+            // Проверяем фактическое содержимое контейнера.
+            if (!success || !component.ProvidedContainer.Contains(item))
+            {
+                Log.Error($"Failed to store borg item {ToPrettyString(item)}");
+
+                EnsureComp<UnremoveableComponent>(item);
+                return;
+            }
+
+            // Рука теперь пуста, её можно удалить.
             _hands.RemoveHand(chassis, handId, hands);
         }
+
         component.ProvidedItems.Clear();
     }
 
