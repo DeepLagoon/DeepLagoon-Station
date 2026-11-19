@@ -38,6 +38,12 @@ dl-loadout-slot-armbandright = Правая повязка
 dl-loadout-slot-armbandleft = Левая повязка
 dl-loadout-slot-helmetcover = Чехол шлема
 dl-loadout-slot-helmetattachment = Крепление шлема
+# DeepLagoon start - character underwear slots
+dl-loadout-slot-underwearbottom = Трусы
+dl-loadout-slot-underweartop = Бюстгальтер
+dl-loadout-slot-socks = Носки
+# DeepLagoon end
+
 dl-loadout-incompatible-species-slots = У выбранной расы нет подходящего слота для этого снаряжения.
 dl-loadout-insufficient-balance = На счёте персонажа не хватает средств для этого снаряжения.
 dl-loadout-insufficient-points = Не хватает очков снаряжения.

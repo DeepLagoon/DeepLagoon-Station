@@ -52,6 +52,11 @@
     - map: ["enum.HumanoidVisualLayers.LHand"]
     - map: ["enum.HumanoidVisualLayers.RHand"]
     - state: shade
+    # DeepLagoon start
+    - map: ["socks"]
+    - map: ["underwearbottom"]
+    - map: ["underweartop"]
+    # DeepLagoon end
     - map: ["jumpsuit"]
     - map: [ "gloves" ]
     - map: [ "shoes" ]

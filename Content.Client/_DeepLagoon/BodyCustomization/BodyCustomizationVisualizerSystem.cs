@@ -48,9 +48,9 @@ public sealed partial class BodyCustomizationVisualizerSystem : EntitySystem
                 if (side == "FRONT")
                 {
                     // Insert just below the first clothing layer, above all base body parts before it.
-                    insertion = sprite.LayerMapTryGet("jumpsuit", out var uniform) ? uniform : chest + 1;
+                    insertion = FirstGarmentLayer(sprite, chest);
                     if (feature.Visibility == 2)
-                        insertion = sprite.LayerMapTryGet("outerClothing", out var suit) ? suit + 1 : insertion;
+                        insertion = LastGarmentLayer(sprite, chest);
                     foreach (var previous in layers.Where(k => !k.EndsWith("/BEHIND")
                         && humanoid.BodyFeatures.FirstOrDefault(f => f.Part == k.Split('/')[1])?.Visibility == feature.Visibility))
                         if (sprite.LayerMapTryGet(previous, out var index)) insertion = Math.Max(insertion, index + 1);
@@ -166,6 +166,24 @@ public sealed partial class BodyCustomizationVisualizerSystem : EntitySystem
                 && (feature.Visibility == 2 || !humanoid.HiddenLayers.ContainsKey(HumanoidVisualLayers.Chest));
             if (sprite.LayerMapTryGet(key, out var index)) sprite.LayerSetVisible(index, visible);
         }
+    }
+
+    private static int FirstGarmentLayer(SpriteComponent sprite, int chest)
+    {
+        var insertion = -1;
+        foreach (var key in new object[] { "socks", "underwearbottom", "underweartop", "jumpsuit", "outerClothing" })
+            if (sprite.LayerMapTryGet(key, out var index))
+                insertion = insertion < 0 ? index : Math.Min(insertion, index);
+        return insertion >= 0 ? insertion : chest + 1;
+    }
+
+    private static int LastGarmentLayer(SpriteComponent sprite, int chest)
+    {
+        var insertion = chest + 1;
+        foreach (var key in new object[] { "socks", "underwearbottom", "underweartop", "jumpsuit", "outerClothing" })
+            if (sprite.LayerMapTryGet(key, out var index))
+                insertion = Math.Max(insertion, index + 1);
+        return insertion;
     }
 
     private bool HasTorsoClothing(EntityUid uid)

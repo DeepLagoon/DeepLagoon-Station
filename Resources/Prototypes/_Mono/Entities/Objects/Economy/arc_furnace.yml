@@ -268,6 +268,7 @@
   - type: Tag
     tags:
     - EconomyGood
+    - ArmorPlateFragment # DeepLagoon: arc furnace whitelist
   - type: Item
     size: Normal
   - type: Fixtures
@@ -278,9 +279,7 @@
           bounds: "-0.2,-0.2,0.2,0.2"
         density: 20
         mask:
-        - MobMask
-        layer:
-        - MobLayer
+        - ItemMask # DeepLagoon: was MobMask/MobLayer, fragments behaved as mobs and bounced off machines
         restitution: 0.3  # fite me
         friction: 0.2
   - type: Sprite

@@ -48,6 +48,7 @@ public sealed partial class InteractionPanelArousalSystem
     public bool CanExposePart(EntityUid uid, string part)
     {
         if (IsChastened(uid, part)) return false;
+        if (_coverage.IsCovered(uid, part)) return false;
         if (part == "synthetic") return ProducingParts(uid).Contains(part);
         if (part != "mouth" && !HasFeature(uid, part)) return false;
         if (TryComp<HumanoidAppearanceComponent>(uid, out var body)
@@ -78,7 +79,8 @@ public sealed partial class InteractionPanelArousalSystem
         var emitted = false;
         foreach (var part in ProducingParts(source))
         {
-            if (selectedPart != null && part != selectedPart || IsChastened(source, part)) continue;
+            if (selectedPart != null && part != selectedPart || IsChastened(source, part)
+                || _coverage.IsCovered(source, part)) continue;
             var sensitivity = preferences.Sensitivity(part);
             if (sensitivity is BlueMoonSensitivity.Impotent or BlueMoonSensitivity.Disappointing) continue;
             var fluid = new Solution();

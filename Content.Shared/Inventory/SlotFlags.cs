@@ -32,6 +32,11 @@ public enum SlotFlags
     ARMBANDLEFT = 1 << 19,
     HELMETCOVER = 1 << 20,
     HELMETATTACHMENT = 1 << 21, //Mono end
+    // DeepLagoon start - character underwear slots
+    UNDERWEARTOP = 1 << 22,
+    UNDERWEARBOTTOM = 1 << 23,
+    SOCKS = 1 << 24,
+    // DeepLagoon end
     All = ~NONE,
 
     WITHOUT_POCKET = All & ~POCKET

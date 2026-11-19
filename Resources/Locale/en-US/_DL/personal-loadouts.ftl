@@ -38,6 +38,12 @@ dl-loadout-slot-armbandright = Right armband
 dl-loadout-slot-armbandleft = Left armband
 dl-loadout-slot-helmetcover = Helmet cover
 dl-loadout-slot-helmetattachment = Helmet attachment
+# DeepLagoon start - character underwear slots
+dl-loadout-slot-underwearbottom = Underwear bottom
+dl-loadout-slot-underweartop = Underwear top
+dl-loadout-slot-socks = Socks
+# DeepLagoon end
+
 dl-loadout-incompatible-species-slots = The selected species has no compatible slot for this equipment.
 dl-loadout-insufficient-balance = The character cannot afford this equipment.
 dl-loadout-insufficient-points = There are not enough loadout points.

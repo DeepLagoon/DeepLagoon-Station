@@ -332,6 +332,7 @@
   chatColor: '#C6E8DA'
   userArousalGain: 0
   targetArousalGain: 0
+  userBodyPart: breasts
   userSexes:
   - Female
   effect: DeepLagoonInteractionPanelHearts
@@ -393,6 +394,7 @@
   chatColor: '#C6E8DA'
   userArousalGain: 0
   targetArousalGain: 0
+  targetBodyPart: breasts
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-slap-breasts-audio
@@ -823,6 +825,7 @@
   chatColor: '#C6E8DA'
   userArousalGain: 0
   targetArousalGain: 0
+  targetBodyPart: butt
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-grope-ass-audio
@@ -837,6 +840,7 @@
   chatColor: '#C6E8DA'
   userArousalGain: 6
   targetArousalGain: 0
+  targetBodyPart: butt
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-mountface-audio
@@ -851,6 +855,7 @@
   chatColor: '#C6E8DA'
   userArousalGain: 0
   targetArousalGain: 0
+  targetBodyPart: butt
   effect: DeepLagoonInteractionPanelHearts
   sounds:
   - molot-lewd-slap-audio

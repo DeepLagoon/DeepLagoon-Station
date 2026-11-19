@@ -3,6 +3,11 @@
   canCustomizeName: false
   groups:
   - DLLoadoutPortableJukebox
+  # DeepLagoon start - underwear loadout groups of the personal catalogue
+  - DLUnderwearBottom
+  - DLUnderwearTop
+  - DLUnderwearSocks
+  # DeepLagoon end
   - DLEinsteinLoadoutAcolyteEquipment
   - DLEinsteinLoadoutAcolyteUniforms
   - DLEinsteinLoadoutAdminAssistantGloves

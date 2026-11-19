@@ -7,7 +7,7 @@
     slotGroup: SecondHotbar
     stripTime: 6
     uiWindowPos: 2,1
-    strippingWindowPos: 2,4
+    strippingWindowPos: 3,3
     displayName: "ID-карта"
   - name: id
     slotTexture: id

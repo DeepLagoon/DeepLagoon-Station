@@ -53,6 +53,11 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         {"pocket1", "POCKET1"},
         {"pocket2", "POCKET2"},
         {"suitstorage", "SUITSTORAGE"},
+        // DeepLagoon start - character underwear slots
+        {"socks", "SOCKS"},
+        {"underweartop", "UNDERWEARTOP"},
+        {"underwearbottom", "UNDERWEARBOTTOM"},
+        // DeepLagoon end
     };
 
     [Dependency] private IResourceCache _cache = default!;
