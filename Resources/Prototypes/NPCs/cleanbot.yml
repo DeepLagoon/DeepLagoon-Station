@@ -1,12 +1,41 @@
 - type: htnCompound
   id: CleanbotCompound
   branches:
+    # DeepLagoon start
+    - tasks:
+        - !type:HTNCompoundTask
+          task: CleanbotLightBulbCompound
+    # DeepLagoon end
     - tasks:
         - !type:HTNCompoundTask
           task: BufferNearbyPuddlesCompound
     - tasks:
         - !type:HTNCompoundTask
           task: IdleCompound
+
+# DeepLagoon start
+- type: htnCompound
+  id: CleanbotLightBulbCompound
+  branches:
+    - tasks:
+        - !type:HTNPrimitiveTask
+          operator: !type:PickBrokenLightOperator
+            targetKey: CleanbotLightTarget
+            targetMoveKey: TargetCoordinates
+
+        - !type:HTNPrimitiveTask
+          operator: !type:MoveToOperator
+            pathfindInPlanning: false
+            rangeKey: MeleeRange
+
+        - !type:HTNPrimitiveTask
+          preconditions:
+            - !type:TargetInRangePrecondition
+              targetKey: CleanbotLightTarget
+              rangeKey: InteractRange
+          operator: !type:ReplaceLightBulbOperator
+            targetKey: CleanbotLightTarget
+# DeepLagoon end
 
 # Picks a random puddle in range to move to and idle
 - type: htnCompound
