@@ -23,7 +23,7 @@ public sealed partial class ItemMinerSystem : EntitySystem
     private const int TimerVersion = 1;
     private const int MaxAttemptsPerTick = 8;
     private const int MaxQueueChecksPerTick = 64;
-    private static readonly long SpawnBudget = Math.Max(1L, Robust.Shared.Timing.Robust.Shared.Timing.Stopwatch.Frequency / 500); // 2 ms, at least one attempt.
+    private static readonly long SpawnBudget = Math.Max(1L, Stopwatch.Frequency / 500); // 2 ms, at least one attempt.
     private static readonly TimeSpan DefaultInterval = TimeSpan.FromSeconds(10);
     private readonly record struct ReadyMiner(ItemMinerComponent Component, EntProtoId Prototype);
     // Reserve a typical drill cohort once; later ticks reuse these buffers.
@@ -92,7 +92,7 @@ public sealed partial class ItemMinerSystem : EntitySystem
 
     public override void Update(float frameTime)
     {
-        var started = Robust.Shared.Timing.Stopwatch.GetTimestamp();
+        var started = Stopwatch.GetTimestamp();
         _frame = default;
         _ready.Clear();
         var now = _timing.CurTime;
@@ -145,11 +145,11 @@ public sealed partial class ItemMinerSystem : EntitySystem
             _ready[uid] = new ReadyMiner(miner, checkEv.Proto);
             if (_queued.Add(uid)) _pending.Enqueue(uid);
         }
-        var scanned = Robust.Shared.Timing.Stopwatch.GetTimestamp();
+        var scanned = Stopwatch.GetTimestamp();
         _frame.CheckTicks = scanned - started;
         if (_pending.Count > 0) ProcessPending(scanned);
         _frame.Deferred = _pending.Count;
-        var finished = Robust.Shared.Timing.Stopwatch.GetTimestamp();
+        var finished = Stopwatch.GetTimestamp();
         _frame.TotalTicks = finished - started;
         RecordDiagnostics(finished);
     }
@@ -159,7 +159,7 @@ public sealed partial class ItemMinerSystem : EntitySystem
         var checks = Math.Min(_pending.Count, MaxQueueChecksPerTick);
         while (checks-- > 0 && _frame.Attempts < MaxAttemptsPerTick)
         {
-            if (_frame.Attempts > 0 && Robust.Shared.Timing.Stopwatch.GetTimestamp() - started >= SpawnBudget) break;
+            if (_frame.Attempts > 0 && Stopwatch.GetTimestamp() - started >= SpawnBudget) break;
             var uid = _pending.Dequeue();
             _queued.Remove(uid);
             // _ready contains only unpaused miners that passed this tick's power/planet/anchoring checks.
@@ -180,29 +180,29 @@ public sealed partial class ItemMinerSystem : EntitySystem
             _frame.Attempts++;
             if (miner.SpawnChance < 1f && !_gambling.Prob(miner.SpawnChance)) continue;
 
-            var spawnStart = Robust.Shared.Timing.Stopwatch.GetTimestamp();
+            var spawnStart = Stopwatch.GetTimestamp();
             var coords = Transform(uid).Coordinates;
             EntityUid? mined;
             if (!miner.ResolveRandomSpawner || !_spawners.TrySpawnRandom(uid, ready.Prototype, coords, out mined))
                 mined = Spawn(ready.Prototype, coords);
-            _frame.SpawnTicks += Robust.Shared.Timing.Stopwatch.GetTimestamp() - spawnStart;
+            _frame.SpawnTicks += Stopwatch.GetTimestamp() - spawnStart;
             if (mined is not { } minedUid) continue; // Empty random-spawner roll.
             _frame.Spawned++;
             var ev = new ItemMinedEvent(minedUid);
-            var eventStart = Robust.Shared.Timing.Stopwatch.GetTimestamp();
+            var eventStart = Stopwatch.GetTimestamp();
             RaiseLocalEvent(uid, ref ev);
-            _frame.EffectTicks += Robust.Shared.Timing.Stopwatch.GetTimestamp() - eventStart;
+            _frame.EffectTicks += Stopwatch.GetTimestamp() - eventStart;
             if (!ev.NoStack && !TerminatingOrDeleted(minedUid) && !EntityManager.IsQueuedForDeletion(minedUid))
             {
-                var mergeStart = Robust.Shared.Timing.Stopwatch.GetTimestamp();
+                var mergeStart = Stopwatch.GetTimestamp();
                 if (_stack.TryMergeToContacts(minedUid, null, null, _mergeContacts)) _frame.Merged++;
-                _frame.MergeTicks += Robust.Shared.Timing.Stopwatch.GetTimestamp() - mergeStart;
+                _frame.MergeTicks += Stopwatch.GetTimestamp() - mergeStart;
             }
             if (miner.MinedSound != null)
             {
-                var soundStart = Robust.Shared.Timing.Stopwatch.GetTimestamp();
+                var soundStart = Stopwatch.GetTimestamp();
                 _audio.PlayPvs(miner.MinedSound, uid);
-                _frame.EffectTicks += Robust.Shared.Timing.Stopwatch.GetTimestamp() - soundStart;
+                _frame.EffectTicks += Stopwatch.GetTimestamp() - soundStart;
             }
         }
     }
