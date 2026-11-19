@@ -17,7 +17,8 @@ public sealed partial class ServerPerformanceDiagnosticsSystem : EntitySystem
     [Dependency] private IConfigurationManager _config = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private GameTicker _ticker = default!;
-    private bool _enabled;
+    private volatile bool _enabled;
+    private readonly PerformanceLogWriter _writer = new();
     private TimeSpan _interval = TimeSpan.FromSeconds(30);
     private TimeSpan _next;
 
@@ -37,7 +38,7 @@ public sealed partial class ServerPerformanceDiagnosticsSystem : EntitySystem
         if (!_enabled || _timing.RealTime < _next) return;
         _next = _timing.RealTime + _interval;
         if (!Log.IsLogLevelEnabled(Robust.Shared.Log.LogLevel.Info)) return;
-        Log.Info(FormattableString.Invariant(
-            $"Performance content registry: round={_ticker.RoundId} run_level={_ticker.RunLevel} entities={EntityManager.EntityCount} mobs={EntityManager.Count<MobStateComponent>()} active_npc={EntityManager.Count<ActiveNPCComponent>()} movers={EntityManager.Count<InputMoverComponent>()} active_movers={EntityManager.Count<ActiveInputMoverComponent>()} miners={EntityManager.Count<ItemMinerComponent>()} stacks={EntityManager.Count<StackComponent>()} materials={EntityManager.Count<MaterialComponent>()} organs={EntityManager.Count<OrganComponent>()} includes_paused_and_pending_removal=True"));
+        _writer.Write(Log, FormattableString.Invariant(
+            $"Performance content registry: round={_ticker.RoundId} run_level={_ticker.RunLevel} entities={EntityManager.EntityCount} mobs={EntityManager.Count<MobStateComponent>()} active_npc={EntityManager.Count<ActiveNPCComponent>()} movers={EntityManager.Count<InputMoverComponent>()} active_movers={EntityManager.Count<ActiveInputMoverComponent>()} miners={EntityManager.Count<ItemMinerComponent>()} stacks={EntityManager.Count<StackComponent>()} materials={EntityManager.Count<MaterialComponent>()} organs={EntityManager.Count<OrganComponent>()} includes_paused_and_pending_removal=True"), Robust.Shared.Log.LogLevel.Info, () => _enabled);
     }
 }
