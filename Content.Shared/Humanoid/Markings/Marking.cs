@@ -46,6 +46,7 @@ namespace Content.Shared.Humanoid.Markings
             Forced = other.Forced;
             DrawOrder = other.DrawOrder;
             Unshaded = other.Unshaded;
+            _unshadedLayers = other._unshadedLayers == null ? null : new(other._unshadedLayers);
         }
 
         /// <summary>
@@ -72,6 +73,41 @@ namespace Content.Shared.Humanoid.Markings
 
         [DataField]
         public bool Unshaded;
+
+        // Null preserves the legacy whole-marking setting. Mixed glow is indexed like MarkingColors.
+        [DataField("unshadedLayers")]
+        private List<bool>? _unshadedLayers;
+
+        public bool HasGlow => Unshaded || _unshadedLayers?.Any(value => value) == true;
+
+        public bool IsUnshaded(int layer) => layer >= 0 && layer < _markingColors.Count
+            && (_unshadedLayers != null && layer < _unshadedLayers.Count ? _unshadedLayers[layer] : Unshaded);
+
+        public void SetUnshaded(bool value)
+        {
+            Unshaded = value;
+            _unshadedLayers = null;
+        }
+
+        public void SetUnshaded(int layer, bool value)
+        {
+            if (layer < 0 || layer >= _markingColors.Count)
+                throw new ArgumentOutOfRangeException(nameof(layer));
+            _unshadedLayers ??= Enumerable.Repeat(Unshaded, _markingColors.Count).ToList();
+            _unshadedLayers[layer] = value;
+            if (_unshadedLayers.All(state => state == value))
+                SetUnshaded(value);
+            else
+                Unshaded = false;
+        }
+
+        public void CopyGlowFrom(Marking other, bool allowed = true)
+        {
+            SetUnshaded(false);
+            if (!allowed) return;
+            for (var layer = 0; layer < _markingColors.Count; layer++)
+                SetUnshaded(layer, other.IsUnshaded(layer));
+        }
 
         /// <summary>
         ///     If this marking should be forcefully applied, regardless of points.
@@ -118,7 +154,7 @@ namespace Content.Shared.Humanoid.Markings
                 && _markingColors.SequenceEqual(other._markingColors)
                 && Visible.Equals(other.Visible)
                 && DrawOrder == other.DrawOrder
-                && Unshaded == other.Unshaded
+                && Enumerable.Range(0, _markingColors.Count).All(layer => IsUnshaded(layer) == other.IsUnshaded(layer))
                 && Forced.Equals(other.Forced);
         }
 
@@ -142,6 +178,8 @@ namespace Content.Shared.Humanoid.Markings
                 colorStringList.Add(color.ToHex());
 
             var value = $"{sanitizedName}@{String.Join(',', colorStringList)}";
+            if (_unshadedLayers != null)
+                return $"{value}@{DrawOrder.ToString(System.Globalization.CultureInfo.InvariantCulture)}@0@{string.Concat(Enumerable.Range(0, _markingColors.Count).Select(layer => IsUnshaded(layer) ? '1' : '0'))}";
             if (Unshaded) return $"{value}@{DrawOrder.ToString(System.Globalization.CultureInfo.InvariantCulture)}@1";
             return DrawOrder == 0 ? value : $"{value}@{DrawOrder.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
         }
@@ -150,7 +188,7 @@ namespace Content.Shared.Humanoid.Markings
         {
             if (input.Length == 0) return null;
             var split = input.Split('@');
-            if (split.Length is not (2 or 3 or 4)) return null;
+            if (split.Length is not (2 or 3 or 4 or 5)) return null;
             var order = 0;
             if (split.Length >= 3 && !int.TryParse(split[2], System.Globalization.NumberStyles.Integer,
                     System.Globalization.CultureInfo.InvariantCulture, out order)) return null;
@@ -158,8 +196,15 @@ namespace Content.Shared.Humanoid.Markings
             foreach (string color in split[1].Split(','))
                 colorList.Add(Color.FromHex(color));
 
-            if (split.Length == 4 && split[3] is not ("0" or "1")) return null;
-            return new Marking(split[0], colorList) { DrawOrder = order, Unshaded = split.Length == 4 && split[3] == "1" };
+            if (split.Length >= 4 && split[3] is not ("0" or "1")) return null;
+            var marking = new Marking(split[0], colorList) { DrawOrder = order, Unshaded = split.Length >= 4 && split[3] == "1" };
+            if (split.Length == 5)
+            {
+                if (split[4].Length != colorList.Count || split[4].Any(state => state is not ('0' or '1'))) return null;
+                for (var layer = 0; layer < colorList.Count; layer++)
+                    marking.SetUnshaded(layer, split[4][layer] == '1');
+            }
+            return marking;
         }
     }
 }

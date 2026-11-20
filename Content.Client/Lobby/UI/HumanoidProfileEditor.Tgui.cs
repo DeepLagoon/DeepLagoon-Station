@@ -909,9 +909,11 @@ public sealed partial class HumanoidProfileEditor
             }
             else if (action == "marking-glow")
             {
-                if (!CanUseMarkingGlow || !_markingManager.TryGetMarking(marking, out var definition) || !definition.CanGlow) return false;
-                var glow = !marking.Unshaded;
-                foreach (var member in SelectedPair(list, definition)) member.Unshaded = glow;
+                if (!CanUseMarkingGlow || !_markingManager.TryGetMarking(marking, out var definition) || !definition.CanGlow
+                    || !args.TryInt("layer", out var layer) || layer < 0 || layer >= marking.MarkingColors.Count) return false;
+                var glow = !marking.IsUnshaded(layer);
+                foreach (var member in SelectedPair(list, definition))
+                    if (layer < member.MarkingColors.Count) member.SetUnshaded(layer, glow);
             }
             else if (action == "marking-move")
             {

@@ -70,10 +70,11 @@ public sealed partial class HumanoidProfileEditor
                 .String("part", definition.BodyPart.ToString()).String("categoryId", MarkingCategoryKey(definition))
                 .String("category", MarkingCategoryName(definition)).Bool("paired", paired)
                 .String("side", members.Length > 1 ? "both" : MarkingManager.IsRightPart(definition.BodyPart) ? "right" : "left")
-                .Bool("canGlow", definition.CanGlow).Bool("glow", marking.Unshaded && CanUseMarkingGlow)
+                .Bool("canGlow", definition.CanGlow)
                 .Bool("glowLocked", !CanUseMarkingGlow)
                 .Bool("locked", definition.ForcedColoring || _markingManager.MustMatchSkin(Profile.Species, definition.BodyPart, out _, _prototypeManager))
-                .Array("colors", marking.MarkingColors.Select(color => Choice("", color.ToHexNoAlpha())));
+                .Array("colors", marking.MarkingColors.Select((color, layer) => Choice("", color.ToHexNoAlpha())
+                    .Bool("glow", marking.IsUnshaded(layer) && CanUseMarkingGlow)));
         }
     }
 
@@ -141,7 +142,7 @@ public sealed partial class HumanoidProfileEditor
                 return false;
             var marking = part.AsMarking();
             marking.DrawOrder = template?.DrawOrder ?? order;
-            marking.Unshaded = template?.Unshaded == true && part.CanGlow;
+            if (template != null) marking.CopyGlowFrom(template, part.CanGlow);
             var colors = MarkingColoring.GetMarkingLayerColors(part, Profile.Appearance.SkinColor, Profile.Appearance.EyeColor, set);
             for (var i = 0; i < colors.Count; i++)
                 marking.SetColor(i, colors[i]);

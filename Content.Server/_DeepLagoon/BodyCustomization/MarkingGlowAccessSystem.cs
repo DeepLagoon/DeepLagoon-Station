@@ -21,8 +21,8 @@ public sealed partial class MarkingGlowAccessSystem : EntitySystem
         foreach (var markings in humanoid.MarkingSet.Markings.Values)
         foreach (var marking in markings)
         {
-            changed |= marking.Unshaded;
-            marking.Unshaded = false;
+            changed |= marking.HasGlow;
+            marking.SetUnshaded(false);
         }
         if (changed) Dirty(args.Mob, humanoid);
     }

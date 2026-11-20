@@ -252,7 +252,9 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
                 profile.Appearance.EyeColor,
                 markings
             );
-            markings.AddBack(prototype.MarkingCategory, new Marking(marking.MarkingId, markingColors) { DrawOrder = marking.DrawOrder, Unshaded = marking.Unshaded && prototype.CanGlow });
+            var colored = new Marking(marking.MarkingId, markingColors) { DrawOrder = marking.DrawOrder };
+            colored.CopyGlowFrom(marking, prototype.CanGlow);
+            markings.AddBack(prototype.MarkingCategory, colored);
         }
 
         markings.EnsureSpecies(profile.Species, profile.Appearance.SkinColor, _markingManager, _prototypeManager, profile.UnrestrictedMarkings);
@@ -303,7 +305,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
                          && sprite.LayerMapTryGet(prototype.BodyPart, out var layer) ? layer : -1))
         {
             if (_markingManager.TryGetMarking(marking, out var markingPrototype))
-                ApplyMarking(markingPrototype, marking.MarkingColors, marking.Visible, humanoid, sprite, marking.Unshaded);
+                ApplyMarking(markingPrototype, marking, humanoid, sprite);
         }
 
         humanoid.ClientOldMarkings = new MarkingSet(humanoid.MarkingSet);
@@ -355,11 +357,12 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         }
     }
     private void ApplyMarking(MarkingPrototype markingPrototype,
-        IReadOnlyList<Color>? colors,
-        bool visible,
+        Marking marking,
         HumanoidAppearanceComponent humanoid,
-        SpriteComponent sprite, bool unshaded = false)
+        SpriteComponent sprite)
     {
+        var colors = marking.MarkingColors;
+        var visible = marking.Visible;
         var species = _prototypeManager.Index(humanoid.Species);
         var markingAnchor = markingPrototype.GetLayerAnchor(species);
         if (!sprite.LayerMapTryGet(markingAnchor, out int targetLayer))
@@ -408,9 +411,10 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
                 sprite.LayerMapSet(layerId, layer);
                 sprite.LayerSetSprite(layerId, selectedSprite);
             }
-            if (unshaded && markingPrototype.CanGlow)
+            if (marking.IsUnshaded(j) && markingPrototype.CanGlow)
                 sprite.LayerSetShader(layerId, "unshaded");
             else if (markingPrototype.Shader is { } shader) sprite.LayerSetShader(layerId, shader);
+            else sprite.LayerSetShader(layerId, null, null);
             sprite.LayerSetVisible(layerId, visible);
 
             if (!visible)
@@ -488,7 +492,7 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
             foreach (var marking in markingList)
             {
                 if (_markingManager.TryGetMarking(marking, out var markingPrototype) && markingPrototype.BodyPart == layer)
-                    ApplyMarking(markingPrototype, marking.MarkingColors, marking.Visible, ent, sprite, marking.Unshaded);
+                    ApplyMarking(markingPrototype, marking, ent, sprite);
             }
         }
         if (layer == HumanoidVisualLayers.Hair)

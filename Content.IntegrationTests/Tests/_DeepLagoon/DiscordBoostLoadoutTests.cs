@@ -175,24 +175,31 @@ public sealed class DiscordBoostLoadoutTests
                 void CheckMarkingGlow(bool allowed)
                 {
                     Assert.That(supporters.CanUseMarkingGlow(session), Is.EqualTo(allowed));
-                    var entities = server.EntMan;
-                    var marking = prototypes.Index<Content.Shared.Humanoid.Markings.MarkingPrototype>("SynthAccessoryHornsLights").AsMarking();
-                    marking.Unshaded = true;
-                    marking.DrawOrder = 4;
-                    var source = HumanoidCharacterProfile.DefaultWithSpecies("Synth");
-                    source = source.WithCharacterAppearance(source.Appearance.WithMarkings(new() { marking }));
-                    var validated = (HumanoidCharacterProfile)source.Validated(session, Robust.Shared.IoC.IoCManager.Instance!);
-                    var saved = validated.Appearance.Markings.Single(m => m.MarkingId == marking.MarkingId);
-                    Assert.That(saved.Unshaded, Is.EqualTo(allowed), "Saving/importing a profile checks the current subscription");
-                    Assert.That(marking.Unshaded, Is.True, "Validation does not mutate another profile's marking");
-                    Assert.That(saved.DrawOrder, Is.EqualTo(marking.DrawOrder));
-                    var dummy = entities.SpawnEntity("MobHumanDummy", Robust.Shared.Map.MapCoordinates.Nullspace);
-                    entities.System<Content.Shared.Humanoid.SharedHumanoidAppearanceSystem>().LoadProfile(dummy, source);
-                    entities.EventBus.RaiseEvent(EventSource.Local, new Content.Shared.GameTicking.PlayerSpawnCompleteEvent(
-                        dummy, session, null, false, true, 1, EntityUid.Invalid, source));
-                    Assert.That(entities.GetComponent<Content.Shared.Humanoid.HumanoidAppearanceComponent>(dummy).MarkingSet.Markings.Values
-                        .SelectMany(list => list).Single(m => m.MarkingId == marking.MarkingId).Unshaded, Is.EqualTo(allowed), "Previously saved glow is rechecked on spawn");
-                    entities.DeleteEntity(dummy);
+                    foreach (var mixed in new[] { false, true })
+                    {
+                        var entities = server.EntMan;
+                        var marking = prototypes.Index<Content.Shared.Humanoid.Markings.MarkingPrototype>(mixed
+                            ? "BlueMoonEarsHumanBigwolfHeadSide" : "SynthAccessoryHornsLights").AsMarking();
+                        if (mixed) marking.SetUnshaded(1, true);
+                        else marking.Unshaded = true;
+                        marking.DrawOrder = 4;
+                        var source = HumanoidCharacterProfile.DefaultWithSpecies(mixed ? "Human" : "Synth");
+                        source = source.WithCharacterAppearance(source.Appearance.WithMarkings(new() { marking }));
+                        var validated = (HumanoidCharacterProfile)source.Validated(session, Robust.Shared.IoC.IoCManager.Instance!);
+                        var saved = validated.Appearance.Markings.Single(m => m.MarkingId == marking.MarkingId);
+                        Assert.That(saved.HasGlow, Is.EqualTo(allowed), "Saving/importing a profile checks the current subscription");
+                        Assert.That(marking.HasGlow, Is.True, "Validation does not mutate another profile's marking");
+                        if (mixed)
+                            Assert.That(Enumerable.Range(0, 3).Select(saved.IsUnshaded), Is.EqualTo(new[] { false, allowed, false }));
+                        Assert.That(saved.DrawOrder, Is.EqualTo(marking.DrawOrder));
+                        var dummy = entities.SpawnEntity("MobHumanDummy", Robust.Shared.Map.MapCoordinates.Nullspace);
+                        entities.System<Content.Shared.Humanoid.SharedHumanoidAppearanceSystem>().LoadProfile(dummy, source);
+                        entities.EventBus.RaiseEvent(EventSource.Local, new Content.Shared.GameTicking.PlayerSpawnCompleteEvent(
+                            dummy, session, null, false, true, 1, EntityUid.Invalid, source));
+                        Assert.That(entities.GetComponent<Content.Shared.Humanoid.HumanoidAppearanceComponent>(dummy).MarkingSet.Markings.Values
+                            .SelectMany(list => list).Single(m => m.MarkingId == marking.MarkingId).HasGlow, Is.EqualTo(allowed), "Previously saved glow is rechecked on spawn");
+                        entities.DeleteEntity(dummy);
+                    }
                 }
                 foreach (var tier in new[] { 3, 2, 1, 0 })
                 {
@@ -315,7 +322,7 @@ public sealed class DiscordBoostLoadoutTests
                 using var state = System.Text.Json.JsonDocument.Parse(editor.CreateTguiProfileState("markings").ToString());
                 Assert.That(state.RootElement.GetProperty("markings").EnumerateArray().Single(m => m.GetProperty("id").GetString() == "SynthAccessoryHornsLights")
                     .GetProperty("glowLocked").GetBoolean(), Is.EqualTo(productTier < 2));
-                Assert.That(editor.HandleTguiProfileAction("marking-glow", System.Text.Json.JsonSerializer.Serialize(new { index })), Is.EqualTo(productTier >= 2));
+                Assert.That(editor.HandleTguiProfileAction("marking-glow", System.Text.Json.JsonSerializer.Serialize(new { index, layer = 0 })), Is.EqualTo(productTier >= 2));
                 Assert.That(editor.Profile.Appearance.Markings[index].Unshaded, Is.EqualTo(productTier >= 2));
                 ui.WindowRoot.Children.OfType<Content.Client.Lobby.UI.CharacterEditorWindow>().Single().Close();
             });

@@ -23,6 +23,85 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 public sealed class CharacterCatalogRegressionTests
 {
     [Test]
+    public async Task PerColorGlowSurvivesEditorDatabaseAndReplication()
+    {
+        const string id = "BlueMoonEarsHumanBigwolfHeadSide";
+        HumanoidCharacterProfile saved = default!;
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        void CheckSprite(Robust.Shared.GameObjects.IEntityManager entities, EntityUid uid, IPrototypeManager prototypes)
+        {
+            var sprite = entities.GetComponent<SpriteComponent>(uid);
+            var definition = prototypes.Index<MarkingPrototype>(id);
+            for (var layer = 0; layer < definition.Sprites.Count; layer++)
+            {
+                var spec = (Robust.Shared.Utility.SpriteSpecifier.Rsi) definition.Sprites[layer];
+                var visual = (SpriteComponent.Layer) sprite[sprite.LayerMapGet(id + "-" + spec.RsiState)];
+                Assert.That(visual.Visible, Is.True);
+                Assert.That(visual.ShaderPrototype?.Id, Is.EqualTo(layer == 1 ? "unshaded" : definition.Shader), "Color " + layer);
+            }
+        }
+        await pair.Client.WaitAssertion(() =>
+        {
+            var ui = pair.Client.ResolveDependency<IUserInterfaceManager>();
+            var lobby = ui.GetUIController<LobbyUIController>();
+            lobby.OpenCharacterEditor();
+            var editor = (HumanoidProfileEditor) typeof(LobbyUIController).GetField("_profileEditor", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(lobby)!;
+            editor.SetProfile(HumanoidCharacterProfile.DefaultWithSpecies("Human"), editor.CharacterSlot);
+            bool Action(string action, object args) => editor.HandleTguiProfileAction(action, JsonSerializer.Serialize(args));
+            Assert.That(Action("marking-add", new { value = id }), Is.True);
+            var index = editor.Profile!.Appearance.Markings.FindIndex(marking => marking.MarkingId == id);
+            var colors = editor.Profile.Appearance.Markings[index].MarkingColors.ToArray();
+            Assert.That(Action("marking-glow", new { index }), Is.False, "A color index is required");
+            Assert.That(Action("marking-glow", new { index, layer = -1 }), Is.False);
+            Assert.That(Action("marking-glow", new { index, layer = 3 }), Is.False);
+            Assert.That(Action("marking-glow", new { index, layer = 1 }), Is.True);
+            Assert.That(editor.Profile.Appearance.Markings[index].MarkingColors, Is.EqualTo(colors));
+            using (var state = JsonDocument.Parse(editor.CreateTguiProfileState("markings").ToString()))
+                Assert.That(state.RootElement.GetProperty("markings").EnumerateArray().Single(marking => marking.GetProperty("id").GetString() == id)
+                    .GetProperty("colors").EnumerateArray().Select(color => color.GetProperty("glow").GetBoolean()), Is.EqualTo(new[] { false, true, false }));
+            Assert.That(Action("appearance-undo", new { }), Is.True);
+            Assert.That(editor.Profile.Appearance.Markings[index].HasGlow, Is.False);
+            Assert.That(Action("appearance-redo", new { }), Is.True);
+            CheckSprite(pair.Client.EntMan, editor.PreviewDummy, pair.Client.ResolveDependency<IPrototypeManager>());
+            saved = editor.Profile.WithCharacterAppearance(editor.Profile.Appearance.WithMarkings(editor.Profile.Appearance.Markings
+                .Select(marking => Marking.ParseFromDbString(marking.ToString())!).ToList()));
+            editor.SetProfile(saved, editor.CharacterSlot);
+            CheckSprite(pair.Client.EntMan, editor.PreviewDummy, pair.Client.ResolveDependency<IPrototypeManager>());
+            const string arm = "BlueMoonMam_body_markingsRedpandaLArm";
+            const string mirror = "BlueMoonMam_body_markingsRedpandaRArm";
+            Assert.That(Action("marking-add", new { value = arm }), Is.True);
+            index = editor.Profile!.Appearance.Markings.FindIndex(marking => marking.MarkingId == arm);
+            Assert.That(Action("marking-glow", new { index, layer = 1 }), Is.True);
+            foreach (var side in new[] { "left", "both", "right", "both" })
+            {
+                Assert.That(Action("marking-side", new { index, value = side }), Is.True);
+                var members = editor.Profile!.Appearance.Markings.Where(marking => marking.MarkingId == arm || marking.MarkingId == mirror).ToArray();
+                Assert.That(members.Length, Is.EqualTo(side == "both" ? 2 : 1));
+                foreach (var member in members)
+                    Assert.That(Enumerable.Range(0, 2).Select(member.IsUnshaded), Is.EqualTo(new[] { false, true }), side);
+                index = editor.Profile.Appearance.Markings.FindIndex(marking => marking.MarkingId == members[0].MarkingId);
+            }
+            ui.WindowRoot.Children.OfType<CharacterEditorWindow>().Single().CloseConfirmed();
+        });
+        var map = await pair.CreateTestMap();
+        NetEntity networked = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var dummy = entities.SpawnEntity("MobHumanDummy", map.GridCoords);
+            entities.System<SharedHumanoidAppearanceSystem>().LoadProfile(dummy, saved);
+            var marking = entities.GetComponent<HumanoidAppearanceComponent>(dummy).MarkingSet.Markings.Values.SelectMany(list => list)
+                .Single(marking => marking.MarkingId == id);
+            Assert.That(Enumerable.Range(0, 3).Select(marking.IsUnshaded), Is.EqualTo(new[] { false, true, false }));
+            pair.Server.PlayerMan.SetAttachedEntity(pair.Server.PlayerMan.Sessions.Single(), dummy);
+            networked = entities.GetNetEntity(dummy);
+        });
+        await pair.RunTicksSync(30);
+        await pair.Client.WaitAssertion(() => CheckSprite(pair.Client.EntMan, pair.Client.EntMan.GetEntity(networked), pair.Client.ResolveDependency<IPrototypeManager>()));
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task NativeBodyReturnsAfterRemovingReplacementAndGlowSurvivesProfileRoundTrip()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
@@ -139,7 +218,7 @@ public sealed class CharacterCatalogRegressionTests
             Assert.That(Action("marking-add", new { value = "SynthAccessoryHornsLights" }), Is.True);
             Assert.That(pair.Client.EntMan.GetComponent<HumanoidAppearanceComponent>(editor.PreviewDummy).GenitalAroused, Is.True);
             var index = editor.Profile!.Appearance.Markings.FindIndex(m => m.MarkingId == "SynthAccessoryHornsLights");
-            Assert.That(Action("marking-glow", new { index }), Is.True);
+            Assert.That(Action("marking-glow", new { index, layer = 0 }), Is.True);
             Assert.That(editor.Profile.Appearance.Markings[index].Unshaded, Is.True);
             Assert.That(Action("preview-arousal", new { }), Is.True);
             Assert.That(pair.Client.EntMan.GetComponent<HumanoidAppearanceComponent>(editor.PreviewDummy).GenitalAroused, Is.False);

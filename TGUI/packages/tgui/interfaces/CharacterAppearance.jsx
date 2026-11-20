@@ -15,13 +15,17 @@ const MarkingRow = ({ marking, identity, act, capture }) => <div
     value={marking.side || 'both'} onChange={event => act('marking-side', { index: marking.index, value: event.target.value })}>
     <option value="left">Левая</option><option value="right">Правая</option><option value="both">Обе</option>
   </EmbeddedSelect></label>}
-  {marking.canGlow && <div className="CharacterEditor__markingGlowAccess"><label className="CharacterEditor__markingGlow"><input type="checkbox" disabled={marking.glowLocked} checked={!marking.glowLocked && !!marking.glow}
-    onChange={() => act('marking-glow', { index: marking.index })} /><span>{marking.glowLocked ? '🔒 Свечение' : 'Свечение'}</span></label>
-    {marking.glowLocked && <small>Доступно с подпиской «Импульс» и выше.</small>}</div>}
-  <div className="CharacterEditor__markingColors">
-    {(marking.colors || []).map((color, layer) => <ColorSquare key={layer}
-      label={'Цвет ' + (layer + 1) + ': ' + marking.name} value={color.name} disabled={marking.locked}
-      onChange={value => act('marking-color', { index: marking.index, layer, value })} />)}
+  <div className="CharacterEditor__markingColorSettings">
+    <div className="CharacterEditor__markingColors">
+      {(marking.colors || []).map((color, layer) => <div className="CharacterEditor__markingColorLayer" key={layer}>
+        <ColorSquare label={'Цвет ' + (layer + 1) + ': ' + marking.name} value={color.name} disabled={marking.locked}
+          onChange={value => act('marking-color', { index: marking.index, layer, value })} />
+        {marking.canGlow && <label className="CharacterEditor__markingGlow"><input type="checkbox" disabled={marking.glowLocked}
+          aria-label={'Свечение цвета ' + (layer + 1) + ': ' + marking.name} checked={!marking.glowLocked && !!color.glow}
+          onChange={() => act('marking-glow', { index: marking.index, layer })} /><span>{marking.glowLocked ? '🔒 Свечение' : 'Свечение'}</span></label>}
+      </div>)}
+    </div>
+    {marking.canGlow && marking.glowLocked && <small>Доступно с подпиской «Импульс» и выше.</small>}
   </div>
   <div className="CharacterEditor__markingActions">
     <Button role="button" aria-label={'Удалить: ' + marking.name} icon="times" onClick={() => act('marking-remove', { index: marking.index })} />
