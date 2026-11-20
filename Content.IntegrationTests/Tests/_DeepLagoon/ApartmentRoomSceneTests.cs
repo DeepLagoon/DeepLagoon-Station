@@ -217,7 +217,7 @@ public sealed class ApartmentRoomSceneTests
             var player = pair.Server.PlayerMan.Sessions.Single();
             var system = entities.System<ApartmentSystem>();
             var added = layout.Single(item => item.Id == "added_scene_chair"); added.X = occupied.X; added.Y = occupied.Y;
-            Assert.That(system.Apply(player, token, 1, layout), Does.Contain("стационарным"));
+            Assert.That(system.Apply(player, token, 1, layout), Is.Null);
             system.Leave(player.UserId, out _);
             var reloaded = (ApartmentSystem.Instance) typeof(ApartmentSystem).GetMethod("Create", flags)!.Invoke(system, new object[] { player.UserId, "DLApartmentBasic" })!;
             var restored = entities.GetComponent<TransformComponent>(reloaded.Furniture[mappedId]);

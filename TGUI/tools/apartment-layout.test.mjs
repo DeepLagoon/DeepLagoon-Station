@@ -17,11 +17,20 @@ test('draft can move repeatedly without changing the committed layout', () => {
 test('rotation swaps rectangular footprint', () => {
   assert.deepEqual(footprint(item('a', 'table', 2, 2, 1), room.catalog[0]), [[2, 2], [2, 3]]);
 });
-test('reserved exit, walls, collisions and stock give actionable errors', () => {
+
+test('statue, gas filter and multiple floor coverings can overlap', () => {
+  const mapped = { ...room, catalog: [...room.catalog,
+    { id: 'filter', width: 1, height: 1, maxCount: 1, blocksMovement: false },
+    { id: 'floor', width: 1, height: 1, maxCount: 2, layer: 'FloorFinish', blocksMovement: false }],
+  scene: { tiles: [{ x: 1, y: 1 }, { x: 2, y: 1 }], occupied: [{ x: 2, y: 1 }], blocked: [] } };
+  assert.deepEqual(validateLayout([item('statue', 'chair', 2, 1), item('filter', 'filter', 2, 1),
+    item('floor1', 'floor', 2, 1), item('floor2', 'floor', 2, 1)], mapped), {});
+});
+test('overlaps are allowed while reserved exit, bounds and stock are validated', () => {
   assert.match(validateLayout([item('a', 'chair', 1, 1)], room).a, /прибытия/);
   assert.match(validateLayout([item('a', 'table', 6, 4)], room).a, /стеной/);
   const overlap = validateLayout([item('a', 'chair', 3, 3), item('b', 'chair', 3, 3)], room);
-  assert.match(overlap.a, /пересекаются/); assert.match(overlap.b, /пересекаются/);
+  assert.deepEqual(overlap, {});
   assert.match(validateLayout([item('a', 'chair', 2, 2), item('b', 'chair', 3, 2), item('c', 'chair', 4, 2)], room).c, /экземпляров/);
 });
 test('preview detects a barrier cutting the room off from exit', () => {
@@ -40,7 +49,7 @@ test('map scene uses actual floor and fixtures instead of an invented rectangula
     occupied: [{ x: 3, y: 2 }], blocked: [{ x: 3, y: 2 }],
   } };
   assert.match(validateLayout([item('a', 'chair', 3, 3)], mapped).a, /стеной/);
-  assert.match(validateLayout([item('a', 'chair', 3, 2)], mapped).a, /стационарным/);
+  assert.deepEqual(validateLayout([item('a', 'chair', 3, 2)], mapped), {});
   assert.deepEqual(validateLayout([item('a', 'chair', 0, 1)], mapped), {});
   assert.deepEqual(validateLayout([item('a', 'chair', 2, 1)], mapped), {});
 });

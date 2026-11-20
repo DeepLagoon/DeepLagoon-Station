@@ -11,14 +11,10 @@ export const footprint = (item, definition) => {
 // A local hint only; the server validates the submitted plan independently.
 export const validateLayout = (layout, room) => {
   const errors = {};
-  const occupied = new Map();
-  const finishes = new Set();
-  const unchanged = item => { const def = room.catalog.find(entry => entry.id === item.furniture); return def?.existingOnly && item.id === def.placementId && item.x === def.originalX && item.y === def.originalY && item.rotation === def.originalRotation; };
   const blocked = new Set();
   const counts = {};
   const ids = new Set();
   const floors = room.scene ? new Set(room.scene.tiles.map(cell => `${cell.x},${cell.y}`)) : null;
-  const fixed = new Set((room.scene?.occupied || []).map(cell => `${cell.x},${cell.y}`));
   const restricted = new Set((room.scene?.restricted || []).map(cell => `${cell.x},${cell.y}`));
   const staticBlocked = new Set((room.scene?.blocked || []).map(cell => `${cell.x},${cell.y}`));
   const mapped = room.catalog.filter(def => def.existingOnly);
@@ -42,16 +38,8 @@ export const validateLayout = (layout, room) => {
       if ((room.reservedCells || []).some(cell => cell.x === x && cell.y === y)) errors[item.id] = 'Площадку лифта и коридор нельзя занимать мебелью.';
       if (floors ? !floors.has(key) : x < 1 || y < 1 || x >= room.width - 1 || y >= room.height - 1) errors[item.id] = 'Предмет пересекается со стеной.';
       if (def.layer === "Wall" && !(room.scene?.walls || []).some(cell => cell.x === x && cell.y === y)) errors[item.id] = "Настенный декор нужно разместить на стене.";
-      if (!unchanged(item) && fixed.has(key) && def.layer !== "Wall" && def.layer !== "FloorFinish") errors[item.id] = 'Место занято стационарным объектом квартиры.';
       if (x === room.arrivalX && (y === room.arrivalY || !room.scene && y === room.arrivalY + 1)) errors[item.id] = 'Площадка прибытия и терминал должны оставаться свободными.';
-      if (def.layer === "FloorFinish") {
-        if (finishes.has(key)) errors[item.id] = 'На клетку можно уложить одно напольное покрытие.';
-        finishes.add(key);
-      }
-      if (!def.allowsOverlap && occupied.has(key) && !(unchanged(item) && unchanged(layout.find(other => other.id === occupied.get(key))))) {
-        errors[item.id] = errors[occupied.get(key)] = 'Предметы пересекаются.';
-      }
-      if (!def.allowsOverlap) occupied.set(key, item.id);
+      // Object and floor-covering overlaps are the resident's choice.
       if (def.blocksMovement) blocked.add(key);
     }
   }

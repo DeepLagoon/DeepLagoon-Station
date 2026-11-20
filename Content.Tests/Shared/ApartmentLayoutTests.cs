@@ -23,14 +23,14 @@ public sealed class ApartmentLayoutTests
         string? Validate(int x, int y) => ApartmentLayout.Validate(template,
             new[] { new ApartmentPlacement { Id = "added", Furniture = "chair", X = x, Y = y } }, Catalog, scene);
         Assert.That(Validate(3, 3), Does.Contain("стеной"));
-        Assert.That(Validate(3, 2), Does.Contain("стационарным"));
+        Assert.That(Validate(3, 2), Is.Null);
         Assert.That(Validate(0, 1), Is.Null);
         Assert.That(Validate(2, 1), Is.Null);
         Assert.That(ApartmentLayout.Validate(template, Array.Empty<ApartmentPlacement>(), Catalog, scene), Is.Null);
     }
 
     [Test]
-    public void FloorFinishFitsUnderFurnitureAndRejectsTwoFinishesInOneCell()
+    public void FurnitureAndMultipleFloorFinishesCanShareACell()
     {
         var template = Template();
         var scene = new ApartmentRoomScene { Width = 8, Height = 8 };
@@ -48,7 +48,7 @@ public sealed class ApartmentLayoutTests
         };
         Assert.That(ApartmentLayout.Validate(template, layout, Definitions, scene), Is.Null);
         layout[1].X = 2;
-        Assert.That(ApartmentLayout.Validate(template, layout, Definitions, scene), Does.Contain("одно напольное покрытие"));
+        Assert.That(ApartmentLayout.Validate(template, layout, Definitions, scene), Is.Null);
     }
 
     [Test]
@@ -131,7 +131,7 @@ public sealed class ApartmentLayoutTests
     }
 
     [Test]
-    public void RotationBoundsOverlapExitAndCountAreValidated()
+    public void OverlapsAreAllowedWhileRotationBoundsExitAndCountAreValidated()
     {
         var template = Template();
         var a = new ApartmentPlacement { Id = "a", Furniture = "table", X = 6, Y = 4 };
@@ -141,7 +141,7 @@ public sealed class ApartmentLayoutTests
         a.X = 1; a.Y = 1;
         Assert.That(ApartmentLayout.Validate(template, new[] { a }, Catalog), Does.Contain("прибытия"));
         a.X = 4; a.Y = 4;
-        Assert.That(ApartmentLayout.Validate(template, new[] { a, template.Furniture[0] }, Catalog), Does.Contain("пересекаются"));
+        Assert.That(ApartmentLayout.Validate(template, new[] { a, template.Furniture[0] }, Catalog), Is.Null);
         var chairs = Enumerable.Range(0, 4).Select(i => new ApartmentPlacement { Id = $"chair_{i}", Furniture = "chair", X = 2 + i, Y = 2 }).ToArray();
         Assert.That(ApartmentLayout.Validate(template, chairs, Catalog), Does.Contain("экземпляров"));
     }
@@ -165,7 +165,7 @@ public sealed class ApartmentLayoutTests
     }
 
     [Test]
-    public void AuthoredMapOverlapsRemainValidButMovedFurnitureCannotUseThem()
+    public void AuthoredMovedAndAddedFurnitureCanOverlapEachOtherAndFixedObjects()
     {
         var template = Template();
         var chair = new ApartmentPlacement { Id = "mapped-chair", Furniture = "chair", X = 4, Y = 4 };
@@ -173,14 +173,14 @@ public sealed class ApartmentLayoutTests
         var baseline = new[] { chair, table };
         Assert.That(ApartmentLayout.Validate(template, baseline, Catalog, mapFurniture: baseline), Is.Null);
         var movedChair = chair.Copy(); movedChair.X = 5;
-        Assert.That(ApartmentLayout.Validate(template, new[] { movedChair, table }, Catalog, mapFurniture: baseline), Does.Contain("пересекаются"));
-        Assert.That(ApartmentLayout.Validate(template, new[] { table, movedChair }, Catalog, mapFurniture: baseline), Does.Contain("пересекаются"));
+        Assert.That(ApartmentLayout.Validate(template, new[] { movedChair, table }, Catalog, mapFurniture: baseline), Is.Null);
+        Assert.That(ApartmentLayout.Validate(template, new[] { table, movedChair }, Catalog, mapFurniture: baseline), Is.Null);
         var scene = new ApartmentRoomScene();
         for (var x = 1; x < 7; x++)
         for (var y = 1; y < 7; y++) scene.Tiles.Add(new Content.Shared._DeepLagoon.Mapping.GridEditorItem { X = x, Y = y });
         scene.Occupied.Add(new Vector2i(4, 4));
         Assert.That(ApartmentLayout.Validate(template, baseline, Catalog, scene, baseline), Is.Null);
         var added = new ApartmentPlacement { Id = "added-chair", Furniture = "chair", X = 4, Y = 4 };
-        Assert.That(ApartmentLayout.Validate(template, new[] { chair, table, added }, Catalog, scene, baseline), Does.Contain("стационарным"));
+        Assert.That(ApartmentLayout.Validate(template, new[] { chair, table, added }, Catalog, scene, baseline), Is.Null);
     }
 }
