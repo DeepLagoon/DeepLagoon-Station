@@ -100,7 +100,5 @@
       rarePrototypes:
         - ClothingBackpackDuffelSyndicateHardsuitBundle
         - ClothingBackpackDuffelSyndicateMedicHardsuitBundle
-        - PinpointerSyndicatePOI # make rarer
-    #   - PinpointerSyndicatePOI
       rareChance: 0.2 # Mono
       offset: 0
