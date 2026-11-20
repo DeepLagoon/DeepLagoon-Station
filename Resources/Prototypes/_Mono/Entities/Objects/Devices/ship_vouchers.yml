@@ -351,6 +351,8 @@
     vessels:
     - MotleyAnne
     - Neptune
+    - Kalisto
+    - Prowler
 
 - type: entity
   parent: ShipVoucherPdvT0
@@ -375,6 +377,9 @@
     vessels:
     - KortikR
     - Europa
+    - Ganymede
+    - Kortik
+    - Saintie
 
 - type: entity
   parent: BaseShipLPCRenewable
