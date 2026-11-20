@@ -159,8 +159,7 @@ public abstract partial class SharedMoverController : VirtualController
         var uid = entity.Owner;
         var mover = entity.Comp;
 
-        if ((mover.HeldMoveButtons & TiltButtons) != 0)
-            UpdateCharacterTilt(entity);
+        UpdateCharacterTilt(entity);
 
         // If we're a relay then apply all of our data to the parent instead and go next.
         if (RelayQuery.TryComp(uid, out var relay))

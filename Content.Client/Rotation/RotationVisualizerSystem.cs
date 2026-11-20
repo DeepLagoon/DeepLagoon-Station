@@ -34,7 +34,7 @@ public sealed partial class RotationVisualizerSystem : SharedRotationVisualsSyst
 
         var rotation = state == RotationState.Horizontal
             ? component.HorizontalRotation
-            : component.VerticalRotation + Angle.FromDegrees(tilt * 15);
+            : component.VerticalRotation + Angle.FromDegrees(tilt * 25);
         AnimateSpriteRotation(uid, args.Sprite, rotation, component.AnimationTime);
     }
 

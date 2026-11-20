@@ -26,24 +26,36 @@ public abstract partial class SharedMoverController
         return buttons & ~(MoveButtons.Precision | TiltButtons);
     }
 
-    private void UpdateCharacterTilt(Entity<InputMoverComponent> entity)
+    private void OnTiltDowned(EntityUid uid, InputMoverComponent component, DownedEvent args)
+    {
+        UpdateCharacterTilt((uid, component));
+    }
+
+    private void UpdateCharacterTilt(Entity<InputMoverComponent> entity, MoveButtons pressed = MoveButtons.None)
     {
         if (!HasComp<RotationVisualsComponent>(entity) || !TryComp<AppearanceComponent>(entity, out var appearance))
             return;
 
-        var tilt = 0;
-        if (entity.Comp.CanMove && !_mobState.IsIncapacitated(entity) && !_standing.IsDown(entity) &&
-            !RelayQuery.HasComp(entity) && !PilotQuery.HasComp(entity))
+        // Appearance state is networked and restored during prediction rollback, including the latched tilt.
+        _movementAppearance.TryGetData<int>(entity, RotationVisuals.Tilt, out var previous, appearance);
+        var tilt = previous;
+        if (!entity.Comp.CanMove || _mobState.IsIncapacitated(entity) || _standing.IsDown(entity) ||
+            RelayQuery.HasComp(entity) || PilotQuery.HasComp(entity) ||
+            (GetEffectiveMoveButtons(entity.Comp.HeldMoveButtons) & MoveButtons.AnyDirection) != 0)
         {
-            tilt = (entity.Comp.HeldMoveButtons & TiltButtons) switch
+            tilt = 0;
+        }
+        else if (pressed != MoveButtons.None)
+        {
+            var direction = pressed switch
             {
                 MoveButtons.TiltLeft => 1,
                 MoveButtons.TiltRight => -1,
                 _ => 0,
             };
+            tilt = previous == direction ? 0 : direction;
         }
 
-        _movementAppearance.TryGetData<int>(entity, RotationVisuals.Tilt, out var previous, appearance);
         if (previous != tilt)
             _movementAppearance.SetData(entity, RotationVisuals.Tilt, tilt, appearance);
     }

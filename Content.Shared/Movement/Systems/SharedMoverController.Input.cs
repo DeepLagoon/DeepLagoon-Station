@@ -5,6 +5,7 @@ using Content.Shared.Follower.Components;
 using Content.Shared.Input;
 using Content.Shared.Movement.Components;
 using Content.Shared.Movement.Events;
+using Content.Shared.Standing;
 using Robust.Shared.GameStates;
 using Robust.Shared.Input;
 using Robust.Shared.Input.Binding;
@@ -63,6 +64,7 @@ namespace Content.Shared.Movement.Systems
             SubscribeLocalEvent<InputMoverComponent, ComponentGetState>(OnMoverGetState);
             SubscribeLocalEvent<InputMoverComponent, ComponentHandleState>(OnMoverHandleState);
             SubscribeLocalEvent<InputMoverComponent, EntParentChangedMessage>(OnInputParentChange);
+            SubscribeLocalEvent<InputMoverComponent, DownedEvent>(OnTiltDowned);
 
             SubscribeLocalEvent<FollowedComponent, EntParentChangedMessage>(OnFollowedParentChange);
 
@@ -99,8 +101,7 @@ namespace Content.Shared.Movement.Systems
 
             var oldButtons = entity.Comp.HeldMoveButtons;
             entity.Comp.HeldMoveButtons = buttons;
-            if (((oldButtons ^ buttons) & TiltButtons) != 0)
-                UpdateCharacterTilt(entity);
+            UpdateCharacterTilt(entity, buttons & ~oldButtons & TiltButtons);
 
             RaiseMoveInputEvents(entity, oldButtons);
             Dirty(entity, entity.Comp);
