@@ -11,6 +11,7 @@ namespace Content.Server._DeepLagoon.Performance;
 public sealed class StagedMapDeletionSystem : EntitySystem
 {
     [Dependency] private SharedMapSystem _maps = default!;
+    [Dependency] private SharedTransformSystem _transform = default!;
     private sealed class Removal(EntityUid root)
     {
         public readonly EntityUid Root = root;
@@ -23,6 +24,24 @@ public sealed class StagedMapDeletionSystem : EntitySystem
     private readonly HashSet<EntityUid> _roots = new();
     public int PendingCount => _pending.Count;
     public bool IsPending(EntityUid root) => _roots.Contains(root);
+
+    /// <summary>
+    /// Whether spawning at valid coordinates would put an entity on a retiring map or grid.
+    /// Map-relative coordinates also need a spatial check: spawning can attach to a grid at that point.
+    /// </summary>
+    public bool IsPendingAt(EntityCoordinates coordinates)
+    {
+        if (_roots.Count == 0)
+            return false;
+
+        if (IsPending(coordinates.EntityId)
+            || (_transform.GetMap(coordinates) is { } map && IsPending(map))
+            || (_transform.GetGrid(coordinates) is { } grid && IsPending(grid)))
+            return true;
+
+        return _maps.TryFindGridAt(_transform.ToMapCoordinates(coordinates), out var spatialGrid, out _)
+            && IsPending(spatialGrid);
+    }
 
     public void Queue(EntityUid root)
     {

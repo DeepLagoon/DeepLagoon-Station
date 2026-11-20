@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Numerics;
+using Content.Server._DeepLagoon.Performance;
 using Content.Server.Administration.Logs;
 using Content.Server.Administration.Managers; // Frontier
 using Content.Server.Cargo.Systems; // Frontier
@@ -66,6 +67,7 @@ namespace Content.Server.Ghost
         [Dependency] private IChatManager _chatManager = default!;
         [Dependency] private SharedMindSystem _mind = default!;
         [Dependency] private GameTicker _gameTicker = default!;
+        [Dependency] private StagedMapDeletionSystem _stagedMapDeletion = default!;
         [Dependency] private DamageableSystem _damageable = default!;
         [Dependency] private SharedPopupSystem _popup = default!;
         [Dependency] private IRobustRandom _random = default!;
@@ -506,16 +508,18 @@ namespace Content.Server.Ghost
             if (spawnPosition?.IsValid(EntityManager) != true)
                 return false;
 
-            var mapUid = spawnPosition?.GetMapUid(EntityManager);
-            var gridUid = spawnPosition?.EntityId;
-            // Test if the map is being deleted
+            var coordinates = spawnPosition.Value;
+            var mapUid = coordinates.GetMapUid(EntityManager);
+            // Staged deletion leaves roots alive while deleting their children. Respawning on such a
+            // root would replace each deleted ghost indefinitely and prevent expedition completion.
             if (mapUid == null || TerminatingOrDeleted(mapUid.Value))
                 return false;
-            // Test if the grid is being deleted
-            if (gridUid != null && TerminatingOrDeleted(gridUid.Value))
+            if (TerminatingOrDeleted(coordinates.EntityId) || _stagedMapDeletion.IsPendingAt(coordinates))
                 return false;
 
-            return true;
+            // Coordinates can be relative to a child entity rather than directly to its grid.
+            var gridUid = _transformSystem.GetGrid(coordinates);
+            return gridUid == null || !TerminatingOrDeleted(gridUid.Value);
         }
 
         public EntityUid? SpawnGhost(Entity<MindComponent?> mind, EntityCoordinates? spawnPosition = null,

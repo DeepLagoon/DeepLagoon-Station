@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using Content.Server._Battlefield14.FactionTracking;
+using Content.Server._DeepLagoon.Performance;
 using Content.Server.Administration.Managers;
 using Content.Server.Administration.Systems;
 using Content.Server.GameTicking.Events;
@@ -33,6 +34,7 @@ namespace Content.Server.GameTicking
         [Dependency] private SharedJobSystem _jobs = default!;
         [Dependency] private AdminSystem _admin = default!;
         [Dependency] private RespawnSystem _respawn = default!; // Frontier
+        [Dependency] private StagedMapDeletionSystem _stagedMapDeletion = default!;
 
         public const string ObserverPrototypeName = "MobObserver";
 
@@ -450,7 +452,8 @@ namespace Content.Server.GameTicking
                 if (point.SpawnType != SpawnPointType.Observer
                    || TerminatingOrDeleted(uid)
                    || transform.MapUid == null
-                   || TerminatingOrDeleted(transform.MapUid.Value))
+                   || TerminatingOrDeleted(transform.MapUid.Value)
+                   || _stagedMapDeletion.IsPendingAt(transform.Coordinates))
                 {
                     continue;
                 }
@@ -466,7 +469,8 @@ namespace Content.Server.GameTicking
                 var query = AllEntityQuery<MapGridComponent>();
                 while (query.MoveNext(out var uid, out var grid))
                 {
-                    if (!metaQuery.TryGetComponent(uid, out var meta) || meta.EntityPaused || TerminatingOrDeleted(uid))
+                    if (!metaQuery.TryGetComponent(uid, out var meta) || meta.EntityPaused || TerminatingOrDeleted(uid)
+                        || _stagedMapDeletion.IsPendingAt(new EntityCoordinates(uid, Vector2.Zero)))
                     {
                         continue;
                     }
@@ -483,7 +487,8 @@ namespace Content.Server.GameTicking
                 var spawn = _robustRandom.Pick(_possiblePositions);
                 var toMap = _transform.ToMapCoordinates(spawn);
 
-                if (_mapManager.TryFindGridAt(toMap, out var gridUid, out _))
+                if (_mapManager.TryFindGridAt(toMap, out var gridUid, out _)
+                    && !_stagedMapDeletion.IsPending(gridUid))
                 {
                     var gridXform = Transform(gridUid);
 
@@ -496,7 +501,8 @@ namespace Content.Server.GameTicking
             if (_mapManager.MapExists(DefaultMap))
             {
                 var mapUid = _mapManager.GetMap(DefaultMap);
-                if (!TerminatingOrDeleted(mapUid))
+                if (!TerminatingOrDeleted(mapUid)
+                    && !_stagedMapDeletion.IsPendingAt(new EntityCoordinates(mapUid, Vector2.Zero)))
                     return new EntityCoordinates(mapUid, Vector2.Zero);
             }
 
@@ -507,7 +513,8 @@ namespace Content.Server.GameTicking
 
                 if (!metaQuery.TryGetComponent(mapUid, out var meta)
                     || meta.EntityPaused
-                    || TerminatingOrDeleted(mapUid))
+                    || TerminatingOrDeleted(mapUid)
+                    || _stagedMapDeletion.IsPendingAt(new EntityCoordinates(mapUid, Vector2.Zero)))
                 {
                     continue;
                 }
