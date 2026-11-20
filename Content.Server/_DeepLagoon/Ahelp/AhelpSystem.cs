@@ -222,7 +222,7 @@ public sealed partial class AhelpSystem : EntitySystem
             request.Text.Length > AhelpLimits.Text || request.File.Length > 250 ||
             request.Size is < 0 or > AhelpLimits.Image)
             return;
-        var mutation = request.Action is not (AhelpAction.Read or AhelpAction.Attachment or AhelpAction.Preview);
+        var mutation = request.Action is not (AhelpAction.Read or AhelpAction.History or AhelpAction.Attachment or AhelpAction.Preview);
         if (mutation && request.Round != _roundEpoch)
         {
             Error(session, request.Operation, "round_changed");
@@ -313,10 +313,10 @@ public sealed partial class AhelpSystem : EntitySystem
                 Error(session, request.Operation, "round_changed");
                 return;
             }
-            if (request.Action == AhelpAction.Read)
+            if (request.Action is AhelpAction.Read or AhelpAction.History)
             {
                 var snapshot = await Task.Run(() => Store.Read(actor, admin, request.Ticket, request.Player, request.Before,
-                    operation: request.Operation));
+                    operation: request.Operation, history: request.Action == AhelpAction.History));
                 if (round == Volatile.Read(ref _roundGeneration) && CanHelp(session) == admin)
                 {
                     Reply(session, snapshot);

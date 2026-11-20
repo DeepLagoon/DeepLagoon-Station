@@ -17,7 +17,7 @@ public static class AhelpLimits
 public enum AhelpStatus : byte { New, Claimed, Closing, Resolved, Rejected, Closed }
 
 [Serializable, NetSerializable]
-public enum AhelpAction : byte { Read, Send, Claim, Resolve, Reject, Close, Attachment, Preview }
+public enum AhelpAction : byte { Read, Send, Claim, Resolve, Reject, Close, Attachment, Preview, History }
 
 [Serializable, NetSerializable]
 public sealed record AhelpTicket(Guid Id, long Number, Guid Player, string PlayerName, Guid? Assignee,

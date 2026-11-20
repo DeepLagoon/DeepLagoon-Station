@@ -419,6 +419,7 @@ public sealed partial class ParkingSystem : EntitySystem
             _stations.AddGridToStation(former, grid);
         else
             _shipyard.RegisterParkingStation(grid);
+        _salvage.RestoreGridExpeditions(grid, ship.ExpeditionsEnabled);
         ship.ReturnStation = null;
         _ownership.RegisterShipOwnership(grid, context.Session);
         if (_parkingMaps.Remove(grid, out var parking) && Exists(parking)) Del(parking);

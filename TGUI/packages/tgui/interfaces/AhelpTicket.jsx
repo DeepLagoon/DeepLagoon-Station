@@ -44,7 +44,7 @@ export const AhelpTicket = () => {
 
   useEffect(() => {
     generation.current++;
-    setDraft('');
+    setDraft(data.draft || '');
     setError('');
     setPasting(false);
   }, [data.ticket]);
@@ -169,10 +169,11 @@ export const AhelpTicket = () => {
         </button>}
       </div>
       {error && <div role="status">{error}</div>}
-      <form className="AhelpTicket__composer" onSubmit={(event) => { event.preventDefault(); send(); }}>
+      {!data.historyMode && <form className="AhelpTicket__composer" onSubmit={(event) => { event.preventDefault(); send(); }}>
         <input ref={composer} aria-label="Сообщение" placeholder="Сообщение" value={draft} maxLength={1800}
           disabled={!data.writable} onChange={(event) => {
             setDraft(event.target.value);
+            act('draft', { text: event.target.value, round: data.round, conversation: data.ticket });
             act('typing', { active: event.target.value.length > 0, round: data.round });
           }} onBlur={() => act('typing', { active: false, round: data.round })} onPaste={paste}
           onKeyDown={(event) => {
@@ -183,7 +184,7 @@ export const AhelpTicket = () => {
         <button type="button" aria-label="Прикрепить файл" disabled={disabled} onClick={() => act('file', { round: data.round })}>Файл</button>
         <button type="submit" disabled={disabled || !draft.trim()}>Отправить</button>
         {data.retry && <button type="button" disabled={data.busy || pasting} onClick={() => act('retry')}>Повторить</button>}
-      </form>
+      </form>}
     </section>
   );
 };

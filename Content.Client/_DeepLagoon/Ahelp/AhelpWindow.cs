@@ -51,6 +51,13 @@ public sealed class AhelpWindow : FancyWindow
     private readonly BoxContainer _thread = new() { Orientation = BoxContainer.LayoutOrientation.Vertical, HorizontalExpand = true, SeparationOverride = 5 };
     private readonly BoxContainer _navigation = new() { Orientation = BoxContainer.LayoutOrientation.Vertical, MinWidth = 190, MaxWidth = 190, SeparationOverride = 8 };
     private readonly BoxContainer _toolbar = new() { SeparationOverride = 3 };
+    private readonly BoxContainer _tabs = new() { SeparationOverride = 5 };
+    private readonly BoxContainer _historyRows = new() { Orientation = BoxContainer.LayoutOrientation.Vertical, SeparationOverride = 6 };
+    private readonly LineEdit _historySearch = new() { PlaceHolder = "Поиск по номеру или имени игрока", Visible = false };
+    private readonly ScrollContainer _historyList = new() { VerticalExpand = true, HScrollEnabled = false, Visible = false };
+    private bool _historyMode;
+    private bool _nativeFallback;
+    private (Guid Ticket, Guid Player) _historyReturn;
     private readonly BoxContainer _playerActions = new() { SeparationOverride = 3 };
     private readonly Button _follow;
     private readonly BoxContainer _native = new() { Orientation = BoxContainer.LayoutOrientation.Vertical, VerticalExpand = true, Visible = false, SeparationOverride = 6 };
@@ -146,8 +153,13 @@ public sealed class AhelpWindow : FancyWindow
         _body.AddChild(_thread);
         if (admin)
             _body.AddChild(Panel("#292929", _navigation, 6));
+        _thread.AddChild(_tabs);
         _thread.AddChild(Panel("#292929", _header, 7));
         _thread.AddChild(_toolbar);
+        _thread.AddChild(_historySearch);
+        _historySearch.OnTextChanged += _ => Render();
+        _historyList.AddChild(_historyRows);
+        _thread.AddChild(_historyList);
         _thread.AddChild(_playerActions);
         _follow = Button("Следовать", () => _console.ExecuteCommand($"followuser \"{_selected?.Player ?? _target}\""));
         _follow.HorizontalExpand = true;
@@ -195,9 +207,12 @@ public sealed class AhelpWindow : FancyWindow
             Render();
         };
         _draft.OnTextEntered += _ => SendDraft();
-        _draft.OnTextChanged += _ => TypingInput(_draft.Text.Length > 0 && _draft.HasKeyboardFocus());
-        _web.SetNativeFallback(() => { _native.Visible = true; _web.Visible = false; Render(); FocusPlayerComposer(); });
-        _web.SetTguiRestore(() => { _native.Visible = false; _web.Visible = true; Render(); FocusPlayerComposer(); });
+        _draft.OnTextChanged += _ =>
+        {
+            if (_native.Visible) TypingInput(_draft.Text.Length > 0 && _draft.HasKeyboardFocus());
+        };
+        _web.SetNativeFallback(() => { _nativeFallback = true; Render(); FocusPlayerComposer(); });
+        _web.SetTguiRestore(() => { _nativeFallback = false; Render(); FocusPlayerComposer(); });
         _web.Web.Ready += FocusPlayerComposer;
         _web.OnAction += OnWebAction;
         _input.FirstChanceOnKeyEvent += OnInput;
@@ -266,11 +281,44 @@ public sealed class AhelpWindow : FancyWindow
     public void FocusPlayer(Guid player)
     {
         if (_operation != Guid.Empty) return;
-        if (_ticket != Guid.Empty || _target != player)
+        var history = _historyMode;
+        _historyMode = false;
+        if (history) _tickets = [];
+        if (player != _target) _draft.Clear();
+        if (history || _ticket != Guid.Empty || _target != player)
             ResetThread();
         _ticket = Guid.Empty;
         _target = player;
         _refresh = true;
+        Render();
+    }
+
+    private void OpenHistory()
+    {
+        if (_historyMode || _operation != Guid.Empty) return;
+        _historyReturn = (_ticket, _target);
+        _historyMode = true;
+        _tickets = [];
+        ShowHistoryList();
+    }
+
+    private void ShowHistoryList()
+    {
+        ResetThread();
+        _ticket = _target = Guid.Empty;
+        _refresh = true;
+        Render();
+    }
+
+    private void ReturnFromHistory()
+    {
+        if (!_historyMode) return;
+        ResetThread();
+        _historyMode = false;
+        (_ticket, _target) = _historyReturn;
+        _tickets = [];
+        _refresh = true;
+        Render();
     }
 
     private void ResetThread()
@@ -330,6 +378,7 @@ public sealed class AhelpWindow : FancyWindow
             {
                 if (_operation != Guid.Empty) return;
                 if (_ticket != ticket.Id) ResetThread();
+                if (_target != ticket.Player) _draft.Clear();
                 _ticket = ticket.Id;
                 _target = ticket.Player;
                 _refresh = true;
@@ -337,25 +386,70 @@ public sealed class AhelpWindow : FancyWindow
         }
     }
 
-    private bool CanWrite => _round.Length > 0 && (_selected == null ? !_isAdmin || _target != Guid.Empty :
+    private bool CanWrite => !_historyMode && _round.Length > 0 && (_selected == null ? !_isAdmin || _target != Guid.Empty :
         _selected.Status < AhelpStatus.Closing &&
-        (_isAdmin && (_staff.Pressed || _selected.Status == AhelpStatus.New) || _selected.Player == _actor || _selected.Assignee == _actor));
+        (_isAdmin || _selected.Player == _actor));
 
     private void Render()
     {
+        _tabs.DisposeAllChildren();
+        _tabs.AddChild(Button(_isAdmin ? "Текущие тикеты" : "Обращение", ReturnFromHistory, !_historyMode));
+        _tabs.AddChild(Button("История", OpenHistory, _historyMode || _operation != Guid.Empty));
+        _sidebar.Visible = _isAdmin && !_historyMode;
+        _navigation.Visible = _isAdmin && !_historyMode;
+        var historyList = _historyMode && _ticket == Guid.Empty;
+        _historyList.Visible = historyList;
+        _historySearch.Visible = historyList;
+        _native.Visible = !historyList && _nativeFallback;
+        _web.Visible = !historyList && !_nativeFallback;
+        _historyRows.DisposeAllChildren();
+        if (historyList)
+        {
+            _historyRows.AddChild(WrappedText("Последние завершённые тикеты этого раунда (до 500)."));
+            if (_tickets.Length == 0)
+                _historyRows.AddChild(WrappedText(_reading || _refresh ? "Загрузка истории…" : "Завершённых тикетов пока нет."));
+            var search = _historySearch.Text.Trim();
+            var matches = _tickets.Where(entry => entry.PlayerName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                entry.Number.ToString().Contains(search)).ToArray();
+            if (_tickets.Length > 0 && matches.Length == 0)
+                _historyRows.AddChild(WrappedText("Тикеты не найдены."));
+            foreach (var entry in matches)
+            {
+                var date = DateTimeOffset.FromUnixTimeSeconds(entry.Created).ToLocalTime().ToString("dd.MM HH:mm");
+                var row = Button("", () =>
+                {
+                    ResetThread();
+                    _ticket = entry.Id;
+                    _target = entry.Player;
+                    _refresh = true;
+                    Render();
+                });
+                row.HorizontalExpand = true;
+                row.AddChild(WrappedText($"#{entry.Number} · {entry.PlayerName} · {Status(entry.Status)} · {date}"));
+                _historyRows.AddChild(row);
+            }
+        }
         PopulateQueue();
         _header.Text = _selected is { } ticket
             ? $"#{ticket.Number} · {ticket.PlayerName} · {Status(ticket.Status)}" +
               (ticket.AssigneeName == null ? "" : $" · {ticket.AssigneeName}")
             : _target == Guid.Empty ? (_isAdmin ? "Тикеты ahelp" : "Новое обращение")
             : _players.SessionsDict.GetValueOrDefault(new NetUserId(_target))?.Name ?? "Игрок";
+        if (_historyMode)
+            _header.Text = historyList ? "История обращений" :
+                _selected is { } archived ? $"История · #{archived.Number} · {archived.PlayerName} · {Status(archived.Status)}" : "Загрузка тикета…";
         _toolbar.DisposeAllChildren();
         _playerActions.DisposeAllChildren();
         _confirmations.Clear();
         RenderNavigation();
-        _follow.Visible = _isAdmin;
+        _follow.Visible = _isAdmin && !_historyMode;
         _follow.Disabled = !_admin.CanCommand("follow") || (_selected?.Player ?? _target) == Guid.Empty;
-        if (_isAdmin)
+        if (_historyMode)
+        {
+            if (!historyList) _toolbar.AddChild(Button("← К списку истории", ShowHistoryList));
+            _toolbar.AddChild(Button(_isAdmin ? "← К текущим тикетам" : "← К обращению", ReturnFromHistory));
+        }
+        if (_isAdmin && !_historyMode)
         {
             if (_desktop == null)
                 _toolbar.AddChild(Button("Отдельное окно", PopOut));
@@ -373,8 +467,12 @@ public sealed class AhelpWindow : FancyWindow
             }
             PlayerActions();
         }
-        if (_selected is { } own && own.Player == _actor && own.Status < AhelpStatus.Closing)
+        _staff.Visible = _sound.Visible = _isAdmin && !_historyMode;
+        _typingLabel.Visible = !_historyMode;
+        if (!_historyMode && _selected is { } own && own.Player == _actor && own.Status < AhelpStatus.Closing)
             _toolbar.AddChild(Button("Закрыть обращение", () => Mutate(AhelpAction.Close), _operation != Guid.Empty));
+        if (historyList) return;
+        _draft.Parent!.Visible = !_historyMode;
         if (_native.Visible)
         {
             RenderNativeHistory();
@@ -504,10 +602,13 @@ public sealed class AhelpWindow : FancyWindow
     private void RenderWebHistory()
     {
         _web.SetIncrementalState("AhelpTicket", new TguiData().Bool("writable", CanWrite)
+            .Bool("historyMode", _historyMode)
             .Bool("focusComposer", !_isAdmin).Bool("busy", _operation != Guid.Empty).Bool("older", _before > 0).Number("sent", _sent)
             .Bool("retry", _operation == Guid.Empty && _retryRequest is { } retry && retry.Ticket == _ticket && retry.Player == _target)
             .String("round", _round)
-            .String("ticket", (_isAdmin ? _target.ToString() : "self") + "/" + _round).String("preview", _preview).Number("previewId", _previewId)
+            .String("draft", _historyMode ? "" : _draft.Text)
+            .String("ticket", ConversationKey)
+            .String("preview", _preview).Number("previewId", _previewId)
             .Array("thumbnails", _thumbnails.Select(entry => entry.Value.ToWeb(entry.Key)))
             .Array("pending", CurrentPending().Select(pending => new TguiData().String("id", pending.Request.Operation.ToString())
                 .String("text", pending.Request.Text).String("file", pending.Request.File).String("error", pending.Error.Length == 0 ? "" : Error(pending.Error))))
@@ -518,7 +619,9 @@ public sealed class AhelpWindow : FancyWindow
                     line.Mime != null && !line.Mime.StartsWith("image/", StringComparison.Ordinal)).Bool("staff", line.Staff))));
     }
 
-    private IEnumerable<Pending> CurrentPending() => _pending.Values.Where(pending =>
+    private string ConversationKey => (_historyMode ? "history/" + _ticket : _isAdmin ? _target.ToString() : "self") + "/" + _round;
+
+    private IEnumerable<Pending> CurrentPending() => _pending.Values.Where(pending => !_historyMode &&
         pending.Request.Action == AhelpAction.Send && pending.Request.Player == _target &&
         (pending.Request.Ticket == _ticket || pending.Request.Ticket == Guid.Empty));
 
@@ -662,6 +765,9 @@ public sealed class AhelpWindow : FancyWindow
         AhelpStatus.New => "Новый",
         AhelpStatus.Claimed => "В работе",
         AhelpStatus.Closing => "Завершается",
+        AhelpStatus.Resolved => "Решён",
+        AhelpStatus.Rejected => "Отклонён",
+        AhelpStatus.Closed => "Закрыт",
         _ => "Завершён",
     };
 
@@ -680,6 +786,9 @@ public sealed class AhelpWindow : FancyWindow
         if (state.Round.Length > 0) _round = state.Round;
         if (changedRound)
         {
+            _historyMode = false;
+            _historyReturn = default;
+            _historySearch.Clear();
             ResetThread();
             _ticket = _target = _operation = default;
             _uploads.Clear();
@@ -730,6 +839,13 @@ public sealed class AhelpWindow : FancyWindow
                 _retryBytes = null;
             }
             _status.Text = "";
+        }
+        // A send started before entering history may finish while viewing an archived ticket.
+        if (_historyMode && !read)
+        {
+            _refresh = true;
+            Render();
+            return;
         }
         _tickets = state.Tickets;
         if (pending != null && (pending.Request.Player != _target ||
@@ -795,12 +911,13 @@ public sealed class AhelpWindow : FancyWindow
         _older = _reading = true;
         _readId = Guid.NewGuid();
         _deadline = _timing.RealTime + TimeSpan.FromSeconds(5);
-        _network.SendTicket(new AhelpRequest(AhelpAction.Read, _ticket, _target, _readId, before: _before, round: _round));
+        _network.SendTicket(new AhelpRequest(_historyMode ? AhelpAction.History : AhelpAction.Read,
+            _ticket, _target, _readId, before: _before, round: _round));
     }
 
     private void OnTyping(AhelpTypingState state)
     {
-        if (state.Round != _round || state.Ticket != _ticket) return;
+        if (_historyMode || state.Round != _round || state.Ticket != _ticket) return;
         _typingLabel.Text = state.Names.Length == 0 ? "" : string.Join(", ", state.Names) +
             (state.Names.Length == 1 ? " печатает…" : " печатают…");
         _typingExpires = _timing.RealTime + TimeSpan.FromSeconds(9);
@@ -848,7 +965,7 @@ public sealed class AhelpWindow : FancyWindow
 
     private void Mutate(AhelpAction action, string text = "", string file = "", byte[]? data = null)
     {
-        if (action != AhelpAction.Send && _operation != Guid.Empty || text.Length > AhelpLimits.Text ||
+        if (_historyMode || action != AhelpAction.Send && _operation != Guid.Empty || text.Length > AhelpLimits.Text ||
             action == AhelpAction.Send && (!CanWrite || (data == null && string.IsNullOrWhiteSpace(text))))
             return;
         if (data != null && (_uploads.Count >= 3 || _pending.Values.Count(pending => pending.Data != null) >= 3))
@@ -879,6 +996,7 @@ public sealed class AhelpWindow : FancyWindow
 
     private void Start(AhelpRequest request, byte[]? data)
     {
+        if (_historyMode) return;
         if (request.Action != AhelpAction.Send) _operation = request.Operation;
         _pending[request.Operation] = new Pending(request, data, _timing.RealTime + TimeSpan.FromSeconds(12));
         if (data != null) _uploads[request.Operation] = new Upload(request, data) { Tick = _timing.CurTick };
@@ -922,6 +1040,9 @@ public sealed class AhelpWindow : FancyWindow
             return;
         switch (action)
         {
+            case "draft" when CanWrite && args.String("round") == _round && args.String("conversation") == ConversationKey:
+                if (args.String("text") is { Length: <= AhelpLimits.Text } draft) _draft.Text = draft;
+                break;
             case "typing" when args.String("round") == _round:
                 TypingInput(args.String("active") == "true");
                 break;
@@ -1098,7 +1219,7 @@ public sealed class AhelpWindow : FancyWindow
     {
         if (_disposed) return;
         TickTyping();
-        if (_isAdmin && (_selected?.Player ?? _target) is var navigation && navigation != Guid.Empty && _timing.RealTime >= _nextNavigation)
+        if (_isAdmin && !_historyMode && (_selected?.Player ?? _target) is var navigation && navigation != Guid.Empty && _timing.RealTime >= _nextNavigation)
         {
             _nextNavigation = _timing.RealTime + TimeSpan.FromSeconds(1);
             _network.SendTeleport(new AhelpTeleportRequest(navigation));
@@ -1138,7 +1259,8 @@ public sealed class AhelpWindow : FancyWindow
         _readId = Guid.NewGuid();
         _nextRead = _timing.RealTime + TimeSpan.FromMilliseconds(300);
         _deadline = _timing.RealTime + TimeSpan.FromSeconds(5);
-        _network.SendTicket(new AhelpRequest(AhelpAction.Read, _ticket, _target, _readId, round: _round));
+        _network.SendTicket(new AhelpRequest(_historyMode ? AhelpAction.History : AhelpAction.Read,
+            _ticket, _target, _readId, round: _round));
     }
 
     private sealed class DetachedBody(Action tick) : Control

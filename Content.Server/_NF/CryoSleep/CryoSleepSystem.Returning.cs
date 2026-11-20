@@ -4,6 +4,7 @@ using Content.Shared.Database;
 using Content.Shared.Ghost;
 using Content.Shared.Mind;
 using Content.Shared._NF.CCVar;
+using Content.Shared._DeepLagoon.Apartments;
 using Content.Shared.Players;
 using Robust.Shared.Network;
 
@@ -58,13 +59,16 @@ public sealed partial class CryoSleepSystem
             return ReturnToBodyStatus.BodyMissing;
 
         if (TerminatingOrDeleted(cryopod) || !TryComp<CryoSleepComponent>(cryopod, out var cryoComp) ||
-            MetaData(cryopod).EntityPaused)
+            MetaData(cryopod).EntityPaused || HasComp<ApartmentGridComponent>(Transform(cryopod).GridUid))
         {
             var fallbackQuery = EntityQueryEnumerator<CryoSleepFallbackComponent, CryoSleepComponent>();
             bool foundFallback = false;
             while (fallbackQuery.MoveNext(out cryopod, out _, out cryoComp))
             {
-                if (!IsOccupied(cryoComp) && _container.Insert(body, cryoComp.BodyContainer))
+                // An apartment visit ended when this body entered cryosleep. Wake
+                // outside residential grids so it cannot return without a visit.
+                if (!HasComp<ApartmentGridComponent>(Transform(cryopod).GridUid) &&
+                    !IsOccupied(cryoComp) && _container.Insert(body, cryoComp.BodyContainer))
                 {
                     foundFallback = true;
                     break;

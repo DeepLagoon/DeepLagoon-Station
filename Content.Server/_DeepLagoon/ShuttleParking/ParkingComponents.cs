@@ -1,4 +1,5 @@
 using Content.Shared.Containers.ItemSlots;
+using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 
 namespace Content.Server._DeepLagoon.ShuttleParking;
 
@@ -25,6 +26,11 @@ public sealed partial class ParkingShuttleComponent : Component
     [DataField] public bool Parked;
     [DataField] public Dictionary<Guid, EntityUid> OriginalItems = [];
     [DataField] public Dictionary<EntityUid, EntityUid?>? ResearchConnections;
+    // Station-level expedition policy otherwise lives outside the saved grid.
+    // Null identifies older snapshots; an explicit false must remain disabled.
+    [DataField] public bool? ExpeditionsEnabled;
+    [DataField] public bool ExpeditionCooldown;
+    [DataField(customTypeSerializer: typeof(TimeOffsetSerializer))] public TimeSpan ExpeditionNextOffer;
     // Same-round membership is deliberately not serialized into a persistent snapshot.
     public EntityUid? ReturnStation;
     public int ParkingCharacter = -1;

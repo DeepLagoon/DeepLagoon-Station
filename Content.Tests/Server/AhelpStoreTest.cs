@@ -16,6 +16,66 @@ namespace Content.Tests.Server;
 [TestFixture]
 public sealed class AhelpStoreTest
 {
+    [Test]
+    public void HistoryShowsRecentClosedTicketsAndEnforcesPlayerPrivacy()
+    {
+        using var store = new AhelpStore(":memory:");
+        var player = Guid.NewGuid();
+        var other = Guid.NewGuid();
+        var admin = Guid.NewGuid();
+        var file = new AhelpStore.Attachment("public.png", "image/png", [1, 2]);
+        var first = store.Send(default, player, "Player", player, "Player", false, false, "first", "first", 1, file).Event!;
+        var note = store.Send(first.Ticket.Id, player, "Player", admin, "Admin", true, true, "private", "note", 2, file).Event!;
+        store.Change(first.Ticket.Id, admin, "Admin", AhelpAction.Reject, "reason", "reject", 3);
+        var second = store.Send(default, player, "Player", player, "Player", false, false, "second", "second", 4).Event!;
+        store.CloseByPlayer(second.Ticket.Id, player, "Player", "close-second", 5);
+        var foreign = store.Send(default, other, "Other", other, "Other", false, false, "foreign", "foreign", 6).Event!;
+        store.CloseByPlayer(foreign.Ticket.Id, other, "Other", "close-foreign", 7);
+        var current = store.Send(default, player, "Player", player, "Player", false, false, "current", "current", 8).Event!;
+
+        var list = store.Read(player, false, default, other, 0, history: true);
+        Assert.That(list.Selected, Is.Null);
+        Assert.That(list.Lines, Is.Empty);
+        Assert.That(list.Tickets.Select(t => t.Id), Is.EqualTo(new[] { second.Ticket.Id, first.Ticket.Id }));
+        var history = store.Read(player, false, first.Ticket.Id, other, 0, history: true);
+        Assert.That(history.Selected!.Status, Is.EqualTo(AhelpStatus.Rejected));
+        Assert.That(history.Lines.Select(l => l.Text), Is.EqualTo(new[] { "first", "reason" }));
+        Assert.That(store.Read(player, false, foreign.Ticket.Id, other, 0, history: true).Selected, Is.Null);
+        Assert.That(store.Read(player, false, current.Ticket.Id, player, 0, history: true).Selected, Is.Null);
+        Assert.That(store.ReadAttachment(first.Id, player, false, false)!.Bytes, Is.EqualTo(file.Bytes));
+        Assert.That(store.ReadAttachment(first.Id, other, false, false), Is.Null);
+        Assert.That(store.ReadAttachment(note.Id, player, false, false), Is.Null);
+        Assert.That(store.ReadAttachment(note.Id, admin, true, false), Is.Not.Null);
+        Assert.That(store.Read(admin, true, default, default, 0, history: true).Tickets.Select(t => t.Id),
+            Is.EqualTo(new[] { foreign.Ticket.Id, second.Ticket.Id, first.Ticket.Id }));
+        Assert.That(store.Read(admin, true, first.Ticket.Id, player, 0, history: true).Lines.Any(l => l.Text == "private"), Is.True);
+        Assert.That(store.Read(player, false, first.Ticket.Id, player, 0).Selected!.Id, Is.EqualTo(current.Ticket.Id));
+        Assert.That(store.Send(first.Ticket.Id, player, "Player", admin, "Admin", true, false, "late", "late", 9).Error, Is.EqualTo("closed"));
+        Assert.That(store.Change(first.Ticket.Id, admin, "Admin", AhelpAction.Claim, "", "reclaim", 9).Applied, Is.False);
+    }
+
+    [Test]
+    public void ArchivedMessagesCanBePagedWithoutSelectingTheActiveTicket()
+    {
+        using var store = new AhelpStore(":memory:");
+        var player = Guid.NewGuid();
+        var first = store.Send(default, player, "Player", player, "Player", false, false, "0", "0", 1).Event!;
+        for (var i = 1; i < AhelpLimits.Page + 5; i++)
+            store.Send(first.Ticket.Id, player, "Player", player, "Player", false, false, i.ToString(), i.ToString(), i + 1);
+        store.CloseByPlayer(first.Ticket.Id, player, "Player", "close", 100);
+        var current = store.Send(default, player, "Player", player, "Player", false, false, "new", "new", 101).Event!;
+        var recent = store.Read(player, false, first.Ticket.Id, player, 0, history: true);
+        Assert.That(recent.Lines, Has.Length.EqualTo(AhelpLimits.Page));
+        Assert.That(recent.Before, Is.GreaterThan(0));
+        var older = store.Read(player, false, first.Ticket.Id, player, recent.Before, history: true);
+        Assert.That(older.Before, Is.Zero);
+        Assert.That(older.Lines.Concat(recent.Lines).Select(l => l.Id).Distinct().Count(), Is.EqualTo(AhelpLimits.Page + 6));
+        Assert.That(older.Lines.First().Text, Is.EqualTo("0"));
+        Assert.That(store.Read(player, false, current.Ticket.Id, player, 0).Selected!.Id, Is.EqualTo(current.Ticket.Id));
+        store.ResetRound("next");
+        Assert.That(store.Read(player, false, first.Ticket.Id, player, 0, history: true).Tickets, Is.Empty);
+    }
+
     [TestCase(false, false)]
     [TestCase(false, true)]
     [TestCase(true, false)]
@@ -42,7 +102,7 @@ public sealed class AhelpStoreTest
     }
 
     [Test]
-    public void TypingRequiresOwnershipOrPublicReplyPermissionAndHidesStaffTyping()
+    public void TypingAllowsAllAdminsAndHidesStaffTyping()
     {
         var player = Guid.NewGuid();
         var admin = Guid.NewGuid();
@@ -52,7 +112,7 @@ public sealed class AhelpStoreTest
         Assert.That(AhelpSystem.CanType(ticket, player, false, true), Is.False);
         Assert.That(AhelpSystem.CanType(ticket, other, false, false), Is.False);
         Assert.That(AhelpSystem.CanType(ticket, admin, true, false), Is.True);
-        Assert.That(AhelpSystem.CanType(ticket, other, true, false), Is.False);
+        Assert.That(AhelpSystem.CanType(ticket, other, true, false), Is.True);
         Assert.That(AhelpSystem.CanType(ticket, other, true, true), Is.True);
         Assert.That(AhelpSystem.CanType(ticket with { Status = AhelpStatus.New }, other, true, false), Is.True);
         Assert.That(AhelpSystem.CanType(ticket with { Status = AhelpStatus.Closing }, admin, true, true), Is.False);
@@ -240,7 +300,7 @@ public sealed class AhelpStoreTest
     }
 
     [Test]
-    public async Task FirstAdminReplyClaimsAtomicallyAndKeepsOtherAdminsPrivate()
+    public async Task FirstAdminReplyClaimsAtomicallyAndAllowsOtherAdminsToReply()
     {
         using var store = new AhelpStore(":memory:");
         var player = Guid.NewGuid();
@@ -250,13 +310,40 @@ public sealed class AhelpStoreTest
         var replies = await Task.WhenAll(
             Task.Run(() => store.Send(id, player, "Player", first, "First", true, false, "reply", "reply:first", 2)),
             Task.Run(() => store.Send(id, player, "Player", second, "Second", true, false, "reply", "reply:second", 2)));
-        Assert.That(replies.Count(reply => reply.Applied), Is.EqualTo(1));
-        Assert.That(replies.Single(reply => !reply.Applied).Error, Is.EqualTo("assigned_to_other"));
+        Assert.That(replies.All(reply => reply.Applied && reply.Error == ""), Is.True);
         Assert.That(store.Get(id)!.Status, Is.EqualTo(AhelpStatus.Claimed));
         Assert.That(store.History(1, 0).Count(entry => entry.Kind == "claimed"), Is.EqualTo(1));
         var other = store.Get(id)!.Assignee == first ? second : first;
         Assert.That(store.Send(id, player, "Player", other, "Other", true, true, "note", "note", 3).Applied, Is.True);
+        Assert.That(store.Read(player, false, id, player, 0).Lines.Select(line => line.Text), Is.EqualTo(new[] { "help", "reply", "reply" }));
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void OtherAdminCanReplyAndAttachFilesWithoutChangingAssignee(bool attachment)
+    {
+        using var store = new AhelpStore(":memory:");
+        var player = Guid.NewGuid();
+        var assignee = Guid.NewGuid();
+        var other = Guid.NewGuid();
+        var id = store.Send(default, player, "Player", player, "Player", false, false, "help", "create", 1).Event!.Ticket.Id;
+        store.Change(id, assignee, "Assignee", AhelpAction.Claim, "", "claim", 2);
+        var file = attachment ? new AhelpStore.Attachment("screen.png", "image/png", [1, 2, 3]) : null;
+
+        Assert.That(store.Send(id, player, "Player", other, "Other", false, false, "reply", "forbidden", 3, file).Error,
+            Is.EqualTo("forbidden"));
+        var reply = store.Send(id, player, "Player", other, "Other", true, false, "reply", "reply", 4, file);
+        Assert.That(reply.Applied, Is.True);
+        Assert.That(reply.Error, Is.Empty);
+        Assert.That(reply.Event!.Line.Author, Is.EqualTo(other));
+        Assert.That(reply.Event.Line.Staff, Is.False);
+        Assert.That(store.Get(id)!.Assignee, Is.EqualTo(assignee));
+        Assert.That(store.Get(id)!.AssigneeName, Is.EqualTo("Assignee"));
+        Assert.That(store.History(1, 0).Count(entry => entry.Kind == "claimed"), Is.EqualTo(1));
         Assert.That(store.Read(player, false, id, player, 0).Lines.Select(line => line.Text), Is.EqualTo(new[] { "help", "reply" }));
+        if (attachment)
+            Assert.That(store.ReadAttachment(reply.Event.Id, player, false, false)!.Bytes, Is.EqualTo(file!.Bytes));
+        Assert.That(store.Change(id, other, "Other", AhelpAction.Resolve, "", "resolve", 5).Error, Is.EqualTo("forbidden"));
     }
 
     [Test]

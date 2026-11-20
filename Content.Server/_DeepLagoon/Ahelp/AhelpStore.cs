@@ -225,8 +225,8 @@ public sealed class AhelpStore : IDisposable
                 ticket = Find(ticket.Id)!;
                 Add(ticket, "claimed", actor, name, "", false, origin + ":claim", now);
             }
-            if (staff ? !admin : actor != ticket.Player && (!admin || actor != ticket.Assignee))
-                return new Result(admin && !staff && ticket.Assignee != null ? "assigned_to_other" : "forbidden");
+            if (staff ? !admin : actor != ticket.Player && !admin)
+                return new Result("forbidden");
             return Add(ticket, "message", actor, name, text, staff, origin, now, file);
         });
 
@@ -400,30 +400,36 @@ public sealed class AhelpStore : IDisposable
         }
     }
 
-    public AhelpSnapshot Read(Guid actor, bool admin, Guid ticket, Guid player, long before, string error = "", Guid operation = default)
+    public AhelpSnapshot Read(Guid actor, bool admin, Guid ticket, Guid player, long before, string error = "", Guid operation = default,
+        bool history = false)
         => Write(() =>
         {
             var tickets = new List<AhelpTicket>();
             using (var cmd = Command($"""
                 SELECT {TicketColumns},EXISTS(SELECT 1 FROM events e WHERE e.ticket=t.id AND ($admin OR e.staff=0)
                 AND e.author<>$actor AND e.id>COALESCE((SELECT seen FROM reads WHERE ticket=t.id AND reader=$actor),0))
-                FROM tickets t WHERE t.status<3 AND ($admin OR t.player=$actor AND t.round_closed=0)
-                ORDER BY t.status,t.created LIMIT 500
-                """, ("$admin", admin), ("$actor", actor.ToString())))
+                FROM tickets t WHERE ($history AND t.status>=3 OR NOT $history AND t.status<3)
+                AND ($admin OR t.player=$actor AND ($history OR t.round_closed=0))
+                ORDER BY CASE WHEN $history THEN -t.number ELSE t.status END,t.created LIMIT 500
+                """, ("$admin", admin), ("$actor", actor.ToString()), ("$history", history)))
             using (var rows = cmd.ExecuteReader())
             {
                 while (rows.Read())
                     tickets.Add(Ticket(rows) with { Unread = rows.GetBoolean(8) });
             }
-            var selected = admin ? (ticket != Guid.Empty ? Find(ticket) : Find(Guid.Empty, player)) : tickets.FirstOrDefault();
-            if (selected is null || selected.Status >= AhelpStatus.Resolved)
+            var selected = history ? (ticket == Guid.Empty ? null : Find(ticket)) :
+                admin ? (ticket != Guid.Empty ? Find(ticket) : Find(Guid.Empty, player)) : tickets.FirstOrDefault();
+            if (selected is null || !admin && selected.Player != actor ||
+                (history ? selected.Status < AhelpStatus.Resolved : selected.Status >= AhelpStatus.Resolved))
                 return new AhelpSnapshot(true, tickets.ToArray(), null, [], 0, error, operation);
             var lines = new List<AhelpLine>();
             using (var cmd = Command($"""
                 SELECT {EventColumns},{TicketColumns} FROM events e JOIN tickets t ON e.ticket=t.id
-                WHERE e.ticket=$id AND ($admin OR e.staff=0) AND e.kind IN ('created','message')
+                WHERE e.ticket=$id AND ($admin OR e.staff=0)
+                AND (e.kind IN ('created','message') OR $history AND e.kind='finished' AND e.text<>'')
                 AND ($before=0 OR e.id<$before) ORDER BY e.id DESC LIMIT $limit
-                """, ("$id", selected.Id.ToString()), ("$admin", admin), ("$before", before), ("$limit", AhelpLimits.Page + 1)))
+                """, ("$id", selected.Id.ToString()), ("$admin", admin), ("$history", history),
+                    ("$before", before), ("$limit", AhelpLimits.Page + 1)))
             using (var rows = cmd.ExecuteReader())
             {
                 while (rows.Read())
@@ -450,9 +456,9 @@ public sealed class AhelpStore : IDisposable
         {
             using var cmd = Command("""
                 SELECT e.file,e.mime,e.data FROM events e JOIN tickets t ON e.ticket=t.id
-                WHERE e.id=$id AND e.data IS NOT NULL AND length(e.data)>0 AND ($relay OR t.status<3)
+                WHERE e.id=$id AND e.data IS NOT NULL AND length(e.data)>0
                 AND ($admin OR t.player=$actor AND e.staff=0)
-                """, ("$id", id), ("$actor", actor.ToString()), ("$admin", admin), ("$relay", relay));
+                """, ("$id", id), ("$actor", actor.ToString()), ("$admin", admin));
             using var rows = cmd.ExecuteReader();
             return rows.Read() ? new Attachment(rows.GetString(0), rows.GetString(1), (byte[]) rows.GetValue(2)) : null;
         }

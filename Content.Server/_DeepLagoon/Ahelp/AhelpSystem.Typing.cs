@@ -15,8 +15,7 @@ public sealed partial class AhelpSystem
     private TimeSpan _nextTypingPrune;
 
     internal static bool CanType(AhelpTicket ticket, Guid actor, bool admin, bool staff)
-        => ticket.Status < AhelpStatus.Closing && (staff ? admin : ticket.Player == actor ||
-            admin && (ticket.Assignee == actor || ticket.Status == AhelpStatus.New));
+        => ticket.Status < AhelpStatus.Closing && (staff ? admin : ticket.Player == actor || admin);
 
     private async void OnTyping(AhelpTypingRequest request, EntitySessionEventArgs args)
     {

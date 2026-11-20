@@ -9,6 +9,7 @@ using Content.Server.DeviceLinking.Systems;
 using Content.Server.DeviceNetwork.Systems;
 using Content.Server.Power.Generator;
 using Content.Server.Research.Systems;
+using Content.Server.Salvage;
 using Content.Shared._Crescent.Hardpoints;
 using Content.Shared._Crescent.ShipShields;
 using Content.Shared._DeepLagoon.ShuttleParking;
@@ -55,6 +56,7 @@ public sealed partial class ParkingSystem
     [Dependency] private DeviceLinkSystem _deviceLinks = default!;
     [Dependency] private DeviceNetworkSystem _deviceNetwork = default!;
     [Dependency] private ResearchSystem _research = default!;
+    [Dependency] private SalvageSystem _salvage = default!;
     private static readonly HashSet<string> TransientComponents =
     [
         "ShuttleDeed", "ShipGuestAccess", "ShipOwnership", "StationMember", "LinkedLifecycleGridParent",
@@ -195,6 +197,9 @@ public sealed partial class ParkingSystem
         RaiseLocalEvent(new BeforeSerializationEvent(roots, [Transform(grid).MapID], FileCategory.Grid));
         var ship = Comp<ParkingShuttleComponent>(grid);
         var originals = ship.OriginalItems;
+        var expeditionPolicy = ship.ExpeditionsEnabled;
+        var expeditionCooldown = ship.ExpeditionCooldown;
+        var expeditionNextOffer = ship.ExpeditionNextOffer;
         var omitted = new HashSet<EntityUid>();
         EntitySerializer serializer;
         while (true)
@@ -213,12 +218,19 @@ public sealed partial class ParkingSystem
                 ship.OriginalItems = originals.Where(pair => inside.Contains(pair.Value)).ToDictionary();
                 ship.ResearchConnections = inside.Where(HasComp<ResearchClientComponent>).ToDictionary(entity => entity,
                     entity => _research.TryGetClientServer(entity, out var server, out _) && inside.Contains(server.Value) ? server : null);
+                var expeditions = _salvage.GridExpeditionSettings(grid);
+                ship.ExpeditionsEnabled = expeditions.Enabled;
+                ship.ExpeditionCooldown = expeditions.Cooldown;
+                ship.ExpeditionNextOffer = expeditions.NextOffer;
                 _deviceLinks.SerializeInternalLinks(inside, () => serializer.SerializeEntityRecursive(roots));
             }
             finally
             {
                 ship.OriginalItems = originals;
                 ship.ResearchConnections = null;
+                ship.ExpeditionsEnabled = expeditionPolicy;
+                ship.ExpeditionCooldown = expeditionCooldown;
+                ship.ExpeditionNextOffer = expeditionNextOffer;
             }
 
             if (serializer.ErroringEntities.Count == 0)
@@ -285,6 +297,9 @@ public sealed partial class ParkingSystem
     private void RestoreSnapshotEquipment(EntityUid grid, bool connectDevices)
     {
         var ship = Comp<ParkingShuttleComponent>(grid);
+        _salvage.RestoreGridExpeditions(grid, ship.ExpeditionsEnabled,
+            ship.ExpeditionsEnabled.HasValue ? ship.ExpeditionCooldown : null,
+            ship.ExpeditionsEnabled.HasValue ? ship.ExpeditionNextOffer : null);
         var objects = Descendants(grid).ToArray();
         // Old snapshots could contain an active shield without its runtime references.
         RemComp<ShipShieldedComponent>(grid);

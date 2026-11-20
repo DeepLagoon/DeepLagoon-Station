@@ -1,4 +1,6 @@
 using System.Linq;
+using Content.Server._NF.CryoSleep;
+using Content.Shared._DeepLagoon.Apartments;
 using Content.Shared.Storage;
 
 namespace Content.Server._DeepLagoon.Apartments;
@@ -8,6 +10,22 @@ public sealed partial class ApartmentSystem
     [Dependency] private MetaDataSystem _gearMetadata = default!;
     private readonly HashSet<EntityUid> _escapedChameleonGear = new();
     [Dependency] private Content.Server.Clothing.Systems.ChameleonClothingSystem _apartmentChameleon = default!;
+
+    private void OnResidentCryosleep(EntityUid uid, ApartmentResidentComponent component, CryosleepEnterEvent args)
+    {
+        var entry = _visits.FirstOrDefault(pair => pair.Value.Body == uid);
+        if (entry.Value is not { } visit)
+            return;
+
+        // Cryosleep preserves the body on a paused map instead of deleting it.
+        // End this visit without teleporting it out of cryostorage, and return
+        // the escrow to this character before another character can enter.
+        RestoreGear(visit);
+        _visits.Remove(entry.Key);
+        _editors.Remove(entry.Key);
+        RemComp<ApartmentResidentComponent>(uid);
+        RefreshActivity(visit.Apartment);
+    }
 
     private void IssueChameleonGear(Visit visit)
     {

@@ -39,9 +39,9 @@ public sealed partial class UseDelayInfo
 {
     [DataField]
     public TimeSpan Length { get; set; }
-    [DataField]
+    [DataField(customTypeSerializer: typeof(UseDelayTimestampSerializer))]
     public TimeSpan StartTime { get; set; }
-    [DataField]
+    [DataField(customTypeSerializer: typeof(UseDelayTimestampSerializer))]
     public TimeSpan EndTime { get; set; }
 
     public UseDelayInfo(TimeSpan length, TimeSpan startTime = default, TimeSpan endTime = default)

@@ -136,6 +136,7 @@ public sealed partial class ApartmentSystem : EntitySystem
         SubscribeNetworkEvent<ApartmentActionEvent>(OnAction);
         SubscribeLocalEvent<ApartmentTerminalComponent, GetVerbsEvent<AlternativeVerb>>(OnVerbs);
         SubscribeLocalEvent<ApartmentResidentComponent, BeforeDamageChangedEvent>(OnDamage);
+        SubscribeLocalEvent<ApartmentResidentComponent, Content.Server._NF.CryoSleep.CryosleepEnterEvent>(OnResidentCryosleep);
         SubscribeLocalEvent<ApartmentChameleonGearComponent, GridUidChangedEvent>(OnChameleonGridChanged);
         SubscribeLocalEvent<ApartmentGridComponent, MassDataChangedEvent>(OnGridMassChanged, after: new[] { typeof(AutomaticAtmosSystem) });
         SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => Cleanup());

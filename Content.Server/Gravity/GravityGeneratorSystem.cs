@@ -17,11 +17,24 @@ public sealed partial class GravityGeneratorSystem : EntitySystem
     {
         base.Initialize();
 
+        SubscribeLocalEvent<GravityGeneratorComponent, ComponentStartup>(OnStartup);
         SubscribeLocalEvent<GravityGeneratorComponent, EntParentChangedMessage>(OnParentChanged);
         SubscribeLocalEvent<GravityGeneratorComponent, ChargedMachineActivatedEvent>(OnActivated);
         SubscribeLocalEvent<GravityGeneratorComponent, ChargedMachineDeactivatedEvent>(OnDeactivated);
         // SubscribeLocalEvent<GravityGeneratorComponent, EmpPulseEvent>(OnEmpPulse); // Frontier: Upstream - #28984
         SubscribeLocalEvent<GravityGeneratorComponent, ExaminedEvent>(OnExamined); // pzn: mass limit
+    }
+
+    private void OnStartup(Entity<GravityGeneratorComponent> ent, ref ComponentStartup args)
+    {
+        // Post-init snapshots retain the charging machine's active state, but not
+        // this runtime flag. No activation transition will fire for an already
+        // active restored generator, so reapply it to its restored grid here.
+        if (!TryComp<PowerChargeComponent>(ent, out var charge))
+            return;
+
+        ent.Comp.GravityActive = charge.Active;
+        _gravitySystem.RefreshGravity(Transform(ent).ParentUid);
     }
 
     // pzn: state the rated mass capacity so people know why their brick fell out of the sky

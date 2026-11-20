@@ -50,14 +50,17 @@ public sealed partial class SalvageSystem
             : null;
     }
 
-    public bool GridExpeditionsEnabled(EntityUid grid)
+    public bool GridExpeditionsEnabled(EntityUid grid) => GridExpeditionSettings(grid).Enabled;
+
+    public (bool Enabled, bool Cooldown, TimeSpan NextOffer) GridExpeditionSettings(EntityUid grid)
     {
         if (TryComp<SalvageExpeditionDataComponent>(grid, out var data))
-            return data.Enabled;
+            return (data.Enabled, data.Cooldown, data.NextOffer);
 
         var station = _station.GetOwningStation(grid);
-        return TryComp<SalvageExpeditionDataComponent>(station, out data) &&
-               data.Enabled && GetExpeditionDepartureGrid(station.Value) == grid;
+        return TryComp<SalvageExpeditionDataComponent>(station, out data) && GetExpeditionDepartureGrid(station.Value) == grid
+            ? (data.Enabled, data.Cooldown, data.NextOffer)
+            : (false, false, TimeSpan.Zero);
     }
 
     public bool SetGridExpeditions(EntityUid grid, bool enabled)
@@ -77,6 +80,30 @@ public sealed partial class SalvageSystem
             GenerateMissions(data);
         UpdateConsoles(grid, data);
         return true;
+    }
+
+    /// <summary>Restore saved policy and rebuild offers omitted from persistent grid snapshots.</summary>
+    public void RestoreGridExpeditions(EntityUid grid, bool? enabled, bool? cooldown = null, TimeSpan? nextOffer = null)
+    {
+        TryComp<SalvageExpeditionDataComponent>(grid, out var data);
+        if (enabled is { } policy)
+        {
+            data ??= EnsureComp<SalvageExpeditionDataComponent>(grid);
+            data.Enabled = policy;
+        }
+        if (data == null)
+            return;
+
+        if (cooldown is { } savedCooldown)
+            data.Cooldown = savedCooldown;
+        if (nextOffer is { } savedNextOffer)
+            data.NextOffer = savedNextOffer;
+
+        // NextOffer is persistent, but Missions is runtime-only. Rebuild the list
+        // immediately while preserving any remaining cooldown and disabled policy.
+        if (data.Enabled && !data.Claimed && data.Missions.Count == 0)
+            GenerateMissions(data);
+        UpdateConsoles(grid, data);
     }
 
     private void OnSalvageClaimMessage(EntityUid uid, SalvageExpeditionConsoleComponent component, ClaimSalvageMessage args)
