@@ -669,7 +669,7 @@ public abstract partial class SharedGunSystem : EntitySystem
         if (cartridge.DeleteOnSpawn) // Mono - No need to update appearance if cartridge is getting deleted anyways
             return;
 
-        if (cartridge.AutoTimedDespawn != 0)
+        if (spent && cartridge.AutoTimedDespawn > 0)
             EnsureComp<TimedDespawnComponent>(uid).Lifetime = cartridge.AutoTimedDespawn;
         // End mono
 
