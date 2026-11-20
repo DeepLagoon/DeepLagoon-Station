@@ -26,6 +26,11 @@
     base: state
   - type: Icon
     state: state0
+  - type: Occluder
+    polygon:
+    - "-0.5,-0.5"
+    - "0.5,0.5"
+    - "0.5,-0.5"
   - type: Airtight
     noAirWhenFullyAirBlocked: false
     airBlockedDirection:
@@ -78,8 +83,6 @@
         - FullTileMask
         layer:
         - WallLayer
-  - type: Occluder
-    enabled: false
 
 - type: entity
   parent: [ WallUranium, BaseWallDiagonal ]
@@ -114,5 +117,3 @@
         - FullTileMask
         layer:
         - WallLayer
-  - type: Occluder
-    enabled: false

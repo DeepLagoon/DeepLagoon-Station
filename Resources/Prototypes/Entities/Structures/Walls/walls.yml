@@ -483,6 +483,11 @@
     state: state0
   - type: Physics
     bodyType: Static
+  - type: Occluder
+    polygon:
+    - "-0.5,-0.5"
+    - "0.5,0.5"
+    - "0.5,-0.5"
   - type: Airtight
     noAirWhenFullyAirBlocked: false
     airBlockedDirection:
@@ -732,6 +737,11 @@
 #  - type: Reflect - Mono
 #    reflectProb: 1
   - type: Pullable
+  - type: Occluder
+    polygon:
+    - "-0.5,-0.5"
+    - "0.5,0.5"
+    - "0.5,-0.5"
   - type: Airtight
     noAirWhenFullyAirBlocked: false
     airBlockedDirection:

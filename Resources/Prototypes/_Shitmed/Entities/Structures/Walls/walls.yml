@@ -48,6 +48,11 @@
   #- type: Reflect
   #  reflectProb: 1
   - type: Pullable
+  - type: Occluder
+    polygon:
+    - "-0.5,-0.5"
+    - "0.5,0.5"
+    - "0.5,-0.5"
   - type: Airtight
     noAirWhenFullyAirBlocked: false
     airBlockedDirection:
