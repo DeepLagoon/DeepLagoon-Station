@@ -220,7 +220,7 @@ public sealed partial class ClientClothingSystem : ClothingSystem
             RefreshUniform(uid);
 
         _bodyFit.ClearSlot(uid, args.Slot);
-        UpdateBodyVisibility(uid, component);
+        UpdateBodyVisibility(uid, component, args.Slot);
         if (!TryComp(uid, out InventorySlotsComponent? inventorySlots))
             return;
 
@@ -296,7 +296,7 @@ public sealed partial class ClientClothingSystem : ClothingSystem
 
         if (ev.Layers.Count == 0)
         {
-            UpdateBodyVisibility(equipee, sprite);
+            UpdateBodyVisibility(equipee, sprite, slot);
             RaiseLocalEvent(equipment, new EquipmentVisualsUpdatedEvent(equipee, slot, revealedLayers), true);
             return;
         }
@@ -390,7 +390,7 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         }
 
         _bodyFit.Apply(equipee, equipment, slot, sprite, clothingComponent, revealedLayers);
-        UpdateBodyVisibility(equipee, sprite);
+        UpdateBodyVisibility(equipee, sprite, slot);
         RaiseLocalEvent(equipment, new EquipmentVisualsUpdatedEvent(equipee, slot, revealedLayers), true);
     }
 
@@ -406,9 +406,15 @@ public sealed partial class ClientClothingSystem : ClothingSystem
             RenderEquipment(uid, uniform.Value, Jumpsuit, inventory);
     }
 
-    private void UpdateBodyVisibility(EntityUid uid, SpriteComponent sprite)
+    private void UpdateBodyVisibility(EntityUid uid, SpriteComponent sprite, string slot)
     {
         if (TryComp<HumanoidAppearanceComponent>(uid, out var humanoid))
+        {
             EntityManager.System<BodyCustomizationVisualizerSystem>().UpdateVisibility(uid, humanoid, sprite);
+            // The exposed silhouette changes when torso clothing is added or removed.
+            // Refit existing underwear too, so it cannot retain its larger bare-body fit.
+            if (slot is Jumpsuit or "outerClothing")
+                _bodyFit.Refresh(uid, humanoid, sprite, underwearOnly: true);
+        }
     }
 }

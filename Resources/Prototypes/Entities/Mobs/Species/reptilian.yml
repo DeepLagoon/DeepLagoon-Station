@@ -80,6 +80,16 @@
     speciesId: reptilian
     # WWDP-Edit-Start
     femaleDisplacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:
@@ -91,6 +101,16 @@
             sprite: _White/Mobs/Species/displacement.rsi
             state: shoes
     displacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:
@@ -172,6 +192,16 @@
     speciesId: reptilian
     # WWDP-Edit-Start
     femaleDisplacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:
@@ -183,6 +213,16 @@
             sprite: _White/Mobs/Species/displacement.rsi
             state: shoes
     displacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:

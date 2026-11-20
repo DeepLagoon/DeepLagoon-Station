@@ -90,6 +90,16 @@
     speciesId: hydrakin
     templateId: hydrakin
     displacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _Obelisk/Mobs/Species/Hydrakin/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _Obelisk/Mobs/Species/Hydrakin/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:
@@ -146,6 +156,16 @@
     speciesId: hydrakin
     templateId: hydrakin
     displacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _Obelisk/Mobs/Species/Hydrakin/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _Obelisk/Mobs/Species/Hydrakin/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:

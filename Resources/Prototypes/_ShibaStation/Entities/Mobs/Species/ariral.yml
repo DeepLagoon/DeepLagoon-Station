@@ -91,6 +91,16 @@
   - type: Inventory
     speciesId: reptilian # Reuse lizard displacements, especially for the feet.
     femaleDisplacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:
@@ -107,6 +117,16 @@
             sprite: _White/Mobs/Species/displacement.rsi
             state: shoes
     displacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:
@@ -138,6 +158,16 @@
   - type: Inventory
     speciesId: reptilian # Reuse lizard displacements, especially for the feet.
     femaleDisplacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:
@@ -154,6 +184,16 @@
             sprite: _White/Mobs/Species/displacement.rsi
             state: shoes
     displacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:

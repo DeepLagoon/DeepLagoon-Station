@@ -51,7 +51,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         HashSet<string> Revealed, ShaderInstance Shader, Map Map);
 
     private sealed record Part(string Kind, List<SpriteComponent.Layer> Layers, List<RSI.State> Shapes,
-        List<RSI.State> Anchors, bool CoversMouth = false);
+        List<RSI.State> Anchors, bool CoversMouth = false, bool PartialCoverage = false, RSI.State? AnatomyMap = null);
 
     public override void Initialize()
     {
@@ -67,13 +67,14 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
             Clear(args.BaseArgs.Owner);
     }
 
-    public void Refresh(EntityUid uid, HumanoidAppearanceComponent humanoid, SpriteComponent sprite)
+    public void Refresh(EntityUid uid, HumanoidAppearanceComponent humanoid, SpriteComponent sprite, bool underwearOnly = false)
     {
         if (!TryComp<InventoryComponent>(uid, out var inventory) ||
             !TryComp<InventorySlotsComponent>(uid, out var slots)) return;
         var items = _inventory.GetSlotEnumerator((uid, inventory));
         while (items.NextItem(out var item, out var slot))
-            if (TryComp<ClothingComponent>(item, out var clothing) &&
+            if ((!underwearOnly || slot.Name is "underwearbottom" or "underweartop") &&
+                TryComp<ClothingComponent>(item, out var clothing) &&
                 slots.VisualLayerKeys.TryGetValue(slot.Name, out var keys))
                 Apply(uid, item, slot.Name, sprite, clothing, keys, humanoid);
     }
@@ -90,9 +91,15 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
             !IsSoft(item, slot, clothing)) return;
 
         var parts = new List<Part>();
+        var underwear = slot is "underwearbottom" or "underweartop";
+        var exposedUnderwear = underwear && !EntityManager.System<BodyCustomizationVisualizerSystem>().HasTorsoClothing(uid);
         foreach (var original in BodyCustomizationCatalog.Sanitize(humanoid.BodyFeatures))
         {
-            var feature = BodyCustomizationCatalog.ForClothing(original);
+            // Underwear leaves the surrounding skin visible even when the feature
+            // opts out of showing through a covering outfit. Fit that visible skin.
+            var feature = exposedUnderwear
+                ? original.Enabled && original.Visibility != 0 && original.Part != "womb" ? original.Clone() : null
+                : BodyCustomizationCatalog.ForClothing(original);
             if (feature == null) continue;
             var sizes = BodyCustomizationCatalog.Parts[feature.Part][feature.Shape];
             var layers = new List<SpriteComponent.Layer>();
@@ -120,7 +127,8 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
                 shapes.Add(shape);
                 anchors.Add(anchor);
             }
-            if (layers.Count > 0) parts.Add(new Part(feature.Part, layers, shapes, anchors));
+            if (layers.Count > 0) parts.Add(new Part(feature.Part, layers, shapes, anchors,
+                PartialCoverage: underwear, AnatomyMap: AnatomyDisplacement(uid, humanoid.Sex, shapes[0].Size.X)));
         }
         if (parts.Count == 0) return;
         var body = BodyLayers(humanoid, sprite, HumanoidVisualLayers.Chest, HumanoidVisualLayers.LLeg, HumanoidVisualLayers.RLeg);
@@ -191,7 +199,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
 
     private bool IsSoft(EntityUid item, string slot, ClothingComponent clothing)
     {
-        if (slot is not ("jumpsuit" or "outerClothing" or "neck" or "neck2" or "neck3")) return false;
+        if (slot is not ("underwearbottom" or "underweartop" or "jumpsuit" or "outerClothing" or "neck" or "neck2" or "neck3")) return false;
         return clothing.BodyFit switch
         {
             ClothingBodyFit.Soft => true,
@@ -219,7 +227,8 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         foreach (var h in hands) AppendKey(signature, h);
         foreach (var part in parts)
         {
-            signature.Append("|part|").Append(part.Kind).Append(':').Append(part.CoversMouth);
+            signature.Append("|part|").Append(part.Kind).Append(':').Append(part.CoversMouth).Append(':').Append(part.PartialCoverage);
+            signature.Append(':').Append(part.AnatomyMap?.RSI.Path).Append(':').Append(part.AnatomyMap?.StateId);
             for (var i = 0; i < part.Layers.Count; i++)
             {
                 AppendKey(signature, part.Layers[i], part.Shapes[i]);
@@ -309,6 +318,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         var directions = state.Icons.Length;
         using var atlas = new Image<Rgba32>(width + padding * 2, (height + padding * 2) * directions);
         var frames = new Dictionary<(RSI.State, int, int), Image<Rgba32>>();
+        var nativeFrames = new Dictionary<(RSI.State, RSI.State, int, int), Image<Rgba32>>();
         var changed = false;
         try
         {
@@ -340,14 +350,14 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
                         var anchor = new Image<Rgba32>(width, height);
                         // Rear volume widens the existing trousers. Its small side attachment can
                         // lie under a long shirt, which must not be pulled down over the trouser legs.
-                        shapes.Add(new(shape, anchor, StretchVertically: part.Kind != "butt"));
+                        shapes.Add(new(shape, anchor, StretchVertically: part.Kind != "butt", PartialCoverage: part.PartialCoverage));
                         if (part.Kind == "breasts" && worldDirection == (int) RsiDirection.South ||
                             part.Kind == "butt" && worldDirection == (int) RsiDirection.North)
                             contours.Add(new ClothingBodyFitMap.Contour(shape, BelowWaist: part.Kind == "butt"));
                         for (var i = 0; i < part.Layers.Count; i++)
                         {
-                            Composite(shape, part.Layers[i], part.Shapes[i], worldDirection, garmentMatrix);
-                            Composite(anchor, part.Layers[i], part.Anchors[i], worldDirection, garmentMatrix);
+                            Composite(shape, part.Layers[i], part.Shapes[i], worldDirection, garmentMatrix, anatomyMap: part.AnatomyMap);
+                            Composite(anchor, part.Layers[i], part.Anchors[i], worldDirection, garmentMatrix, anatomyMap: part.AnatomyMap);
                         }
                     }
                     var displaced = displacement?.ActualState is { } displacementState
@@ -378,6 +388,7 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
         finally
         {
             foreach (var image in frames.Values) image.Dispose();
+            foreach (var image in nativeFrames.Values) image.Dispose();
         }
 
         Image<Rgba32> Read(RSI.State rsi, int direction, int frame)
@@ -388,10 +399,22 @@ public sealed partial class ClothingBodyFitSystem : EntitySystem
             return image;
         }
 
-        void Composite(Image<Rgba32> output, SpriteComponent.Layer layer, RSI.State rsi, int worldDirection, Matrix3x2 targetMatrix, int frame = 0)
+        void Composite(Image<Rgba32> output, SpriteComponent.Layer layer, RSI.State rsi, int worldDirection, Matrix3x2 targetMatrix,
+            int frame = 0, RSI.State? anatomyMap = null)
         {
             var direction = DirectionFor(layer, rsi, worldDirection);
             var image = Read(rsi, direction, frame);
+            if (anatomyMap != null)
+            {
+                var mapDirection = DirectionFor(layer, anatomyMap, worldDirection);
+                var nativeKey = (rsi, anatomyMap, direction, mapDirection);
+                if (!nativeFrames.TryGetValue(nativeKey, out var native))
+                {
+                    native = BodyFeatureDisplacementMap.Apply(image, Read(anatomyMap, mapDirection, 0));
+                    nativeFrames.Add(nativeKey, native);
+                }
+                image = native;
+            }
             var matrixDirection = rsi.RsiDirections == RsiDirectionType.Dir1 ? RsiDirection.South :
                 rsi.RsiDirections == RsiDirectionType.Dir4 ? ((RsiDirection) worldDirection).RoundToCardinal() : (RsiDirection) worldDirection;
             layer.GetLayerDrawMatrix(matrixDirection, out var matrix);

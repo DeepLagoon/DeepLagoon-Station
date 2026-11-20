@@ -117,6 +117,21 @@
   - type: Inventory
     speciesId: resomi
     displacements:
+      bodyFeatures:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/BodyCustomization/species_displacement.rsi
+            state: resomi
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _Moffstation/Mobs/Species/Resomi/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _Moffstation/Mobs/Species/Resomi/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:
@@ -178,6 +193,21 @@
             sprite: _Moffstation/Mobs/Species/Resomi/displacement.rsi
             state: belt
     femaleDisplacements:
+      bodyFeatures:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/BodyCustomization/species_displacement.rsi
+            state: resomi
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _Moffstation/Mobs/Species/Resomi/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _Moffstation/Mobs/Species/Resomi/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:
@@ -315,6 +345,21 @@
   - type: Inventory
     speciesId: resomi
     displacements:
+      bodyFeatures:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/BodyCustomization/species_displacement.rsi
+            state: resomi
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _Moffstation/Mobs/Species/Resomi/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _Moffstation/Mobs/Species/Resomi/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:
@@ -376,6 +421,21 @@
             sprite: _Moffstation/Mobs/Species/Resomi/displacement.rsi
             state: belt
     femaleDisplacements:
+      bodyFeatures:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/BodyCustomization/species_displacement.rsi
+            state: resomi
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _Moffstation/Mobs/Species/Resomi/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _Moffstation/Mobs/Species/Resomi/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:

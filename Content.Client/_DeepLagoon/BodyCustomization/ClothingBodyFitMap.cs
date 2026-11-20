@@ -13,7 +13,8 @@ namespace Content.Client._DeepLagoon.BodyCustomization;
 /// </summary>
 public static class ClothingBodyFitMap
 {
-    public readonly record struct Anatomy(Image<Rgba32> Shape, Image<Rgba32> Anchor, bool StretchVertically = true);
+    public readonly record struct Anatomy(Image<Rgba32> Shape, Image<Rgba32> Anchor, bool StretchVertically = true,
+        bool PartialCoverage = false);
 
     public readonly record struct Contour(Image<Rgba32> Shape, bool BelowWaist = false);
 
@@ -49,7 +50,7 @@ public static class ClothingBodyFitMap
         var contour = new Vector3[width * height];
         var hasContour = false;
         var patches = new List<(Vector2[] Rows, int Top, int Bottom, int AnchorTop, int AnchorBottom)>();
-        foreach (var (shape, anchor, stretchVertically) in anatomy)
+        foreach (var (shape, anchor, stretchVertically, partialCoverage) in anatomy)
         {
             var anchorPixels = anchor.GetPixelSpan();
             var shapePixels = shape.GetPixelSpan();
@@ -79,7 +80,11 @@ public static class ClothingBodyFitMap
                 { edgeTotal++; if (coverage[y * width + (int) row.Y] >= 128) edgeCovered++; }
             }
             // Use only the undeformed attachment, never a large part overlapping unrelated pants.
-            if (total == 0 || covered * 2 < total && (edgeTotal == 0 || edgeCovered * 2 < edgeTotal)) continue;
+            // Briefs and narrow bra straps deliberately cover only a small part of
+            // the attachment. Fit their existing fabric while preserving its cut-outs.
+            if (total == 0 || (partialCoverage
+                    ? covered == 0 && edgeCovered == 0
+                    : covered * 2 < total && (edgeTotal == 0 || edgeCovered * 2 < edgeTotal))) continue;
             if (contours != null)
             {
                 foreach (var detail in contours)

@@ -4,6 +4,16 @@
   components:
   - type: Inventory
     displacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:
@@ -28,6 +38,16 @@
             sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
             state: shoes
     maleDisplacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:
@@ -52,6 +72,16 @@
             sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
             state: shoes
     femaleDisplacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _White/Mobs/Species/displacement.rsi
+            state: jumpsuit
       jumpsuit:
         sizeMaps:
           32:
@@ -83,6 +113,16 @@
   components:
   - type: Inventory
     displacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-feroxi
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-feroxi
       shoes:
         sizeMaps:
           32:
@@ -107,6 +147,16 @@
             sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
             state: jumpsuit-hem
     maleDisplacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-feroxi
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-feroxi
       shoes:
         sizeMaps:
           32:
@@ -131,6 +181,16 @@
             sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
             state: jumpsuit-hem
     femaleDisplacements:
+      underwearbottom:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-feroxi
+      underweartop:
+        sizeMaps:
+          32:
+            sprite: _DeepLagoon/Mobs/Digitigrade/displacement.rsi
+            state: jumpsuit-feroxi
       shoes:
         sizeMaps:
           32:

@@ -146,6 +146,7 @@ public sealed partial class BodyCustomizationVisualizerSystem : EntitySystem
                 tailAnchor = key;
             }
         }
+        EntityManager.System<ClothingBodyFitSystem>().ApplyAnatomyDisplacement(uid, humanoid, sprite, layers);
         UpdateVisibility(uid, humanoid, sprite);
         EntityManager.System<ClothingBodyFitSystem>().Refresh(uid, humanoid, sprite);
     }
@@ -186,7 +187,7 @@ public sealed partial class BodyCustomizationVisualizerSystem : EntitySystem
         return insertion;
     }
 
-    private bool HasTorsoClothing(EntityUid uid)
+    internal bool HasTorsoClothing(EntityUid uid)
     {
         if (!TryComp<InventoryComponent>(uid, out var inventory)) return false;
         var slots = _inventory.GetSlotEnumerator((uid, inventory));
@@ -215,6 +216,7 @@ public sealed partial class BodyCustomizationVisualizerSystem : EntitySystem
 
     private void Clear(EntityUid uid)
     {
+        EntityManager.System<ClothingBodyFitSystem>().ClearAnatomyDisplacement(uid);
         if (!TryComp<SpriteComponent>(uid, out var sprite))
         { _layers.Remove(uid); _raisedHands.Remove(uid); return; }
         RestoreLayerOrder(uid, sprite);

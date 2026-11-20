@@ -18,6 +18,96 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class ClothingBodyFitIntegrationTests
 {
+    [TestCase(true, 1)]
+    [TestCase(false, 1)]
+    [TestCase(true, 2)]
+    [TestCase(false, 2)]
+    public async Task UnderwearFitsSelectedBreastsAndHipsAndRefreshesWithoutLeakingLayers(bool showThroughClothing, int visibility)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        TestContext.Progress.WriteLine($"Underwear fit ({showThroughClothing}, {visibility}): pair ready");
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            void Stage(string stage) => TestContext.Progress.WriteLine($"Underwear fit ({showThroughClothing}, {visibility}): {stage}; entities={entities.EntityCount}");
+            Stage("spawning fixtures");
+            var uid = entities.SpawnEntity("MobHumanDummy", MapCoordinates.Nullspace);
+            var top = entities.SpawnEntity("ClothingUnderTopBraLace", MapCoordinates.Nullspace);
+            var bottom = entities.SpawnEntity("ClothingUnderBottomFBriefs", MapCoordinates.Nullspace);
+            var uniform = entities.SpawnEntity("ClothingUniformJumpsuitEngineering", MapCoordinates.Nullspace);
+            var coat = entities.SpawnEntity("ClothingOuterCoatLab", MapCoordinates.Nullspace);
+            try
+            {
+                var appearance = entities.System<HumanoidAppearanceSystem>();
+                var inventory = entities.System<InventorySystem>();
+                var profile = HumanoidCharacterProfile.DefaultWithSpecies("Human").WithSex(Sex.Female);
+                foreach (var (part, size) in new[] { ("breasts", "j"), ("butt", "4") })
+                {
+                    var feature = BodyCustomizationCatalog.Default(part);
+                    feature.Enabled = true; feature.Size = size;
+                    feature.ShowThroughClothing = showThroughClothing; feature.Visibility = visibility;
+                    profile.Appearance.BodyFeatures.Add(feature);
+                }
+                Stage("loading initial profile");
+                appearance.LoadProfile(uid, profile);
+                Stage("equipping top");
+                Assert.That(inventory.TryEquip(uid, top, "underweartop", force: true), Is.True);
+                Stage("equipping bottom");
+                Assert.That(inventory.TryEquip(uid, bottom, "underwearbottom", force: true), Is.True);
+                Stage("underwear equipped");
+                var sprite = entities.GetComponent<SpriteComponent>(uid);
+                foreach (var slot in new[] { "underweartop", "underwearbottom" })
+                {
+                    Assert.That(sprite.LayerMapTryGet(slot + "-0-body-fit-source", out _), Is.True, slot);
+                    Assert.That(((SpriteComponent.Layer) sprite[sprite.LayerMapGet(slot + "-0")]).ShaderPrototype,
+                        Is.EqualTo("DeepLagoonClothingBodyFit"), slot);
+                }
+                Assert.That(sprite[sprite.LayerMapGet("dl-body/breasts/FRONT")].Visible, Is.True,
+                    "Underwear must retain the surrounding visible skin.");
+                Assert.That(sprite[sprite.LayerMapGet("dl-body/butt/FRONT")].Visible, Is.True);
+                var count = sprite.AllLayers.Count();
+                Stage("refreshing profile");
+                appearance.LoadProfile(uid, profile);
+                Stage("profile refreshed");
+                Assert.That(sprite.AllLayers.Count(), Is.EqualTo(count));
+                foreach (var (cover, coverSlot) in new[] { (uniform, "jumpsuit"), (coat, "outerClothing") })
+                {
+                    var exposedShader = ((SpriteComponent.Layer) sprite[sprite.LayerMapGet("underweartop-0")]).Shader;
+                    Stage("equipping " + coverSlot);
+                    Assert.That(inventory.TryEquip(uid, cover, coverSlot, force: true), Is.True);
+                    Stage("equipped " + coverSlot);
+                    foreach (var slot in new[] { "underweartop", "underwearbottom" })
+                    {
+                        Assert.That(sprite.LayerMapTryGet(slot + "-0-body-fit-source", out _),
+                            Is.EqualTo(showThroughClothing && visibility == 1), slot + " must follow the covering outfit's silhouette.");
+                    }
+                    Assert.That(((SpriteComponent.Layer) sprite[sprite.LayerMapGet("underweartop-0")]).Shader,
+                        Is.Not.SameAs(exposedShader), "Adding a covering outfit must refit existing underwear.");
+                    Stage("removing " + coverSlot);
+                    Assert.That(inventory.TryUnequip(uid, coverSlot, force: true, reparent: false), Is.True);
+                    Stage("removed " + coverSlot);
+                    Assert.That(sprite.LayerMapTryGet("underweartop-0-body-fit-source", out _), Is.True);
+                    Assert.That(sprite.LayerMapTryGet("underwearbottom-0-body-fit-source", out _), Is.True);
+                    Assert.That(sprite.AllLayers.Count(), Is.EqualTo(count));
+                }
+                foreach (var slot in new[] { "underweartop", "underwearbottom" })
+                {
+                    Stage("removing " + slot);
+                    Assert.That(inventory.TryUnequip(uid, slot, force: true, reparent: false), Is.True);
+                    Assert.That(sprite.LayerMapTryGet(slot + "-0-body-fit-source", out _), Is.False);
+                }
+            }
+            finally
+            {
+                Stage("deleting fixtures");
+                entities.DeleteEntity(uid); entities.DeleteEntity(top); entities.DeleteEntity(bottom); entities.DeleteEntity(uniform); entities.DeleteEntity(coat);
+                Stage("fixtures deleted");
+            }
+        });
+        TestContext.Progress.WriteLine($"Underwear fit ({showThroughClothing}, {visibility}): returning pair");
+        await pair.CleanReturnAsync();
+    }
+
     [TestCase("Human")]
     [TestCase("Synth")]
     public async Task EveryBodyFeatureKeepsItsBareSpriteHiddenUnderClothing(string species)

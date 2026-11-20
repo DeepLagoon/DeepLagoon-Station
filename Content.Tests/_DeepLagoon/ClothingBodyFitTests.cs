@@ -11,7 +11,7 @@ using SixLabors.ImageSharp.Processing;
 namespace Content.Tests._DeepLagoon;
 
 [TestFixture]
-public sealed class ClothingBodyFitTests
+public sealed partial class ClothingBodyFitTests
 {
     [TestCase(false, false)]
     [TestCase(false, true)]

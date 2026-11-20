@@ -288,7 +288,13 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
         // Check to prevent sprite scale errors for old profiles
         var width = profile.Appearance.Width <= 0.005f ? 1.0f : profile.Appearance.Width;
         var height = profile.Appearance.Height <= 0.005f ? 1.0f : profile.Appearance.Height;
-        sprite.Scale = new Vector2(width, height);
+        var scale = new Vector2(width, height);
+        // Default runtime profiles retain the playable mob's authored scale. Dummies
+        // can have a different base scale, so use the species prototype for previews.
+        if (scale == Vector2.One &&
+            _prototypeManager.Index(speciesPrototype.Prototype).TryGetComponent<SpriteComponent>(out var nativeSprite))
+            scale = nativeSprite.Scale;
+        sprite.Scale = scale;
 
         UpdateSprite(humanoid, Comp<SpriteComponent>(uid));
     }
