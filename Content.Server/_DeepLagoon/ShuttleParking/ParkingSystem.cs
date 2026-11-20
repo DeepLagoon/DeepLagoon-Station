@@ -160,7 +160,7 @@ public sealed partial class ParkingSystem : EntitySystem
         if (!Exists(console) || !Exists(actor) || !TryComp<ActorComponent>(actor, out var session)
             || !TryComp<ParkingConsoleComponent>(console, out var comp) || comp.Card.Item is not { } card
             || TryComp<Content.Server.Power.Components.ApcPowerReceiverComponent>(console, out var power) && !power.Powered
-            || !TryComp<IdCardComponent>(card, out var id) || id.FullName?.Trim() != Name(actor).Trim()
+            || !HasComp<IdCardComponent>(card)
             || !_interaction.InRangeUnobstructed(actor, console) || !_preferences.TryGetCachedPreferences(session.PlayerSession.UserId, out var prefs)
             || prefs.SelectedCharacter is not HumanoidCharacterProfile) return null;
         return new(console, actor, card, session.PlayerSession, prefs.SelectedCharacterIndex);

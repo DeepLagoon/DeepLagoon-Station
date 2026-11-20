@@ -1,5 +1,6 @@
 using Content.Shared.Access.Systems;
 using Content.Shared.Containers.ItemSlots;
+using Content.Shared.Preferences;
 using Robust.Shared.GameStates;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
@@ -11,7 +12,7 @@ namespace Content.Shared.Access.Components;
 [Access(typeof(SharedIdCardConsoleSystem))]
 public sealed partial class IdCardConsoleComponent : Component
 {
-    public const int MaxFullNameLength = 30;
+    public const int MaxFullNameLength = HumanoidCharacterProfile.MaxNameLength;
     public const int MaxJobTitleLength = 30;
 
     public static string PrivilegedIdCardSlotId = "IdCardConsole-privilegedId";
