@@ -33,11 +33,36 @@ public sealed partial class ApartmentSystem
     private void RegisterMapFurniture(Instance instance)
     {
         instance.Shell = ApartmentShell(instance);
+        var elevatorWalls = ElevatorWallCells(instance);
+        // Older snapshots may have registered these structural walls as furniture.
+        // Keep their entities in the fixed scene, outside the selectable layout.
+        foreach (var (id, mapped) in instance.MapFurniture.ToArray())
+        {
+            if (!elevatorWalls.Contains(new Vector2i(mapped.Baseline.X, mapped.Baseline.Y)) ||
+                !instance.Furniture.TryGetValue(id, out var entity) || !Exists(entity) || !_tags.HasTag(entity, "Wall")) continue;
+            var transform = Transform(entity);
+            if (transform.ParentUid != instance.Grid || !transform.Anchored ||
+                transform.LocalPosition != new Vector2(mapped.Baseline.X + .5f, mapped.Baseline.Y + .5f) ||
+                MathF.Abs((float) transform.LocalRotation.Degrees - mapped.Baseline.Rotation * 90) > .01f)
+                MoveMapFurniture(instance, mapped.Baseline);
+            instance.MapFurniture.Remove(id);
+            instance.Furniture.Remove(id);
+            RemComp<ApartmentFurnitureIdentityComponent>(entity);
+            ForgetFixedFurnitureChanges(instance, id);
+        }
         var children = Transform(instance.Grid).ChildEnumerator;
         while (children.MoveNext(out var uid))
         {
             var transform = Transform(uid);
             var cell = new Vector2i((int) MathF.Floor(transform.LocalPosition.X), (int) MathF.Floor(transform.LocalPosition.Y));
+            if (elevatorWalls.Contains(cell) && _tags.HasTag(uid, "Wall"))
+            {
+                // Layout-only saves still refer to authored map IDs. A fixed wall
+                // no longer has an editable baseline for Resolve to apply them to.
+                if (TryComp<YamlUidComponent>(uid, out var wallYaml))
+                    ForgetFixedFurnitureChanges(instance, "map_" + wallYaml.Uid);
+                continue;
+            }
             // The visit owns temporary equipment; it must never become persistent furniture.
             if (HasComp<ApartmentChameleonGearComponent>(uid) || HasComp<ApartmentFurnitureIdentityComponent>(uid) ||
                 HasComp<ApartmentElevatorComponent>(uid) || HasComp<ActorComponent>(uid) ||
@@ -61,6 +86,33 @@ public sealed partial class ApartmentSystem
             var identity = EnsureComp<ApartmentFurnitureIdentityComponent>(uid);
             identity.Id = identity.Furniture = id;
         }
+    }
+
+    private static void ForgetFixedFurnitureChanges(Instance instance, string id)
+    {
+        instance.Delta.Changed.RemoveAll(placement => placement.Id == id);
+        instance.Delta.Removed.Remove(id);
+        instance.Delta.PurchasedPlacements.Remove(id);
+    }
+
+    private HashSet<Vector2i> ElevatorWallCells(Instance instance)
+    {
+        var cells = new HashSet<Vector2i>();
+        var children = Transform(instance.Grid).ChildEnumerator;
+        while (children.MoveNext(out var uid))
+        {
+            if (!TryComp<ApartmentElevatorComponent>(uid, out var cabin)) continue;
+            var panel = Transform(uid);
+            // Cabin bounds describe passenger tile centers; the surrounding row
+            // includes the side walls and the two wall sections beside the door.
+            for (var x = (int) MathF.Floor(cabin.CabinMin.X) - 1; x <= MathF.Ceiling(cabin.CabinMax.X) + 1; x++)
+            for (var y = (int) MathF.Floor(cabin.CabinMin.Y) - 1; y <= MathF.Ceiling(cabin.CabinMax.Y) + 1; y++)
+            {
+                var position = panel.LocalPosition + panel.LocalRotation.RotateVec(new Vector2(x, y));
+                cells.Add(new Vector2i((int) MathF.Floor(position.X), (int) MathF.Floor(position.Y)));
+            }
+        }
+        return cells;
     }
 
     private void MoveMapFurniture(Instance instance, ApartmentPlacement placement)

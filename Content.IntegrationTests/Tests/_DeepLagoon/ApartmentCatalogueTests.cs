@@ -13,6 +13,7 @@ using Content.Shared._DeepLagoon.Mapping;
 using Content.Shared.Atmos;
 using Content.Shared.Buckle.Components;
 using Content.Shared.NPC.Components;
+using Content.Shared.Tag;
 using Content.Shared.Weapons.Melee;
 using Content.Shared.Weapons.Ranged.Components;
 using Robust.Shared.EntitySerialization.Systems;
@@ -70,9 +71,103 @@ public sealed class ApartmentCatalogueTests
                 var body = entities.SpawnEntity("MobHuman", new EntityCoordinates(home.Grid, new Vector2(template.Arrival.X + .5f, template.Arrival.Y + .5f)));
                 Assert.That(typeof(ApartmentElevatorSystem).GetMethod("Inside", Private)!.Invoke(elevator, new object[] { body, panel }), Is.True, id);
                 Assert.That(typeof(ApartmentElevatorSystem).GetMethod("CabinDoors", Private)!.Invoke(elevator, new object[] { panel }), Is.Not.Null, id);
+                var cabin = entities.GetComponent<ApartmentElevatorComponent>(panel);
+                var origin = entities.GetComponent<TransformComponent>(panel);
+                var tags = entities.System<TagSystem>();
+                var scene = (ApartmentRoomScene) typeof(ApartmentSystem).GetMethod("CaptureRoom", Private)!.Invoke(system, new object[] { home })!;
+                var wallCount = 0;
+                var children = entities.GetComponent<TransformComponent>(home.Grid).ChildEnumerator;
+                while (children.MoveNext(out var wall))
+                {
+                    if (!tags.HasTag(wall, "Wall")) continue;
+                    var transform = entities.GetComponent<TransformComponent>(wall);
+                    var offset = (-origin.LocalRotation).RotateVec(transform.LocalPosition - origin.LocalPosition);
+                    if (offset.X < cabin.CabinMin.X - 1.01f || offset.X > cabin.CabinMax.X + 1.01f ||
+                        offset.Y < cabin.CabinMin.Y - 1.01f || offset.Y > cabin.CabinMax.Y + 1.01f) continue;
+                    wallCount++;
+                    Assert.That(home.Furniture.Values, Does.Not.Contain(wall), id + ": elevator walls must not be selectable.");
+                    Assert.That(scene.Objects.Any(item => item.Id == "e:" + entities.GetNetEntity(wall)), Is.True,
+                        id + ": elevator walls must remain visible in the fixed scene.");
+                }
+                Assert.That(wallCount, Is.GreaterThanOrEqualTo(2), id);
                 entities.DeleteEntity(body);
                 entities.DeleteEntity(home.Grid);
             }
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task LegacyElevatorWallOverridesMovedAndStoredWallsBecomeFixedSceneObjects()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var apartments = entities.System<ApartmentSystem>();
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
+            typeof(ApartmentSystem).GetMethod("EnsureMaps", Private)!.Invoke(apartments, null);
+            var home = (ApartmentSystem.Instance) typeof(ApartmentSystem).GetMethod("CreateFresh", Private)!
+                .Invoke(apartments, new object[] { new NetUserId(Guid.NewGuid()), "DLApartmentSmall", true })!;
+            var walls = new Dictionary<Vector2i, EntityUid>();
+            var children = entities.GetComponent<TransformComponent>(home.Grid).ChildEnumerator;
+            var tags = entities.System<TagSystem>();
+            while (children.MoveNext(out var entity))
+            {
+                if (!tags.HasTag(entity, "Wall")) continue;
+                var position = entities.GetComponent<TransformComponent>(entity).LocalPosition;
+                walls[new Vector2i((int) MathF.Floor(position.X), (int) MathF.Floor(position.Y))] = entity;
+            }
+
+            var baselineCell = new Vector2i(1, 5);
+            var storedWall = walls[baselineCell];
+            var id = "map_" + entities.GetComponent<Robust.Shared.EntitySerialization.Components.YamlUidComponent>(storedWall).Uid;
+            var baseline = new ApartmentPlacement { Id = id, Furniture = id, X = baselineCell.X, Y = baselineCell.Y };
+            home.MapFurniture.Add(id, new ApartmentMapFurniture { Baseline = baseline, Prototype = "WallPlastitaniumIndestructible" });
+            home.Furniture.Add(id, storedWall);
+            var identity = entities.AddComponent<ApartmentFurnitureIdentityComponent>(storedWall);
+            identity.Id = identity.Furniture = id;
+            typeof(ApartmentSystem).GetMethod("StoreFurniture", Private)!.Invoke(apartments, new object[] { home, storedWall });
+            home.Delta.Removed.Add(id);
+            var otherWall = walls[new Vector2i(3, 5)];
+            var changedId = "map_" + entities.GetComponent<Robust.Shared.EntitySerialization.Components.YamlUidComponent>(otherWall).Uid;
+            var movedBaseline = new ApartmentPlacement { Id = changedId, Furniture = changedId, X = 3, Y = 5 };
+            home.MapFurniture.Add(changedId, new ApartmentMapFurniture { Baseline = movedBaseline, Prototype = "WallPlastitaniumIndestructible" });
+            home.Furniture.Add(changedId, otherWall);
+            var movedIdentity = entities.AddComponent<ApartmentFurnitureIdentityComponent>(otherWall);
+            movedIdentity.Id = movedIdentity.Furniture = changedId;
+            var transforms = entities.System<SharedTransformSystem>();
+            transforms.Unanchor(otherWall);
+            transforms.SetCoordinates(otherWall, new EntityCoordinates(home.Grid, new Vector2(6.5f, 3.5f)));
+            transforms.AnchorEntity(otherWall);
+            home.Delta.Changed.Add(new ApartmentPlacement { Id = changedId, Furniture = changedId, X = 6, Y = 3 });
+
+            typeof(ApartmentSystem).GetMethod("RegisterMapFurniture", Private)!.Invoke(apartments, new object[] { home });
+            Assert.That(home.Furniture.Values, Does.Not.Contain(storedWall));
+            Assert.That(home.MapFurniture.ContainsKey(id), Is.False);
+            Assert.That(entities.HasComponent<ApartmentFurnitureIdentityComponent>(storedWall), Is.False);
+            var transform = entities.GetComponent<TransformComponent>(storedWall);
+            Assert.That(transform.ParentUid, Is.EqualTo(home.Grid));
+            Assert.That(transform.LocalPosition, Is.EqualTo(new Vector2(1.5f, 5.5f)));
+            Assert.That(transform.Anchored, Is.True);
+            var movedTransform = entities.GetComponent<TransformComponent>(otherWall);
+            Assert.That(movedTransform.LocalPosition, Is.EqualTo(new Vector2(3.5f, 5.5f)));
+            Assert.That(movedTransform.Anchored, Is.True);
+            Assert.That(home.Furniture.Values, Does.Not.Contain(otherWall));
+            Assert.That(home.MapFurniture.ContainsKey(changedId), Is.False);
+            Assert.That(entities.HasComponent<ApartmentFurnitureIdentityComponent>(otherWall), Is.False);
+            var scene = (ApartmentRoomScene) typeof(ApartmentSystem).GetMethod("CaptureRoom", Private)!.Invoke(apartments, new object[] { home })!;
+            Assert.That(scene.Objects.Any(item => item.Id == "e:" + entities.GetNetEntity(storedWall)), Is.True);
+            Assert.That(scene.Objects.Any(item => item.Id == "e:" + entities.GetNetEntity(otherWall)), Is.True);
+            Assert.That(home.Delta.Changed.Any(item => item.Id == changedId), Is.False);
+            // The same stale override can arrive without snapshot furniture metadata.
+            home.Delta.Changed.Add(new ApartmentPlacement { Id = changedId, Furniture = changedId, X = 6, Y = 3 });
+            typeof(ApartmentSystem).GetMethod("RegisterMapFurniture", Private)!.Invoke(apartments, new object[] { home });
+            Assert.That(home.Furniture.Values, Does.Not.Contain(otherWall), "Reopening the editor must not register the moved wall again.");
+            Assert.That(home.Delta.Removed, Does.Not.Contain(id));
+            Assert.That(home.Delta.Changed.Any(item => item.Id == changedId), Is.False);
+            Assert.DoesNotThrow(() => ApartmentLayout.Resolve(home.Template, home.Delta, home.MapFurniture.Values.Select(item => item.Baseline)));
+            entities.DeleteEntity(home.Grid);
         });
         await pair.CleanReturnAsync();
     }
