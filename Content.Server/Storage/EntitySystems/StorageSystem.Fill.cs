@@ -41,7 +41,7 @@ public sealed partial class StorageSystem
 
         var coordinates = Transform(uid).Coordinates;
 
-        var spawnItems = EntitySpawnCollection.GetSpawns(component.Contents, Random);
+        var spawnItems = GetCompatibleWeaponCrateSpawns(uid, component);
 
         var items = new List<Entity<ItemComponent>>();
         foreach (var spawnPrototype in spawnItems)
@@ -96,7 +96,7 @@ public sealed partial class StorageSystem
 
         var coordinates = Transform(uid).Coordinates;
 
-        var spawnItems = EntitySpawnCollection.GetSpawns(component.Contents, Random);
+        var spawnItems = GetCompatibleWeaponCrateSpawns(uid, component);
         foreach (var item in spawnItems)
         {
             // No, you are not allowed to fill a container with entity spawners.
@@ -118,5 +118,68 @@ public sealed partial class StorageSystem
             Log.Error($"Tried to StorageFill {item} inside {ToPrettyString(uid)} but can't.");
             Del(ent);
         }
+    }
+
+    /// <summary>
+    /// Down-tier complete armory crate sets on expeditions, including their visible name.
+    /// The original crate entity (security/access, position, grid) is preserved.
+    /// Ordinary non-expedition crates retain their prototype contents and names.
+    /// </summary>
+    private List<string> GetCompatibleWeaponCrateSpawns(EntityUid uid, StorageFillComponent component)
+    {
+        var id = MetaData(uid).EntityPrototype?.ID;
+        var isSmg = id is "CrateArmorySMG" or "CrateArmorySMGExpedition" or "CrateArmorySMGNfsd";
+        var isShotgun = id is "CrateArmoryShotgun" or "CrateArmoryShotgunExpedition" or "CrateArmoryShotgunNfsd";
+
+        if ((!isSmg && !isShotgun) || !_expeditionLoot.TryGetOrigin(uid, out var origin))
+            return EntitySpawnCollection.GetSpawns(component.Contents, Random);
+
+        var expedition = id is "CrateArmorySMGExpedition" or "CrateArmoryShotgunExpedition";
+        var nfsd = id is "CrateArmorySMGNfsd" or "CrateArmoryShotgunNfsd";
+
+        // Choose the displayed crate category AND the actual weapon/ammo bundle together.
+        // Only downgrade on expeditions; T3 SMG still contains WT550s.
+        var displayId = id!;
+        var contentsId = id!;
+
+        if (origin.MaximumTier < 2)
+        {
+            displayId = expedition ? "CrateArmoryPistolsExpedition"
+                : nfsd ? "CrateArmoryPistolsNfsd" : "CrateArmoryPistols";
+            // Use the expedition pistol bundle for every variant: Mk58 + .45 ACP mags.
+            // The TSFMC pistol crate prototype currently uses incompatible 9mm mags.
+            contentsId = "CrateArmoryPistolsExpedition";
+        }
+        else if (isSmg && origin.MaximumTier < 3 ||
+                 isShotgun && origin.MaximumTier < 4 && !expedition)
+        {
+            if (isSmg)
+                displayId = expedition ? "CrateArmoryShotgunExpedition"
+                    : nfsd ? "CrateArmoryShotgunNfsd" : "CrateArmoryShotgun";
+
+            // Kammerer + 12 gauge, never Enforcer or an unrelated rifle.
+            contentsId = "CrateArmoryShotgunExpedition";
+        }
+
+        if (contentsId == id)
+            return EntitySpawnCollection.GetSpawns(component.Contents, Random);
+
+        var displayPrototype = _prototype.Index<EntityPrototype>(displayId);
+        var contentsPrototype = _prototype.Index<EntityPrototype>(contentsId);
+        if (!contentsPrototype.TryGetComponent<StorageFillComponent>(out var fill))
+        {
+            Log.Error($"Expedition armory crate {contentsId} is missing StorageFill.");
+            return EntitySpawnCollection.GetSpawns(component.Contents, Random);
+        }
+
+        var meta = EntityManager.System<MetaDataSystem>();
+        // EntityPrototype.Name is already localized, unlike a hard-coded string.
+        meta.SetEntityName(uid, displayPrototype.Name);
+        meta.SetEntityDescription(uid,
+            contentsId == "CrateArmoryShotgunExpedition"
+                ? contentsPrototype.Description
+                : displayPrototype.Description);
+
+        return EntitySpawnCollection.GetSpawns(fill.Contents, Random);
     }
 }
