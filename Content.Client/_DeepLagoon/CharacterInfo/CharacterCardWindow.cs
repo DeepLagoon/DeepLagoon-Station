@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Linq;
+using Content.Client._DeepLagoon.InteractionPanel;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Client.UserInterface.Controls;
 using Robust.Client.UserInterface;
@@ -13,7 +14,8 @@ public sealed class CharacterCardWindow : FancyWindow
     private readonly EntityUid _entity;
     private readonly int _slot;
     private readonly TguiPanel _panel = new();
-    private readonly SpriteView _sprite = new() { Stretch = SpriteView.StretchMode.Fill, OverrideDirection = Direction.South, MouseFilter = MouseFilterMode.Ignore };
+    // Clothing masks must render offscreen, without changing the world's render state.
+    private readonly InteractionPanelSpriteView _sprite = new() { Stretch = SpriteView.StretchMode.Fill, OverrideDirection = Direction.South, MouseFilter = MouseFilterMode.Ignore };
     private static readonly Direction[] Directions = { Direction.South, Direction.West, Direction.North, Direction.East };
     private int _direction;
     private readonly CardHost _host;
