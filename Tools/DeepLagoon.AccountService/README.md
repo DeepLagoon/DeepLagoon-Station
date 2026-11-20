@@ -10,6 +10,11 @@ directory remain read-only for the service account.
 
 The Bot still checks the configured guild, registrar/host roles and WL ticket
 context. LC remains restricted to its exact existing LC management role.
+Whitelist review links accounts through HWID and Discord history. A shared IP
+alone neither blocks admission nor includes that account in related-account or
+whitelist-history results, even when it is banned. Direct bans and bans linked
+through HWID or Discord history still block admission. Deploy this service update
+before the matching Bot update; updating Bot alone cannot remove the old IP gate.
 The service also requires a linked, active game HOST for LC/history, privileged
 economy operations, and host-authorized WL removal. A claimed `host_authorized`
 value alone is insufficient. Suspended/deadminned actors are rejected. Independent

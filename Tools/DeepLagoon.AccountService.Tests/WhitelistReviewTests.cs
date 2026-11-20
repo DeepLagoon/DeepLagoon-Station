@@ -53,26 +53,33 @@ public sealed partial class AccountServiceTests
     }
 
     [Test]
-    public async Task WhitelistReviewRequiresActualGameHostForAddressOnlyMatch()
+    public async Task WhitelistReviewAllowsAddressOnlyMatchWithoutHostAndExcludesRelatedAccounts()
     {
         await using var db = _settings.OpenDatabase();
         await RecordRelatedBan(db, sharedAddress: true, matchingHardwareType: false);
         db.Whitelist.Add(new Whitelist { UserId = _other });
         await db.SaveChangesAsync();
-        var blocked = await Call("whitelist", new { discord_id = Target });
-        Assert.That(blocked.Status, Is.EqualTo(HttpStatusCode.Conflict), blocked.Body.ToString());
-        Assert.That(blocked.Body.GetProperty("error").GetString(), Is.EqualTo("whitelist_shared_ip_review"));
-        var review = blocked.Body.GetProperty("review");
+        var checkedResult = await Call("whitelist_check", new { discord_id = Target, include_accounts = true });
+        Assert.That(checkedResult.Status, Is.EqualTo(HttpStatusCode.OK), checkedResult.Body.ToString());
+        var review = checkedResult.Body.GetProperty("review");
         Assert.That(review.GetProperty("hwid_match").GetBoolean(), Is.False);
         Assert.That(review.GetProperty("ip_match").GetBoolean(), Is.True);
-        Assert.That(review.GetProperty("related_whitelist").GetBoolean(), Is.True);
-        Assert.That((await Call("whitelist", new
-            { discord_id = Target, accept_shared_ip = true, host_authorized = true, actor_discord_id = Target })).Status,
-            Is.EqualTo(HttpStatusCode.Forbidden));
+        Assert.That(review.GetProperty("active_ban").GetBoolean(), Is.False);
+        Assert.That(review.GetProperty("shared_ip_ban").GetBoolean(), Is.True);
+        Assert.That(review.GetProperty("related_whitelist").GetBoolean(), Is.False);
+        Assert.That(review.GetProperty("related_uids").GetArrayLength(), Is.Zero);
+        Assert.That(review.GetProperty("related_accounts").GetArrayLength(), Is.Zero);
+        var added = await Call("whitelist", new { discord_id = Target });
+        Assert.That(added.Status, Is.EqualTo(HttpStatusCode.OK), added.Body.ToString());
+        Assert.That(await db.Whitelist.AnyAsync(w => w.UserId == _user), Is.True);
+
+        await db.Whitelist.Where(w => w.UserId == _user).ExecuteDeleteAsync();
+        db.Ban.Add(new ServerBan { PlayerUserId = _user, Reason = "Direct ban", BanTime = DateTime.UtcNow });
+        await db.SaveChangesAsync();
+        var blocked = await Call("whitelist", new { discord_id = Target });
+        Assert.That(blocked.Status, Is.EqualTo(HttpStatusCode.Conflict), blocked.Body.ToString());
+        Assert.That(blocked.Body.GetProperty("error").GetString(), Is.EqualTo("whitelist_active_ban"));
         Assert.That(await db.Whitelist.AnyAsync(w => w.UserId == _user), Is.False);
-        Assert.That((await Call("whitelist", new
-            { discord_id = Target, accept_shared_ip = true, host_authorized = true, actor_discord_id = Actor })).Status,
-            Is.EqualTo(HttpStatusCode.OK));
     }
 
     [Test]
@@ -92,8 +99,9 @@ public sealed partial class AccountServiceTests
         Assert.That(report.Status, Is.EqualTo(HttpStatusCode.OK), report.Body.ToString());
         var accounts = report.Body.GetProperty("review").GetProperty("related_accounts").EnumerateArray()
             .ToDictionary(row => row.GetProperty("uid").GetGuid());
-        Assert.That(accounts[addressOnly].GetProperty("ip_match").GetBoolean(), Is.True);
-        Assert.That(accounts[addressOnly].GetProperty("hwid_match").GetBoolean(), Is.False);
+        Assert.That(accounts.ContainsKey(addressOnly), Is.False);
+        Assert.That(report.Body.GetProperty("review").GetProperty("related_uids").EnumerateArray()
+            .Any(row => row.GetGuid() == addressOnly), Is.False);
         Assert.That(accounts[_other].GetProperty("ip_match").GetBoolean(), Is.False);
         Assert.That(accounts[_other].GetProperty("hwid_match").GetBoolean(), Is.True);
 

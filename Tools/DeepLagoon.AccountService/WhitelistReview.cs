@@ -78,9 +78,7 @@ public sealed partial class AccountOperations
                 AND NOT EXISTS (SELECT 1 FROM server_unban u WHERE u.ban_id=b.server_ban_id)
             ), historical_lookup AS (
                 SELECT user_id FROM (SELECT user_id FROM hardware_users ORDER BY user_id LIMIT 100) hw
-                UNION SELECT user_id FROM (SELECT user_id FROM address_users ORDER BY user_id LIMIT 100) ip
                 UNION SELECT user_id FROM hardware_users WHERE user_id IN ({{linked}})
-                UNION SELECT user_id FROM address_users WHERE user_id IN ({{linked}})
             )
             SELECT EXISTS (SELECT 1 FROM target),
                    EXISTS (SELECT 1 FROM hardware_users),
@@ -90,15 +88,14 @@ public sealed partial class AccountOperations
                            OR EXISTS (SELECT 1 FROM target_hardware h WHERE h.hwid=b.hwid AND h.hwid_type=b.hwid_type)),
                    EXISTS (SELECT 1 FROM active_bans b WHERE b.player_user_id IN (SELECT user_id FROM address_users)),
                    EXISTS (SELECT 1 FROM whitelist w WHERE w.user_id<>@uid
-                           AND (w.user_id IN ({{linked}}) OR w.user_id IN (SELECT user_id FROM hardware_users)
-                                OR w.user_id IN (SELECT user_id FROM address_users))),
+                           AND (w.user_id IN ({{linked}}) OR w.user_id IN (SELECT user_id FROM hardware_users))),
                    h.user_id,
                    EXISTS (SELECT 1 FROM address_users ip WHERE ip.user_id=h.user_id),
                    EXISTS (SELECT 1 FROM hardware_users hw WHERE hw.user_id=h.user_id)
             FROM (SELECT 1) flags LEFT JOIN historical_lookup h ON TRUE
             """;
-        // The limit above only bounds the bot's historical audit lookup. Ban and current
-        // whitelist checks use all matches, including addresses shared by many accounts.
+        // IP is informational only. Related accounts, whitelist history and blocking
+        // bans use HWID or Discord history; a shared address does not link accounts.
         var matches = new Dictionary<Guid, (bool Address, bool Hardware)>();
         WhitelistReview findings;
         await using (var rows = await command.ExecuteReaderAsync(cancel))

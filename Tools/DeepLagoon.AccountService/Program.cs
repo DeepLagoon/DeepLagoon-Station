@@ -317,8 +317,6 @@ public sealed partial class AccountOperations(ServiceSettings settings) : IDispo
             }
             if (review is { ActiveBan: true })
                 throw new WhitelistReviewRequired("whitelist_active_ban", review);
-            if (review is { SharedAddressBan: true } && !request.AcceptSharedIp)
-                throw new WhitelistReviewRequired("whitelist_shared_ip_review", review);
             if (action == "remove_whitelist" && !request.HostAuthorized &&
                 await db.Admin.AnyAsync(a => a.UserId == target.Uid, cancel))
                 throw new AccountError("admin_protected", 403);
