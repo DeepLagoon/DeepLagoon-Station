@@ -189,7 +189,7 @@ public sealed partial class TguiSpriteImages
         {
             // Prototypes already deserialize sprite layers. Starting arbitrary
             // catalogue entities also starts their gameplay systems and can fail.
-            result.AddRange(SpriteImages(sprite));
+            result.AddRange(ItemSpriteImages(prototypes.Index<EntityPrototype>(id), sprite));
         }
         _items[id] = result;
         return result;

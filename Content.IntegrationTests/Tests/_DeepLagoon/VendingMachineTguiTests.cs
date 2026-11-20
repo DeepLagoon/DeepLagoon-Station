@@ -4,8 +4,12 @@ using System.Linq;
 using System.Text.Json;
 using Content.Client._DeepLagoon.VendingMachines;
 using Content.Client.VendingMachines;
+using Content.Client._DeepLagoon.WebUI;
+using Content.Shared.Chemistry.Reagent;
+using Content.Shared.Labels.Components;
 using Content.Shared.VendingMachines;
 using Robust.Shared.GameObjects;
+using Robust.Shared.Localization;
 using Robust.Shared.Prototypes;
 
 namespace Content.IntegrationTests.Tests._DeepLagoon;
@@ -13,6 +17,47 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class VendingMachineTguiTests
 {
+    [Test]
+    public async Task ChemVendShowsReagentLabelsAndColoredFullJugs()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var entities = pair.Client.EntMan;
+            var prototypes = pair.Client.ResolveDependency<IPrototypeManager>();
+            var pack = prototypes.Index<VendingMachineInventoryPrototype>("ChemVendInventory");
+            var inventory = pack.StartingInventory.Select(entry =>
+                new VendingMachineInventoryEntry(InventoryType.Regular, entry.Key, entry.Value)).ToList();
+            var count = entities.EntityCount;
+            var catalogue = new VendingMachineTguiData(entities);
+            using var metadata = JsonDocument.Parse(catalogue.BuildStatic(inventory, 1f, false));
+            using var icons = JsonDocument.Parse(catalogue.BuildIcons(inventory.Select(entry => entry.ID)));
+            var images = icons.RootElement.GetProperty("data").GetProperty("iconBatch").GetProperty("icons").EnumerateArray()
+                .ToDictionary(icon => icon.GetProperty("id").GetString()!);
+            foreach (var item in metadata.RootElement.GetProperty("items").EnumerateArray())
+            {
+                var id = item.GetProperty("id").GetString()!;
+                var prototype = prototypes.Index<EntityPrototype>(id);
+                var layers = images[id].GetProperty("layers").EnumerateArray().ToArray();
+                if (id == "Jug")
+                {
+                    Assert.That(item.GetProperty("name").GetString(), Is.EqualTo(prototype.Name));
+                    Assert.That(layers, Has.Length.EqualTo(1), "The empty jug must stay empty.");
+                    continue;
+                }
+                Assert.That(prototype.TryGetComponent<LabelComponent>(out var label), Is.True, id);
+                Assert.That(item.GetProperty("name").GetString(), Is.EqualTo(
+                    Loc.GetString("comp-label-format", ("baseName", prototype.Name), ("label", Loc.GetString(label!.CurrentLabel!)))), id);
+                Assert.That(layers, Has.Length.EqualTo(2), id);
+                var reagent = prototypes.Index<ReagentPrototype>(id.Substring(3));
+                Assert.That(layers[1].GetProperty("color").GetString(), Is.EqualTo(reagent.SubstanceColor.ToHexNoAlpha()), id);
+                Assert.That(layers[1].GetProperty("url").GetString(), Does.StartWith("data:image/png;base64,"), id);
+            }
+            Assert.That(entities.EntityCount, Is.EqualTo(count));
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task VendingCataloguesAndIconsDoNotSpawnGameplayEntities()
     {

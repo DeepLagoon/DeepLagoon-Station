@@ -3,6 +3,7 @@ using System.Linq;
 using Content.Client._DeepLagoon.WebUI;
 using Content.Client.VendingMachines;
 using Content.Shared._NF.Bank;
+using Content.Shared.Labels.Components;
 using Content.Shared.VendingMachines;
 using Robust.Shared.Prototypes;
 
@@ -28,7 +29,7 @@ public sealed class VendingMachineTguiData(IEntityManager entities)
 
             var price = requiresCash ? entry.Price ?? VendingMachinePricing.GetPrice(prototype, modifier, _prototypes, entities) : 0;
             items.Add(new TguiData().String("key", Key(entry)).String("id", entry.ID).Number("type", (int) entry.Type)
-                .String("name", prototype.Name).String("description", prototype.Description)
+                .String("name", ItemName(prototype)).String("description", prototype.Description)
                 .Number("price", price).String("priceText", price == 0 ? Loc.GetString("dl-vending-free") : BankSystemExtensions.ToSpesoString(price))
                 .String("code", SlotCode(items.Count)));
         }
@@ -40,6 +41,15 @@ public sealed class VendingMachineTguiData(IEntityManager entities)
             labels.String(key, Loc.GetString("dl-vending-" + key));
 
         return new TguiData().Array("items", items).Object("labels", labels).ToString();
+    }
+
+    private static string ItemName(EntityPrototype prototype)
+    {
+        if (!prototype.TryGetComponent<LabelComponent>(out var label) || string.IsNullOrEmpty(label.CurrentLabel))
+            return prototype.Name;
+
+        var text = Loc.TryGetString(label.CurrentLabel, out var localized) ? localized : label.CurrentLabel;
+        return Loc.GetString("comp-label-format", ("baseName", prototype.Name), ("label", text));
     }
 
     // Three positions per shelf; extend past Z for machines with unusually large catalogues.
