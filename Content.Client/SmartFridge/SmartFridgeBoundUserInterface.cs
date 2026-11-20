@@ -2,6 +2,7 @@ using Content.Client.UserInterface.Controls;
 using Content.Shared.SmartFridge;
 using Robust.Client.UserInterface;
 using Robust.Shared.Input;
+using Robust.Shared.GameObjects;
 
 namespace Content.Client.SmartFridge;
 
@@ -22,11 +23,14 @@ public sealed class SmartFridgeBoundUserInterface : BoundUserInterface
         _menu.OnRemoveButtonPressed += data => SendPredictedMessage(new SmartFridgeRemoveEntryMessage(data.Entry));
         Refresh();
     }
-
     public void Refresh()
     {
-        if (_menu is not { } menu || !EntMan.TryGetComponent(Owner, out SmartFridgeComponent? fridge))
+        if (_menu is not { } menu ||
+            !EntMan.TryGetComponent(Owner, out SmartFridgeComponent? fridge))
             return;
+
+        // Use the localized name of the actual machine.
+        menu.Title = EntMan.GetComponent<MetaDataComponent>(Owner).EntityName;
 
         menu.SetFlavorText(Loc.GetString(fridge.FlavorText));
         menu.Populate((Owner, fridge));
