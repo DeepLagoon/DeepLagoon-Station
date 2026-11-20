@@ -155,6 +155,24 @@
 
 - type: latheRecipe
   parent: BaseVoucherRecipe
+  id: ShipVoucherPdvBastionRecipe
+  result: ShipVoucherPdvBastion
+  completetime: 100
+  materialDiscountScale: 0.2
+  materials:
+    PdvComposite: 3600
+
+- type: latheRecipe
+  parent: BaseVoucherRecipe
+  id: ShipVoucherPdvVultureRecipe
+  result: ShipVoucherPdvVulture
+  completetime: 180
+  materialDiscountScale: 0.2
+  materials:
+    PdvComposite: 14000
+
+- type: latheRecipe
+  parent: BaseVoucherRecipe
   id: MockVoucherRogue
   result: ShipVoucherMock
   materials:

@@ -21,6 +21,7 @@
   cost: 120000
   recipeUnlocks:
   - ShipVoucherPdvT2Recipe
+  - ShipVoucherPdvBastionRecipe
   - InertiaVoucherRogue
   - MockVoucherRogue
   - SnakeletVoucherRogue
@@ -40,6 +41,7 @@
   - ShipVoucherKortikT3Recipe
   - ShipVoucherEuropaT3Recipe
   - ShipVoucherSaturnRecipe
+  - ShipVoucherPdvVultureRecipe
   technologyPrerequisites:
   - PdvTierTwoVouchers
   - UniversalMaterialResearchT3
