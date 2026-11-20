@@ -14,7 +14,7 @@ public sealed partial class ThirstComponent : Component
     [ViewVariables(VVAccess.ReadWrite)]
     [DataField("baseDecayRate")]
     [AutoNetworkedField]
-    public float BaseDecayRate = 0.075f; // 0.1->0.075
+    public float BaseDecayRate = 0.06375f; // DeepLagoon: 15% less thirst decay (0.075 * 0.85).
 
     [ViewVariables(VVAccess.ReadWrite)]
     [AutoNetworkedField]
