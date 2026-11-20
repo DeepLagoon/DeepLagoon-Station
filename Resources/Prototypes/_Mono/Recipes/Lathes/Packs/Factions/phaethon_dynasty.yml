@@ -55,6 +55,8 @@
   - ShipVoucherKortikT3Recipe
   - ShipVoucherEuropaT3Recipe
   - ShipVoucherSaturnRecipe
+  - ShipVoucherPdvBastionRecipe
+  - ShipVoucherPdvVultureRecipe
   - SnakeletVoucherRogue
   - InertiaVoucherRogue
   - MockVoucherRogue
