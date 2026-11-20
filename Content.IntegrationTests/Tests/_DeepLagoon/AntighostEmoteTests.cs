@@ -19,11 +19,12 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture]
 public sealed class AntighostEmoteTests
 {
-    [TestCase(false)]
-    [TestCase(true)]
-    public async Task OutOfRangeDraftCanBeRetriedAndEchoesOnceToSender(bool includeNearby)
+    [TestCase(false, 30)]
+    [TestCase(true, 30)]
+    [TestCase(false, 20_000)]
+    public async Task OutOfRangeDraftCanBeRetriedAndEchoesOnceToSender(bool includeNearby, int length)
     {
-        const string draft = "checks the contents of their bag";
+        var draft = new string(length == 20_000 ? 'я' : 'x', length);
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = true, Destructive = true });
         var server = pair.Server;
         var client = pair.Client;

@@ -94,7 +94,8 @@ public sealed partial class ChatSystem
             return;
         }
 
-        if (!CanSendInGame(text, player: session))
+        // Antighost uses its own length limit, checked above, instead of the regular chat limit.
+        if (!CanSendInGame(text, player: session, checkCharacterLimit: false))
         {
             SendResult("dl-antighost-cannot-send");
             return;

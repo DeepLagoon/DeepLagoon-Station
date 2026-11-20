@@ -4,7 +4,7 @@ namespace Content.Shared._DeepLagoon.Chat;
 
 public static class AntighostEmote
 {
-    public const int MaxLength = 500;
+    public const int MaxLength = 20_000;
     public const float Range = 5f;
 }
 

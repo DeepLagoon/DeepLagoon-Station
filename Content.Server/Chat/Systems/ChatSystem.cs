@@ -993,7 +993,8 @@ public sealed partial class ChatSystem : SharedChatSystem
     /// <summary>
     ///     Returns true if the given player is 'allowed' to send the given message, false otherwise.
     /// </summary>
-    private bool CanSendInGame(string message, IConsoleShell? shell = null, ICommonSession? player = null)
+    private bool CanSendInGame(string message, IConsoleShell? shell = null, ICommonSession? player = null,
+        bool checkCharacterLimit = true)
     {
         // Non-players don't have to worry about these restrictions.
         if (player == null)
@@ -1013,7 +1014,7 @@ public sealed partial class ChatSystem : SharedChatSystem
             return false;
         }
 
-        return !_chatManager.MessageCharacterLimit(player, message);
+        return !checkCharacterLimit || !_chatManager.MessageCharacterLimit(player, message);
     }
 
     // ReSharper disable once InconsistentNaming
