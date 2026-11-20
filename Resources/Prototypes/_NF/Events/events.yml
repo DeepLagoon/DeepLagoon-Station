@@ -358,7 +358,8 @@
   id: SolarFlare
   components:
   - type: StationEvent
-    weight: 4
+    weight: 0
+    maxOccurrences: 0 # DeepLagoon: disable random solar flares.
     earliestStart: 15 # Frontier
     reoccurrenceDelay: 45 # Frontier
     startAnnouncement: station-event-solar-flare-nf-start-announcement # Frontier: add nf-
