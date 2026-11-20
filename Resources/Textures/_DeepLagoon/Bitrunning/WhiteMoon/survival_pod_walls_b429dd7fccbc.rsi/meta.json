@@ -11,49 +11,145 @@
       "name": "survival_pod_walls-0"
     },
     {
-      "name": "survival_pod_walls-1"
+      "name": "survival_pod_walls-diagonal-0"
     },
     {
-      "name": "survival_pod_walls-10"
+      "name": "survival_pod_walls-diagonal-1"
     },
     {
-      "name": "survival_pod_walls-11"
+      "name": "survival_pod_walls-diagonal-10"
     },
     {
-      "name": "survival_pod_walls-12"
+      "name": "survival_pod_walls-diagonal-11"
     },
     {
-      "name": "survival_pod_walls-13"
+      "name": "survival_pod_walls-diagonal-110"
     },
     {
-      "name": "survival_pod_walls-14"
+      "name": "survival_pod_walls-diagonal-111"
     },
     {
-      "name": "survival_pod_walls-15"
+      "name": "survival_pod_walls-diagonal-12"
     },
     {
-      "name": "survival_pod_walls-2"
+      "name": "survival_pod_walls-diagonal-127"
     },
     {
-      "name": "survival_pod_walls-3"
+      "name": "survival_pod_walls-diagonal-13"
     },
     {
-      "name": "survival_pod_walls-4"
+      "name": "survival_pod_walls-diagonal-137"
     },
     {
-      "name": "survival_pod_walls-5"
+      "name": "survival_pod_walls-diagonal-139"
     },
     {
-      "name": "survival_pod_walls-6"
+      "name": "survival_pod_walls-diagonal-14"
     },
     {
-      "name": "survival_pod_walls-7"
+      "name": "survival_pod_walls-diagonal-141"
     },
     {
-      "name": "survival_pod_walls-8"
+      "name": "survival_pod_walls-diagonal-143"
     },
     {
-      "name": "survival_pod_walls-9"
+      "name": "survival_pod_walls-diagonal-15"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-157"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-159"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-175"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-191"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-2"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-203"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-207"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-21"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-223"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-23"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-239"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-255"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-29"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-3"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-31"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-38"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-39"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-4"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-46"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-47"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-5"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-55"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-6"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-63"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-7"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-74"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-75"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-78"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-79"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-8"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-9"
+    },
+    {
+      "name": "survival_pod_walls-diagonal-95"
     }
   ]
 }

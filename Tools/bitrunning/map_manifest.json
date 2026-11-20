@@ -16,6 +16,10 @@
         "BitrunCacheSpawn": 6,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 7
+      },
+      "areaLighting": {
+        "#8589FA": 56,
+        "#FFFFFF": 39
       }
     },
     "_maps/virtual_domains/ash_drake.dmm": {
@@ -33,6 +37,9 @@
         "BitrunCacheSpawn": 1,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 1
+      },
+      "areaLighting": {
+        "#FFFFFF": 158
       }
     },
     "_maps/virtual_domains/beach_bar.dmm": {
@@ -43,13 +50,16 @@
         41
       ],
       "entities": 1086,
-      "decals": 101,
+      "decals": 107,
       "markers": {
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunCacheSpawn": 1,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 5
+      },
+      "areaLighting": {
+        "#FFFFFF": 973
       }
     },
     "_maps/virtual_domains/blood_drunk_miner.dmm": {
@@ -67,6 +77,9 @@
         "BitrunCacheSpawn": 1,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 1
+      },
+      "areaLighting": {
+        "#FFFFFF": 158
       }
     },
     "_maps/virtual_domains/breeze_bay.dmm": {
@@ -85,6 +98,9 @@
         "BitrunExit": 3,
         "BitrunFishingSpot": 1,
         "BitrunScenarioMarker": 1
+      },
+      "areaLighting": {
+        "#FFFFFF": 583
       }
     },
     "_maps/virtual_domains/bubblegum.dmm": {
@@ -102,7 +118,8 @@
         "BitrunCacheSpawn": 1,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 1
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/virtual_domains/clown_planet.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Domains/clown_planet.yml",
@@ -111,13 +128,16 @@
         33,
         44
       ],
-      "entities": 1309,
+      "entities": 1317,
       "decals": 233,
       "markers": {
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunCacheSpawn": 1,
         "BitrunExit": 3
+      },
+      "areaLighting": {
+        "#FFFFFF": 337
       }
     },
     "_maps/virtual_domains/colossus.dmm": {
@@ -135,6 +155,9 @@
         "BitrunCacheSpawn": 1,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 1
+      },
+      "areaLighting": {
+        "#FFFFFF": 178
       }
     },
     "_maps/virtual_domains/fredingtonfastingbear.dmm": {
@@ -151,6 +174,9 @@
         "BitrunCacheGoal": 2,
         "BitrunCacheSpawn": 6,
         "BitrunExit": 3
+      },
+      "areaLighting": {
+        "#FFFFFF": 99
       }
     },
     "_maps/virtual_domains/gondola_asteroid.dmm": {
@@ -167,6 +193,9 @@
         "BitrunCacheGoal": 2,
         "BitrunCacheSpawn": 1,
         "BitrunExit": 3
+      },
+      "areaLighting": {
+        "#FFFFFF": 162
       }
     },
     "_maps/virtual_domains/grasslands_hunt.dmm": {
@@ -184,6 +213,9 @@
         "BitrunCacheSpawn": 1,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 9
+      },
+      "areaLighting": {
+        "#FFFFFF": 5583
       }
     },
     "_maps/virtual_domains/heretic_hunt.dmm": {
@@ -194,14 +226,15 @@
         31
       ],
       "entities": 977,
-      "decals": 212,
+      "decals": 240,
       "markers": {
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunCacheSpawn": 1,
         "BitrunExit": 3,
         "BitrunRitualAltar": 1
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/virtual_domains/hierophant.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Domains/hierophant.yml",
@@ -210,7 +243,7 @@
         25,
         38
       ],
-      "entities": 441,
+      "entities": 900,
       "decals": 14,
       "markers": {
         "BitrunAvatarSpawn": 3,
@@ -218,6 +251,9 @@
         "BitrunCacheSpawn": 1,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 1
+      },
+      "areaLighting": {
+        "#FFFFFF": 145
       }
     },
     "_maps/virtual_domains/island_brawl.dmm": {
@@ -228,13 +264,16 @@
         80
       ],
       "entities": 5088,
-      "decals": 478,
+      "decals": 480,
       "markers": {
         "BitrunAvatarSpawn": 32,
         "BitrunCacheGoal": 1,
         "BitrunCacheSpawn": 1,
         "BitrunExit": 1,
         "BitrunScenarioMarker": 42
+      },
+      "areaLighting": {
+        "#FFFFFF": 5052
       }
     },
     "_maps/virtual_domains/meta_central.dmm": {
@@ -244,15 +283,16 @@
         46,
         46
       ],
-      "entities": 2345,
-      "decals": 744,
+      "entities": 2369,
+      "decals": 820,
       "markers": {
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunCacheSpawn": 11,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 16
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/virtual_domains/pipedream.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Domains/pipedream.yml",
@@ -262,13 +302,16 @@
         48
       ],
       "entities": 920,
-      "decals": 267,
+      "decals": 277,
       "markers": {
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunCacheSpawn": 4,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 4
+      },
+      "areaLighting": {
+        "#FFFFFF": 191
       }
     },
     "_maps/virtual_domains/pirates.dmm": {
@@ -278,14 +321,17 @@
         37,
         42
       ],
-      "entities": 1032,
-      "decals": 110,
+      "entities": 1045,
+      "decals": 122,
       "markers": {
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunCacheSpawn": 4,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 1
+      },
+      "areaLighting": {
+        "#FFFFFF": 907
       }
     },
     "_maps/virtual_domains/psyker_shuffle.dmm": {
@@ -303,6 +349,9 @@
         "BitrunCacheSpawn": 31,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 1
+      },
+      "areaLighting": {
+        "#FFFFFF": 204
       }
     },
     "_maps/virtual_domains/psyker_zombies.dmm": {
@@ -319,6 +368,9 @@
         "BitrunCacheGoal": 2,
         "BitrunCacheSpawn": 7,
         "BitrunExit": 3
+      },
+      "areaLighting": {
+        "#FFFFFF": 279
       }
     },
     "_maps/virtual_domains/skyrat_ancientmilsim.dmm": {
@@ -328,15 +380,16 @@
         52,
         56
       ],
-      "entities": 1771,
-      "decals": 70,
+      "entities": 2531,
+      "decals": 74,
       "markers": {
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunCacheSpawn": 3,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 20
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/virtual_domains/stairs_and_cliffs.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Domains/stairs_and_cliffs.yml",
@@ -345,7 +398,7 @@
         75,
         75
       ],
-      "entities": 4531,
+      "entities": 4604,
       "decals": 181,
       "markers": {
         "BitrunAvatarSpawn": 3,
@@ -353,6 +406,9 @@
         "BitrunCacheSpawn": 1,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 1
+      },
+      "areaLighting": {
+        "#FFFFFF": 296
       }
     },
     "_maps/virtual_domains/syndicate_assault.dmm": {
@@ -370,6 +426,9 @@
         "BitrunCacheSpawn": 9,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 9
+      },
+      "areaLighting": {
+        "#FFFFFF": 212
       }
     },
     "_maps/virtual_domains/test_only.dmm": {
@@ -386,7 +445,8 @@
         "BitrunCacheGoal": 1,
         "BitrunCacheSpawn": 1,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/virtual_domains/vaporwave.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Domains/vaporwave.yml",
@@ -402,6 +462,9 @@
         "BitrunCacheGoal": 2,
         "BitrunCacheSpawn": 1,
         "BitrunExit": 3
+      },
+      "areaLighting": {
+        "#8589FA": 102
       }
     },
     "_maps/virtual_domains/wendigo.dmm": {
@@ -419,6 +482,9 @@
         "BitrunCacheSpawn": 1,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 1
+      },
+      "areaLighting": {
+        "#FFFFFF": 142
       }
     },
     "_maps/virtual_domains/xeno_nest.dmm": {
@@ -436,6 +502,9 @@
         "BitrunCacheSpawn": 6,
         "BitrunExit": 3,
         "BitrunScenarioMarker": 6
+      },
+      "areaLighting": {
+        "#FFFFFF": 330
       }
     },
     "_maps/safehouses/TEMPLATES/TEMPLATE.dmm": {
@@ -451,7 +520,8 @@
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/safehouses/abductor.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Safehouses/abductor.yml",
@@ -466,7 +536,8 @@
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/safehouses/bathroom.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Safehouses/bathroom.yml",
@@ -481,7 +552,8 @@
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/safehouses/den.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Safehouses/den.yml",
@@ -496,7 +568,8 @@
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/safehouses/dig.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Safehouses/dig.yml",
@@ -511,7 +584,8 @@
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/safehouses/ice.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Safehouses/ice.yml",
@@ -526,7 +600,8 @@
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/safehouses/lavaland_boss.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Safehouses/lavaland_boss.yml",
@@ -541,7 +616,8 @@
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 1,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/safehouses/maintsafe.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Safehouses/maintsafe.yml",
@@ -551,12 +627,13 @@
         6
       ],
       "entities": 38,
-      "decals": 10,
+      "decals": 15,
       "markers": {
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/safehouses/mine.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Safehouses/mine.yml",
@@ -571,7 +648,8 @@
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/safehouses/shuttle.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Safehouses/shuttle.yml",
@@ -586,7 +664,8 @@
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/safehouses/shuttle_space.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Safehouses/shuttle_space.yml",
@@ -601,7 +680,8 @@
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/safehouses/skyrat_ancientmilsim.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Safehouses/skyrat_ancientmilsim.yml",
@@ -616,7 +696,8 @@
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/safehouses/test_only_safehouse.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Safehouses/test_only_safehouse.yml",
@@ -631,7 +712,8 @@
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 1,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/safehouses/wood.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Safehouses/wood.yml",
@@ -646,7 +728,8 @@
         "BitrunAvatarSpawn": 3,
         "BitrunCacheGoal": 2,
         "BitrunExit": 3
-      }
+      },
+      "areaLighting": {}
     },
     "_maps/templates/shelter_1.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Shelters/shelter_1.yml",
@@ -657,7 +740,8 @@
       ],
       "entities": 31,
       "decals": 0,
-      "markers": {}
+      "markers": {},
+      "areaLighting": {}
     },
     "_maps/templates/shelter_t.dmm": {
       "target": "Resources/Maps/_DeepLagoon/Bitrunning/Shelters/shelter_t.yml",
@@ -668,7 +752,8 @@
       ],
       "entities": 13,
       "decals": 1,
-      "markers": {}
+      "markers": {},
+      "areaLighting": {}
     }
   },
   "sourceAtoms": {
@@ -1681,13 +1766,16 @@
     "/obj/effect/mapping_helpers/broken_floor": {
       "occurrences": 117,
       "targets": [
-        "PlatingDamaged"
+        "BitrunMapDecalEffectMappingHelpersBurntFloorStateWoodMinusBroken",
+        "BitrunMapDecalEffectMappingHelpersBrokenFloor"
       ]
     },
     "/obj/effect/mapping_helpers/burnt_floor": {
       "occurrences": 21,
       "targets": [
-        "PlatingDamaged"
+        "BitrunMapDecalEffectMappingHelpersBurntFloorStateWoodMinusBroken",
+        "BitrunMapDecalEffectMappingHelpersBurntFloorStateFloorscorched1",
+        "BitrunMapDecalEffectMappingHelpersBurntFloorStateWoodParquetMinusBroken"
       ]
     },
     "/obj/effect/mapping_helpers/damaged_window": {

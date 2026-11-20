@@ -1,0 +1,750 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/floors/hierophant_floor_alt.dmi.",
+  "states": [
+    {
+      "name": "hierophant_floor_alt-0",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-1",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-10",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-11",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-110",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-111",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-12",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-127",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-13",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-137",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-139",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-14",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-141",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-143",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-15",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-157",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-159",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-175",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-191",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-2",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-203",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-207",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-21",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-223",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-23",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-239",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-255"
+    },
+    {
+      "name": "hierophant_floor_alt-29",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-3",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-31",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-38",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-39",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-4",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-46",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-47",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-5",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-55",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-6",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-63",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-7",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-74",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-75",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-78",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-79",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-8",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-9",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    },
+    {
+      "name": "hierophant_floor_alt-95",
+      "delays": [
+        [
+          0.3,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          2.1
+        ]
+      ]
+    }
+  ]
+}

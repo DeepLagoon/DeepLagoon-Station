@@ -39,12 +39,12 @@ entities:
             bodyType: Static
           - type: Fixtures
             fixtures: {}
-          - type: ImplicitRoof
-            color: '#FFFFFFFF'
           - type: GridEnvironment
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
+          - type: BitrunAreaLighting
+            tiles: {}
           - type: DecalGrid
             chunkCollection:
               version: 2
@@ -447,7 +447,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: BitrunMapMachineryLightDirectionalEast
+  - proto: BitrunMapMachineryLightDirectionalWestVariantPlaced
     entities:
       - uid: 54
         components:
@@ -455,6 +455,8 @@ entities:
             parent: 1
             pos: 1.5,3.5
             rot: 90
+  - proto: BitrunMapMachineryLightDirectionalEastVariantPlaced
+    entities:
       - uid: 61
         components:
           - type: Transform

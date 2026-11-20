@@ -69,12 +69,342 @@ entities:
             bodyType: Static
           - type: Fixtures
             fixtures: {}
-          - type: ImplicitRoof
-            color: '#FFFFFFFF'
           - type: GridEnvironment
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
+          - type: BitrunAreaLighting
+            tiles:
+              0,25: '#FFFFFF'
+              0,26: '#FFFFFF'
+              0,27: '#FFFFFF'
+              0,28: '#FFFFFF'
+              0,29: '#FFFFFF'
+              0,30: '#FFFFFF'
+              0,31: '#FFFFFF'
+              0,32: '#FFFFFF'
+              0,33: '#FFFFFF'
+              0,34: '#FFFFFF'
+              1,24: '#FFFFFF'
+              1,25: '#FFFFFF'
+              1,34: '#FFFFFF'
+              2,24: '#FFFFFF'
+              2,34: '#FFFFFF'
+              2,35: '#FFFFFF'
+              3,24: '#FFFFFF'
+              3,35: '#FFFFFF'
+              4,24: '#FFFFFF'
+              4,35: '#FFFFFF'
+              5,24: '#FFFFFF'
+              5,35: '#FFFFFF'
+              6,24: '#FFFFFF'
+              6,35: '#FFFFFF'
+              7,24: '#FFFFFF'
+              7,35: '#FFFFFF'
+              8,24: '#FFFFFF'
+              8,35: '#FFFFFF'
+              9,8: '#FFFFFF'
+              9,9: '#FFFFFF'
+              9,10: '#FFFFFF'
+              9,11: '#FFFFFF'
+              9,12: '#FFFFFF'
+              9,13: '#FFFFFF'
+              9,24: '#FFFFFF'
+              9,35: '#FFFFFF'
+              10,7: '#FFFFFF'
+              10,8: '#FFFFFF'
+              10,13: '#FFFFFF'
+              10,14: '#FFFFFF'
+              10,24: '#FFFFFF'
+              10,35: '#FFFFFF'
+              11,7: '#FFFFFF'
+              11,14: '#FFFFFF'
+              11,15: '#FFFFFF'
+              11,24: '#FFFFFF'
+              11,34: '#FFFFFF'
+              11,35: '#FFFFFF'
+              12,7: '#FFFFFF'
+              12,15: '#FFFFFF'
+              12,24: '#FFFFFF'
+              12,34: '#FFFFFF'
+              13,7: '#FFFFFF'
+              13,15: '#FFFFFF'
+              13,16: '#FFFFFF'
+              13,17: '#FFFFFF'
+              13,24: '#FFFFFF'
+              13,25: '#FFFFFF'
+              13,33: '#FFFFFF'
+              13,34: '#FFFFFF'
+              14,7: '#FFFFFF'
+              14,17: '#FFFFFF'
+              14,18: '#FFFFFF'
+              14,25: '#FFFFFF'
+              14,26: '#FFFFFF'
+              14,32: '#FFFFFF'
+              14,33: '#FFFFFF'
+              15,7: '#FFFFFF'
+              15,8: '#FFFFFF'
+              15,18: '#FFFFFF'
+              15,19: '#FFFFFF'
+              15,20: '#FFFFFF'
+              15,21: '#FFFFFF'
+              15,22: '#FFFFFF'
+              15,23: '#FFFFFF'
+              15,24: '#FFFFFF'
+              15,25: '#FFFFFF'
+              15,26: '#FFFFFF'
+              15,27: '#FFFFFF'
+              15,32: '#FFFFFF'
+              16,8: '#FFFFFF'
+              16,9: '#FFFFFF'
+              16,10: '#FFFFFF'
+              16,26: '#FFFFFF'
+              16,32: '#FFFFFF'
+              17,0: '#FFFFFF'
+              17,1: '#FFFFFF'
+              17,2: '#FFFFFF'
+              17,3: '#FFFFFF'
+              17,4: '#FFFFFF'
+              17,5: '#FFFFFF'
+              17,6: '#FFFFFF'
+              17,7: '#FFFFFF'
+              17,8: '#FFFFFF'
+              17,9: '#FFFFFF'
+              17,10: '#FFFFFF'
+              17,11: '#FFFFFF'
+              17,12: '#FFFFFF'
+              17,13: '#FFFFFF'
+              17,32: '#FFFFFF'
+              18,0: '#FFFFFF'
+              18,9: '#FFFFFF'
+              18,13: '#FFFFFF'
+              18,14: '#FFFFFF'
+              18,32: '#FFFFFF'
+              18,33: '#FFFFFF'
+              18,34: '#FFFFFF'
+              18,35: '#FFFFFF'
+              18,36: '#FFFFFF'
+              18,37: '#FFFFFF'
+              18,38: '#FFFFFF'
+              19,0: '#FFFFFF'
+              19,9: '#FFFFFF'
+              19,14: '#FFFFFF'
+              19,31: '#FFFFFF'
+              19,32: '#FFFFFF'
+              19,33: '#FFFFFF'
+              19,38: '#FFFFFF'
+              20,0: '#FFFFFF'
+              20,9: '#FFFFFF'
+              20,14: '#FFFFFF'
+              20,15: '#FFFFFF'
+              20,21: '#FFFFFF'
+              20,22: '#FFFFFF'
+              20,38: '#FFFFFF'
+              21,0: '#FFFFFF'
+              21,9: '#FFFFFF'
+              21,15: '#FFFFFF'
+              21,21: '#FFFFFF'
+              21,22: '#FFFFFF'
+              21,23: '#FFFFFF'
+              21,38: '#FFFFFF'
+              22,0: '#FFFFFF'
+              22,9: '#FFFFFF'
+              22,15: '#FFFFFF'
+              22,21: '#FFFFFF'
+              22,22: '#FFFFFF'
+              22,23: '#FFFFFF'
+              22,24: '#FFFFFF'
+              22,38: '#FFFFFF'
+              23,0: '#FFFFFF'
+              23,9: '#FFFFFF'
+              23,14: '#FFFFFF'
+              23,15: '#FFFFFF'
+              23,16: '#FFFFFF'
+              23,21: '#FFFFFF'
+              23,22: '#FFFFFF'
+              23,23: '#FFFFFF'
+              23,24: '#FFFFFF'
+              23,25: '#FFFFFF'
+              23,26: '#FFFFFF'
+              23,38: '#FFFFFF'
+              24,0: '#FFFFFF'
+              24,9: '#FFFFFF'
+              24,10: '#FFFFFF'
+              24,11: '#FFFFFF'
+              24,12: '#FFFFFF'
+              24,13: '#FFFFFF'
+              24,14: '#FFFFFF'
+              24,21: '#FFFFFF'
+              24,22: '#FFFFFF'
+              24,23: '#FFFFFF'
+              24,24: '#FFFFFF'
+              24,25: '#FFFFFF'
+              24,30: '#FFFFFF'
+              24,31: '#FFFFFF'
+              24,32: '#FFFFFF'
+              24,37: '#FFFFFF'
+              24,38: '#FFFFFF'
+              25,0: '#FFFFFF'
+              25,10: '#FFFFFF'
+              25,11: '#FFFFFF'
+              25,12: '#FFFFFF'
+              25,21: '#FFFFFF'
+              25,22: '#FFFFFF'
+              25,23: '#FFFFFF'
+              25,24: '#FFFFFF'
+              25,25: '#FFFFFF'
+              25,30: '#FFFFFF'
+              25,31: '#FFFFFF'
+              25,32: '#FFFFFF'
+              25,33: '#FFFFFF'
+              25,34: '#FFFFFF'
+              25,35: '#FFFFFF'
+              25,36: '#FFFFFF'
+              25,37: '#FFFFFF'
+              26,0: '#FFFFFF'
+              26,21: '#FFFFFF'
+              26,22: '#FFFFFF'
+              26,23: '#FFFFFF'
+              26,24: '#FFFFFF'
+              26,32: '#FFFFFF'
+              26,33: '#FFFFFF'
+              27,0: '#FFFFFF'
+              27,22: '#FFFFFF'
+              27,23: '#FFFFFF'
+              27,24: '#FFFFFF'
+              27,33: '#FFFFFF'
+              28,0: '#FFFFFF'
+              28,22: '#FFFFFF'
+              28,23: '#FFFFFF'
+              28,24: '#FFFFFF'
+              28,33: '#FFFFFF'
+              29,0: '#FFFFFF'
+              29,16: '#FFFFFF'
+              29,17: '#FFFFFF'
+              29,22: '#FFFFFF'
+              29,23: '#FFFFFF'
+              29,24: '#FFFFFF'
+              29,33: '#FFFFFF'
+              30,0: '#FFFFFF'
+              30,11: '#FFFFFF'
+              30,12: '#FFFFFF'
+              30,13: '#FFFFFF'
+              30,14: '#FFFFFF'
+              30,15: '#FFFFFF'
+              30,16: '#FFFFFF'
+              30,17: '#FFFFFF'
+              30,22: '#FFFFFF'
+              30,23: '#FFFFFF'
+              30,24: '#FFFFFF'
+              30,25: '#FFFFFF'
+              30,33: '#FFFFFF'
+              31,0: '#FFFFFF'
+              31,11: '#FFFFFF'
+              31,12: '#FFFFFF'
+              31,17: '#FFFFFF'
+              31,22: '#FFFFFF'
+              31,23: '#FFFFFF'
+              31,24: '#FFFFFF'
+              31,25: '#FFFFFF'
+              31,26: '#FFFFFF'
+              31,27: '#FFFFFF'
+              31,31: '#FFFFFF'
+              31,32: '#FFFFFF'
+              31,33: '#FFFFFF'
+              32,0: '#FFFFFF'
+              32,12: '#FFFFFF'
+              32,17: '#FFFFFF'
+              32,21: '#FFFFFF'
+              32,22: '#FFFFFF'
+              32,26: '#FFFFFF'
+              32,27: '#FFFFFF'
+              32,31: '#FFFFFF'
+              33,0: '#FFFFFF'
+              33,10: '#FFFFFF'
+              33,12: '#FFFFFF'
+              33,17: '#FFFFFF'
+              33,21: '#FFFFFF'
+              33,22: '#FFFFFF'
+              33,26: '#FFFFFF'
+              33,27: '#FFFFFF'
+              33,31: '#FFFFFF'
+              34,0: '#FFFFFF'
+              34,10: '#FFFFFF'
+              34,11: '#FFFFFF'
+              34,12: '#FFFFFF'
+              34,17: '#FFFFFF'
+              34,21: '#FFFFFF'
+              34,22: '#FFFFFF'
+              34,26: '#FFFFFF'
+              34,27: '#FFFFFF'
+              34,31: '#FFFFFF'
+              35,0: '#FFFFFF'
+              35,10: '#FFFFFF'
+              35,17: '#FFFFFF'
+              35,22: '#FFFFFF'
+              35,23: '#FFFFFF'
+              35,24: '#FFFFFF'
+              35,25: '#FFFFFF'
+              35,26: '#FFFFFF'
+              35,27: '#FFFFFF'
+              35,31: '#FFFFFF'
+              36,0: '#FFFFFF'
+              36,10: '#FFFFFF'
+              36,17: '#FFFFFF'
+              36,23: '#FFFFFF'
+              36,24: '#FFFFFF'
+              36,25: '#FFFFFF'
+              36,26: '#FFFFFF'
+              36,27: '#FFFFFF'
+              36,31: '#FFFFFF'
+              36,32: '#FFFFFF'
+              37,0: '#FFFFFF'
+              37,10: '#FFFFFF'
+              37,17: '#FFFFFF'
+              37,32: '#FFFFFF'
+              37,33: '#FFFFFF'
+              38,0: '#FFFFFF'
+              38,10: '#FFFFFF'
+              38,17: '#FFFFFF'
+              38,18: '#FFFFFF'
+              38,33: '#FFFFFF'
+              39,0: '#FFFFFF'
+              39,1: '#FFFFFF'
+              39,2: '#FFFFFF'
+              39,3: '#FFFFFF'
+              39,4: '#FFFFFF'
+              39,5: '#FFFFFF'
+              39,6: '#FFFFFF'
+              39,7: '#FFFFFF'
+              39,8: '#FFFFFF'
+              39,9: '#FFFFFF'
+              39,10: '#FFFFFF'
+              39,18: '#FFFFFF'
+              39,19: '#FFFFFF'
+              39,33: '#FFFFFF'
+              39,34: '#FFFFFF'
+              40,19: '#FFFFFF'
+              40,20: '#FFFFFF'
+              40,21: '#FFFFFF'
+              40,22: '#FFFFFF'
+              40,23: '#FFFFFF'
+              40,34: '#FFFFFF'
+              41,23: '#FFFFFF'
+              41,24: '#FFFFFF'
+              41,25: '#FFFFFF'
+              41,34: '#FFFFFF'
+              42,25: '#FFFFFF'
+              42,26: '#FFFFFF'
+              42,34: '#FFFFFF'
+              43,26: '#FFFFFF'
+              43,27: '#FFFFFF'
+              43,28: '#FFFFFF'
+              43,29: '#FFFFFF'
+              43,30: '#FFFFFF'
+              43,31: '#FFFFFF'
+              43,32: '#FFFFFF'
+              43,33: '#FFFFFF'
+              43,34: '#FFFFFF'
           - type: DecalGrid
             chunkCollection:
               version: 2
@@ -263,123 +593,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 23.5,35.5
-  - proto: BitrunMapStructureAlienWeedsNode
-    entities:
-      - uid: 197
-        components:
-          - type: Transform
-            parent: 1
-            pos: 26.5,9.5
-      - uid: 234
-        components:
-          - type: Transform
-            parent: 1
-            pos: 29.5,10.5
-      - uid: 259
-        components:
-          - type: Transform
-            parent: 1
-            pos: 13.5,11.5
-      - uid: 272
-        components:
-          - type: Transform
-            parent: 1
-            pos: 27.5,11.5
-      - uid: 273
-        components:
-          - type: Transform
-            parent: 1
-            pos: 28.5,11.5
-      - uid: 332
-        components:
-          - type: Transform
-            parent: 1
-            pos: 28.5,13.5
-      - uid: 465
-        components:
-          - type: Transform
-            parent: 1
-            pos: 24.5,18.5
-      - uid: 496
-        components:
-          - type: Transform
-            parent: 1
-            pos: 18.5,19.5
-      - uid: 514
-        components:
-          - type: Transform
-            parent: 1
-            pos: 32.5,19.5
-      - uid: 660
-        components:
-          - type: Transform
-            parent: 1
-            pos: 38.5,23.5
-      - uid: 843
-        components:
-          - type: Transform
-            parent: 1
-            pos: 4.5,27.5
-      - uid: 853
-        components:
-          - type: Transform
-            parent: 1
-            pos: 9.5,27.5
-      - uid: 870
-        components:
-          - type: Transform
-            parent: 1
-            pos: 19.5,27.5
-      - uid: 881
-        components:
-          - type: Transform
-            parent: 1
-            pos: 27.5,27.5
-      - uid: 981
-        components:
-          - type: Transform
-            parent: 1
-            pos: 7.5,29.5
-      - uid: 986
-        components:
-          - type: Transform
-            parent: 1
-            pos: 12.5,29.5
-      - uid: 990
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,29.5
-      - uid: 1015
-        components:
-          - type: Transform
-            parent: 1
-            pos: 33.5,29.5
-      - uid: 1024
-        components:
-          - type: Transform
-            parent: 1
-            pos: 40.5,29.5
-      - uid: 1050
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,30.5
-      - uid: 1103
-        components:
-          - type: Transform
-            parent: 1
-            pos: 4.5,31.5
-      - uid: 1181
-        components:
-          - type: Transform
-            parent: 1
-            pos: 8.5,32.5
-      - uid: 1310
-        components:
-          - type: Transform
-            parent: 1
-            pos: 22.5,34.5
   - proto: BitrunMapStructureAlienWeeds
     entities:
       - uid: 31
@@ -3187,6 +3400,123 @@ entities:
           - type: Transform
             parent: 1
             pos: 23.5,37.5
+  - proto: BitrunMapStructureAlienWeedsNode
+    entities:
+      - uid: 197
+        components:
+          - type: Transform
+            parent: 1
+            pos: 26.5,9.5
+      - uid: 234
+        components:
+          - type: Transform
+            parent: 1
+            pos: 29.5,10.5
+      - uid: 259
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,11.5
+      - uid: 272
+        components:
+          - type: Transform
+            parent: 1
+            pos: 27.5,11.5
+      - uid: 273
+        components:
+          - type: Transform
+            parent: 1
+            pos: 28.5,11.5
+      - uid: 332
+        components:
+          - type: Transform
+            parent: 1
+            pos: 28.5,13.5
+      - uid: 465
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,18.5
+      - uid: 496
+        components:
+          - type: Transform
+            parent: 1
+            pos: 18.5,19.5
+      - uid: 514
+        components:
+          - type: Transform
+            parent: 1
+            pos: 32.5,19.5
+      - uid: 660
+        components:
+          - type: Transform
+            parent: 1
+            pos: 38.5,23.5
+      - uid: 843
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,27.5
+      - uid: 853
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,27.5
+      - uid: 870
+        components:
+          - type: Transform
+            parent: 1
+            pos: 19.5,27.5
+      - uid: 881
+        components:
+          - type: Transform
+            parent: 1
+            pos: 27.5,27.5
+      - uid: 981
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,29.5
+      - uid: 986
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,29.5
+      - uid: 990
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,29.5
+      - uid: 1015
+        components:
+          - type: Transform
+            parent: 1
+            pos: 33.5,29.5
+      - uid: 1024
+        components:
+          - type: Transform
+            parent: 1
+            pos: 40.5,29.5
+      - uid: 1050
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,30.5
+      - uid: 1103
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,31.5
+      - uid: 1181
+        components:
+          - type: Transform
+            parent: 1
+            pos: 8.5,32.5
+      - uid: 1310
+        components:
+          - type: Transform
+            parent: 1
+            pos: 22.5,34.5
   - proto: BitrunMapEffectDecalCleanableGeneric
     entities:
       - uid: 50
@@ -7046,7 +7376,19 @@ entities:
           - type: Transform
             parent: 1
             pos: 30.5,6.5
-  - proto: BitrunMapMachineryLightSmallDirectionalEast
+  - proto: BitrunMapMachineryLightSmallDirectionalNorthVariantPlaced
+    entities:
+      - uid: 100
+        components:
+          - type: Transform
+            parent: 1
+            pos: 27.5,6.5
+      - uid: 101
+        components:
+          - type: Transform
+            parent: 1
+            pos: 29.5,6.5
+  - proto: BitrunMapMachineryLightSmallDirectionalSouthVariantPlaced
     entities:
       - uid: 49
         components:
@@ -7060,16 +7402,6 @@ entities:
             parent: 1
             pos: 30.5,3.5
             rot: 180
-      - uid: 100
-        components:
-          - type: Transform
-            parent: 1
-            pos: 27.5,6.5
-      - uid: 101
-        components:
-          - type: Transform
-            parent: 1
-            pos: 29.5,6.5
   - proto: BitrunMapStructureWindowReinforcedShuttle
     entities:
       - uid: 34

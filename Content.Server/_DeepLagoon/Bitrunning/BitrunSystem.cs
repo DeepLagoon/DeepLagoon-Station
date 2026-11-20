@@ -149,7 +149,7 @@ public sealed partial class BitrunSystem : EntitySystem
             return false;
 
         var map = _maps.CreateMap(out var mapId);
-        _maps.SetAmbientLight(mapId, Color.White);
+        _maps.SetAmbientLight(mapId, Color.Black);
         var retained = false;
         try
         {

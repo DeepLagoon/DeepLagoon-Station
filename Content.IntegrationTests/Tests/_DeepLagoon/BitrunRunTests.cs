@@ -121,7 +121,9 @@ public sealed class BitrunRunTests
             Assert.That(entities.HasComponent<BitrunAvatarComponent>(avatar), Is.True);
             map = entities.GetComponent<TransformComponent>(avatar).MapUid!.Value;
             Assert.That(map, Is.Not.EqualTo(entities.GetComponent<TransformComponent>(body).MapUid));
-            Assert.That(entities.GetComponent<MapLightComponent>(map).AmbientLightColor, Is.EqualTo(Color.White));
+            Assert.That(entities.GetComponent<MapLightComponent>(map).AmbientLightColor, Is.EqualTo(Color.Black),
+                "Ambient light is supplied by source area cells, not a white fill across the whole map.");
+            Assert.That(entities.HasComponent<BitrunAreaLightingComponent>(entities.GetComponent<TransformComponent>(avatar).GridUid), Is.True);
             if (domain == "beach_bar")
             {
                 var actions = entities.System<ActionsSystem>();

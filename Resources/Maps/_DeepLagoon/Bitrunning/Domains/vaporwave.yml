@@ -60,12 +60,114 @@ entities:
             bodyType: Static
           - type: Fixtures
             fixtures: {}
-          - type: ImplicitRoof
-            color: '#FFFFFFFF'
           - type: GridEnvironment
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
+          - type: BitrunAreaLighting
+            tiles:
+              0,0: '#8589FA'
+              0,1: '#8589FA'
+              0,2: '#8589FA'
+              0,3: '#8589FA'
+              0,4: '#8589FA'
+              0,5: '#8589FA'
+              0,6: '#8589FA'
+              0,7: '#8589FA'
+              0,8: '#8589FA'
+              0,9: '#8589FA'
+              0,10: '#8589FA'
+              0,11: '#8589FA'
+              0,12: '#8589FA'
+              0,13: '#8589FA'
+              0,14: '#8589FA'
+              0,15: '#8589FA'
+              0,16: '#8589FA'
+              0,17: '#8589FA'
+              0,18: '#8589FA'
+              0,19: '#8589FA'
+              0,20: '#8589FA'
+              0,21: '#8589FA'
+              0,22: '#8589FA'
+              0,23: '#8589FA'
+              0,24: '#8589FA'
+              0,25: '#8589FA'
+              0,26: '#8589FA'
+              0,27: '#8589FA'
+              1,0: '#8589FA'
+              1,27: '#8589FA'
+              2,0: '#8589FA'
+              2,27: '#8589FA'
+              3,0: '#8589FA'
+              3,27: '#8589FA'
+              4,0: '#8589FA'
+              4,27: '#8589FA'
+              5,0: '#8589FA'
+              5,27: '#8589FA'
+              6,0: '#8589FA'
+              6,27: '#8589FA'
+              7,0: '#8589FA'
+              7,27: '#8589FA'
+              8,0: '#8589FA'
+              8,27: '#8589FA'
+              9,0: '#8589FA'
+              9,27: '#8589FA'
+              10,0: '#8589FA'
+              10,27: '#8589FA'
+              11,0: '#8589FA'
+              11,27: '#8589FA'
+              12,0: '#8589FA'
+              12,27: '#8589FA'
+              13,0: '#8589FA'
+              13,27: '#8589FA'
+              14,0: '#8589FA'
+              14,27: '#8589FA'
+              15,0: '#8589FA'
+              15,27: '#8589FA'
+              16,0: '#8589FA'
+              16,27: '#8589FA'
+              17,0: '#8589FA'
+              17,27: '#8589FA'
+              18,0: '#8589FA'
+              18,27: '#8589FA'
+              19,0: '#8589FA'
+              19,27: '#8589FA'
+              20,0: '#8589FA'
+              20,27: '#8589FA'
+              21,0: '#8589FA'
+              21,27: '#8589FA'
+              22,0: '#8589FA'
+              22,27: '#8589FA'
+              23,0: '#8589FA'
+              23,27: '#8589FA'
+              24,0: '#8589FA'
+              24,1: '#8589FA'
+              24,2: '#8589FA'
+              24,3: '#8589FA'
+              24,4: '#8589FA'
+              24,5: '#8589FA'
+              24,6: '#8589FA'
+              24,7: '#8589FA'
+              24,8: '#8589FA'
+              24,9: '#8589FA'
+              24,10: '#8589FA'
+              24,11: '#8589FA'
+              24,12: '#8589FA'
+              24,13: '#8589FA'
+              24,14: '#8589FA'
+              24,15: '#8589FA'
+              24,16: '#8589FA'
+              24,17: '#8589FA'
+              24,18: '#8589FA'
+              24,19: '#8589FA'
+              24,20: '#8589FA'
+              24,21: '#8589FA'
+              24,22: '#8589FA'
+              24,23: '#8589FA'
+              24,24: '#8589FA'
+              24,25: '#8589FA'
+              24,26: '#8589FA'
+              24,27: '#8589FA'
           - type: DecalGrid
             chunkCollection:
               version: 2
@@ -172,13 +274,6 @@ entities:
                   "44": 12,7
                   "45": 12,7
                   "77": 15,14
-  - proto: BitrunMapMachineryDoorAirlockShuttleGlass
-    entities:
-      - uid: 85
-        components:
-          - type: Transform
-            parent: 1
-            pos: 12.5,7.5
   - proto: BitrunMapMachineryDoorAirlockHatch
     entities:
       - uid: 121
@@ -186,6 +281,13 @@ entities:
           - type: Transform
             parent: 1
             pos: 12.5,15.5
+  - proto: BitrunMapMachineryDoorAirlockShuttleGlass
+    entities:
+      - uid: 85
+        components:
+          - type: Transform
+            parent: 1
+            pos: 12.5,7.5
   - proto: BitrunMapFloorAnimationOpenMiscBeachCoastDirection2
     entities:
       - uid: 146
@@ -1087,20 +1189,8 @@ entities:
           - type: Transform
             parent: 1
             pos: 14.5,7.5
-  - proto: BitrunMapMachineryLightSmallDirectionalEast
+  - proto: BitrunMapMachineryLightSmallDirectionalNorthVariantPlaced
     entities:
-      - uid: 43
-        components:
-          - type: Transform
-            parent: 1
-            pos: 10.5,3.5
-            rot: 180
-      - uid: 48
-        components:
-          - type: Transform
-            parent: 1
-            pos: 14.5,3.5
-            rot: 180
       - uid: 74
         components:
           - type: Transform
@@ -1126,7 +1216,21 @@ entities:
           - type: Transform
             parent: 1
             pos: 12.5,20.5
-  - proto: BitrunMapMachineryLightDirectionalEast
+  - proto: BitrunMapMachineryLightSmallDirectionalSouthVariantPlaced
+    entities:
+      - uid: 43
+        components:
+          - type: Transform
+            parent: 1
+            pos: 10.5,3.5
+            rot: 180
+      - uid: 48
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,3.5
+            rot: 180
+  - proto: BitrunMapMachineryLightDirectionalWestVariantPlaced
     entities:
       - uid: 158
         components:
@@ -1134,6 +1238,8 @@ entities:
             parent: 1
             pos: 8.5,18.5
             rot: 90
+  - proto: BitrunMapMachineryLightDirectionalEastVariantPlaced
+    entities:
       - uid: 162
         components:
           - type: Transform

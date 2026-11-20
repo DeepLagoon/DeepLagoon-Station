@@ -35,12 +35,12 @@ entities:
             bodyType: Static
           - type: Fixtures
             fixtures: {}
-          - type: ImplicitRoof
-            color: '#FFFFFFFF'
           - type: GridEnvironment
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
+          - type: BitrunAreaLighting
+            tiles: {}
           - type: DecalGrid
             chunkCollection:
               version: 2
@@ -163,13 +163,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 3.5,5.5
-  - proto: BitrunMapItemFlashlightLanternSpriteOffset0Point1250Point25
-    entities:
-      - uid: 25
-        components:
-          - type: Transform
-            parent: 1
-            pos: 4.5,4.5
   - proto: BitrunMapItemFlashlightGlowstick
     entities:
       - uid: 16
@@ -177,6 +170,13 @@ entities:
           - type: Transform
             parent: 1
             pos: 1.5,2.5
+  - proto: BitrunMapItemFlashlightLanternSpriteOffset0Point1250Point25
+    entities:
+      - uid: 25
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,4.5
   - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
     entities:
       - uid: 12

@@ -20,6 +20,7 @@ from map_art import MapArt
 from source_model import SourceModel
 from gameplay_import import GameplayImport
 from localization_import import write_locales
+from lighting_import import LightingImport
 
 SOURCE_COMMIT = "634692776c7b38f998c12907bdbabe3aae46df65"
 DOMAIN_ROOT = "_maps/virtual_domains/"
@@ -913,17 +914,23 @@ def convert(cells, key, is_domain, known, art):
         entities.append(Entity(proto, (pos[0] + 0.5, pos[1] + 0.5), name=name))
 
     def appearance(atom, entity):
+        if atom.path.startswith('/turf/open/lava'):
+            x, y = math.floor(entity.position[0]), math.floor(entity.position[1])
+            border = any(not any(a.path.startswith('/turf/open/lava') for a in cells.get((x + dx, y + dy), ()))
+                         for dx in (-1, 0, 1) for dy in (-1, 0, 1) if dx or dy)
+            atom = replace(atom, fields={**atom.fields, 'light_on': 'TRUE' if border else 'FALSE'})
         proto = art.entity(atom, entity.proto, entity.position)
         return imported_placement(atom, replace(entity, proto=proto), art)
 
     for pos, atoms in sorted(cells.items(), key=lambda item: (item[0][1], item[0][0])):
         tile = "Space"
         at_space = False
-        floor_changed = any(atom.path.startswith(("/obj/effect/mapping_helpers/broken_floor",
-                                                  "/obj/effect/mapping_helpers/burnt_floor")) for atom in atoms)
+        floor_atom = None
+        broken = next((atom for atom in atoms if atom.path.startswith('/obj/effect/mapping_helpers/broken_floor')), None)
         for atom in atoms:
             if not atom.path.startswith("/turf/"):
                 continue
+            floor_atom = atom
             path = atom.path.removeprefix("/turf/")
             target = match_path(TURFS, path)
             if target is None:
@@ -936,7 +943,7 @@ def convert(cells, key, is_domain, known, art):
             if overlay:
                 entities.append(appearance(atom, atom_entity(atom, overlay, pos)))
                 associations[atom.path].add(overlay)
-            if tile != "Space" and not overlay and not catwalk and not floor_changed:
+            if tile != "Space" and not overlay and not catwalk:
                 tile = art.tile(atom, tile)
             if path.startswith("closed/") or overlay in {"FloorSnowChasm", "FloorChasmEntity", "FloorLavaEntity", "BitrunPlasmaLake"}:
                 closed_turfs.add(pos)
@@ -1024,8 +1031,11 @@ def convert(cells, key, is_domain, known, art):
                 continue
             if path.startswith(("obj/effect/mapping_helpers/broken_floor",
                                 "obj/effect/mapping_helpers/burnt_floor")) and not at_space:
-                tiles[pos] = art.damaged_tile(atom, "PlatingDamaged")
-                associations[atom.path].add("PlatingDamaged")
+                # update_overlays() prioritizes broken over burnt in WhiteMoon.
+                if broken is None or atom == broken:
+                    if damage := art.damage_decal(atom, floor_atom):
+                        decals.append((damage, pos))
+                        associations[atom.path].add(damage)
                 continue
 
             decal = match_path(DECALS, path)
@@ -1123,7 +1133,7 @@ def float_pos(pos):
     return ",".join(f"{value:g}" for value in pos)
 
 
-def map_yaml(name, tiles, entities, decals, art, capsule_blocked=(), hierophant_tiles=()):
+def map_yaml(name, tiles, entities, decals, art, capsule_blocked=(), hierophant_tiles=(), area_lighting=None):
     tile_names = ["Space"] + sorted(set(tiles.values()) - {"Space"})
     ids = {name: index for index, name in enumerate(tile_names)}
     chunks = defaultdict(lambda: bytearray(TILE_BYTES.size * CHUNK_SIZE * CHUNK_SIZE))
@@ -1152,10 +1162,12 @@ def map_yaml(name, tiles, entities, decals, art, capsule_blocked=(), hierophant_
     rows.extend([
         "          - type: Broadphase", "          - type: Physics", "            bodyType: Static",
         "          - type: Fixtures", "            fixtures: {}",
-        "          - type: ImplicitRoof", "            color: '#FFFFFFFF'",
         "          - type: GridEnvironment", "            forceGravity: true", "            alwaysPowered: true",
         "            safeAtmosphere: true",
     ])
+    if area_lighting is not None:
+        rows.extend(['          - type: BitrunAreaLighting', '            tiles:' if area_lighting else '            tiles: {}'])
+        rows.extend(f"              {x},{y}: '{color}'" for (x, y), color in sorted(area_lighting.items()) if color != '#000000')
     if hierophant_tiles:
         rows.extend(["          - type: BitrunHierophantArena", "            tiles:"])
         rows.extend(f"            - {x},{y}" for x, y in sorted(hierophant_tiles))
@@ -1259,9 +1271,15 @@ def main():
     functional = gameplay.generate(source_counts)
     known = target_prototypes(station)
     art = MapArt(white_moon, station, SOURCE_COMMIT, git, read_git_blobs, args.verify)
+    art.source_model = model
+    light_definitions = read_git_blobs(white_moon, ['code/__DEFINES/colors.dm', 'code/__DEFINES/lighting.dm'])
+    art.lighting = LightingImport(model, '\n'.join(blob.decode('utf-8-sig') for blob in light_definitions.values()))
     art.functional_targets = functional
     art.functional_mob_pools = gameplay.mob_pools
     art.prepare(parsed, ["/obj/structure/grille", *(source for source, _ in SPAWN_RESULTS.values())])
+    # Existing saved maps and apartment finish catalogs still reference these IDs.
+    for helper in ('broken_floor', 'burnt_floor'):
+        art.damaged_tile(Atom('/obj/effect/mapping_helpers/' + helper, {}), 'PlatingDamaged')
     inventory_appearances = {source: art.entity(Atom(source, {}), target, (0, 0))
                              for source, target in sorted(functional.items()) if source.startswith('/obj/item/')}
     gameplay.bind_appearances(inventory_appearances, art.entities)
@@ -1320,7 +1338,11 @@ def main():
             return False
         hierophant_tiles = [position for position, atoms in cells.items()
                            if any(atom.path.startswith("/area/") and hierophant_area(atom.path) for atom in atoms)]
-        produced[output] = map_yaml(name, tiles, entities, decals, art, blocked, hierophant_tiles)
+        area_lighting = {position: art.lighting.area(atom) for position, atoms in cells.items()
+                         if position in tiles for atom in atoms if atom.path.startswith('/area/')}
+        area_lighting = {position: color for position, color in area_lighting.items() if color != '#000000'}
+        manifest['maps'][path]['areaLighting'] = dict(sorted(Counter(area_lighting.values()).items()))
+        produced[output] = map_yaml(name, tiles, entities, decals, art, blocked, hierophant_tiles, area_lighting)
     for path, count in sorted(source_counts.items()):
         targets = sorted(source_associations.get(path, ()))
         if not targets and path.startswith(("/area", "/obj/effect/baseturf_helper", "/obj/modular_map_")):

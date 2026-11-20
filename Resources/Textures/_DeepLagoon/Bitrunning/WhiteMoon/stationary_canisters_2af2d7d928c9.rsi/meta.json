@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/obj/pipes_n_cables/stationary_canisters.dmi.",
+  "states": [
+    {
+      "name": "canister-0"
+    },
+    {
+      "name": "canister-1"
+    },
+    {
+      "name": "canister-10"
+    },
+    {
+      "name": "canister-11"
+    },
+    {
+      "name": "canister-110"
+    },
+    {
+      "name": "canister-111"
+    },
+    {
+      "name": "canister-12"
+    },
+    {
+      "name": "canister-127"
+    },
+    {
+      "name": "canister-13"
+    },
+    {
+      "name": "canister-137"
+    },
+    {
+      "name": "canister-139"
+    },
+    {
+      "name": "canister-14"
+    },
+    {
+      "name": "canister-141"
+    },
+    {
+      "name": "canister-143"
+    },
+    {
+      "name": "canister-15"
+    },
+    {
+      "name": "canister-157"
+    },
+    {
+      "name": "canister-159"
+    },
+    {
+      "name": "canister-175"
+    },
+    {
+      "name": "canister-191"
+    },
+    {
+      "name": "canister-2"
+    },
+    {
+      "name": "canister-203"
+    },
+    {
+      "name": "canister-207"
+    },
+    {
+      "name": "canister-21"
+    },
+    {
+      "name": "canister-223"
+    },
+    {
+      "name": "canister-23"
+    },
+    {
+      "name": "canister-239"
+    },
+    {
+      "name": "canister-255"
+    },
+    {
+      "name": "canister-29"
+    },
+    {
+      "name": "canister-3"
+    },
+    {
+      "name": "canister-31"
+    },
+    {
+      "name": "canister-38"
+    },
+    {
+      "name": "canister-39"
+    },
+    {
+      "name": "canister-4"
+    },
+    {
+      "name": "canister-46"
+    },
+    {
+      "name": "canister-47"
+    },
+    {
+      "name": "canister-5"
+    },
+    {
+      "name": "canister-55"
+    },
+    {
+      "name": "canister-6"
+    },
+    {
+      "name": "canister-63"
+    },
+    {
+      "name": "canister-7"
+    },
+    {
+      "name": "canister-74"
+    },
+    {
+      "name": "canister-75"
+    },
+    {
+      "name": "canister-78"
+    },
+    {
+      "name": "canister-79"
+    },
+    {
+      "name": "canister-8"
+    },
+    {
+      "name": "canister-9"
+    },
+    {
+      "name": "canister-95"
+    }
+  ]
+}

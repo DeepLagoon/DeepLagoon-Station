@@ -105,12 +105,224 @@ entities:
             bodyType: Static
           - type: Fixtures
             fixtures: {}
-          - type: ImplicitRoof
-            color: '#FFFFFFFF'
           - type: GridEnvironment
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
+          - type: BitrunAreaLighting
+            tiles:
+              0,0: '#FFFFFF'
+              0,1: '#FFFFFF'
+              0,2: '#FFFFFF'
+              0,3: '#FFFFFF'
+              0,4: '#FFFFFF'
+              0,5: '#FFFFFF'
+              0,6: '#FFFFFF'
+              0,7: '#FFFFFF'
+              0,8: '#FFFFFF'
+              0,9: '#FFFFFF'
+              0,10: '#FFFFFF'
+              0,11: '#FFFFFF'
+              0,12: '#FFFFFF'
+              0,13: '#FFFFFF'
+              0,14: '#FFFFFF'
+              0,15: '#FFFFFF'
+              0,16: '#FFFFFF'
+              0,17: '#FFFFFF'
+              0,18: '#FFFFFF'
+              0,19: '#FFFFFF'
+              0,20: '#FFFFFF'
+              0,21: '#FFFFFF'
+              0,22: '#FFFFFF'
+              0,23: '#FFFFFF'
+              0,24: '#FFFFFF'
+              0,25: '#FFFFFF'
+              0,26: '#FFFFFF'
+              0,27: '#FFFFFF'
+              0,28: '#FFFFFF'
+              0,29: '#FFFFFF'
+              0,30: '#FFFFFF'
+              0,31: '#FFFFFF'
+              0,32: '#FFFFFF'
+              0,33: '#FFFFFF'
+              0,34: '#FFFFFF'
+              0,35: '#FFFFFF'
+              0,36: '#FFFFFF'
+              0,37: '#FFFFFF'
+              0,38: '#FFFFFF'
+              0,39: '#FFFFFF'
+              0,40: '#FFFFFF'
+              0,41: '#FFFFFF'
+              0,42: '#FFFFFF'
+              0,43: '#FFFFFF'
+              0,44: '#FFFFFF'
+              0,45: '#FFFFFF'
+              0,46: '#FFFFFF'
+              0,47: '#FFFFFF'
+              0,48: '#FFFFFF'
+              0,49: '#FFFFFF'
+              0,50: '#FFFFFF'
+              0,51: '#FFFFFF'
+              0,52: '#FFFFFF'
+              0,53: '#FFFFFF'
+              0,54: '#FFFFFF'
+              0,55: '#FFFFFF'
+              1,0: '#FFFFFF'
+              1,55: '#FFFFFF'
+              2,0: '#FFFFFF'
+              2,55: '#FFFFFF'
+              3,0: '#FFFFFF'
+              3,55: '#FFFFFF'
+              4,0: '#FFFFFF'
+              4,55: '#FFFFFF'
+              5,0: '#FFFFFF'
+              5,55: '#FFFFFF'
+              6,0: '#FFFFFF'
+              6,55: '#FFFFFF'
+              7,0: '#FFFFFF'
+              7,55: '#FFFFFF'
+              8,0: '#FFFFFF'
+              8,55: '#FFFFFF'
+              9,0: '#FFFFFF'
+              9,55: '#FFFFFF'
+              10,0: '#FFFFFF'
+              10,55: '#FFFFFF'
+              11,0: '#FFFFFF'
+              11,55: '#FFFFFF'
+              12,0: '#FFFFFF'
+              12,55: '#FFFFFF'
+              13,0: '#FFFFFF'
+              13,55: '#FFFFFF'
+              14,0: '#FFFFFF'
+              14,55: '#FFFFFF'
+              15,0: '#FFFFFF'
+              15,55: '#FFFFFF'
+              16,0: '#FFFFFF'
+              16,55: '#FFFFFF'
+              17,0: '#FFFFFF'
+              17,55: '#FFFFFF'
+              18,0: '#FFFFFF'
+              18,55: '#FFFFFF'
+              19,0: '#FFFFFF'
+              19,55: '#FFFFFF'
+              20,0: '#FFFFFF'
+              20,55: '#FFFFFF'
+              21,0: '#FFFFFF'
+              21,55: '#FFFFFF'
+              22,0: '#FFFFFF'
+              22,55: '#FFFFFF'
+              23,0: '#FFFFFF'
+              23,55: '#FFFFFF'
+              24,0: '#FFFFFF'
+              24,55: '#FFFFFF'
+              25,0: '#FFFFFF'
+              25,55: '#FFFFFF'
+              26,0: '#FFFFFF'
+              26,55: '#FFFFFF'
+              27,0: '#FFFFFF'
+              27,55: '#FFFFFF'
+              28,0: '#FFFFFF'
+              28,55: '#FFFFFF'
+              29,0: '#FFFFFF'
+              29,55: '#FFFFFF'
+              30,0: '#FFFFFF'
+              30,55: '#FFFFFF'
+              31,0: '#FFFFFF'
+              31,55: '#FFFFFF'
+              32,0: '#FFFFFF'
+              32,55: '#FFFFFF'
+              33,0: '#FFFFFF'
+              33,55: '#FFFFFF'
+              34,0: '#FFFFFF'
+              34,55: '#FFFFFF'
+              35,0: '#FFFFFF'
+              35,55: '#FFFFFF'
+              36,0: '#FFFFFF'
+              36,55: '#FFFFFF'
+              37,0: '#FFFFFF'
+              37,55: '#FFFFFF'
+              38,0: '#FFFFFF'
+              38,55: '#FFFFFF'
+              39,0: '#FFFFFF'
+              39,55: '#FFFFFF'
+              40,0: '#FFFFFF'
+              40,55: '#FFFFFF'
+              41,0: '#FFFFFF'
+              41,55: '#FFFFFF'
+              42,0: '#FFFFFF'
+              42,55: '#FFFFFF'
+              43,0: '#FFFFFF'
+              43,55: '#FFFFFF'
+              44,0: '#FFFFFF'
+              44,55: '#FFFFFF'
+              45,0: '#FFFFFF'
+              45,55: '#FFFFFF'
+              46,0: '#FFFFFF'
+              46,55: '#FFFFFF'
+              47,0: '#FFFFFF'
+              47,55: '#FFFFFF'
+              48,0: '#FFFFFF'
+              48,55: '#FFFFFF'
+              49,0: '#FFFFFF'
+              49,55: '#FFFFFF'
+              50,0: '#FFFFFF'
+              50,55: '#FFFFFF'
+              51,0: '#FFFFFF'
+              51,1: '#FFFFFF'
+              51,2: '#FFFFFF'
+              51,3: '#FFFFFF'
+              51,4: '#FFFFFF'
+              51,5: '#FFFFFF'
+              51,6: '#FFFFFF'
+              51,7: '#FFFFFF'
+              51,8: '#FFFFFF'
+              51,9: '#FFFFFF'
+              51,10: '#FFFFFF'
+              51,11: '#FFFFFF'
+              51,12: '#FFFFFF'
+              51,13: '#FFFFFF'
+              51,14: '#FFFFFF'
+              51,15: '#FFFFFF'
+              51,16: '#FFFFFF'
+              51,17: '#FFFFFF'
+              51,18: '#FFFFFF'
+              51,19: '#FFFFFF'
+              51,20: '#FFFFFF'
+              51,21: '#FFFFFF'
+              51,22: '#FFFFFF'
+              51,23: '#FFFFFF'
+              51,24: '#FFFFFF'
+              51,25: '#FFFFFF'
+              51,26: '#FFFFFF'
+              51,27: '#FFFFFF'
+              51,28: '#FFFFFF'
+              51,29: '#FFFFFF'
+              51,30: '#FFFFFF'
+              51,31: '#FFFFFF'
+              51,32: '#FFFFFF'
+              51,33: '#FFFFFF'
+              51,34: '#FFFFFF'
+              51,35: '#FFFFFF'
+              51,36: '#FFFFFF'
+              51,37: '#FFFFFF'
+              51,38: '#FFFFFF'
+              51,39: '#FFFFFF'
+              51,40: '#FFFFFF'
+              51,41: '#FFFFFF'
+              51,42: '#FFFFFF'
+              51,43: '#FFFFFF'
+              51,44: '#FFFFFF'
+              51,45: '#FFFFFF'
+              51,46: '#FFFFFF'
+              51,47: '#FFFFFF'
+              51,48: '#FFFFFF'
+              51,49: '#FFFFFF'
+              51,50: '#FFFFFF'
+              51,51: '#FFFFFF'
+              51,52: '#FFFFFF'
+              51,53: '#FFFFFF'
+              51,54: '#FFFFFF'
+              51,55: '#FFFFFF'
           - type: DecalGrid
             chunkCollection:
               version: 2
@@ -184,13 +396,6 @@ entities:
             parent: 1
             pos: 27.5,42.5
             rot: 180
-  - proto: BitrunMapMachineryDoorPasswordVoiceSfc
-    entities:
-      - uid: 254
-        components:
-          - type: Transform
-            parent: 1
-            pos: 23.5,20.5
   - proto: BitrunMapMachineryDoorAirlockGrunge
     entities:
       - uid: 256
@@ -299,6 +504,13 @@ entities:
             pos: 18.5,43.5
           - type: MetaData
             name: "Captain's Room"
+  - proto: BitrunMapMachineryDoorPasswordVoiceSfc
+    entities:
+      - uid: 254
+        components:
+          - type: Transform
+            parent: 1
+            pos: 23.5,20.5
   - proto: BitrunMapMachineryDoorAirlockShuttleGlass
     entities:
       - uid: 108
@@ -3557,7 +3769,54 @@ entities:
           - type: Transform
             parent: 1
             pos: 28.5,22.5
-  - proto: BitrunMapMachineryLightSmallDirectionalEast
+  - proto: BitrunMapMachineryLightSmallDirectionalNorthVariantPlaced
+    entities:
+      - uid: 95
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,6.5
+      - uid: 97
+        components:
+          - type: Transform
+            parent: 1
+            pos: 26.5,6.5
+      - uid: 286
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,21.5
+      - uid: 301
+        components:
+          - type: Transform
+            parent: 1
+            pos: 27.5,21.5
+      - uid: 494
+        components:
+          - type: Transform
+            parent: 1
+            pos: 28.5,32.5
+      - uid: 585
+        components:
+          - type: Transform
+            parent: 1
+            pos: 20.5,35.5
+      - uid: 730
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,39.5
+      - uid: 740
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,39.5
+      - uid: 898
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,44.5
+  - proto: BitrunMapMachineryLightSmallDirectionalSouthVariantPlaced
     entities:
       - uid: 70
         components:
@@ -3571,16 +3830,6 @@ entities:
             parent: 1
             pos: 27.5,3.5
             rot: 180
-      - uid: 95
-        components:
-          - type: Transform
-            parent: 1
-            pos: 24.5,6.5
-      - uid: 97
-        components:
-          - type: Transform
-            parent: 1
-            pos: 26.5,6.5
       - uid: 214
         components:
           - type: Transform
@@ -3593,22 +3842,6 @@ entities:
             parent: 1
             pos: 27.5,18.5
             rot: 180
-      - uid: 240
-        components:
-          - type: Transform
-            parent: 1
-            pos: 31.5,19.5
-            rot: 270
-      - uid: 286
-        components:
-          - type: Transform
-            parent: 1
-            pos: 21.5,21.5
-      - uid: 301
-        components:
-          - type: Transform
-            parent: 1
-            pos: 27.5,21.5
       - uid: 438
         components:
           - type: Transform
@@ -3621,50 +3854,18 @@ entities:
             parent: 1
             pos: 37.5,31.5
             rot: 180
-      - uid: 494
-        components:
-          - type: Transform
-            parent: 1
-            pos: 28.5,32.5
       - uid: 555
         components:
           - type: Transform
             parent: 1
             pos: 24.5,34.5
             rot: 180
-      - uid: 571
-        components:
-          - type: Transform
-            parent: 1
-            pos: 14.5,35.5
-            rot: 270
-      - uid: 585
-        components:
-          - type: Transform
-            parent: 1
-            pos: 20.5,35.5
       - uid: 640
         components:
           - type: Transform
             parent: 1
             pos: 20.5,37.5
             rot: 180
-      - uid: 730
-        components:
-          - type: Transform
-            parent: 1
-            pos: 17.5,39.5
-      - uid: 740
-        components:
-          - type: Transform
-            parent: 1
-            pos: 24.5,39.5
-      - uid: 790
-        components:
-          - type: Transform
-            parent: 1
-            pos: 14.5,41.5
-            rot: 270
       - uid: 799
         components:
           - type: Transform
@@ -3677,18 +3878,33 @@ entities:
             parent: 1
             pos: 17.5,44.5
             rot: 180
-      - uid: 898
-        components:
-          - type: Transform
-            parent: 1
-            pos: 24.5,44.5
       - uid: 903
         components:
           - type: Transform
             parent: 1
             pos: 28.5,44.5
             rot: 180
-  - proto: BitrunMapMachineryLightDirectionalEast
+  - proto: BitrunMapMachineryLightSmallDirectionalEastVariantPlaced
+    entities:
+      - uid: 240
+        components:
+          - type: Transform
+            parent: 1
+            pos: 31.5,19.5
+            rot: 270
+      - uid: 571
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,35.5
+            rot: 270
+      - uid: 790
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,41.5
+            rot: 270
+  - proto: BitrunMapMachineryLightDirectionalSouthVariantPlaced
     entities:
       - uid: 489
         components:
@@ -3714,6 +3930,8 @@ entities:
             parent: 1
             pos: 36.5,34.5
             rot: 180
+  - proto: BitrunMapMachineryLightDirectionalNorthVariantPlaced
+    entities:
       - uid: 845
         components:
           - type: Transform
@@ -3797,6 +4015,13 @@ entities:
           - type: Transform
             parent: 1
             pos: 30.5,22.5
+  - proto: BitrunMapMachineryButtonCrematorium
+    entities:
+      - uid: 902
+        components:
+          - type: Transform
+            parent: 1
+            pos: 27.5,44.5
   - proto: BitrunMapMachineryButtonDoorSpriteOffsetDefault
     entities:
       - uid: 718
@@ -3813,13 +4038,6 @@ entities:
             pos: 21.5,42.5
           - type: MetaData
             name: "Room shutters control"
-  - proto: BitrunMapMachineryButtonCrematorium
-    entities:
-      - uid: 902
-        components:
-          - type: Transform
-            parent: 1
-            pos: 27.5,44.5
   - proto: BitrunMapStructureSinkDirectionalEast
     entities:
       - uid: 589
@@ -4109,6 +4327,48 @@ entities:
           - type: Transform
             parent: 1
             pos: 23.5,41.5
+  - proto: BitrunMapClosedWallRWallPlastitaniumSyndicateNodiagonal
+    entities:
+      - uid: 416
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,30.5
+      - uid: 426
+        components:
+          - type: Transform
+            parent: 1
+            pos: 32.5,30.5
+      - uid: 430
+        components:
+          - type: Transform
+            parent: 1
+            pos: 38.5,30.5
+      - uid: 546
+        components:
+          - type: Transform
+            parent: 1
+            pos: 41.5,33.5
+      - uid: 884
+        components:
+          - type: Transform
+            parent: 1
+            pos: 41.5,43.5
+      - uid: 950
+        components:
+          - type: Transform
+            parent: 1
+            pos: 21.5,46.5
+      - uid: 960
+        components:
+          - type: Transform
+            parent: 1
+            pos: 32.5,46.5
+      - uid: 965
+        components:
+          - type: Transform
+            parent: 1
+            pos: 38.5,46.5
   - proto: BitrunMapClosedWallRWallPlastitaniumSyndicate
     entities:
       - uid: 188
@@ -4266,11 +4526,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 20.5,30.5
-      - uid: 416
-        components:
-          - type: Transform
-            parent: 1
-            pos: 21.5,30.5
       - uid: 418
         components:
           - type: Transform
@@ -4296,11 +4551,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 31.5,30.5
-      - uid: 426
-        components:
-          - type: Transform
-            parent: 1
-            pos: 32.5,30.5
       - uid: 427
         components:
           - type: Transform
@@ -4316,11 +4566,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 37.5,30.5
-      - uid: 430
-        components:
-          - type: Transform
-            parent: 1
-            pos: 38.5,30.5
       - uid: 435
         components:
           - type: Transform
@@ -4521,11 +4766,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 40.5,33.5
-      - uid: 546
-        components:
-          - type: Transform
-            parent: 1
-            pos: 41.5,33.5
       - uid: 550
         components:
           - type: Transform
@@ -4891,11 +5131,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 40.5,43.5
-      - uid: 884
-        components:
-          - type: Transform
-            parent: 1
-            pos: 41.5,43.5
       - uid: 888
         components:
           - type: Transform
@@ -5051,11 +5286,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 20.5,46.5
-      - uid: 950
-        components:
-          - type: Transform
-            parent: 1
-            pos: 21.5,46.5
       - uid: 952
         components:
           - type: Transform
@@ -5081,11 +5311,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 31.5,46.5
-      - uid: 960
-        components:
-          - type: Transform
-            parent: 1
-            pos: 32.5,46.5
       - uid: 962
         components:
           - type: Transform
@@ -5101,11 +5326,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 37.5,46.5
-      - uid: 965
-        components:
-          - type: Transform
-            parent: 1
-            pos: 38.5,46.5
   - proto: BitrunMapClosedIndestructibleSyndicate
     entities:
       - uid: 183
@@ -5946,7 +6166,21 @@ entities:
             rot: -90
           - type: MetaData
             name: "Syndicate Interior Door"
-  - proto: BitrunMapStructureWindowReinforcedPlasmaPlastitaniumIconSmoothModeDefault
+  - proto: BitrunMapStructureWindowReinforcedSpawnerDirectionalEastSpriteOffset00
+    entities:
+      - uid: 69
+        components:
+          - type: Transform
+            parent: 1
+            pos: 22.5,3.5
+            rot: 90
+      - uid: 94
+        components:
+          - type: Transform
+            parent: 1
+            pos: 22.5,6.5
+            rot: 90
+  - proto: BitrunMapStructureWindowReinforcedPlasmaPlastitaniumParentWindowReinforcedDirectional
     entities:
       - uid: 565
         components:
@@ -5993,20 +6227,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 41.5,42.5
-  - proto: BitrunMapStructureWindowReinforcedSpawnerDirectionalEastSpriteOffset00
-    entities:
-      - uid: 69
-        components:
-          - type: Transform
-            parent: 1
-            pos: 22.5,3.5
-            rot: 90
-      - uid: 94
-        components:
-          - type: Transform
-            parent: 1
-            pos: 22.5,6.5
-            rot: 90
   - proto: BitrunMapItemWrenchSpriteOffsetDefault
     entities:
       - uid: 735

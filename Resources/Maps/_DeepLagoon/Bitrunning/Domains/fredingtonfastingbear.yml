@@ -70,12 +70,111 @@ entities:
             bodyType: Static
           - type: Fixtures
             fixtures: {}
-          - type: ImplicitRoof
-            color: '#FFFFFFFF'
           - type: GridEnvironment
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
+          - type: BitrunAreaLighting
+            tiles:
+              1,23: '#FFFFFF'
+              1,24: '#FFFFFF'
+              1,25: '#FFFFFF'
+              1,26: '#FFFFFF'
+              1,27: '#FFFFFF'
+              1,28: '#FFFFFF'
+              1,29: '#FFFFFF'
+              2,23: '#FFFFFF'
+              2,29: '#FFFFFF'
+              3,23: '#FFFFFF'
+              3,29: '#FFFFFF'
+              4,23: '#FFFFFF'
+              4,29: '#FFFFFF'
+              11,40: '#FFFFFF'
+              11,41: '#FFFFFF'
+              11,42: '#FFFFFF'
+              11,43: '#FFFFFF'
+              12,0: '#FFFFFF'
+              12,1: '#FFFFFF'
+              12,2: '#FFFFFF'
+              12,3: '#FFFFFF'
+              12,4: '#FFFFFF'
+              12,5: '#FFFFFF'
+              12,6: '#FFFFFF'
+              12,7: '#FFFFFF'
+              12,43: '#FFFFFF'
+              13,0: '#FFFFFF'
+              13,7: '#FFFFFF'
+              13,43: '#FFFFFF'
+              14,0: '#FFFFFF'
+              14,10: '#FFFFFF'
+              14,11: '#FFFFFF'
+              14,12: '#FFFFFF'
+              14,13: '#FFFFFF'
+              14,14: '#FFFFFF'
+              14,15: '#FFFFFF'
+              14,16: '#FFFFFF'
+              14,43: '#FFFFFF'
+              15,0: '#FFFFFF'
+              15,7: '#FFFFFF'
+              15,8: '#FFFFFF'
+              15,9: '#FFFFFF'
+              15,10: '#FFFFFF'
+              15,11: '#FFFFFF'
+              15,12: '#FFFFFF'
+              15,13: '#FFFFFF'
+              15,14: '#FFFFFF'
+              15,15: '#FFFFFF'
+              15,16: '#FFFFFF'
+              15,43: '#FFFFFF'
+              16,0: '#FFFFFF'
+              16,7: '#FFFFFF'
+              16,8: '#FFFFFF'
+              16,9: '#FFFFFF'
+              16,10: '#FFFFFF'
+              16,11: '#FFFFFF'
+              16,12: '#FFFFFF'
+              16,13: '#FFFFFF'
+              16,14: '#FFFFFF'
+              16,15: '#FFFFFF'
+              16,16: '#FFFFFF'
+              16,43: '#FFFFFF'
+              17,0: '#FFFFFF'
+              17,7: '#FFFFFF'
+              17,8: '#FFFFFF'
+              17,9: '#FFFFFF'
+              17,10: '#FFFFFF'
+              17,11: '#FFFFFF'
+              17,12: '#FFFFFF'
+              17,13: '#FFFFFF'
+              17,14: '#FFFFFF'
+              17,15: '#FFFFFF'
+              17,16: '#FFFFFF'
+              17,43: '#FFFFFF'
+              18,0: '#FFFFFF'
+              18,10: '#FFFFFF'
+              18,11: '#FFFFFF'
+              18,12: '#FFFFFF'
+              18,13: '#FFFFFF'
+              18,14: '#FFFFFF'
+              18,15: '#FFFFFF'
+              18,16: '#FFFFFF'
+              18,43: '#FFFFFF'
+              19,0: '#FFFFFF'
+              19,7: '#FFFFFF'
+              19,43: '#FFFFFF'
+              20,0: '#FFFFFF'
+              20,1: '#FFFFFF'
+              20,2: '#FFFFFF'
+              20,3: '#FFFFFF'
+              20,4: '#FFFFFF'
+              20,5: '#FFFFFF'
+              20,6: '#FFFFFF'
+              20,7: '#FFFFFF'
+              20,43: '#FFFFFF'
+              21,40: '#FFFFFF'
+              21,41: '#FFFFFF'
+              21,42: '#FFFFFF'
+              21,43: '#FFFFFF'
           - type: DecalGrid
             chunkCollection:
               version: 2
@@ -479,6 +578,13 @@ entities:
                   "361": 17,39
                   "362": 17,40
                   "363": 18,40
+  - proto: BitrunMapMachineryDoorAirlockWood
+    entities:
+      - uid: 61
+        components:
+          - type: Transform
+            parent: 1
+            pos: 16.5,6.5
   - proto: BitrunMapMachineryDoorAirlock
     entities:
       - uid: 98
@@ -496,13 +602,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 25.5,23.5
-  - proto: BitrunMapMachineryDoorAirlockWood
-    entities:
-      - uid: 61
-        components:
-          - type: Transform
-            parent: 1
-            pos: 16.5,6.5
   - proto: BitrunMapItemToyBalloonHeart
     entities:
       - uid: 286
@@ -2657,6 +2756,32 @@ entities:
             parent: 1
             pos: 20.5,35.5
             rot: -90
+  - proto: BitrunMapStructureChairSofaCorpLeft
+    entities:
+      - uid: 301
+        components:
+          - type: Transform
+            parent: 1
+            pos: 23.5,25.5
+            rot: 180
+      - uid: 347
+        components:
+          - type: Transform
+            parent: 1
+            pos: 25.5,27.5
+  - proto: BitrunMapStructureChairSofaCorp
+    entities:
+      - uid: 302
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,25.5
+            rot: 180
+      - uid: 346
+        components:
+          - type: Transform
+            parent: 1
+            pos: 24.5,27.5
   - proto: BitrunMapStructureChairStoolBarDirectionalEastSpriteOffset00
     entities:
       - uid: 423
@@ -2726,32 +2851,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 23.5,27.5
-  - proto: BitrunMapStructureChairSofaCorpLeft
-    entities:
-      - uid: 301
-        components:
-          - type: Transform
-            parent: 1
-            pos: 23.5,25.5
-            rot: 180
-      - uid: 347
-        components:
-          - type: Transform
-            parent: 1
-            pos: 25.5,27.5
-  - proto: BitrunMapStructureChairSofaCorp
-    entities:
-      - uid: 302
-        components:
-          - type: Transform
-            parent: 1
-            pos: 24.5,25.5
-            rot: 180
-      - uid: 346
-        components:
-          - type: Transform
-            parent: 1
-            pos: 24.5,27.5
   - proto: BitrunMapStructureChairComfy
     entities:
       - uid: 298
@@ -2972,18 +3071,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 21.5,43.5
-  - proto: BitrunMapStructureCurtainClothFancyMechanicalStartClosed
-    entities:
-      - uid: 542
-        components:
-          - type: Transform
-            parent: 1
-            pos: 13.5,39.5
-      - uid: 548
-        components:
-          - type: Transform
-            parent: 1
-            pos: 18.5,39.5
   - proto: BitrunMapStructureCurtainClothFancyMechanical
     entities:
       - uid: 543
@@ -3006,6 +3093,18 @@ entities:
           - type: Transform
             parent: 1
             pos: 17.5,39.5
+  - proto: BitrunMapStructureCurtainClothFancyMechanicalStartClosed
+    entities:
+      - uid: 542
+        components:
+          - type: Transform
+            parent: 1
+            pos: 13.5,39.5
+      - uid: 548
+        components:
+          - type: Transform
+            parent: 1
+            pos: 18.5,39.5
   - proto: BitrunMapItemReagentContainersCupSodaCansGreyBull
     entities:
       - uid: 320
@@ -3020,13 +3119,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 26.5,36.5
-  - proto: BitrunMapItemReagentContainersCupGlassBottleGoldschlagerSpriteOffset0Point218750Point34375
-    entities:
-      - uid: 480
-        components:
-          - type: Transform
-            parent: 1
-            pos: 26.5,35.5
   - proto: BitrunMapItemReagentContainersCupGlassBottleCognacSpriteOffsetMinus0Point1250
     entities:
       - uid: 481
@@ -3041,6 +3133,13 @@ entities:
           - type: Transform
             parent: 1
             pos: 25.5,26.5
+  - proto: BitrunMapItemReagentContainersCupGlassBottleGoldschlagerSpriteOffset0Point218750Point34375
+    entities:
+      - uid: 480
+        components:
+          - type: Transform
+            parent: 1
+            pos: 26.5,35.5
   - proto: FoodPacketChipsTrash
     entities:
       - uid: 375
@@ -3053,41 +3152,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 8.5,31.5
-  - proto: BitrunMapItemTrashPeanuts
-    entities:
-      - uid: 496
-        components:
-          - type: Transform
-            parent: 1
-            pos: 7.5,37.5
-  - proto: BitrunMapItemTrashRaisins
-    entities:
-      - uid: 431
-        components:
-          - type: Transform
-            parent: 1
-            pos: 7.5,33.5
-  - proto: BitrunMapItemTrashCanSpriteOffsetDefault
-    entities:
-      - uid: 243
-        components:
-          - type: Transform
-            parent: 1
-            pos: 15.5,22.5
-  - proto: BitrunMapItemTrashPistachios
-    entities:
-      - uid: 334
-        components:
-          - type: Transform
-            parent: 1
-            pos: 9.5,27.5
-  - proto: BitrunMapItemTrashShrimpChips
-    entities:
-      - uid: 244
-        components:
-          - type: Transform
-            parent: 1
-            pos: 17.5,22.5
   - proto: BitrunMapItemTrashTray
     entities:
       - uid: 445
@@ -3095,20 +3159,13 @@ entities:
           - type: Transform
             parent: 1
             pos: 14.5,34.5
-  - proto: BitrunMapItemTrashPopcorn
+  - proto: BitrunMapItemTrashShrimpChips
     entities:
-      - uid: 356
+      - uid: 244
         components:
           - type: Transform
             parent: 1
-            pos: 15.5,28.5
-  - proto: BitrunMapItemTrashBoritosGreenSpriteOffset0Point1250Point34375
-    entities:
-      - uid: 441
-        components:
-          - type: Transform
-            parent: 1
-            pos: 7.5,34.5
+            pos: 17.5,22.5
   - proto: BitrunMapItemTrashReadyDonkSpriteOffsetDefault
     entities:
       - uid: 315
@@ -3116,6 +3173,60 @@ entities:
           - type: Transform
             parent: 1
             pos: 14.5,26.5
+  - proto: BitrunMapItemTrashCanSpriteOffsetDefault
+    entities:
+      - uid: 243
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,22.5
+  - proto: BitrunMapItemTrashPopcorn
+    entities:
+      - uid: 356
+        components:
+          - type: Transform
+            parent: 1
+            pos: 15.5,28.5
+  - proto: BitrunMapItemTrashPistachios
+    entities:
+      - uid: 334
+        components:
+          - type: Transform
+            parent: 1
+            pos: 9.5,27.5
+  - proto: BitrunMapItemTrashBoritosGreenSpriteOffset0Point1250Point34375
+    entities:
+      - uid: 441
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,34.5
+  - proto: BitrunMapItemTrashRaisins
+    entities:
+      - uid: 431
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,33.5
+  - proto: BitrunMapItemTrashPeanuts
+    entities:
+      - uid: 496
+        components:
+          - type: Transform
+            parent: 1
+            pos: 7.5,37.5
+  - proto: BitrunMapItemFoodPizzaEnergyRawSpriteOffset0Point093750Point25
+    entities:
+      - uid: 395
+        components:
+          - type: Transform
+            parent: 1
+            pos: 14.5,31.5
+      - uid: 451
+        components:
+          - type: Transform
+            parent: 1
+            pos: 19.5,34.5
   - proto: BitrunMapItemFoodPizzaSpriteOffsetDefault
     entities:
       - uid: 471
@@ -3130,18 +3241,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 13.5,35.5
-  - proto: BitrunMapItemFoodPizzaEnergyRawSpriteOffset0Point093750Point25
-    entities:
-      - uid: 395
-        components:
-          - type: Transform
-            parent: 1
-            pos: 14.5,31.5
-      - uid: 451
-        components:
-          - type: Transform
-            parent: 1
-            pos: 19.5,34.5
   - proto: BitrunMapItemFoodPizzasliceMothicMargherita
     entities:
       - uid: 414
@@ -3215,7 +3314,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 15.5,5.5
-  - proto: BitrunMapMachineryLightSmallDirectionalEast
+  - proto: BitrunMapMachineryLightSmallDirectionalWestVariantPlaced
     entities:
       - uid: 24
         components:
@@ -3223,18 +3322,20 @@ entities:
             parent: 1
             pos: 14.5,2.5
             rot: 90
-      - uid: 25
-        components:
-          - type: Transform
-            parent: 1
-            pos: 18.5,2.5
-            rot: 270
       - uid: 51
         components:
           - type: Transform
             parent: 1
             pos: 14.5,5.5
             rot: 90
+  - proto: BitrunMapMachineryLightSmallDirectionalEastVariantPlaced
+    entities:
+      - uid: 25
+        components:
+          - type: Transform
+            parent: 1
+            pos: 18.5,2.5
+            rot: 270
       - uid: 53
         components:
           - type: Transform
@@ -3315,6 +3416,14 @@ entities:
             parent: 1
             pos: 20.5,37.5
             rot: 270
+  - proto: BitrunMapStructureRailingCornerEnd
+    entities:
+      - uid: 44
+        components:
+          - type: Transform
+            parent: 1
+            pos: 17.5,4.5
+            rot: 90
   - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
     entities:
       - uid: 45
@@ -3370,14 +3479,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 18.5,39.5
-  - proto: BitrunMapStructureRailingCornerEnd
-    entities:
-      - uid: 44
-        components:
-          - type: Transform
-            parent: 1
-            pos: 17.5,4.5
-            rot: 90
   - proto: BitrunMapStructureWindowReinforcedPlasmaFulltile
     entities:
       - uid: 266

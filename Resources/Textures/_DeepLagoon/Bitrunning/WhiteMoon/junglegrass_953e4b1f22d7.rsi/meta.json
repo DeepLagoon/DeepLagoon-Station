@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "size": {
+    "x": 50,
+    "y": 50
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/floors/junglegrass.dmi.",
+  "states": [
+    {
+      "name": "junglegrass-0"
+    },
+    {
+      "name": "junglegrass-1"
+    },
+    {
+      "name": "junglegrass-10"
+    },
+    {
+      "name": "junglegrass-11"
+    },
+    {
+      "name": "junglegrass-110"
+    },
+    {
+      "name": "junglegrass-111"
+    },
+    {
+      "name": "junglegrass-12"
+    },
+    {
+      "name": "junglegrass-127"
+    },
+    {
+      "name": "junglegrass-13"
+    },
+    {
+      "name": "junglegrass-137"
+    },
+    {
+      "name": "junglegrass-139"
+    },
+    {
+      "name": "junglegrass-14"
+    },
+    {
+      "name": "junglegrass-141"
+    },
+    {
+      "name": "junglegrass-143"
+    },
+    {
+      "name": "junglegrass-15"
+    },
+    {
+      "name": "junglegrass-157"
+    },
+    {
+      "name": "junglegrass-159"
+    },
+    {
+      "name": "junglegrass-175"
+    },
+    {
+      "name": "junglegrass-191"
+    },
+    {
+      "name": "junglegrass-2"
+    },
+    {
+      "name": "junglegrass-203"
+    },
+    {
+      "name": "junglegrass-207"
+    },
+    {
+      "name": "junglegrass-21"
+    },
+    {
+      "name": "junglegrass-223"
+    },
+    {
+      "name": "junglegrass-23"
+    },
+    {
+      "name": "junglegrass-239"
+    },
+    {
+      "name": "junglegrass-255"
+    },
+    {
+      "name": "junglegrass-29"
+    },
+    {
+      "name": "junglegrass-3"
+    },
+    {
+      "name": "junglegrass-31"
+    },
+    {
+      "name": "junglegrass-38"
+    },
+    {
+      "name": "junglegrass-39"
+    },
+    {
+      "name": "junglegrass-4"
+    },
+    {
+      "name": "junglegrass-46"
+    },
+    {
+      "name": "junglegrass-47"
+    },
+    {
+      "name": "junglegrass-5"
+    },
+    {
+      "name": "junglegrass-55"
+    },
+    {
+      "name": "junglegrass-6"
+    },
+    {
+      "name": "junglegrass-63"
+    },
+    {
+      "name": "junglegrass-7"
+    },
+    {
+      "name": "junglegrass-74"
+    },
+    {
+      "name": "junglegrass-75"
+    },
+    {
+      "name": "junglegrass-78"
+    },
+    {
+      "name": "junglegrass-79"
+    },
+    {
+      "name": "junglegrass-8"
+    },
+    {
+      "name": "junglegrass-9"
+    },
+    {
+      "name": "junglegrass-95"
+    }
+  ]
+}

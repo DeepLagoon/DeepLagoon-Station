@@ -217,12 +217,14 @@ def write_json(path, value, check):
 
 
 def write_frame(path, expected, check):
+    if path.exists():
+        with Image.open(path) as image:
+            if image.size == expected.size and image.convert("RGBA").tobytes() == expected.tobytes():
+                return
     if not check:
         expected.save(path)
         return
-    with Image.open(path) as image:
-        if image.size != expected.size or image.convert("RGBA").tobytes() != expected.tobytes():
-            raise ValueError(f"Pixels do not match source: {path}")
+    raise ValueError(f"Pixels do not match source: {path}")
 
 
 def export_atlas(blobs, name, path, selected, check):

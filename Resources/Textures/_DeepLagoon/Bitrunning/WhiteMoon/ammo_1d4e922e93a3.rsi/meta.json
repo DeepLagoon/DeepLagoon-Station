@@ -14,13 +14,31 @@
       "name": ".50"
     },
     {
+      "name": ".50-live"
+    },
+    {
+      "name": ".50-live-spent"
+    },
+    {
       "name": ".50mag"
     },
     {
       "name": "223-casing"
     },
     {
+      "name": "223-casing-live"
+    },
+    {
+      "name": "223-casing-live-spent"
+    },
+    {
       "name": "310-casing"
+    },
+    {
+      "name": "310-casing-live"
+    },
+    {
+      "name": "310-casing-live-spent"
     },
     {
       "name": "310_strip"
@@ -36,6 +54,12 @@
     },
     {
       "name": "762-casing"
+    },
+    {
+      "name": "762-casing-live"
+    },
+    {
+      "name": "762-casing-live-spent"
     },
     {
       "name": "9mmaps-15"
@@ -57,11 +81,30 @@
       "directions": 8
     },
     {
+      "name": "s-casing-live",
+      "directions": 8
+    },
+    {
+      "name": "s-casing-live-spent",
+      "directions": 8
+    },
+    {
       "name": "sL-casing",
       "directions": 8
     },
     {
+      "name": "sL-casing-live",
+      "directions": 8
+    },
+    {
+      "name": "sL-casing-live-spent",
+      "directions": 8
+    },
+    {
       "name": "srm-8"
+    },
+    {
+      "name": "srm-8-spent"
     },
     {
       "name": "uzi9mm-32"

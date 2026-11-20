@@ -9,6 +9,144 @@
   "states": [
     {
       "name": "porous_rock-0"
+    },
+    {
+      "name": "porous_rock-1"
+    },
+    {
+      "name": "porous_rock-10"
+    },
+    {
+      "name": "porous_rock-11"
+    },
+    {
+      "name": "porous_rock-110"
+    },
+    {
+      "name": "porous_rock-111"
+    },
+    {
+      "name": "porous_rock-12"
+    },
+    {
+      "name": "porous_rock-127"
+    },
+    {
+      "name": "porous_rock-13"
+    },
+    {
+      "name": "porous_rock-137"
+    },
+    {
+      "name": "porous_rock-139"
+    },
+    {
+      "name": "porous_rock-14"
+    },
+    {
+      "name": "porous_rock-141"
+    },
+    {
+      "name": "porous_rock-143"
+    },
+    {
+      "name": "porous_rock-15"
+    },
+    {
+      "name": "porous_rock-157"
+    },
+    {
+      "name": "porous_rock-159"
+    },
+    {
+      "name": "porous_rock-175"
+    },
+    {
+      "name": "porous_rock-191"
+    },
+    {
+      "name": "porous_rock-2"
+    },
+    {
+      "name": "porous_rock-203"
+    },
+    {
+      "name": "porous_rock-207"
+    },
+    {
+      "name": "porous_rock-21"
+    },
+    {
+      "name": "porous_rock-223"
+    },
+    {
+      "name": "porous_rock-23"
+    },
+    {
+      "name": "porous_rock-239"
+    },
+    {
+      "name": "porous_rock-255"
+    },
+    {
+      "name": "porous_rock-29"
+    },
+    {
+      "name": "porous_rock-3"
+    },
+    {
+      "name": "porous_rock-31"
+    },
+    {
+      "name": "porous_rock-38"
+    },
+    {
+      "name": "porous_rock-39"
+    },
+    {
+      "name": "porous_rock-4"
+    },
+    {
+      "name": "porous_rock-46"
+    },
+    {
+      "name": "porous_rock-47"
+    },
+    {
+      "name": "porous_rock-5"
+    },
+    {
+      "name": "porous_rock-55"
+    },
+    {
+      "name": "porous_rock-6"
+    },
+    {
+      "name": "porous_rock-63"
+    },
+    {
+      "name": "porous_rock-7"
+    },
+    {
+      "name": "porous_rock-74"
+    },
+    {
+      "name": "porous_rock-75"
+    },
+    {
+      "name": "porous_rock-78"
+    },
+    {
+      "name": "porous_rock-79"
+    },
+    {
+      "name": "porous_rock-8"
+    },
+    {
+      "name": "porous_rock-9"
+    },
+    {
+      "name": "porous_rock-95"
     }
   ]
 }

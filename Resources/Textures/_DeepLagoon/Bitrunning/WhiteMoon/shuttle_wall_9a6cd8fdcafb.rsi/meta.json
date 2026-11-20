@@ -11,49 +11,145 @@
       "name": "shuttle_wall-0"
     },
     {
-      "name": "shuttle_wall-1"
+      "name": "shuttle_wall-diagonal-0"
     },
     {
-      "name": "shuttle_wall-10"
+      "name": "shuttle_wall-diagonal-1"
     },
     {
-      "name": "shuttle_wall-11"
+      "name": "shuttle_wall-diagonal-10"
     },
     {
-      "name": "shuttle_wall-12"
+      "name": "shuttle_wall-diagonal-11"
     },
     {
-      "name": "shuttle_wall-13"
+      "name": "shuttle_wall-diagonal-110"
     },
     {
-      "name": "shuttle_wall-14"
+      "name": "shuttle_wall-diagonal-111"
     },
     {
-      "name": "shuttle_wall-15"
+      "name": "shuttle_wall-diagonal-12"
     },
     {
-      "name": "shuttle_wall-2"
+      "name": "shuttle_wall-diagonal-127"
     },
     {
-      "name": "shuttle_wall-3"
+      "name": "shuttle_wall-diagonal-13"
     },
     {
-      "name": "shuttle_wall-4"
+      "name": "shuttle_wall-diagonal-137"
     },
     {
-      "name": "shuttle_wall-5"
+      "name": "shuttle_wall-diagonal-139"
     },
     {
-      "name": "shuttle_wall-6"
+      "name": "shuttle_wall-diagonal-14"
     },
     {
-      "name": "shuttle_wall-7"
+      "name": "shuttle_wall-diagonal-141"
     },
     {
-      "name": "shuttle_wall-8"
+      "name": "shuttle_wall-diagonal-143"
     },
     {
-      "name": "shuttle_wall-9"
+      "name": "shuttle_wall-diagonal-15"
+    },
+    {
+      "name": "shuttle_wall-diagonal-157"
+    },
+    {
+      "name": "shuttle_wall-diagonal-159"
+    },
+    {
+      "name": "shuttle_wall-diagonal-175"
+    },
+    {
+      "name": "shuttle_wall-diagonal-191"
+    },
+    {
+      "name": "shuttle_wall-diagonal-2"
+    },
+    {
+      "name": "shuttle_wall-diagonal-203"
+    },
+    {
+      "name": "shuttle_wall-diagonal-207"
+    },
+    {
+      "name": "shuttle_wall-diagonal-21"
+    },
+    {
+      "name": "shuttle_wall-diagonal-223"
+    },
+    {
+      "name": "shuttle_wall-diagonal-23"
+    },
+    {
+      "name": "shuttle_wall-diagonal-239"
+    },
+    {
+      "name": "shuttle_wall-diagonal-255"
+    },
+    {
+      "name": "shuttle_wall-diagonal-29"
+    },
+    {
+      "name": "shuttle_wall-diagonal-3"
+    },
+    {
+      "name": "shuttle_wall-diagonal-31"
+    },
+    {
+      "name": "shuttle_wall-diagonal-38"
+    },
+    {
+      "name": "shuttle_wall-diagonal-39"
+    },
+    {
+      "name": "shuttle_wall-diagonal-4"
+    },
+    {
+      "name": "shuttle_wall-diagonal-46"
+    },
+    {
+      "name": "shuttle_wall-diagonal-47"
+    },
+    {
+      "name": "shuttle_wall-diagonal-5"
+    },
+    {
+      "name": "shuttle_wall-diagonal-55"
+    },
+    {
+      "name": "shuttle_wall-diagonal-6"
+    },
+    {
+      "name": "shuttle_wall-diagonal-63"
+    },
+    {
+      "name": "shuttle_wall-diagonal-7"
+    },
+    {
+      "name": "shuttle_wall-diagonal-74"
+    },
+    {
+      "name": "shuttle_wall-diagonal-75"
+    },
+    {
+      "name": "shuttle_wall-diagonal-78"
+    },
+    {
+      "name": "shuttle_wall-diagonal-79"
+    },
+    {
+      "name": "shuttle_wall-diagonal-8"
+    },
+    {
+      "name": "shuttle_wall-diagonal-9"
+    },
+    {
+      "name": "shuttle_wall-diagonal-95"
     }
   ]
 }

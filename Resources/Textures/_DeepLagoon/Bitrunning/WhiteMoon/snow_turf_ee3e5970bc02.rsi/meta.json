@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/floors/snow_turf.dmi.",
+  "states": [
+    {
+      "name": "snow_turf-0"
+    },
+    {
+      "name": "snow_turf-1"
+    },
+    {
+      "name": "snow_turf-10"
+    },
+    {
+      "name": "snow_turf-11"
+    },
+    {
+      "name": "snow_turf-110"
+    },
+    {
+      "name": "snow_turf-111"
+    },
+    {
+      "name": "snow_turf-12"
+    },
+    {
+      "name": "snow_turf-127"
+    },
+    {
+      "name": "snow_turf-13"
+    },
+    {
+      "name": "snow_turf-137"
+    },
+    {
+      "name": "snow_turf-139"
+    },
+    {
+      "name": "snow_turf-14"
+    },
+    {
+      "name": "snow_turf-141"
+    },
+    {
+      "name": "snow_turf-143"
+    },
+    {
+      "name": "snow_turf-15"
+    },
+    {
+      "name": "snow_turf-157"
+    },
+    {
+      "name": "snow_turf-159"
+    },
+    {
+      "name": "snow_turf-175"
+    },
+    {
+      "name": "snow_turf-191"
+    },
+    {
+      "name": "snow_turf-2"
+    },
+    {
+      "name": "snow_turf-203"
+    },
+    {
+      "name": "snow_turf-207"
+    },
+    {
+      "name": "snow_turf-21"
+    },
+    {
+      "name": "snow_turf-223"
+    },
+    {
+      "name": "snow_turf-23"
+    },
+    {
+      "name": "snow_turf-239"
+    },
+    {
+      "name": "snow_turf-255"
+    },
+    {
+      "name": "snow_turf-29"
+    },
+    {
+      "name": "snow_turf-3"
+    },
+    {
+      "name": "snow_turf-31"
+    },
+    {
+      "name": "snow_turf-38"
+    },
+    {
+      "name": "snow_turf-39"
+    },
+    {
+      "name": "snow_turf-4"
+    },
+    {
+      "name": "snow_turf-46"
+    },
+    {
+      "name": "snow_turf-47"
+    },
+    {
+      "name": "snow_turf-5"
+    },
+    {
+      "name": "snow_turf-55"
+    },
+    {
+      "name": "snow_turf-6"
+    },
+    {
+      "name": "snow_turf-63"
+    },
+    {
+      "name": "snow_turf-7"
+    },
+    {
+      "name": "snow_turf-74"
+    },
+    {
+      "name": "snow_turf-75"
+    },
+    {
+      "name": "snow_turf-78"
+    },
+    {
+      "name": "snow_turf-79"
+    },
+    {
+      "name": "snow_turf-8"
+    },
+    {
+      "name": "snow_turf-9"
+    },
+    {
+      "name": "snow_turf-95"
+    }
+  ]
+}

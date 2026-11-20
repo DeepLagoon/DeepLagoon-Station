@@ -102,12 +102,12 @@ entities:
             bodyType: Static
           - type: Fixtures
             fixtures: {}
-          - type: ImplicitRoof
-            color: '#FFFFFFFF'
           - type: GridEnvironment
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
+          - type: BitrunAreaLighting
+            tiles: {}
           - type: DecalGrid
             chunkCollection:
               version: 2
@@ -1937,7 +1937,7 @@ entities:
             pos: 44.5,47.5
           - type: MetaData
             desc: "A body left behind in the virtual domain."
-  - proto: BitrunMapMachineryLightSmallDirectionalEast
+  - proto: BitrunMapMachineryLightSmallBlacklightDirectionalSouthVariantPlaced
     entities:
       - uid: 591
         components:
@@ -1951,7 +1951,7 @@ entities:
             parent: 1
             pos: 31.5,14.5
             rot: 180
-  - proto: BitrunMapMachineryLightDirectionalEast
+  - proto: BitrunMapMachineryLightDirectionalWestVariantPlaced
     entities:
       - uid: 516
         components:
@@ -1959,6 +1959,8 @@ entities:
             parent: 1
             pos: 26.5,11.5
             rot: 90
+  - proto: BitrunMapMachineryLightDirectionalEastVariantPlaced
+    entities:
       - uid: 523
         components:
           - type: Transform

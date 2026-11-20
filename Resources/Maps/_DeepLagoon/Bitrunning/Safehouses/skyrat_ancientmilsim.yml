@@ -35,12 +35,12 @@ entities:
             bodyType: Static
           - type: Fixtures
             fixtures: {}
-          - type: ImplicitRoof
-            color: '#FFFFFFFF'
           - type: GridEnvironment
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
+          - type: BitrunAreaLighting
+            tiles: {}
           - type: DecalGrid
             chunkCollection:
               version: 2
@@ -546,23 +546,6 @@ entities:
           - type: MetaData
             name: "hovercraft console"
             desc: "An armored hovercraft control computer. Doesn't work anymore... who would've thought."
-  - proto: BitrunMapItemStackMedicalMeshBloody
-    entities:
-      - uid: 39
-        components:
-          - type: Transform
-            parent: 22
-            pos: 0,0
-      - uid: 63
-        components:
-          - type: Transform
-            parent: 46
-            pos: 0,0
-      - uid: 91
-        components:
-          - type: Transform
-            parent: 74
-            pos: 0,0
   - proto: BitrunMapItemStackMedicalSutureBloody
     entities:
       - uid: 40
@@ -580,6 +563,23 @@ entities:
           - type: Transform
             parent: 74
             pos: 0,0
+  - proto: BitrunMapItemStackMedicalMeshBloody
+    entities:
+      - uid: 39
+        components:
+          - type: Transform
+            parent: 22
+            pos: 0,0
+      - uid: 63
+        components:
+          - type: Transform
+            parent: 46
+            pos: 0,0
+      - uid: 91
+        components:
+          - type: Transform
+            parent: 74
+            pos: 0,0
   - proto: BitrunMapStructureGrille
     entities:
       - uid: 107
@@ -592,7 +592,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: BitrunMapStructureWindowReinforcedPlasmaPlastitaniumIconSmoothModeCardinalFlags
+  - proto: BitrunMapStructureWindowReinforcedPlasmaPlastitaniumParentPlastitaniumWindow
     entities:
       - uid: 106
         components:
@@ -604,7 +604,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: BitrunMapMachineryLightSmallDirectionalEast
+  - proto: BitrunMapMachineryLightSmallDirectionalSouthVariantPlaced
     entities:
       - uid: 16
         components:
@@ -618,17 +618,21 @@ entities:
             parent: 1
             pos: 5.5,1.5
             rot: 180
+  - proto: BitrunMapMachineryLightSmallRedDirectionalNorthVariantPlaced
+    entities:
+      - uid: 95
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,4.5
+  - proto: BitrunMapMachineryLightSmallRedDirectionalEastVariantPlaced
+    entities:
       - uid: 69
         components:
           - type: Transform
             parent: 1
             pos: 5.5,3.5
             rot: 270
-      - uid: 95
-        components:
-          - type: Transform
-            parent: 1
-            pos: 2.5,4.5
   - proto: BitrunMapStructureTableReinforced
     entities:
       - uid: 97
@@ -636,32 +640,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 4.5,4.5
-  - proto: BitrunMapMachineryPowerShuttleEnginePropulsion
-    entities:
-      - uid: 15
-        components:
-          - type: Transform
-            parent: 1
-            pos: 0.5,1.5
-            rot: -90
-      - uid: 20
-        components:
-          - type: Transform
-            parent: 1
-            pos: 6.5,1.5
-            rot: 90
-      - uid: 73
-        components:
-          - type: Transform
-            parent: 1
-            pos: 0.5,4.5
-            rot: -90
-      - uid: 101
-        components:
-          - type: Transform
-            parent: 1
-            pos: 6.5,4.5
-            rot: 90
   - proto: BitrunMapMachineryPowerShuttleEngineHeater
     entities:
       - uid: 4
@@ -689,7 +667,33 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,0.5
-  - proto: BitrunMapClosedWallRWallPlastitaniumSyndicate
+  - proto: BitrunMapMachineryPowerShuttleEnginePropulsion
+    entities:
+      - uid: 15
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,1.5
+            rot: -90
+      - uid: 20
+        components:
+          - type: Transform
+            parent: 1
+            pos: 6.5,1.5
+            rot: 90
+      - uid: 73
+        components:
+          - type: Transform
+            parent: 1
+            pos: 0.5,4.5
+            rot: -90
+      - uid: 101
+        components:
+          - type: Transform
+            parent: 1
+            pos: 6.5,4.5
+            rot: 90
+  - proto: BitrunMapClosedWallMineralPlastitaniumNodiagonal
     entities:
       - uid: 2
         components:

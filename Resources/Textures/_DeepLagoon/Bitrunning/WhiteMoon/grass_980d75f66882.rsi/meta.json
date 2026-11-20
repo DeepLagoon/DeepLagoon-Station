@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "size": {
+    "x": 50,
+    "y": 50
+  },
+  "license": "CC-BY-SA-3.0",
+  "copyright": "tgstation, Skyrat and WhiteMoon contributors. Repacked from https://github.com/BlueMoon-Labs/WhiteMoon-Station/blob/634692776c7b38f998c12907bdbabe3aae46df65/icons/turf/floors/grass.dmi.",
+  "states": [
+    {
+      "name": "grass-0"
+    },
+    {
+      "name": "grass-1"
+    },
+    {
+      "name": "grass-10"
+    },
+    {
+      "name": "grass-11"
+    },
+    {
+      "name": "grass-110"
+    },
+    {
+      "name": "grass-111"
+    },
+    {
+      "name": "grass-12"
+    },
+    {
+      "name": "grass-127"
+    },
+    {
+      "name": "grass-13"
+    },
+    {
+      "name": "grass-137"
+    },
+    {
+      "name": "grass-139"
+    },
+    {
+      "name": "grass-14"
+    },
+    {
+      "name": "grass-141"
+    },
+    {
+      "name": "grass-143"
+    },
+    {
+      "name": "grass-15"
+    },
+    {
+      "name": "grass-157"
+    },
+    {
+      "name": "grass-159"
+    },
+    {
+      "name": "grass-175"
+    },
+    {
+      "name": "grass-191"
+    },
+    {
+      "name": "grass-2"
+    },
+    {
+      "name": "grass-203"
+    },
+    {
+      "name": "grass-207"
+    },
+    {
+      "name": "grass-21"
+    },
+    {
+      "name": "grass-223"
+    },
+    {
+      "name": "grass-23"
+    },
+    {
+      "name": "grass-239"
+    },
+    {
+      "name": "grass-255"
+    },
+    {
+      "name": "grass-29"
+    },
+    {
+      "name": "grass-3"
+    },
+    {
+      "name": "grass-31"
+    },
+    {
+      "name": "grass-38"
+    },
+    {
+      "name": "grass-39"
+    },
+    {
+      "name": "grass-4"
+    },
+    {
+      "name": "grass-46"
+    },
+    {
+      "name": "grass-47"
+    },
+    {
+      "name": "grass-5"
+    },
+    {
+      "name": "grass-55"
+    },
+    {
+      "name": "grass-6"
+    },
+    {
+      "name": "grass-63"
+    },
+    {
+      "name": "grass-7"
+    },
+    {
+      "name": "grass-74"
+    },
+    {
+      "name": "grass-75"
+    },
+    {
+      "name": "grass-78"
+    },
+    {
+      "name": "grass-79"
+    },
+    {
+      "name": "grass-8"
+    },
+    {
+      "name": "grass-9"
+    },
+    {
+      "name": "grass-95"
+    }
+  ]
+}

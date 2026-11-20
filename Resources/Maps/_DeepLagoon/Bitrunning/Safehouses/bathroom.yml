@@ -33,12 +33,12 @@ entities:
             bodyType: Static
           - type: Fixtures
             fixtures: {}
-          - type: ImplicitRoof
-            color: '#FFFFFFFF'
           - type: GridEnvironment
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
+          - type: BitrunAreaLighting
+            tiles: {}
           - type: DecalGrid
             chunkCollection:
               version: 2
@@ -171,7 +171,21 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,0.5
-  - proto: BitrunMapMachineryLightSmallDirectionalEast
+  - proto: BitrunMapMachineryLightSmallBlacklightDirectionalEastVariantPlaced
+    entities:
+      - uid: 12
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,1.5
+            rot: 270
+      - uid: 27
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,4.5
+            rot: 270
+  - proto: BitrunMapMachineryLightSmallBlacklightDirectionalWestVariantPlaced
     entities:
       - uid: 11
         components:
@@ -179,31 +193,12 @@ entities:
             parent: 1
             pos: 1.5,1.5
             rot: 90
-      - uid: 12
-        components:
-          - type: Transform
-            parent: 1
-            pos: 5.5,1.5
-            rot: 270
       - uid: 24
         components:
           - type: Transform
             parent: 1
             pos: 1.5,4.5
             rot: 90
-      - uid: 27
-        components:
-          - type: Transform
-            parent: 1
-            pos: 5.5,4.5
-            rot: 270
-  - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
-    entities:
-      - uid: 21
-        components:
-          - type: Transform
-            parent: 1
-            pos: 5.5,3.5
   - proto: BitrunMapStructureRailingCornerEnd
     entities:
       - uid: 20
@@ -212,6 +207,13 @@ entities:
             parent: 1
             pos: 4.5,3.5
             rot: 90
+  - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
+    entities:
+      - uid: 21
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,3.5
   - proto: BitrunMapStructureToiletSpriteOffsetDefault
     entities:
       - uid: 19

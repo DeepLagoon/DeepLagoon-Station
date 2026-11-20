@@ -14,6 +14,7 @@ import shutil
 
 from PIL import Image
 import yaml
+from smoothing_import import groups as smoothing_groups, junctions
 
 from import_sprites import (
     URL, dimensions, dmi_states, export_state, property_values, write_frame, write_json,
@@ -40,6 +41,7 @@ DIRECTION = {"NORTH": 1, "SOUTH": 2, "EAST": 4, "WEST": 8,
              "NORTHEAST": 5, "SOUTHEAST": 6, "NORTHWEST": 9, "SOUTHWEST": 10}
 FRAME_DIRECTION = (2, 1, 4, 8, 6, 10, 5, 9)
 DAMAGE_ATLAS = "icons/turf/damaged.dmi"
+FLOOR_ATLAS = "icons/turf/floors.dmi"
 MAP_SWITCH = re.compile(r"^MAP_SWITCH\(\s*(.*?),")
 DIRECTIONAL_HELPER = re.compile(r"^MAPPING_DIRECTIONAL_HELPERS\((/[^,]+),\s*(\d+)\)")
 BASE_PIXEL = re.compile(r"^\tSET_BASE_PIXEL(?:_NOMAP)?\(\s*([-+]?\d+),\s*([-+]?\d+)\)")
@@ -174,6 +176,7 @@ class MapArt:
         self.reversed_atlases = set()
         self.state_masks = {}
         self.tiles = {}
+        self.tile_underlays = {}
         self.animations = {}
         self.entities = {}
         self.decals = {}
@@ -397,15 +400,118 @@ class MapArt:
             self.missing[atom.path]["tile art has no static DMI state"] += 1
             return target
         fields = {**self.source_fields(atom.path), **atom.fields}
-        return self.create_tile(atom.path, target, *resolved, dm_int(fields.get("dir"), 2), dm_string(fields.get("color")))
+        direction, tint = dm_int(fields.get("dir"), 2), dm_string(fields.get("color"))
+        source = self.smoothing_fields(atom, fields)
+        if 'SMOOTH_BITMASK' in source['smoothing_flags']:
+            path, state = self.smoothing_atlas(atom, *resolved)
+            smooth = self.smoothing(source, {}, path, state, atom.path)
+            if smooth is not None:
+                style, component = smooth
+                # The floor remains a physical tile. Its source sprite is an
+                # anchored overlay, so adjacency can change after map loading.
+                tile = self.create_tile(atom.path, target, *resolved, direction, tint)
+                if tile == target:  # A runtime turf atlas may exceed 32 pixels.
+                    tile = f'BitrunTile{digest(repr((atom.path, target, "smooth")))}'
+                    self.tiles.setdefault(tile, (target, repr((*resolved, 0, tint)),
+                                                  Image.new('RGBA', (32, 32)), *resolved))
+                animation = f'BitrunAnimatedTile{digest(repr((atom.path, path, state, tint)))}'
+                layer = {**style, 'renderingStrategy': 'NoRotation'}
+                if tint:
+                    layer['color'] = tint
+                sprite = {'type': 'Sprite', 'drawdepth': 'LowFloors', 'layers': [layer]}
+                # RSI centers the 50px grass on its cell, matching WhiteMoon's
+                # lower-left anchor plus Initialize()'s (-9,-9) translation.
+                self.entities[animation] = {'name': 'virtual floor', 'components': [
+                    {'type': 'Transform', 'anchored': True}, {'type': 'RequiresTile'},
+                    sprite, component]}
+                # Keep a complete tile beneath the runtime appearance, also for
+                # saved maps and catalog placements that only reference tiles.
+                if self.tiles[tile][2].getchannel('A').getextrema()[0] != 255:
+                    self.with_underlay(tile, FLOOR_ATLAS, 'plating')
+                self.animations[tile] = (animation, 2)
+                self.placements[atom.path].add(animation)
+                return tile
+        tile = self.create_tile(atom.path, target, *resolved, direction, tint)
+        if atom.path.startswith('/turf/open/floor/catwalk_floor'):
+            kind = dm_string(self.source_model.fields(atom.path).get('catwalk_type'))
+            if kind and (below := kind + '_below') in self.atlas(resolved[0])[2]:
+                self.with_underlay(tile, resolved[0], below, direction, tint)
+        if (lighting := getattr(self, 'lighting', None)) and (point := lighting.point(atom)) and point['enabled']:
+            if tile in self.animations:
+                animation = self.animations[tile][0]
+                self.entities[animation]['components'] = [c for c in self.entities[animation]['components'] if c['type'] != 'PointLight'] + [point]
+            else:
+                animation = f'BitrunAnimatedTile{digest(repr((atom.path, point)))}'
+                self.entities[animation] = {'name': 'virtual floor light', 'components': [
+                    {'type': 'Transform', 'anchored': True}, {'type': 'RequiresTile'}, point]}
+                self.animations[tile] = (animation, 2)
+            self.placements[atom.path].add(animation)
+        return tile
+
+    def smoothing_atlas(self, atom, path, state):
+        fields = self.source_model.fields(atom.path)
+        if atom.path.startswith('/turf/open/misc/grass'):
+            path = fields['smooth_icon'].strip("'")
+            state = dm_string(fields['base_icon_state']) + '-0'
+        elif atom.path.startswith('/obj/machinery/atmospherics/components/tank'):
+            config = self.source_model.fields(fields['greyscale_config'])
+            path = config['icon_file'].strip("'")
+            state = dm_string(fields['post_init_icon_state'])
+        return path, state
+
+    def with_underlay(self, tile, path, state, direction=2, tint=None):
+        if tile in self.tile_underlays:
+            return
+        image, _, states = self.atlas(path)
+        _, dirs, _, offset = states[state]
+        frame = FRAME_DIRECTION.index(direction) if direction in FRAME_DIRECTION[:dirs] else 0
+        columns = image.width // 32
+        x, y = (offset + frame) % columns * 32, (offset + frame) // columns * 32
+        underlay = self.tinted(image.crop((x, y, x + 32, y + 32)), tint)
+        parent, style, above, source, above_state = self.tiles[tile]
+        self.tiles[tile] = (parent, style, Image.alpha_composite(underlay, above), source, above_state)
+        self.tile_underlays[tile] = {'source': path, 'state': state}
 
     def damaged_tile(self, atom, target):
+        """Keep historic catalog tile IDs, with real plating beneath their damage."""
         records = self.atlas(DAMAGE_ATLAS)[2]
         variants = ("floorscorched1", "scorched1", "burnt") if "burnt_floor" in atom.path else ("damaged1", "damaged")
         if not (state := self.state_candidate(records, *variants)):
             self.missing[atom.path]["floor damage atlas state unavailable"] += 1
             return target
-        return self.create_tile(atom.path, target, DAMAGE_ATLAS, state, 2, None)
+        tile = self.create_tile(atom.path, target, DAMAGE_ATLAS, state, 2, None)
+        self.with_underlay(tile, FLOOR_ATLAS, 'plating')
+        return tile
+
+    def damage_decal(self, helper, floor):
+        """WhiteMoon keeps the floor turf and adds its material-specific damage overlay."""
+        fields = {**self.source_model.fields(floor.path), **floor.fields}
+        icon = fields.get('damaged_dmi', '')
+        atlas = icon[1:-1] if icon.startswith("'") and icon.endswith("'") else None
+        if not atlas:
+            return None
+
+        def states(method):
+            result = []
+            for _, _, body in self.source_model.initialization(floor.path, method):
+                match = re.search(r'return\s+list\(([^)]*)\)', body)
+                if match:
+                    result = re.findall(r'"([^"\\]+)"', match[1])
+            return result
+
+        burnt = 'burnt_floor' in helper.path
+        choices = states('burnt_states') if burnt else []
+        if not choices:
+            choices = states('broken_states')
+        records = self.atlas(atlas)[2]
+        state = self.state_candidate(records, *choices)
+        if state is None:
+            raise ValueError(f'No source floor damage state: {floor.path}: {helper.path}: {choices}')
+        decal = f'BitrunDecal{digest(repr((atlas, state)))}'
+        self.decals.setdefault(decal, self.add(atlas, state))
+        self.manifest[helper.path]['damage decal'] += 1
+        self.placements[helper.path].add(decal)
+        return decal
 
     def create_tile(self, source_type, target, path, state, direction, tint):
         image, size, records = self.atlas(path)
@@ -481,6 +587,7 @@ class MapArt:
                 self.missing[atom.path]["no native gameplay mapping"] += 1
             return None
         source = self.source_fields(atom.path)
+        source = self.smoothing_fields(atom, source)
         if (invisibility := atom.fields.get("invisibility", source.get("invisibility"))) not in (None, "0"):
             self.missing[atom.path]["source object is hidden"] += 1
             return None
@@ -488,12 +595,16 @@ class MapArt:
             self.missing[atom.path]["unmapped object has no static DMI state"] += 1
             return None
         path, state = resolved
+        path, state = self.smoothing_atlas(atom, path, state)
         if self.is_spawner(atom.path, path):
             self.missing[atom.path]["no mapped spawn result"] += 1
             return None
         if atom.path.startswith(("/obj/structure/mineral_door", "/obj/machinery/door/")):
             raise ValueError(f"A functional door needs a native mapping: {atom.path}")
         style = self.add(path, state)
+        smooth = self.smoothing(source, {}, path, state, atom.path)
+        if smooth is not None:
+            style, smooth_component = smooth
         proto = f"BitrunArt{digest(repr((atom.path, resolved)))}"
         portable = atom.path.startswith("/obj/item/")
         sign = atom.path.startswith("/obj/structure/sign/")
@@ -509,6 +620,10 @@ class MapArt:
             "components": ([{"type": "Transform", "anchored": True}] if not portable else []) + [
                 sprite],
         }
+        if smooth is not None:
+            self.entities[proto]['components'].append(smooth_component)
+        if lighting := getattr(self, 'lighting', None):
+            self.entities[proto]['components'].extend(lighting.components(self, atom, {}))
         if description := dm_string(source.get("desc")):
             self.entities[proto]["description"] = description
         self.manifest[atom.path]["decorative entity"] += 1
@@ -524,6 +639,12 @@ class MapArt:
             "spawner" in Path(path).stem
 
     def entity(self, atom, target, position):
+        if target == 'BitrunAmbientLight' and (lighting := getattr(self, 'lighting', None)):
+            point = lighting.point(atom)
+            proto = 'BitrunSourceLight' + digest(repr((atom.path, point)))
+            self.entities[proto] = {'parent': target, 'components': [point] if point else [{'type': 'PointLight', 'enabled': False}]}
+            self.placements[atom.path].add(proto)
+            return proto
         if atom.path.startswith(('/obj/item/mod/', '/obj/item/stack/marker_beacon')) and atom.path in self.functional_targets:
             self.manifest[atom.path]['retained source runtime MOD appearance'] += 1
             return target
@@ -544,13 +665,18 @@ class MapArt:
             self.missing[atom.path]["native prototype has no sprite"] += 1
             return target
         path, state = resolved
+        path, state = self.smoothing_atlas(atom, path, state)
         source = {**self.source_fields(atom.path), **atom.fields}
+        source = self.smoothing_fields(atom, source)
+        light_components = self.lighting.components(self, atom, components) if getattr(self, 'lighting', None) else []
         tint = dm_string(source.get("color"))
         opacity = dm_int(source.get("alpha"), 255)
         ident = (target, path, state, source.get("base_icon_state"), source.get("icon_living"),
                  source.get("icon_dead"), source.get("icon_door"), tint, opacity,
                  source.get("icon_keyboard"), source.get("icon_screen"), source.get("keyboard_change_icon"),
-                 source.get("icon_deny"), source.get("icon_vend"), source.get("light_mask"), source.get("panel_type"))
+                 source.get("icon_deny"), source.get("icon_vend"), source.get("light_mask"), source.get("panel_type"),
+                 source.get('smoothing_flags'), source.get('smoothing_groups'), source.get('canSmoothWith'),
+                 repr(light_components) if light_components else None)
         while ident[-1] is None:
             ident = ident[:-1]
         proto = f"{target}BitrunArt{digest(repr(ident))}"
@@ -560,6 +686,12 @@ class MapArt:
                 self.missing[atom.path]["native visual states need a dedicated adapter"] += 1
                 return target
             self.inhand_components(source, state, mapped)
+            for light_component in light_components:
+                existing = next((c for c in mapped if c['type'] == light_component['type']), None)
+                if existing is not None:
+                    existing.update(light_component)
+                else:
+                    mapped.append(light_component)
             localization = self.native_entry(target).get("localizationId")
             self.entities[proto] = {
                 "parent": target,
@@ -583,6 +715,41 @@ class MapArt:
         self.manifest[atom.path]["entity"] += 1
         self.placements[atom.path].add(proto)
         return proto
+
+    def smoothing_fields(self, atom, source):
+        fields = self.source_model.fields(atom.path)
+        return {**source, '_source_type': atom.path, **{key: atom.fields.get(key, fields.get(key, ''))
+                             for key in ('smoothing_flags', 'smoothing_groups', 'canSmoothWith', 'anchored')}}
+
+    def smoothing(self, source, native, path, state, source_type=None):
+        own = smoothing_groups(source.get('smoothing_groups'))
+        accepted = smoothing_groups(source.get('canSmoothWith'))
+        flags = source.get('smoothing_flags', '')
+        active = 'SMOOTH_BITMASK' in flags
+        if not active and not own and 'IconSmooth' not in native:
+            return None
+        component = {'type': 'IconSmooth', 'mode': 'NoSprite', 'groups': own, 'canSmoothWith': accepted}
+        if not active:
+            if not own:
+                component['enabled'] = False
+            return self.add(path, state), component
+        records = self.atlas(path)[2]
+        base = dm_string(source.get('base_icon_state')) or re.sub(r'-\d+(?:-diagonal)?$', '', state)
+        cardinal = 'SMOOTH_BITMASK_CARDINALS' in flags
+        masks = junctions(cardinal)
+        prefix = next((base + separator for separator in ('-', '_', '')
+                       if all(base + separator + str(mask) in records for mask in masks)), None)
+        if prefix is None:
+            raise ValueError(f'Incomplete source smoothing atlas: {source_type or source.get("_source_type")}: {path}: {base}')
+        diagonal = 'SMOOTH_DIAGONAL_CORNERS' in flags
+        target_prefix = base + '-diagonal-' if diagonal else prefix
+        for mask in masks:
+            source_state = prefix + str(mask)
+            if diagonal and mask in (5, 6, 9, 10, 21, 38, 74, 137) and source_state + '-diagonal' in records:
+                source_state += '-diagonal'
+            self.add(path, source_state, target_prefix + str(mask))
+        component.update(mode='CardinalFlags' if cardinal else 'Bitmask8', base=target_prefix)
+        return {'sprite': self.rsi(path), 'state': target_prefix + '0'}, component
 
     def inhand_components(self, source, ground_state, components):
         state = dm_string(source.get('inhand_icon_state'))
@@ -683,6 +850,17 @@ class MapArt:
         _, _, records = self.atlas(path)
         original = self.add(path, state)
         overrides = []
+        if 'CartridgeAmmo' in native and 'SpentAmmoVisuals' in native:
+            # WhiteMoon uses <initial state>-live for a loaded cartridge and
+            # <initial state> for its casing. The native visualizer otherwise
+            # switches the imported layer to missing base/base-spent states.
+            casing = state.removesuffix('-live')
+            live = casing + '-live' if casing + '-live' in records else state
+            original = self.add(path, live)
+            self.add(path, casing if casing in records else state, live + '-spent')
+            return [{'type': 'Sprite', 'sprite': original['sprite'],
+                     'layers': [{**original, 'map': ['enum.AmmoVisualLayers.Base']}]},
+                    {'type': 'Appearance'}, {'type': 'SpentAmmoVisuals', 'state': live, 'suffix': True}]
         if 'BitrunLongBalloon' in native:
             return [{'type': 'Sprite', **{key: value for key, value in native['Sprite'].items() if key != 'state'}},
                     {'type': 'Appearance'}, {'type': 'GenericVisualizer', **native['GenericVisualizer']}]
@@ -834,8 +1012,12 @@ class MapArt:
                         self.add(path, dead if life in {"Critical", "Dead"} and dead is not None else normal, alias, variant)
             if layers and (old_state := layers[0].get("state")):
                 original = self.add(path, normal, old_state, variant)
+        source_smooth = self.smoothing(source, native, path, state)
+        if source_smooth is not None:
+            original, component = source_smooth
+            overrides.append(component)
         smooth = native.get("IconSmooth")
-        if smooth and smooth.get("mode") != "NoSprite":
+        if source_smooth is None and smooth and smooth.get("mode") != "NoSprite":
             base = dm_string(source.get("base_icon_state")) or state
             base = re.sub(r"[-_]0$", "", base)
             prefix = next((f"{base}{separator}" for separator in ("-", "_", "")
@@ -850,7 +1032,10 @@ class MapArt:
         if layers:
             current_layer = layers[art_layer]
             keys = current_layer.get("map", ())
-            alternates = {} if "computerLayerBody" in keys or "VendingMachine" in native else self.dynamic_states(
+            source_owns_state = source_smooth is not None and source_smooth[1]['mode'] in ('Bitmask8', 'CardinalFlags')
+            if source_owns_state and (visuals := self.smoothing_visuals(native, keys, art_layer)):
+                overrides.append({'type': 'GenericVisualizer', 'visuals': visuals})
+            alternates = {} if source_owns_state or "computerLayerBody" in keys or "VendingMachine" in native else self.dynamic_states(
                 native, keys, art_layer, records, state)
             if alternates:
                 if original["sprite"] == self.rsi(path):
@@ -864,6 +1049,13 @@ class MapArt:
         else:
             layers = [original]
         sprite_override = {"type": "Sprite", "layers": layers}
+        if source_smooth is not None and source_smooth[1]['mode'] in ('Bitmask8', 'CardinalFlags'):
+            sprite_override.update(noRot=True, snapCardinals=False)
+            for layer in layers:
+                layer['renderingStrategy'] = 'NoRotation'
+            # Some mapped native parents are movable, unlike their source.
+            if source.get('anchored') in ('TRUE', '1') or source.get('_source_type', '').startswith('/turf/'):
+                overrides.append({'type': 'Transform', 'anchored': True})
         if "ApcVisuals" in native:
             sprite_override["snapCardinals"] = True
         if directional_door:
@@ -893,6 +1085,21 @@ class MapArt:
         if "Icon" in native:
             overrides.append({"type": "Icon", **self.add(path, state)})
         return overrides
+
+    @staticmethod
+    def smoothing_visuals(native, keys, layer):
+        """Native random variants must not overwrite a source junction's RSI/state."""
+        result = {}
+        for appearance, layer_map in native.get('GenericVisualizer', {}).get('visuals', {}).items():
+            selected = {}
+            for key, values in layer_map.items():
+                if key not in keys and str(key) != str(layer):
+                    continue
+                selected[key] = {value: {**properties, 'state': None, 'sprite': None}
+                                 for value, properties in values.items()}
+            if selected:
+                result[appearance] = selected
+        return result
 
     def lock_layers(self, path, state, variant, records, layers, overrides):
         locked = self.state_candidate(records, state + "_locked", "locked")
@@ -1140,7 +1347,7 @@ class MapArt:
             if not candidates:
                 raise ValueError(f"Generated prototype has no source type: {prototype}")
             source = min(candidates, key=lambda p: (len(p), p))
-            kind = "FloorAnimation" if prototype.startswith("BitrunAnimatedTile") else "Decal" if prototype in self.decals else "Tile" if prototype in self.tiles else ""
+            kind = "LightBulb" if prototype.startswith("BitrunLightBulb") else "FloorAnimation" if prototype.startswith("BitrunAnimatedTile") else "Decal" if prototype in self.decals else "Tile" if prototype in self.tiles else ""
             name = "BitrunMap" + kind + token(source.removeprefix("/obj/").removeprefix("/turf/"))
             groups[name].append(prototype)
         names = {}
@@ -1183,6 +1390,8 @@ class MapArt:
             self.artifacts.add(file)
             write_frame(root / file, image, self.verify)
             tiles[tile_id] = {"source": path, "state": state, "parent": parent}
+            if tile_id in self.tile_underlays:
+                tiles[tile_id]['underlay'] = self.tile_underlays[tile_id]
             rows.append({"type": "tile", "id": tile_id, "parent": parent, "sprite": f"/Textures/{self.rsi(path).rsplit('/', 1)[0]}/{file}",
                          "variants": 1, "placementVariants": [1]})
         for decal_id, sprite in sorted(self.decals.items()):

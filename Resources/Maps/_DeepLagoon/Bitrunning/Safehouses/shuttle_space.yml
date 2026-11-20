@@ -35,12 +35,12 @@ entities:
             bodyType: Static
           - type: Fixtures
             fixtures: {}
-          - type: ImplicitRoof
-            color: '#FFFFFFFF'
           - type: GridEnvironment
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
+          - type: BitrunAreaLighting
+            tiles: {}
           - type: DecalGrid
             chunkCollection:
               version: 2
@@ -254,7 +254,19 @@ entities:
           - type: Transform
             parent: 1
             pos: 5.5,5.5
-  - proto: BitrunMapMachineryLightSmallDirectionalEast
+  - proto: BitrunMapMachineryLightSmallDirectionalNorthVariantPlaced
+    entities:
+      - uid: 32
+        components:
+          - type: Transform
+            parent: 1
+            pos: 2.5,4.5
+      - uid: 33
+        components:
+          - type: Transform
+            parent: 1
+            pos: 4.5,4.5
+  - proto: BitrunMapMachineryLightSmallDirectionalSouthVariantPlaced
     entities:
       - uid: 13
         components:
@@ -268,16 +280,6 @@ entities:
             parent: 1
             pos: 5.5,1.5
             rot: 180
-      - uid: 32
-        components:
-          - type: Transform
-            parent: 1
-            pos: 2.5,4.5
-      - uid: 33
-        components:
-          - type: Transform
-            parent: 1
-            pos: 4.5,4.5
   - proto: BitrunMapStructureWindowReinforcedShuttle
     entities:
       - uid: 4

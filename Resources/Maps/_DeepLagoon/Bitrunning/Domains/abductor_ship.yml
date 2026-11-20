@@ -64,12 +64,107 @@ entities:
             bodyType: Static
           - type: Fixtures
             fixtures: {}
-          - type: ImplicitRoof
-            color: '#FFFFFFFF'
           - type: GridEnvironment
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
+          - type: BitrunAreaLighting
+            tiles:
+              6,30: '#FFFFFF'
+              6,31: '#FFFFFF'
+              6,32: '#FFFFFF'
+              6,33: '#FFFFFF'
+              7,30: '#FFFFFF'
+              7,31: '#8589FA'
+              7,32: '#8589FA'
+              7,33: '#FFFFFF'
+              7,34: '#FFFFFF'
+              8,30: '#FFFFFF'
+              8,31: '#8589FA'
+              8,32: '#8589FA'
+              8,33: '#8589FA'
+              8,34: '#FFFFFF'
+              9,30: '#FFFFFF'
+              9,31: '#8589FA'
+              9,32: '#8589FA'
+              9,33: '#8589FA'
+              9,34: '#FFFFFF'
+              10,30: '#FFFFFF'
+              10,31: '#8589FA'
+              10,32: '#8589FA'
+              10,33: '#8589FA'
+              10,34: '#FFFFFF'
+              11,31: '#8589FA'
+              11,32: '#8589FA'
+              11,33: '#8589FA'
+              11,34: '#FFFFFF'
+              12,31: '#8589FA'
+              12,32: '#8589FA'
+              12,33: '#8589FA'
+              12,34: '#FFFFFF'
+              13,31: '#8589FA'
+              13,32: '#8589FA'
+              13,33: '#8589FA'
+              13,34: '#FFFFFF'
+              14,31: '#8589FA'
+              14,32: '#8589FA'
+              14,33: '#8589FA'
+              14,34: '#FFFFFF'
+              15,32: '#8589FA'
+              15,33: '#8589FA'
+              15,34: '#FFFFFF'
+              16,32: '#8589FA'
+              16,33: '#8589FA'
+              16,34: '#FFFFFF'
+              17,32: '#8589FA'
+              17,33: '#8589FA'
+              17,34: '#FFFFFF'
+              18,32: '#8589FA'
+              18,33: '#8589FA'
+              18,34: '#FFFFFF'
+              19,32: '#8589FA'
+              19,33: '#8589FA'
+              19,34: '#FFFFFF'
+              20,31: '#8589FA'
+              20,32: '#8589FA'
+              20,33: '#8589FA'
+              20,34: '#FFFFFF'
+              21,31: '#8589FA'
+              21,32: '#8589FA'
+              21,33: '#8589FA'
+              21,34: '#FFFFFF'
+              22,31: '#8589FA'
+              22,32: '#8589FA'
+              22,33: '#8589FA'
+              22,34: '#FFFFFF'
+              23,31: '#8589FA'
+              23,32: '#8589FA'
+              23,33: '#8589FA'
+              23,34: '#FFFFFF'
+              24,30: '#FFFFFF'
+              24,31: '#8589FA'
+              24,32: '#8589FA'
+              24,33: '#8589FA'
+              24,34: '#FFFFFF'
+              25,30: '#FFFFFF'
+              25,31: '#8589FA'
+              25,32: '#8589FA'
+              25,33: '#8589FA'
+              25,34: '#FFFFFF'
+              26,30: '#FFFFFF'
+              26,31: '#8589FA'
+              26,32: '#8589FA'
+              26,33: '#8589FA'
+              26,34: '#FFFFFF'
+              27,30: '#FFFFFF'
+              27,31: '#8589FA'
+              27,32: '#8589FA'
+              27,33: '#FFFFFF'
+              27,34: '#FFFFFF'
+              28,30: '#FFFFFF'
+              28,31: '#FFFFFF'
+              28,32: '#FFFFFF'
+              28,33: '#FFFFFF'
           - type: DecalGrid
             chunkCollection:
               version: 2
@@ -5254,7 +5349,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 19.5,14.5
-  - proto: BitrunMapStructureWindowReinforcedPlasmaPlastitaniumIconSmoothModeCardinalFlags
+  - proto: BitrunMapStructureWindowReinforcedPlasmaPlastitaniumParentPlastitaniumWindow
     entities:
       - uid: 839
         components:

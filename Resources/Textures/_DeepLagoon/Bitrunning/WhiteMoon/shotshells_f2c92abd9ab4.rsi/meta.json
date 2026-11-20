@@ -11,16 +11,46 @@
       "name": "blshell"
     },
     {
+      "name": "blshell-live"
+    },
+    {
+      "name": "blshell-live-spent"
+    },
+    {
       "name": "bshell"
+    },
+    {
+      "name": "bshell-live"
+    },
+    {
+      "name": "bshell-live-spent"
     },
     {
       "name": "gshell"
     },
     {
+      "name": "gshell-live"
+    },
+    {
+      "name": "gshell-live-spent"
+    },
+    {
       "name": "ishell"
     },
     {
+      "name": "ishell-live"
+    },
+    {
+      "name": "ishell-live-spent"
+    },
+    {
       "name": "rshell"
+    },
+    {
+      "name": "rshell-live"
+    },
+    {
+      "name": "rshell-live-spent"
     }
   ]
 }

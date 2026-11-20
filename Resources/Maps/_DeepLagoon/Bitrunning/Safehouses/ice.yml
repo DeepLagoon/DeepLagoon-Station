@@ -36,12 +36,12 @@ entities:
             bodyType: Static
           - type: Fixtures
             fixtures: {}
-          - type: ImplicitRoof
-            color: '#FFFFFFFF'
           - type: GridEnvironment
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
+          - type: BitrunAreaLighting
+            tiles: {}
           - type: DecalGrid
             chunkCollection:
               version: 2
@@ -263,16 +263,16 @@ entities:
             parent: 1
             pos: 5.5,1.5
             rot: 180
-  - proto: BitrunMapItemReagentContainersCupGlassCoffeeNoLidSpriteOffsetMinus0Point1250Point4375
+  - proto: BitrunMapItemReagentContainersCupGlassCoffeeSpriteOffset0Point218750Point40625
     entities:
-      - uid: 28
+      - uid: 27
         components:
           - type: Transform
             parent: 1
             pos: 4.5,2.5
-  - proto: BitrunMapItemReagentContainersCupGlassCoffeeSpriteOffset0Point218750Point40625
+  - proto: BitrunMapItemReagentContainersCupGlassCoffeeNoLidSpriteOffsetMinus0Point1250Point4375
     entities:
-      - uid: 27
+      - uid: 28
         components:
           - type: Transform
             parent: 1
@@ -333,7 +333,15 @@ entities:
           - type: Transform
             parent: 1
             pos: 1.5,3.5
-  - proto: BitrunMapMachineryLightSmallDirectionalEast
+  - proto: BitrunMapMachineryLightSmallDirectionalWestVariantPlaced
+    entities:
+      - uid: 48
+        components:
+          - type: Transform
+            parent: 1
+            pos: 1.5,4.5
+            rot: 90
+  - proto: BitrunMapMachineryLightSmallDirectionalEastVariantPlaced
     entities:
       - uid: 11
         components:
@@ -341,12 +349,6 @@ entities:
             parent: 1
             pos: 5.5,1.5
             rot: 270
-      - uid: 48
-        components:
-          - type: Transform
-            parent: 1
-            pos: 1.5,4.5
-            rot: 90
   - proto: BitrunMapStructureRack
     entities:
       - uid: 37
@@ -354,13 +356,6 @@ entities:
           - type: Transform
             parent: 1
             pos: 1.5,3.5
-  - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
-    entities:
-      - uid: 43
-        components:
-          - type: Transform
-            parent: 1
-            pos: 5.5,3.5
   - proto: BitrunMapStructureRailingCornerEnd
     entities:
       - uid: 42
@@ -369,6 +364,13 @@ entities:
             parent: 1
             pos: 4.5,3.5
             rot: 90
+  - proto: BitrunMapStructureRailingVariantBaseSpriteColorDefault
+    entities:
+      - uid: 43
+        components:
+          - type: Transform
+            parent: 1
+            pos: 5.5,3.5
   - proto: BitrunMapStructureWindowReinforcedFulltileIce
     entities:
       - uid: 14

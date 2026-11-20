@@ -2,6 +2,7 @@ using Content.Client.Rendering;
 using Robust.Client.GameObjects;
 using System.Numerics;
 using Content.Shared.Light.Components;
+using Content.Shared._DeepLagoon.Bitrunning;
 using Content.Shared.Light.EntitySystems;
 using Content.Shared.Maps;
 using Robust.Client.Graphics;
@@ -69,6 +70,22 @@ public sealed partial class RoofOverlay : Overlay
                 for (var i = 0; i < _grids.Count; i++)
                 {
                     var grid = _grids[i];
+
+                    if (_entManager.TryGetComponent(grid.Owner, out BitrunAreaLightingComponent? sourceLighting))
+                    {
+                        var areaMatrix = _xformSystem.GetRenderWorldMatrix(grid.Owner);
+                        worldHandle.SetTransform(Matrix3x2.Multiply(areaMatrix, invMatrix));
+                        var tiles = _mapSystem.GetRenderTilesIntersecting(_xformSystem, grid, bounds);
+                        while (tiles.MoveNext(out var areaTile))
+                        {
+                            var areaColor = sourceLighting.Tiles.GetValueOrDefault(areaTile.GridIndices, Color.Black);
+                            worldHandle.DrawRect(_lookup.GetLocalBounds(areaTile, grid.Comp.TileSize), areaColor);
+                        }
+                        // This is the ambient layer only; local lights are added
+                        // afterwards by the ordinary lighting renderer.
+                        _grids.RemoveAt(i--);
+                        continue;
+                    }
 
                     if (!_entManager.TryGetComponent(grid.Owner, out ImplicitRoofComponent? roof))
                         continue;

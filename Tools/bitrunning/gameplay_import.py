@@ -630,7 +630,8 @@ class GameplayImport:
         # including the state aliases consumed by native visualizers.
         visual_types = {'Sprite', 'Item', 'Clothing', 'GenericVisualizer', 'Appearance', 'Icon',
                         'RandomSprite', 'SpriteMovement', 'SolutionContainerVisuals',
-                        'TimerTriggerVisuals', 'StorageFillVisualizer', 'ItemToggleVisuals', 'BitrunAbductorBaton'}
+                        'TimerTriggerVisuals', 'StorageFillVisualizer', 'ItemToggleVisuals', 'BitrunAbductorBaton',
+                        'SpentAmmoVisuals', 'IconSmooth'}
         for path, appearance in appearances.items():
             if appearance not in art_entities:
                 continue

@@ -3546,11 +3546,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletA223
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: 223-casing
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: 223-casing-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: 223-casing-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingA50ae
   parent: Cartridge9x19mmFMJ
@@ -3567,11 +3572,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletA50ae
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: s-casing
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: s-casing-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: s-casing-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingC2754cesarzowa
   parent: Cartridge9x19mmFMJ
@@ -3588,11 +3598,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletC2754cesarzowa
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_d3e7e75495d1.rsi
     layers:
-    - state: 27-54cesarzowa
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_d3e7e75495d1.rsi
+      state: 27-54cesarzowa-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_d3e7e75495d1.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: 27-54cesarzowa-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingC357
   parent: Cartridge9x19mmFMJ
@@ -3608,11 +3623,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletC357
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: s-casing
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: s-casing-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: s-casing-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingC35sol
   parent: Cartridge9x19mmFMJ
@@ -3628,11 +3648,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletC35sol
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_93a0888ab774.rsi
     layers:
-    - state: 35sol
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_93a0888ab774.rsi
+      state: 35sol-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_93a0888ab774.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: 35sol-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingC38
   parent: Cartridge9x19mmFMJ
@@ -3648,11 +3673,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletC38
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: s-casing
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: s-casing-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: s-casing-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingC38Flare
   parent: Cartridge9x19mmFMJ
@@ -3668,11 +3698,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBeamLaserFlare
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: sL-casing
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: sL-casing-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: sL-casing-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingC45
   parent: Cartridge9x19mmFMJ
@@ -3688,11 +3723,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletC45
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: s-casing
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: s-casing-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: s-casing-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingC46x30mm
   parent: Cartridge9x19mmFMJ
@@ -3708,11 +3748,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletC46x30mm
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: s-casing
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: s-casing-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: s-casing-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingC9mm
   parent: Cartridge9x19mmFMJ
@@ -3728,11 +3773,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletC9mm
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: s-casing
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: s-casing-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: s-casing-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingEnergyLaserPlasmaGlob
   parent: Cartridge9x19mmFMJ
@@ -3748,11 +3798,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBeamLaserPlasmaGlob
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: s-casing
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: s-casing-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: s-casing-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingM7mm
   parent: Cartridge9x19mmFMJ
@@ -3768,11 +3823,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletA7mm
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: 762-casing
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: 762-casing-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: 762-casing-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingP50
   parent: Cartridge9x19mmFMJ
@@ -3788,11 +3848,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletP50
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: '.50'
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: .50-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: .50-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingP60strela
   parent: Cartridge9x19mmFMJ
@@ -3810,11 +3875,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletP60strela
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_d3e7e75495d1.rsi
     layers:
-    - state: amr_bullet
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_d3e7e75495d1.rsi
+      state: amr_bullet-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_d3e7e75495d1.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: amr_bullet-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingRocket
   parent: Cartridge9x19mmFMJ
@@ -3830,11 +3900,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletRocket
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: srm-8
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: srm-8
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: srm-8
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingShotgun
   parent: Cartridge9x19mmFMJ
@@ -3850,11 +3925,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletShotgunSlug
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
     layers:
-    - state: blshell
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
+      state: blshell-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: blshell-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingShotgunBeanbag
   parent: Cartridge9x19mmFMJ
@@ -3870,11 +3950,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletShotgunBeanbag
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
     layers:
-    - state: bshell
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
+      state: bshell-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: bshell-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingShotgunBuckshot
   parent: Cartridge9x19mmFMJ
@@ -3890,11 +3975,16 @@
   - type: CartridgeAmmo
     proto: BitrunPelletSpreadObjItemAmmoCasingShotgunBuckshot
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
     layers:
-    - state: gshell
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
+      state: gshell-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: gshell-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingShotgunIncendiary
   parent: Cartridge9x19mmFMJ
@@ -3912,11 +4002,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletIncendiaryShotgun
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
     layers:
-    - state: ishell
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
+      state: ishell-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: ishell-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingShotgunRubbershot
   parent: Cartridge9x19mmFMJ
@@ -3933,11 +4028,16 @@
   - type: CartridgeAmmo
     proto: BitrunPelletSpreadObjItemAmmoCasingShotgunRubbershot
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
     layers:
-    - state: rshell
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
+      state: rshell-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shotshells_f2c92abd9ab4.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: rshell-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingStrilka310
   parent: Cartridge9x19mmFMJ
@@ -3954,11 +4054,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletStrilka310
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: 310-casing
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: 310-casing-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: 310-casing-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingStrilka310Ap
   parent: Cartridge9x19mmFMJ
@@ -3976,11 +4081,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletStrilka310Ap
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_aa1e3de967bd.rsi
     layers:
-    - state: 310-casing-ap
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_aa1e3de967bd.rsi
+      state: 310-casing-ap-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_aa1e3de967bd.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: 310-casing-ap-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingStrilka310Lionhunter
   parent: Cartridge9x19mmFMJ
@@ -3997,11 +4107,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletStrilka310Lionhunter
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: 310-casing
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: 310-casing-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: 310-casing-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAmmoCasingStrilka310Surplus
   parent: Cartridge9x19mmFMJ
@@ -4017,11 +4132,16 @@
   - type: CartridgeAmmo
     proto: BitrunSourceObjProjectileBulletStrilka310Surplus
   - type: Sprite
+    sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
     layers:
-    - state: 310-casing
+    - sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+      state: 310-casing-live
       map:
       - enum.AmmoVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ammo_1d4e922e93a3.rsi
+  - type: Appearance
+  - type: SpentAmmoVisuals
+    state: 310-casing-live
+    suffix: true
 - type: entity
   id: BitrunSourceObjItemAnalyzer
   parent: GasAnalyzer
@@ -4068,7 +4188,7 @@
     - state: flash
       map:
       - enum.FlashVisualLayers.BaseLayer
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/flash_8cbd7a0240bc.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/flash_bf38cfe21141.rsi
     - state: flashing
       map:
       - enum.FlashVisualLayers.LightLayer
@@ -8563,7 +8683,7 @@
     - state: clown_prototype_off
       map:
       - enum.ToggleableVisuals.Layer
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shoes_1c88badc03c6.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shoes_b88ab617430f.rsi
   - type: ToggleClothing
     action: ActionBitrunBananaShoes
   - type: Appearance
@@ -8865,7 +8985,7 @@
     - state: magboots0
       map:
       - enum.ToggleableVisuals.Layer
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shoes_ced602e7cf9b.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shoes_72b0a0620ca3.rsi
   - type: Item
     inhandVisuals:
       left:
@@ -12872,7 +12992,7 @@
     - state: fire_extinguisher0
       map:
       - enum.ToggleableVisuals.Layer
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/tools_db1c43908a47.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/tools_8052618a1a87.rsi
 - type: entity
   id: BitrunSourceObjItemExtinguisherMini
   parent: FireExtinguisher
@@ -12902,7 +13022,7 @@
     - state: miniFE0
       map:
       - enum.ToggleableVisuals.Layer
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/tools_d9c8ca9b895c.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/tools_3613459d7822.rsi
 - type: entity
   id: BitrunSourceObjItemExtractionPack
   parent: Fulton
@@ -13163,7 +13283,7 @@
     - state: folded_extraction
       map:
       - foldedLayer
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/fulton_4b1fb7cf026c.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/fulton_3218bc637aaa.rsi
 - type: entity
   id: BitrunSourceObjItemGrenadeC4X4
   parent: C4
@@ -13187,7 +13307,7 @@
     - state: plasticx40
       map:
       - base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/grenade_db566de3113f.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/grenade_011820b397b5.rsi
 - type: entity
   id: BitrunSourceObjItemGrenadeChemGrenadeCleaner
   parent: CleanerGrenade
@@ -13218,7 +13338,7 @@
     - state: chemg
       map:
       - enum.TriggerVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/grenade_f2be189232cf.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/grenade_c449f2675740.rsi
 - type: entity
   id: BitrunSourceObjItemGrenadeChemGrenadeClf3
   parent: CleanerGrenade
@@ -13241,7 +13361,7 @@
     - state: chemg
       map:
       - enum.TriggerVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/grenade_54e765cd6631.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/grenade_b0daeb04257e.rsi
   - type: Item
     inhandVisuals:
       left:
@@ -13279,7 +13399,7 @@
     - state: chemg
       map:
       - enum.TriggerVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/grenade_311b08e21f72.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/grenade_574047b5fa66.rsi
 - type: entity
   id: BitrunSourceObjItemGrenadeMirage
   parent: GrenadeBase
@@ -13329,7 +13449,7 @@
     - state: smokewhite
       map:
       - enum.TriggerVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/grenade_eb3c90d07cfc.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/grenade_7a217259dc99.rsi
 - type: entity
   id: BitrunSourceObjItemGunBallisticAutomaticAr
   parent: WeaponPistolMk58
@@ -13392,7 +13512,7 @@
     - state: arg
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_5ed244a0aa2c.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_66c32964c96c.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -13464,7 +13584,7 @@
     - state: c20r
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_adfb3c5ac8a9.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_13a403637c35.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -13538,7 +13658,7 @@
     - state: l6
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_7bc344f3f97a.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_10b16c1dc050.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -13612,7 +13732,7 @@
     - state: lanca
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_48_471b5940d4e4.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_48_a8657682c68d.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -13687,7 +13807,7 @@
     - state: miecz
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_48_b80485042b94.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_48_94fbb7381e8f.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -13759,7 +13879,7 @@
     - state: miniuzi
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_9d8a614beab6.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_3e0b4de2284b.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -13830,7 +13950,7 @@
     - state: pistol
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_302b4a79f9a7.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_144a8e511201.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -13902,7 +14022,7 @@
     - state: aps
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_e52f4973703b.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_eaa76ed113cd.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -13972,7 +14092,7 @@
     - state: deagle
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_7353cff2ef4f.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_11d8e0ee7293.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -14043,7 +14163,7 @@
     - state: gwiazda
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_32_0fa23041d58a.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_32_fe2c443e3b42.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -14116,7 +14236,7 @@
     - state: slonce
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_32_98bed2ad3d51.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_32_5589ba495c77.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -14187,7 +14307,7 @@
     - state: wespe
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns32x_62f190434e3a.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns32x_ef205e2f6251.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -14259,7 +14379,7 @@
     - state: sindano
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns32x_681724c4843d.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns32x_a69123aa2083.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -14336,7 +14456,7 @@
     - state: wt550
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_3757ab0456dd.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_0739d6472b66.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -14411,7 +14531,7 @@
     - state: wylom
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_64_b4c811875919.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/guns_64_ce2fcec50505.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -14995,7 +15115,7 @@
     - state: sniper
       map:
       - enum.GunVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_14a2f45896c2.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/ballistic_af9381766bdd.rsi
     - state: mag-0
       map:
       - enum.GunVisualLayers.Mag
@@ -16340,7 +16460,7 @@
     - state: stunbaton
       map:
       - enum.ToggleableVisuals.Layer
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/baton_185e69d8e5e2.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/baton_3d8511c7d9d7.rsi
 - type: entity
   id: BitrunSourceObjItemMeleeBatonSecurityLoadedHos
   parent: Stunbaton
@@ -16375,7 +16495,7 @@
     - state: stunbaton
       map:
       - enum.ToggleableVisuals.Layer
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/baton_b7d2f3fc1aec.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/baton_ffb5707cd2ef.rsi
 - type: entity
   id: BitrunSourceObjItemMeleeBatonTelescopicSilver
   parent: BaseItem
@@ -17077,7 +17197,7 @@
     - map:
       - enum.PdaVisualLayers.Base
       state: state_205e1071982d
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_b85ad2fbf1c8.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_1db4c474dd04.rsi
     - state: light_overlay
       map:
       - enum.PdaVisualLayers.Flashlight
@@ -17113,7 +17233,7 @@
     - map:
       - enum.PdaVisualLayers.Base
       state: state_205e1071982d
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_48cebd2a5aa4.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_d79d8d172477.rsi
     - state: light_overlay
       map:
       - enum.PdaVisualLayers.Flashlight
@@ -17149,7 +17269,7 @@
     - map:
       - enum.PdaVisualLayers.Base
       state: pda-clown
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/modular_pda_793de30e30e2.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/modular_pda_43e9ca075a0c.rsi
     - state: light_overlay
       map:
       - enum.PdaVisualLayers.Flashlight
@@ -17185,7 +17305,7 @@
     - map:
       - enum.PdaVisualLayers.Base
       state: state_0a4d9967cda0
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_25d77990d41d.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_11134c753e92.rsi
     - state: light_overlay
       map:
       - enum.PdaVisualLayers.Flashlight
@@ -17221,7 +17341,7 @@
     - map:
       - enum.PdaVisualLayers.Base
       state: state_48b210fda24a
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_d49375174d56.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_68f39267e137.rsi
     - state: light_overlay
       map:
       - enum.PdaVisualLayers.Flashlight
@@ -17257,7 +17377,7 @@
     - map:
       - enum.PdaVisualLayers.Base
       state: state_61c1e462733d
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_8749b91a15db.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_f89fcf584c82.rsi
     - state: light_overlay
       map:
       - enum.PdaVisualLayers.Flashlight
@@ -17293,7 +17413,7 @@
     - map:
       - enum.PdaVisualLayers.Base
       state: state_040776eab5e5
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_eddd3dccc27f.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_9122aec02f0d.rsi
     - state: light_overlay
       map:
       - enum.PdaVisualLayers.Flashlight
@@ -17329,7 +17449,7 @@
     - map:
       - enum.PdaVisualLayers.Base
       state: state_b05f48c7e63b
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_225752c65634.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_e7a2d3d17c08.rsi
     - state: light_overlay
       map:
       - enum.PdaVisualLayers.Flashlight
@@ -17365,7 +17485,7 @@
     - map:
       - enum.PdaVisualLayers.Base
       state: state_205e1071982d
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_3b14bc0d9f3d.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_020cb56fef59.rsi
     - state: light_overlay
       map:
       - enum.PdaVisualLayers.Flashlight
@@ -17401,7 +17521,7 @@
     - map:
       - enum.PdaVisualLayers.Base
       state: state_52c25d3efd95
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_e9d2eb3fc70e.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/pda_4f6d55d2ca23.rsi
     - state: light_overlay
       map:
       - enum.PdaVisualLayers.Flashlight
@@ -18028,7 +18148,7 @@
     - state: stimpen
       map:
       - enum.SolutionContainerLayers.Fill
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/syringe_2af3a400c709.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/syringe_d2b5e7306636.rsi
 - type: entity
   id: BitrunSourceObjItemReagentContainersSprayWaterflower
   parent: SprayBottle
@@ -18685,7 +18805,7 @@
     - state: trashbag
       map:
       - enum.StorageFillLayers.Fill
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/janitor_fd071e65cc20.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/janitor_8def1c60a18d.rsi
 - type: entity
   id: BitrunSourceObjItemStorageBeltBandolier
   parent: ClothingBeltBandolier
@@ -19101,7 +19221,7 @@
     - map:
       - base
       state: red
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/toolbox_e0aba6e86e03.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/toolbox_d4d510225903.rsi
 - type: entity
   id: BitrunSourceObjItemStorageWalletRandom
   parent: ClothingWalletLeatherBrown
@@ -19218,7 +19338,7 @@
     - state: t-ray0
       map:
       - base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/scanner_044be24c7e6f.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/scanner_7ea43ec9eed1.rsi
 - type: entity
   id: BitrunSourceObjItemTScannerAdvMiningScannerLesser
   parent: MineralScanner

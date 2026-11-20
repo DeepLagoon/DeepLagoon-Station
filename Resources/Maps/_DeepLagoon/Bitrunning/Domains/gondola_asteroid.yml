@@ -71,12 +71,174 @@ entities:
             bodyType: Static
           - type: Fixtures
             fixtures: {}
-          - type: ImplicitRoof
-            color: '#FFFFFFFF'
           - type: GridEnvironment
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
+          - type: BitrunAreaLighting
+            tiles:
+              0,10: '#FFFFFF'
+              0,11: '#FFFFFF'
+              0,12: '#FFFFFF'
+              0,13: '#FFFFFF'
+              0,14: '#FFFFFF'
+              0,15: '#FFFFFF'
+              0,16: '#FFFFFF'
+              0,17: '#FFFFFF'
+              1,9: '#FFFFFF'
+              1,10: '#FFFFFF'
+              1,17: '#FFFFFF'
+              1,18: '#FFFFFF'
+              1,19: '#FFFFFF'
+              2,7: '#FFFFFF'
+              2,8: '#FFFFFF'
+              2,9: '#FFFFFF'
+              2,19: '#FFFFFF'
+              2,20: '#FFFFFF'
+              2,21: '#FFFFFF'
+              2,22: '#FFFFFF'
+              2,23: '#FFFFFF'
+              3,7: '#FFFFFF'
+              3,22: '#FFFFFF'
+              3,23: '#FFFFFF'
+              3,24: '#FFFFFF'
+              3,25: '#FFFFFF'
+              3,26: '#FFFFFF'
+              3,27: '#FFFFFF'
+              3,28: '#FFFFFF'
+              4,7: '#FFFFFF'
+              4,28: '#FFFFFF'
+              4,29: '#FFFFFF'
+              5,7: '#FFFFFF'
+              5,29: '#FFFFFF'
+              5,30: '#FFFFFF'
+              5,31: '#FFFFFF'
+              5,32: '#FFFFFF'
+              5,33: '#FFFFFF'
+              5,34: '#FFFFFF'
+              6,7: '#FFFFFF'
+              6,34: '#FFFFFF'
+              6,35: '#FFFFFF'
+              7,0: '#FFFFFF'
+              7,1: '#FFFFFF'
+              7,2: '#FFFFFF'
+              7,3: '#FFFFFF'
+              7,4: '#FFFFFF'
+              7,5: '#FFFFFF'
+              7,6: '#FFFFFF'
+              7,7: '#FFFFFF'
+              7,35: '#FFFFFF'
+              7,36: '#FFFFFF'
+              7,37: '#FFFFFF'
+              8,0: '#FFFFFF'
+              8,37: '#FFFFFF'
+              8,38: '#FFFFFF'
+              9,0: '#FFFFFF'
+              9,38: '#FFFFFF'
+              9,39: '#FFFFFF'
+              9,40: '#FFFFFF'
+              10,0: '#FFFFFF'
+              10,40: '#FFFFFF'
+              10,41: '#FFFFFF'
+              11,0: '#FFFFFF'
+              11,41: '#FFFFFF'
+              12,0: '#FFFFFF'
+              12,41: '#FFFFFF'
+              12,42: '#FFFFFF'
+              13,0: '#FFFFFF'
+              13,42: '#FFFFFF'
+              14,0: '#FFFFFF'
+              14,42: '#FFFFFF'
+              15,0: '#FFFFFF'
+              15,42: '#FFFFFF'
+              16,0: '#FFFFFF'
+              16,42: '#FFFFFF'
+              17,0: '#FFFFFF'
+              17,42: '#FFFFFF'
+              18,0: '#FFFFFF'
+              18,42: '#FFFFFF'
+              19,0: '#FFFFFF'
+              19,42: '#FFFFFF'
+              20,0: '#FFFFFF'
+              20,42: '#FFFFFF'
+              21,0: '#FFFFFF'
+              21,42: '#FFFFFF'
+              22,0: '#FFFFFF'
+              22,42: '#FFFFFF'
+              23,0: '#FFFFFF'
+              23,42: '#FFFFFF'
+              24,0: '#FFFFFF'
+              24,41: '#FFFFFF'
+              24,42: '#FFFFFF'
+              25,0: '#FFFFFF'
+              25,41: '#FFFFFF'
+              26,0: '#FFFFFF'
+              26,41: '#FFFFFF'
+              27,0: '#FFFFFF'
+              27,41: '#FFFFFF'
+              28,0: '#FFFFFF'
+              28,40: '#FFFFFF'
+              28,41: '#FFFFFF'
+              29,0: '#FFFFFF'
+              29,40: '#FFFFFF'
+              30,0: '#FFFFFF'
+              30,40: '#FFFFFF'
+              31,0: '#FFFFFF'
+              31,1: '#FFFFFF'
+              31,2: '#FFFFFF'
+              31,3: '#FFFFFF'
+              31,4: '#FFFFFF'
+              31,5: '#FFFFFF'
+              31,6: '#FFFFFF'
+              31,7: '#FFFFFF'
+              31,40: '#FFFFFF'
+              32,7: '#FFFFFF'
+              32,40: '#FFFFFF'
+              33,7: '#FFFFFF'
+              33,8: '#FFFFFF'
+              33,12: '#FFFFFF'
+              33,13: '#FFFFFF'
+              33,40: '#FFFFFF'
+              34,7: '#FFFFFF'
+              34,8: '#FFFFFF'
+              34,12: '#FFFFFF'
+              34,13: '#FFFFFF'
+              34,14: '#FFFFFF'
+              34,15: '#FFFFFF'
+              34,16: '#FFFFFF'
+              34,17: '#FFFFFF'
+              34,18: '#FFFFFF'
+              34,40: '#FFFFFF'
+              35,8: '#FFFFFF'
+              35,9: '#FFFFFF'
+              35,10: '#FFFFFF'
+              35,11: '#FFFFFF'
+              35,12: '#FFFFFF'
+              35,18: '#FFFFFF'
+              35,19: '#FFFFFF'
+              35,20: '#FFFFFF'
+              35,21: '#FFFFFF'
+              35,22: '#FFFFFF'
+              35,23: '#FFFFFF'
+              35,24: '#FFFFFF'
+              35,25: '#FFFFFF'
+              35,26: '#FFFFFF'
+              35,27: '#FFFFFF'
+              35,28: '#FFFFFF'
+              35,29: '#FFFFFF'
+              35,39: '#FFFFFF'
+              35,40: '#FFFFFF'
+              36,29: '#FFFFFF'
+              36,30: '#FFFFFF'
+              36,31: '#FFFFFF'
+              36,32: '#FFFFFF'
+              36,33: '#FFFFFF'
+              36,34: '#FFFFFF'
+              36,35: '#FFFFFF'
+              36,36: '#FFFFFF'
+              36,37: '#FFFFFF'
+              36,38: '#FFFFFF'
+              36,39: '#FFFFFF'
           - type: DecalGrid
             chunkCollection:
               version: 2
@@ -1370,7 +1532,19 @@ entities:
           - type: Transform
             parent: 1
             pos: 21.5,7.5
-  - proto: BitrunMapMachineryLightSmallDirectionalEast
+  - proto: BitrunMapMachineryLightSmallDirectionalNorthVariantPlaced
+    entities:
+      - uid: 78
+        components:
+          - type: Transform
+            parent: 1
+            pos: 18.5,6.5
+      - uid: 79
+        components:
+          - type: Transform
+            parent: 1
+            pos: 20.5,6.5
+  - proto: BitrunMapMachineryLightSmallDirectionalSouthVariantPlaced
     entities:
       - uid: 43
         components:
@@ -1384,16 +1558,6 @@ entities:
             parent: 1
             pos: 21.5,3.5
             rot: 180
-      - uid: 78
-        components:
-          - type: Transform
-            parent: 1
-            pos: 18.5,6.5
-      - uid: 79
-        components:
-          - type: Transform
-            parent: 1
-            pos: 20.5,6.5
   - proto: BitrunMapStructureWaterSourcePuddle
     entities:
       - uid: 249

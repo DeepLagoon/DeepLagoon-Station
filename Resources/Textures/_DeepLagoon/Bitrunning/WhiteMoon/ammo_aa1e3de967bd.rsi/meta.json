@@ -9,6 +9,12 @@
   "states": [
     {
       "name": "310-casing-ap"
+    },
+    {
+      "name": "310-casing-ap-live"
+    },
+    {
+      "name": "310-casing-ap-live-spent"
     }
   ]
 }

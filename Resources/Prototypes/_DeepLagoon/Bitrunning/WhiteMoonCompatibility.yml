@@ -1,0 +1,31 @@
+# Stable IDs used by existing maps, catalogs and the first source-art migration.
+# New exports use the more specific source appearance IDs.
+- type: entity
+  id: BitrunMapMachineryLightBrokenDirectionalWest
+  parent: BitrunMapMachineryLightBrokenDirectionalWestVariantPlaced
+  categories: [HideSpawnMenu]
+
+- type: entity
+  id: BitrunMapMachineryLightDirectionalEast
+  parent: BitrunMapMachineryLightDirectionalEastVariantPlaced
+  categories: [HideSpawnMenu]
+
+- type: entity
+  id: BitrunMapMachineryLightSmallDirectionalEast
+  parent: BitrunMapMachineryLightSmallDirectionalEastVariantPlaced
+  categories: [HideSpawnMenu]
+
+- type: entity
+  id: BitrunMapOpenLavaPlasmaVirtualDomain
+  parent: BitrunMapOpenLavaPlasmaVirtualDomainPointLightEnabledTrue
+  categories: [HideSpawnMenu]
+
+- type: entity
+  id: BitrunMapStructureWindowReinforcedPlasmaPlastitaniumIconSmoothModeCardinalFlags
+  parent: BitrunMapStructureWindowReinforcedPlasmaPlastitaniumParentPlastitaniumWindow
+  categories: [HideSpawnMenu]
+
+- type: entity
+  id: BitrunMapStructureWindowReinforcedPlasmaPlastitaniumIconSmoothModeDefault
+  parent: BitrunMapStructureWindowReinforcedPlasmaPlastitaniumParentWindowReinforcedDirectional
+  categories: [HideSpawnMenu]

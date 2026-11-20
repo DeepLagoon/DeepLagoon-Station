@@ -229,7 +229,7 @@ namespace Content.Client.IconSmoothing
             DirtyEntities(_mapSystem.GetAnchoredEntities(entityUid, grid, pos + new Vector2i(0, 1)));
             DirtyEntities(_mapSystem.GetAnchoredEntities(entityUid, grid, pos + new Vector2i(0, -1)));
 
-            if (mode is IconSmoothingMode.Corners or IconSmoothingMode.NoSprite or IconSmoothingMode.Diagonal or IconSmoothingMode.DiagonalNF) // Frontier: add DiagonalNF
+            if (mode is IconSmoothingMode.Corners or IconSmoothingMode.NoSprite or IconSmoothingMode.Diagonal or IconSmoothingMode.DiagonalNF or IconSmoothingMode.Bitmask8 or IconSmoothingMode.CardinalFlags)
             {
                 DirtyEntities(_mapSystem.GetAnchoredEntities(entityUid, grid, pos + new Vector2i(1, 1)));
                 DirtyEntities(_mapSystem.GetAnchoredEntities(entityUid, grid, pos + new Vector2i(-1, -1)));
@@ -342,6 +342,9 @@ namespace Content.Client.IconSmoothing
                     break;
                 case IconSmoothingMode.CardinalFlags:
                     CalculateNewSpriteCardinal(gridEntity, smooth, spriteEnt, xform, smoothQuery);
+                    break;
+                case IconSmoothingMode.Bitmask8:
+                    CalculateNewSpriteBitmask8(gridEntity, smooth, spriteEnt, xform, smoothQuery);
                     break;
                 case IconSmoothingMode.Diagonal:
                     CalculateNewSpriteDiagonal(gridEntity, smooth, spriteEnt, xform, smoothQuery);
@@ -497,12 +500,43 @@ namespace Content.Client.IconSmoothing
             CalculateEdge(sprite, directions, sprite);
         }
 
+        private void CalculateNewSpriteBitmask8(Entity<MapGridComponent>? gridEntity, IconSmoothComponent smooth,
+            Entity<SpriteComponent> sprite, TransformComponent xform, EntityQuery<IconSmoothComponent> smoothQuery)
+        {
+            var mask = 0;
+            if (gridEntity is { } grid)
+            {
+                var pos = _mapSystem.TileIndicesFor(grid, grid.Comp, xform.Coordinates);
+                bool Matches(int x, int y) => MatchingEntity(smooth,
+                    _mapSystem.GetAnchoredEntities(grid, grid.Comp, pos + new Vector2i(x, y)), smoothQuery, new(x, y));
+
+                if (Matches(0, 1)) mask |= 1;
+                if (Matches(0, -1)) mask |= 2;
+                if (Matches(1, 0)) mask |= 4;
+                if (Matches(-1, 0)) mask |= 8;
+                // A diagonal only contributes when both adjoining sides connect.
+                if ((mask & 5) == 5 && Matches(1, 1)) mask |= 16;
+                if ((mask & 6) == 6 && Matches(1, -1)) mask |= 32;
+                if ((mask & 10) == 10 && Matches(-1, -1)) mask |= 64;
+                if ((mask & 9) == 9 && Matches(-1, 1)) mask |= 128;
+            }
+            sprite.Comp.LayerSetState(0, $"{smooth.StateBase}{mask}");
+            var edges = DirectionFlag.None;
+            if ((mask & 1) != 0) edges |= DirectionFlag.North;
+            if ((mask & 2) != 0) edges |= DirectionFlag.South;
+            if ((mask & 4) != 0) edges |= DirectionFlag.East;
+            if ((mask & 8) != 0) edges |= DirectionFlag.West;
+            CalculateEdge(sprite, edges, sprite.Comp);
+        }
+
         private bool MatchingEntity(IconSmoothComponent smooth, AnchoredEntitiesEnumerator candidates, EntityQuery<IconSmoothComponent> smoothQuery, Vector2 offset)
         {
             while (candidates.MoveNext(out var entity))
             {
                 if (smoothQuery.TryGetComponent(entity, out var other) &&
-                    other.SmoothKey == smooth.SmoothKey &&
+                    (smooth.CanSmoothWith.Count > 0
+                        ? other.Groups.Overlaps(smooth.CanSmoothWith)
+                        : smooth.Groups.Count == 0 && other.Groups.Count == 0 && other.SmoothKey == smooth.SmoothKey) &&
                     other.Enabled &&
                     EntityIsSmoothOnEdge(entity, other, offset)) // Frontier: added EntityIsSmoothOnEdge
                 {

@@ -26,6 +26,13 @@ namespace Content.Client.IconSmoothing
         [ViewVariables(VVAccess.ReadWrite), DataField("key")]
         public string? SmoothKey { get; private set; }
 
+        /// <summary>Optional group-based compatibility for imported structures.</summary>
+        [DataField]
+        public HashSet<string> Groups = new();
+
+        [DataField]
+        public HashSet<string> CanSmoothWith = new();
+
         /// <summary>
         ///     Prepended to the RSI state.
         /// </summary>
@@ -81,5 +88,8 @@ namespace Content.Client.IconSmoothing
         /// </summary>
         DiagonalNF,
         // End Frontier
+
+        /// <summary>Whole sprites indexed by cardinal bits 1/2/4/8 and corner bits 16/32/64/128.</summary>
+        Bitmask8,
     }
 }

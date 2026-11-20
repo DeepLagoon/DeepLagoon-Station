@@ -32,12 +32,12 @@ entities:
             bodyType: Static
           - type: Fixtures
             fixtures: {}
-          - type: ImplicitRoof
-            color: '#FFFFFFFF'
           - type: GridEnvironment
             forceGravity: true
             alwaysPowered: true
             safeAtmosphere: true
+          - type: BitrunAreaLighting
+            tiles: {}
           - type: DecalGrid
             chunkCollection:
               version: 2
@@ -93,7 +93,7 @@ entities:
           - type: Transform
             parent: 1
             pos: 1.5,1.5
-  - proto: BitrunMapClosedWallMineralTitaniumSurvival
+  - proto: BitrunMapClosedWallMineralTitaniumSurvivalPod
     entities:
       - uid: 2
         components:
