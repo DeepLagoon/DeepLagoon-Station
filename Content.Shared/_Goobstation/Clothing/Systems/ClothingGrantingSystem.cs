@@ -2,14 +2,15 @@ using Content.Shared._Goobstation.Clothing.Components;
 using Content.Shared.Clothing.Components;
 using Content.Shared.Inventory.Events;
 using Content.Shared.Tag;
+using Robust.Shared.Network;
 using Robust.Shared.Serialization.Manager;
-using YamlDotNet.Core.Tokens;
 
 namespace Content.Shared._Goobstation.Clothing.Systems;
 public sealed partial class ClothingGrantingSystem : EntitySystem
 {
     [Dependency] private ISerializationManager _serializationManager = default!;
     [Dependency] private TagSystem _tagSystem = default!;
+    [Dependency] private INetManager _net = default!;
 
     public override void Initialize()
     {
@@ -25,6 +26,12 @@ public sealed partial class ClothingGrantingSystem : EntitySystem
     // Monolith Cleanup - Below
     private void OnCompEquip(EntityUid uid, ClothingGrantComponentComponent component, GotEquippedEvent args)
     {
+        // Inventory events also run while applying and rolling back client container states.
+        // Granted components are replicated by the server; creating them here changes the
+        // component collection while ResetPredictedEntities is enumerating it.
+        if (_net.IsClient)
+            return;
+
         if (!TryComp<ClothingComponent>(uid, out var clothing))
             return;
 
@@ -48,9 +55,14 @@ public sealed partial class ClothingGrantingSystem : EntitySystem
 
     private void OnCompUnequip(EntityUid uid, ClothingGrantComponentComponent component, GotUnequippedEvent args)
     {
+        if (_net.IsClient
+            || !TryComp<ClothingComponent>(uid, out var clothing)
+            || !clothing.Slots.HasFlag(args.SlotFlags))
+            return;
+
         foreach (var (name, _) in component.Components)
         {
-            if (!component.Active.TryGetValue(name, out _))
+            if (!component.Active.TryGetValue(name, out var active) || !active)
                 continue;
 
             var newComp = (Component) Factory.GetComponent(name);

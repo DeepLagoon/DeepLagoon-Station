@@ -79,6 +79,9 @@ public abstract partial class SharedChameleonProjectorSystem : EntitySystem
 
     private void OnDisguiseShutdown(Entity<ChameleonDisguiseComponent> ent, ref ComponentShutdown args)
     {
+        if (_net.IsClient)
+            return;
+
         _actions.RemoveProvidedActions(ent.Comp.User, ent.Comp.Projector);
     }
 
@@ -243,6 +246,12 @@ public abstract partial class SharedChameleonProjectorSystem : EntitySystem
     /// </summary>
     public bool TryReveal(Entity<ChameleonDisguisedComponent?> ent)
     {
+        // Like disguising, revealing deletes a network entity and cannot be predicted.
+        // Container events also run during client state restoration. Let the server remove
+        // the disguise and its component so client sprite startup/shutdown stay in sync.
+        if (_net.IsClient)
+            return false;
+
         if (!Resolve(ent, ref ent.Comp, false))
             return false;
 
