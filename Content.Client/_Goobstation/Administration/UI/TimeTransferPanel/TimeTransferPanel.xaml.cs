@@ -43,6 +43,8 @@ public sealed partial class TimeTransferPanel : DefaultWindow
         UpdateWarning(" ", Color.LightGreen);
     }
 
+    public void SetPlayer(string player) => PlayerLine.Text = player;
+
     public void PopulateJobs()
     {
         var jobs = _prototypeManager.EnumeratePrototypes<JobPrototype>()

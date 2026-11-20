@@ -52,6 +52,8 @@ public sealed partial class AdminLogsEui : BaseEui
         };
     }
 
+    public Guid? InitialPlayer { get; init; }
+
     private int CurrentRoundId => _e.System<GameTicker>().RoundId;
 
     public override async void Opened()
@@ -87,7 +89,7 @@ public sealed partial class AdminLogsEui : BaseEui
             };
         }
 
-        var state = new AdminLogsEuiState(CurrentRoundId, _players, _roundLogs);
+        var state = new AdminLogsEuiState(CurrentRoundId, _players, _roundLogs) { InitialPlayer = InitialPlayer };
 
         return state;
     }

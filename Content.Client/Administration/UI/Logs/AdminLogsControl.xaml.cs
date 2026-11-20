@@ -417,6 +417,17 @@ public sealed partial class AdminLogsControl : Control
         UpdateLogs();
     }
 
+    public void SelectPlayer(Guid id)
+    {
+        SelectedPlayers.Clear();
+        SelectedPlayers.Add(id);
+        IncludeNonPlayerLogs = false;
+        IncludeNonPlayersButton.Pressed = false;
+        foreach (var player in PlayersContainer.Children.OfType<AdminLogPlayerButton>())
+            player.Pressed = player.Id == id;
+        UpdateLogs();
+    }
+
     public void SetPlayers(Dictionary<Guid, string> players)
     {
         var buttons = new SortedSet<AdminLogPlayerButton>(_adminLogPlayerButtonComparer);

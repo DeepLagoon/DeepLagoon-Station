@@ -59,6 +59,13 @@ public sealed class AhelpWindow : FancyWindow
     private readonly VScrollBar _nativeScroll;
     private readonly PlainTextLabel _header = new();
     private readonly PlainTextLabel _status = new();
+    private readonly PlainTextLabel _typingLabel = new();
+    private TimeSpan _lastTypingInput;
+    private TimeSpan _nextTyping;
+    private TimeSpan _typingExpires;
+    private Guid _typingTicket;
+    private bool _typingStaff;
+    private bool _typingInput;
     private readonly LineEdit _draft = new() { HorizontalExpand = true, PlaceHolder = "Сообщение" };
     private readonly LineEdit _reason = new() { PlaceHolder = "Причина отклонения", HorizontalExpand = true, Visible = false };
     private readonly LineEdit _search = new() { PlaceHolder = "Поиск" };
@@ -156,6 +163,7 @@ public sealed class AhelpWindow : FancyWindow
         };
         _thread.AddChild(_web);
         _thread.AddChild(_native);
+        _thread.AddChild(_typingLabel);
         _thread.AddChild(_status);
         _nativeOlder = Button("Ранние сообщения", Older);
         _nativeFile = Button("Файл", ChooseFile);
@@ -182,10 +190,12 @@ public sealed class AhelpWindow : FancyWindow
             _thread.AddChild(new BoxContainer { Children = { _staff, _sound } });
         _staff.OnToggled += args =>
         {
+            StopTyping();
             _sound.Disabled = args.Pressed;
             Render();
         };
         _draft.OnTextEntered += _ => SendDraft();
+        _draft.OnTextChanged += _ => TypingInput(_draft.Text.Length > 0 && _draft.HasKeyboardFocus());
         _web.SetNativeFallback(() => { _native.Visible = true; _web.Visible = false; Render(); FocusPlayerComposer(); });
         _web.SetTguiRestore(() => { _native.Visible = false; _web.Visible = true; Render(); FocusPlayerComposer(); });
         _web.Web.Ready += FocusPlayerComposer;
@@ -195,6 +205,8 @@ public sealed class AhelpWindow : FancyWindow
         _network.TicketNotice += OnNotice;
         _network.TicketDownload += OnDownload;
         _network.TicketTeleportState += OnTeleportState;
+        _network.TicketTyping += OnTyping;
+        _network.TicketPlayerAction += OnPlayerAction;
         OnClose += () => { if (_desktop == null) Dispose(); };
         Render();
     }
@@ -263,6 +275,8 @@ public sealed class AhelpWindow : FancyWindow
 
     private void ResetThread()
     {
+        StopTyping();
+        _typingLabel.Text = "";
         _reading = _older = false;
         _readId = default;
         _lines.Clear();
@@ -359,6 +373,8 @@ public sealed class AhelpWindow : FancyWindow
             }
             PlayerActions();
         }
+        if (_selected is { } own && own.Player == _actor && own.Status < AhelpStatus.Closing)
+            _toolbar.AddChild(Button("Закрыть обращение", () => Mutate(AhelpAction.Close), _operation != Guid.Empty));
         if (_native.Visible)
         {
             RenderNativeHistory();
@@ -542,9 +558,9 @@ public sealed class AhelpWindow : FancyWindow
         }
         foreach (var (kind, title, error) in new[]
         {
-            ("ship", "Телепортироваться на корабль игрока", _navigationState?.ShipError),
-            ("body", "Телепортироваться на тело игрока", _navigationState?.BodyError),
-            ("ghost", "Телепортироваться на призрак игрока", _navigationState?.GhostError),
+            ("ship", "Корабль", _navigationState?.ShipError),
+            ("body", "Тело", _navigationState?.BodyError),
+            ("ghost", "Призрак", _navigationState?.GhostError),
         })
         {
             if (error != "")
@@ -558,6 +574,25 @@ public sealed class AhelpWindow : FancyWindow
             button.AddChild(WrappedText(title));
             _navigation.AddChild(button);
         }
+        _navigation.AddChild(WrappedText("Действия"));
+        foreach (var (action, title, flag) in new[]
+        {
+            ("vv", "VV игрока", AdminFlags.VarEdit),
+            ("time", "Перенос времен", AdminFlags.Moderator),
+            ("logs", "Логи игрока", AdminFlags.Logs),
+        })
+        {
+            var button = Button(title, () => _network.SendPlayerAction(new AhelpPlayerActionRequest(target, action)), !_admin.HasFlag(flag));
+            button.HorizontalExpand = true;
+            _navigation.AddChild(button);
+        }
+    }
+
+    private void OnPlayerAction(AhelpPlayerActionResult state)
+    {
+        if (state.Player != (_selected?.Player ?? _target)) return;
+        if (state.Error.Length > 0) _status.Text = state.Error;
+        else if (state.Entity is { } entity) _console.ExecuteCommand($"vv {entity}");
     }
 
     private Color LineColor(AhelpLine line) => line.Author == Guid.Empty ? Color.Gray :
@@ -709,6 +744,8 @@ public sealed class AhelpWindow : FancyWindow
             var selectedId = state.Selected?.Id ?? Guid.Empty;
             if (selectedId != _ticket)
             {
+                StopTyping();
+                _typingLabel.Text = "";
                 _lines.Clear();
                 _before = 0;
                 ResetDownload();
@@ -718,6 +755,11 @@ public sealed class AhelpWindow : FancyWindow
             }
             _selected = state.Selected;
             _ticket = selectedId;
+            if (_selected?.Status >= AhelpStatus.Closing)
+            {
+                StopTyping();
+                _typingLabel.Text = "";
+            }
             if (state.Selected != null && _isAdmin)
                 _target = state.Selected.Player;
             if (_older || _lines.Count <= AhelpLimits.Page)
@@ -756,6 +798,52 @@ public sealed class AhelpWindow : FancyWindow
         _network.SendTicket(new AhelpRequest(AhelpAction.Read, _ticket, _target, _readId, before: _before, round: _round));
     }
 
+    private void OnTyping(AhelpTypingState state)
+    {
+        if (state.Round != _round || state.Ticket != _ticket) return;
+        _typingLabel.Text = state.Names.Length == 0 ? "" : string.Join(", ", state.Names) +
+            (state.Names.Length == 1 ? " печатает…" : " печатают…");
+        _typingExpires = _timing.RealTime + TimeSpan.FromSeconds(9);
+    }
+
+    private void TypingInput(bool active)
+    {
+        if (!active) { StopTyping(); return; }
+        _typingInput = true;
+        _lastTypingInput = _timing.RealTime;
+        TickTyping();
+    }
+
+    private void TickTyping()
+    {
+        if (_typingExpires != TimeSpan.Zero && _timing.RealTime >= _typingExpires)
+        {
+            _typingLabel.Text = "";
+            _typingExpires = TimeSpan.Zero;
+        }
+        if (!_typingInput || !CanWrite || _ticket == Guid.Empty ||
+            _timing.RealTime - _lastTypingInput > TimeSpan.FromSeconds(4) ||
+            _native.Visible && !_draft.HasKeyboardFocus())
+        {
+            StopTyping();
+            return;
+        }
+        if (_timing.RealTime < _nextTyping) return;
+        _typingTicket = _ticket;
+        _typingStaff = _isAdmin && _staff.Pressed;
+        _network.SendTicketTyping(new AhelpTypingRequest(_ticket, true, _typingStaff, _round));
+        _nextTyping = _timing.RealTime + TimeSpan.FromSeconds(2);
+    }
+
+    private void StopTyping()
+    {
+        if (_typingTicket != Guid.Empty)
+            _network.SendTicketTyping(new AhelpTypingRequest(_typingTicket, false, _typingStaff, _round));
+        _typingTicket = default;
+        _typingInput = false;
+        _nextTyping = TimeSpan.Zero;
+    }
+
     private void SendDraft() => Mutate(AhelpAction.Send, _draft.Text);
 
     private void Mutate(AhelpAction action, string text = "", string file = "", byte[]? data = null)
@@ -775,6 +863,7 @@ public sealed class AhelpWindow : FancyWindow
         var id = same ? _retryRequest!.Operation : Guid.NewGuid();
         var request = new AhelpRequest(action, _ticket, _target, id, text, _isAdmin && _staff.Pressed,
             !_isAdmin || _sound.Pressed, file, data?.Length ?? 0, round: _round);
+        StopTyping();
         if (action != AhelpAction.Send)
         {
             _retryRequest = request;
@@ -833,6 +922,9 @@ public sealed class AhelpWindow : FancyWindow
             return;
         switch (action)
         {
+            case "typing" when args.String("round") == _round:
+                TypingInput(args.String("active") == "true");
+                break;
             case "send" when args.String("round") == _round: Mutate(AhelpAction.Send, args.String("text") ?? ""); break;
             case "file" when args.String("round") == _round: ChooseFile(); break;
             case "older": Older(); break;
@@ -1005,6 +1097,7 @@ public sealed class AhelpWindow : FancyWindow
     private void Tick()
     {
         if (_disposed) return;
+        TickTyping();
         if (_isAdmin && (_selected?.Player ?? _target) is var navigation && navigation != Guid.Empty && _timing.RealTime >= _nextNavigation)
         {
             _nextNavigation = _timing.RealTime + TimeSpan.FromSeconds(1);
@@ -1080,6 +1173,7 @@ public sealed class AhelpWindow : FancyWindow
     {
         if (!_disposed)
         {
+            StopTyping();
             _disposed = true;
             _input.FirstChanceOnKeyEvent -= OnInput;
             ClearThumbnails();
@@ -1087,6 +1181,8 @@ public sealed class AhelpWindow : FancyWindow
             _network.TicketNotice -= OnNotice;
             _network.TicketDownload -= OnDownload;
             _network.TicketTeleportState -= OnTeleportState;
+            _network.TicketTyping -= OnTyping;
+            _network.TicketPlayerAction -= OnPlayerAction;
             _desktopRoot?.Dispose();
             _desktop?.Dispose();
             TicketClosed?.Invoke();

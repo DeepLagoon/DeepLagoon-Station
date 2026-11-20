@@ -7,6 +7,7 @@ namespace Content.Shared._Goobstation.Administration;
 public sealed class TimeTransferPanelEuiState : EuiStateBase
 {
     public bool HasFlag { get; }
+    public string InitialPlayer { get; init; } = "";
 
     public TimeTransferPanelEuiState(bool hasFlag)
     {

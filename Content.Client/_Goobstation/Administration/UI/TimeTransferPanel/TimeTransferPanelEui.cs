@@ -7,6 +7,7 @@ namespace Content.Client._Goobstation.Administration.UI.TimeTransferPanel;
 public sealed class TimeTransferPanelEui : BaseEui
 {
     public TimeTransferPanel TimeTransferPanel { get; }
+    private bool _initializedPlayer;
 
     public TimeTransferPanelEui()
     {
@@ -30,6 +31,11 @@ public sealed class TimeTransferPanelEui : BaseEui
             return;
 
         TimeTransferPanel.UpdateFlag(cast.HasFlag);
+        if (!_initializedPlayer)
+        {
+            _initializedPlayer = true;
+            TimeTransferPanel.SetPlayer(cast.InitialPlayer);
+        }
     }
 
     public override void HandleMessage(EuiMessageBase msg)

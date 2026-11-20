@@ -290,6 +290,21 @@ public sealed class AhelpStore : IDisposable
             return Close(ticket, outcome, actor, name, reason, origin, now);
         });
 
+    public Result CloseByPlayer(Guid id, Guid actor, string name, string origin, long now)
+        => Write(() =>
+        {
+            if (FindEvent(origin) is { } prior)
+                return new Result("", prior);
+            var ticket = Find(id);
+            if (ticket == null)
+                return new Result("missing");
+            if (ticket.Player != actor)
+                return new Result("forbidden");
+            if (ticket.Status >= AhelpStatus.Closing)
+                return new Result("closed");
+            return Close(ticket, AhelpStatus.Closed, actor, name, "Закрыто игроком.", origin, now);
+        });
+
     private Result Close(AhelpTicket ticket, AhelpStatus outcome, Guid actor, string name, string reason, string origin,
         long now, bool roundClosed = false)
     {

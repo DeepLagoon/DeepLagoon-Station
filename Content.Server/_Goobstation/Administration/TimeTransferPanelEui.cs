@@ -21,6 +21,7 @@ public sealed partial class TimeTransferPanelEui : BaseEui
 
     private readonly ISawmill _sawmill;
     private bool _transferring;
+    public string InitialPlayer { get; init; } = "";
 
     public TimeTransferPanelEui()
     {
@@ -33,7 +34,7 @@ public sealed partial class TimeTransferPanelEui : BaseEui
     {
         var hasFlag = _adminMan.HasAdminFlag(Player, AdminFlags.Moderator);
 
-        return new TimeTransferPanelEuiState(hasFlag);
+        return new TimeTransferPanelEuiState(hasFlag) { InitialPlayer = InitialPlayer };
     }
 
     public override void HandleMessage(EuiMessageBase msg)

@@ -95,6 +95,7 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
     private static readonly ProtoId<TagPrototype> CrewedShuttleTag = "CrewedShuttle";
     private static readonly Regex DeedRegex = new(@"\s*\([^()]*\)");
     private const string CreditPrototype = "Credit"; // Mono
+    private TimeSpan _nextRecoveryPurchaseWarning;
 
     public void InitializeConsole()
     {
@@ -169,6 +170,22 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
             return;
         }
 
+        // Reject before loading/FTL/deleting a whole grid. Never charge an unprotected purchase.
+        var recovery = EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>();
+        if (voucher == null && !recovery.CanProtectBuyer(player))
+        {
+            ConsolePopup(player, Loc.GetString("shipyard-console-purchase-not-ready"));
+            PlayDenySound(player, shipyardConsoleUid, component);
+            if (_timing.RealTime >= _nextRecoveryPurchaseWarning)
+            {
+                _nextRecoveryPurchaseWarning = _timing.RealTime + TimeSpan.FromMinutes(1);
+                Log.Warning("Shipyard purchase deferred: buyer={Buyer} vessel={Vessel} recovery_ready={Ready} critical_changes={CriticalChanges} recovery_body={HasBody}",
+                    player, vessel.ID, recovery.Ready, recovery.CanAcceptCriticalChange,
+                    HasComp<Content.Server._DeepLagoon.CrashRecovery.RecoveryBodyComponent>(player));
+            }
+            return;
+        }
+
         if (!TryPurchaseShuttle(station, vessel.ShuttlePath, out var shuttleUidOut))
         {
             PlayDenySound(player, shipyardConsoleUid, component);
@@ -209,13 +226,6 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
         // Keep track of whether or not a voucher was used.
         // TODO: voucher purchase should be done in a separate function.
         bool voucherUsed = false;
-        var recovery = EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>();
-        if (voucher == null && vessel.Price > 0 && !recovery.CanProtectBuyer(player))
-        {
-            Del(shuttleUid);
-            PlayDenySound(player, shipyardConsoleUid, component);
-            return;
-        }
         var recoveryPayment = voucher == null ? recovery.BeginPurchase(player, vessel.Price) : null;
         if (voucher is not null)
         {

@@ -89,3 +89,20 @@ public sealed class AhelpNotice(Guid ticket, long eventId, bool adminSound, bool
     public readonly bool Remind = remind;
     public readonly string Result = result;
 }
+
+[Serializable, NetSerializable]
+public sealed class AhelpTypingRequest(Guid ticket, bool active, bool staff, string round) : EntityEventArgs
+{
+    public readonly Guid Ticket = ticket;
+    public readonly bool Active = active;
+    public readonly bool Staff = staff;
+    public readonly string Round = round;
+}
+
+[Serializable, NetSerializable]
+public sealed class AhelpTypingState(Guid ticket, string[] names, string round) : EntityEventArgs
+{
+    public readonly Guid Ticket = ticket;
+    public readonly string[] Names = names;
+    public readonly string Round = round;
+}

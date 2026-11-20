@@ -12,6 +12,7 @@ shipyard-console-no-idcard = No ID card present.
 shipyard-console-already-deeded = ID card already has a Deed.
 shipyard-console-invalid-station = Not a valid station.
 shipyard-console-no-bank = No bank account found.
+shipyard-console-purchase-not-ready = Purchase unavailable: character registration or data saving is not ready yet. Try again later. No money was charged.
 shipyard-console-no-deed = No ship deed found.
 shipyard-console-no-unassign = Card is restricted from unassigning deed.
 shipyard-console-sale-reqs = Ship must be docked and all crew disembarked.

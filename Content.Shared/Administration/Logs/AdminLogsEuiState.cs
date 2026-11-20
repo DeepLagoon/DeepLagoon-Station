@@ -15,6 +15,7 @@ public sealed class AdminLogsEuiState : EuiStateBase
     }
 
     public bool IsLoading { get; set; }
+    public Guid? InitialPlayer { get; init; }
 
     public int RoundId { get; }
 

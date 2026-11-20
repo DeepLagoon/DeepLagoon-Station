@@ -73,6 +73,12 @@ public sealed class CrashRecoveryIntegrationTests
             Assert.That(marker.Slot, Is.EqualTo(slot));
             Assert.That(marker.Profile, Is.GreaterThan(0));
             Assert.That(marker.User, Is.EqualTo(pair.Player!.UserId.UserId));
+            Assert.That(recovery.CanProtectBuyer(body), Is.True,
+                "Starting-gear payment must not leave this character blocked at the shipyard.");
+            var shipPayment = recovery.BeginPurchase(body, 100);
+            Assert.That(shipPayment, Is.Not.Null);
+            Assert.That(shipPayment!.Profile, Is.EqualTo(marker.Profile));
+            Assert.That(shipPayment.User, Is.EqualTo(marker.User));
             Assert.That(snapshot.Assets.Where(a => a.Location == RecoveryLocation.Carried).All(a => a.Profile == marker.Profile), Is.True);
             Assert.That(snapshot.Purchases, Is.Not.Empty);
             Assert.That(snapshot.Purchases.All(p => p.Profile == marker.Profile), Is.True);

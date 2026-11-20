@@ -125,6 +125,8 @@ public sealed partial class AdminLogsEui : BaseEui
         }
 
         FirstState = false;
+        if (s.InitialPlayer is { } player)
+            LogsControl.SelectPlayer(player);
         LogsControl.SetRoundSpinBox(s.RoundId);
         RequestLogs();
     }

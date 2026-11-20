@@ -171,7 +171,10 @@ export const AhelpTicket = () => {
       {error && <div role="status">{error}</div>}
       <form className="AhelpTicket__composer" onSubmit={(event) => { event.preventDefault(); send(); }}>
         <input ref={composer} aria-label="Сообщение" placeholder="Сообщение" value={draft} maxLength={1800}
-          disabled={!data.writable} onChange={(event) => setDraft(event.target.value)} onPaste={paste}
+          disabled={!data.writable} onChange={(event) => {
+            setDraft(event.target.value);
+            act('typing', { active: event.target.value.length > 0, round: data.round });
+          }} onBlur={() => act('typing', { active: false, round: data.round })} onPaste={paste}
           onKeyDown={(event) => {
             if ((event.key !== 'Enter' && event.code !== 'NumpadEnter') || event.nativeEvent.isComposing) return;
             event.preventDefault();

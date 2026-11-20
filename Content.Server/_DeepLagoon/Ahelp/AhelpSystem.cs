@@ -85,6 +85,7 @@ public sealed partial class AhelpSystem : EntitySystem
         _rate.Register(ReadRate, new RateLimitRegistration(CCVars.AhelpRateLimitPeriod, CCVars.AhelpRateLimitCount, null));
         SubscribeNetworkEvent<AhelpRequest>(OnRequest);
         SubscribeNetworkEvent<AhelpUpload>(OnUpload);
+        SubscribeNetworkEvent<AhelpTypingRequest>(OnTyping);
         SubscribeLocalEvent<GameRunLevelChangedEvent>(OnRunLevelChanged);
         SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => BeginRoundReset());
         _players.PlayerStatusChanged += StatusChanged;
@@ -106,6 +107,7 @@ public sealed partial class AhelpSystem : EntitySystem
             return;
 
         Interlocked.Increment(ref _roundGeneration);
+        foreach (var entry in _typing.Values.ToArray()) ClearTicketTyping(entry.Ticket);
         foreach (var (key, upload) in _uploads)
         {
             if (_players.TryGetSessionById(key.User, out var session))
@@ -120,6 +122,9 @@ public sealed partial class AhelpSystem : EntitySystem
         if (!Enabled || _stopping) return;
         Interlocked.Increment(ref _roundGeneration);
         _roundEpoch = Guid.NewGuid().ToString("N");
+        _typing.Clear();
+        _typingRate.Clear();
+        _typingRequests.Clear();
         _uploads.Clear();
         _downloads.Clear();
         _roundCleanup = ResetRound(_roundCleanup, _roundEpoch);
@@ -185,6 +190,8 @@ public sealed partial class AhelpSystem : EntitySystem
             return;
         if (args.NewStatus == SessionStatus.Disconnected)
         {
+            ClearTyping(session.UserId.UserId, discord: false);
+            _typingRequests.Remove(session.UserId.UserId);
             foreach (var key in _uploads.Keys.Where(key => key.User == session.UserId).ToArray())
                 _uploads.Remove(key);
             _downloads.Remove(session.UserId);
@@ -310,7 +317,11 @@ public sealed partial class AhelpSystem : EntitySystem
             {
                 var snapshot = await Task.Run(() => Store.Read(actor, admin, request.Ticket, request.Player, request.Before,
                     operation: request.Operation));
-                if (round == Volatile.Read(ref _roundGeneration) && CanHelp(session) == admin) Reply(session, snapshot);
+                if (round == Volatile.Read(ref _roundGeneration) && CanHelp(session) == admin)
+                {
+                    Reply(session, snapshot);
+                    if (snapshot.Selected != null) SendTyping(session, snapshot.Selected);
+                }
                 return;
             }
             if (request.Action == AhelpAction.Attachment)
@@ -357,6 +368,10 @@ public sealed partial class AhelpSystem : EntitySystem
                 }
                 result = await Task.Run(() => Store.Send(request.Ticket, target, targetName, actor, name, admin,
                     request.Staff, text, origin, Now, file, currentRound: () => Volatile.Read(ref _roundGeneration) == round));
+            }
+            else if (request.Action == AhelpAction.Close && (!admin || target == actor))
+            {
+                result = await Task.Run(() => Store.CloseByPlayer(request.Ticket, actor, name, origin, Now));
             }
             else if (admin)
             {
@@ -426,6 +441,12 @@ public sealed partial class AhelpSystem : EntitySystem
             return;
         NotifyRelay();
         var ticket = entry.Ticket;
+        if (ticket.Status >= AhelpStatus.Closing) ClearTicketTyping(ticket);
+        else
+        {
+            _typingRequests.Remove(entry.Line.Author);
+            ClearTyping(entry.Line.Author);
+        }
         Log.Info($"Ahelp #{ticket.Number} ({ticket.Id}) event {entry.Id} {entry.Kind} by {entry.Line.Author}");
         var adminSound = entry.Kind == "created" && entry.Line.Author == ticket.Player;
         var publicReply = entry.Kind is "message" or "created" && entry.Line.Author != ticket.Player && !entry.Line.Staff;
@@ -466,6 +487,7 @@ public sealed partial class AhelpSystem : EntitySystem
 
     public override void Update(float frameTime)
     {
+        PruneTyping();
         base.Update(frameTime);
         if (!Enabled)
             return;

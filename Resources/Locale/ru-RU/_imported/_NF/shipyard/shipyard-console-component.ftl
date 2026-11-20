@@ -23,6 +23,7 @@ shipyard-console-already-deeded = К этой ID-карте уже привяз�
 shipyard-console-invalid-station = Неправильная станция.
 
 shipyard-console-no-bank = Отсутствует банковский аккаунт.
+shipyard-console-purchase-not-ready = Покупка пока недоступна: регистрация персонажа или сохранение данных ещё не готовы. Повторите попытку позже. Деньги не списаны.
 
 shipyard-console-no-deed = Отсутствует привязанный шаттл.
 

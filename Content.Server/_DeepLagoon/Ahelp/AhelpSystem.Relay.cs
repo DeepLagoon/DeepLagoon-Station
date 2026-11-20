@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -29,7 +30,7 @@ public sealed partial class AhelpSystem
 
     private sealed record RelayRequest(string Action, Guid Ticket = default, long Event = 0, string Discord = "",
         string Request = "", bool AdminRole = false, bool Staff = false, string Text = "", string File = "",
-        byte[]? Data = null, bool Drain = false, bool Wait = false, string Media = "");
+        byte[]? Data = null, bool Drain = false, bool Wait = false, string Media = "", bool Active = true);
 
     private void RegisterRelay() => _status.AddHandler(HandleRelay);
 
@@ -99,7 +100,7 @@ public sealed partial class AhelpSystem
                 {
                     var batch = await WaitForRelayEvents(media, request.Wait);
                     result = new { events = batch.Events, round = batch.Round, activeTickets = batch.Tickets,
-                        mediaQueue = true, mediaPlaceholders = true };
+                        mediaQueue = true, mediaPlaceholders = true, typing = true };
                 }
                 finally { if (request.Wait) slot.Release(); }
             }
@@ -178,6 +179,10 @@ public sealed partial class AhelpSystem
             return new { error = "round_changed" };
         switch (request.Action)
         {
+            case "typing-state":
+                PruneTyping();
+                return new { round = _roundEpoch, typing = _typing.Values.Where(entry => !entry.Discord)
+                    .Select(entry => new { ticket = entry.Ticket.Id, staff = entry.Staff }).Distinct().ToArray() };
             case "ack" when request.Event > 0:
                 await Task.Run(() => Store.Ack(request.Event, true, 0));
                 return new { ok = true };
@@ -209,8 +214,9 @@ public sealed partial class AhelpSystem
                 return new { ok = true };
         }
 
+        ulong operation = 0;
         if (request.Ticket == Guid.Empty || !ulong.TryParse(request.Discord, out var discord) || discord == 0 ||
-            !ulong.TryParse(request.Request, out var operation) || operation == 0)
+            request.Action != "typing" && (!ulong.TryParse(request.Request, out operation) || operation == 0))
             return new { error = "invalid_request" };
         var ticket = await Task.Run(() => Store.Get(request.Ticket));
         if (ticket == null)
@@ -238,6 +244,13 @@ public sealed partial class AhelpSystem
         }
         if (request.AdminRole && !admin && uid != ticket.Player)
             return new { error = "not_staff" };
+        if (request.Action == "typing")
+        {
+            if (generation != Volatile.Read(ref _roundGeneration)) return new { error = "round_changed" };
+            if (!CanType(ticket, uid, admin, request.Staff)) return new { error = "forbidden" };
+            SetTyping(ticket, uid, name, request.Staff, discord: true, request.Active);
+            return new { error = "" };
+        }
         AhelpStore.Result result;
         var origin = $"discord:{discord}:{operation}";
         if (request.Action == "send")
@@ -278,7 +291,7 @@ public sealed partial class AhelpSystem
         }
         else
         {
-            if (!admin)
+            if (!admin && (request.Action != "close" || uid != ticket.Player))
                 return new { error = "forbidden" };
             var action = request.Action switch
             {
@@ -290,7 +303,9 @@ public sealed partial class AhelpSystem
             };
             if (action == null)
                 return new { error = "invalid_request" };
-            result = await Task.Run(() => Store.Change(ticket.Id, uid, name, action.Value, request.Text.Trim(), origin, Now));
+            result = request.Action == "close" && uid == ticket.Player
+                ? await Task.Run(() => Store.CloseByPlayer(ticket.Id, uid, name, origin, Now))
+                : await Task.Run(() => Store.Change(ticket.Id, uid, name, action.Value, request.Text.Trim(), origin, Now));
         }
         if (generation != Volatile.Read(ref _roundGeneration)) return new { error = "round_changed" };
         Publish(result);

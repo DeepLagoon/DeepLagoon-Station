@@ -16,6 +16,48 @@ namespace Content.Tests.Server;
 [TestFixture]
 public sealed class AhelpStoreTest
 {
+    [TestCase(false, false)]
+    [TestCase(false, true)]
+    [TestCase(true, false)]
+    [TestCase(true, true)]
+    public void PlayerCanCloseOwnNewOrClaimedTicketWithoutReward(bool claimed, bool relayed)
+    {
+        using var store = new AhelpStore(":memory:");
+        var player = Guid.NewGuid();
+        var admin = Guid.NewGuid();
+        var ticket = store.Send(default, player, "Player", player, "Player", false, false, "help", "create", 1).Event!.Ticket;
+        if (claimed) store.Change(ticket.Id, admin, "Admin", AhelpAction.Claim, "", "claim", 2);
+        if (relayed) store.Reserve(ticket.Id);
+        Assert.That(store.CloseByPlayer(ticket.Id, Guid.NewGuid(), "Other", "foreign-close", 3).Error, Is.EqualTo("forbidden"));
+        var closed = store.CloseByPlayer(ticket.Id, player, "Player", "close", 4);
+        Assert.That(closed.Applied, Is.True);
+        Assert.That(closed.Event!.Ticket.Status, Is.EqualTo(relayed ? AhelpStatus.Closing : AhelpStatus.Closed));
+        Assert.That(closed.Event.Line.Author, Is.EqualTo(player));
+        Assert.That(store.CloseByPlayer(ticket.Id, player, "Player", "close", 4).Applied, Is.False);
+        Assert.That(store.CloseByPlayer(ticket.Id, player, "Player", "another-close", 5).Error, Is.EqualTo("closed"));
+        Assert.That(store.Send(ticket.Id, player, "Player", player, "Player", false, false, "late", "late", 5).Error, Is.EqualTo("closed"));
+        if (relayed) store.Complete(ticket.Id, 6);
+        Assert.That(store.Get(ticket.Id)!.Status, Is.EqualTo(AhelpStatus.Closed));
+        Assert.That(store.Rewards(), Is.Empty);
+    }
+
+    [Test]
+    public void TypingRequiresOwnershipOrPublicReplyPermissionAndHidesStaffTyping()
+    {
+        var player = Guid.NewGuid();
+        var admin = Guid.NewGuid();
+        var other = Guid.NewGuid();
+        var ticket = new AhelpTicket(Guid.NewGuid(), 1, player, "Player", admin, "Admin", AhelpStatus.Claimed, 1);
+        Assert.That(AhelpSystem.CanType(ticket, player, false, false), Is.True);
+        Assert.That(AhelpSystem.CanType(ticket, player, false, true), Is.False);
+        Assert.That(AhelpSystem.CanType(ticket, other, false, false), Is.False);
+        Assert.That(AhelpSystem.CanType(ticket, admin, true, false), Is.True);
+        Assert.That(AhelpSystem.CanType(ticket, other, true, false), Is.False);
+        Assert.That(AhelpSystem.CanType(ticket, other, true, true), Is.True);
+        Assert.That(AhelpSystem.CanType(ticket with { Status = AhelpStatus.New }, other, true, false), Is.True);
+        Assert.That(AhelpSystem.CanType(ticket with { Status = AhelpStatus.Closing }, admin, true, true), Is.False);
+    }
+
     [Test]
     public void NewRoundDeletesTicketsHistoryAttachmentsAndBlockedRelayWork()
     {
