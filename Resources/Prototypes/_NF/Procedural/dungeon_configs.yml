@@ -135,6 +135,8 @@
 - type: dungeonConfig
   id: NFMineshaft
   data:
+    colors:
+      Decals: "#ab803bff"
     entities:
       Walls: WallRock
       CornerWalls: WallRock
@@ -384,6 +386,7 @@
       CornerClutter: NFBaseClutter
       Entrance: NFMiningAirlock
       EntranceFlank: NFMiningWindow
+      Junction: NFMiningAirlock
       WallMounts: NFBaseWallMounts
       Window: NFMiningWindow
     tiles:

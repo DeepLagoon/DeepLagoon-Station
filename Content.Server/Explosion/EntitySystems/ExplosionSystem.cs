@@ -155,10 +155,15 @@ public sealed partial class ExplosionSystem : SharedExplosionSystem
 
     private void OnReset(RoundRestartCleanupEvent ev)
     {
+        _tileGeneration?.Steps.Dispose();
+        _tileGeneration = null;
         _explosionQueue.Clear();
         _queuedExplosions.Clear();
         if (_activeExplosion != null)
+        {
             QueueDel(_activeExplosion.VisualEnt);
+            _activeExplosion.Dispose();
+        }
         _activeExplosion = null;
         _nodeGroupSystem.PauseUpdating = false;
         _pathfindingSystem.PauseUpdating = false;
@@ -166,6 +171,10 @@ public sealed partial class ExplosionSystem : SharedExplosionSystem
 
     public override void Shutdown()
     {
+        _activeExplosion?.Dispose();
+        _activeExplosion = null;
+        _tileGeneration?.Steps.Dispose();
+        _tileGeneration = null;
         base.Shutdown();
         _nodeGroupSystem.PauseUpdating = false;
         _pathfindingSystem.PauseUpdating = false;
@@ -427,23 +436,26 @@ public sealed partial class ExplosionSystem : SharedExplosionSystem
     ///     information about the affected tiles for the explosion system to process. It will also trigger the
     ///     camera shake and sound effect.
     /// </summary>
-    private Explosion? SpawnExplosion(QueuedExplosion queued)
+    private Explosion? SpawnExplosion(QueuedExplosion queued, TileGeneration generation)
     {
         var entPos = queued.Epicenter;
         // Mono
         if (TerminatingOrDeleted(entPos.EntityId))
-            return null;
+        {
+            if (!_map.TryGetMap(generation.Position.MapId, out var map)) return null;
+            entPos = new EntityCoordinates(map.Value, generation.Position.Position);
+        }
 
         // Reject protected sources before calculating the explosion tile fill.
         var sourceGrid = Transform(entPos.EntityId).GridUid ?? entPos.EntityId;
         if (TryComp<ProtectedGridComponent>(sourceGrid, out var prot) && prot.PreventExplosions)
             return null;
 
-        var pos = _transformSystem.ToMapCoordinates(entPos);
+        var pos = generation.Position;
         if (!_map.MapExists(pos.MapId))
             return null;
 
-        var results = GetExplosionTiles(pos, queued.Proto.ID, queued.TotalIntensity, queued.Slope, queued.MaxTileIntensity);
+        var results = generation.Result;
 
         if (results == null)
             return null;
@@ -452,7 +464,7 @@ public sealed partial class ExplosionSystem : SharedExplosionSystem
 
         // Also protect grids reached by an explosion originating outside the safe zone.
         foreach (var grid in gridData.Keys.ToArray())
-            if (TryComp<ProtectedGridComponent>(grid, out var protection) && protection.PreventExplosions)
+            if (!Exists(grid) || TryComp<ProtectedGridComponent>(grid, out var protection) && protection.PreventExplosions)
                 gridData.Remove(grid);
 
         var visualEnt = CreateExplosionVisualEntity(pos, queued.Proto.ID, spaceMatrix, spaceData, gridData.Values, iterationIntensity);

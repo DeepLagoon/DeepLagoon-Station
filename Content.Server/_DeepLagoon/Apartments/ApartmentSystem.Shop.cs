@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using Content.Server.GameTicking;
 using Content.Server._DeepLagoon.Currency;
 using Content.Shared._DeepLagoon.Apartments;
@@ -16,10 +17,11 @@ public sealed partial class ApartmentSystem
     private readonly Dictionary<NetUserId, Instance> _lobbyEditors = new();
     private readonly List<Instance> _retiring = new();
     private readonly HashSet<NetUserId> _shopping = new();
+    private readonly Dictionary<NetUserId, TaskCompletionSource> _shopWrites = new();
     [Dependency] private Content.Server.Database.IServerDbManager _economyDatabase = default!;
     [Dependency] private LagoonEconomySystem _economy = default!;
     private bool InLobby(ICommonSession session) => _ticker.PlayerGameStatuses.TryGetValue(session.UserId, out var state) && state != PlayerGameStatus.JoinedGame;
-    private bool CanManage(ICommonSession session) => Enabled && session.Channel.IsConnected && (InLobby(session) ||
+    private bool CanManage(ICommonSession session) => !_closingPersistence && Enabled && session.Channel.IsConnected && (InLobby(session) ||
         _visits.TryGetValue(session.UserId, out var visit) && visit.Apartment.Owner == session.UserId && session.AttachedEntity == visit.Body &&
         Transform(visit.Body).GridUid == visit.Apartment.Grid && !HasComp<ApartmentTripPendingComponent>(visit.Body));
     private bool Available(ApartmentTemplatePrototype template) => template.Available && template.Map != null && template.Price >= 0;
@@ -55,17 +57,19 @@ public sealed partial class ApartmentSystem
         if (Visitors(instance).Length > 0 || HasComp<ApartmentElevatorReservedComponent>(instance.Grid)) _retiring.Add(instance);
         else
         {
-            if (!SaveApartment(instance, ApartmentSaveReason.Unload)) { _retiring.Add(instance); return; }
-            Del(instance.Grid);
+            // Maintenance persists and retires it asynchronously, even if a different template is selected now.
+            _retiring.Add(instance);
         }
     }
     private async void OpenShop(ApartmentShopRequest ev, EntitySessionEventArgs args)
     {
         var session = args.SenderSession;
         if (!CanManage(session) || !_shopping.Add(session.UserId)) return;
+        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _shopWrites.Add(session.UserId, completion);
         try { await _economy.Current(session); if (CanManage(session)) PublishShop(session); }
         catch (Exception e) { Log.Warning($"Apartment shop load failed: {e.GetType().Name}"); }
-        finally { _shopping.Remove(session.UserId); }
+        finally { _shopping.Remove(session.UserId); _shopWrites.Remove(session.UserId); completion.SetResult(); }
     }
     private void PublishShop(ICommonSession session, string message = "")
     {
@@ -90,6 +94,8 @@ public sealed partial class ApartmentSystem
         if (ev.Action == "preview") { PreviewShop(session, ev); return; }
         if (ev.Action == "gallery") { Gallery(session, ev); return; }
         if (!CanManage(session) || !_shopping.Add(session.UserId)) return;
+        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _shopWrites.Add(session.UserId, completion);
         try
         {
             if (ev.Action is "buyItem" or "retryItem")
@@ -114,18 +120,18 @@ public sealed partial class ApartmentSystem
             Del(validation.Grid);
             if (!Store.Owned(session.UserId.UserId, template.ID))
             {
-                var purchase = Store.BeginPurchase(session.UserId.UserId, template.ID, template.Price);
+                var purchase = await Store.BeginPurchaseAsync(session.UserId.UserId, template.ID, template.Price);
                 if (purchase.Price > 0)
                 {
                     var bought = await _economyDatabase.PurchaseEconomyAsync(session.UserId, new Content.Server.Database.LagoonEconomyPurchase(
                         "apartment:" + purchase.Operation, "apartment", template.ID, purchase.Price, _economy.ExternalTier(session)));
                     _economy.Remember(session, bought); _coins.NotifyEconomyOperation(session.UserId, bought, "Квартира: " + Loc.GetString(template.Name));
                 }
-                Store.Grant(session.UserId.UserId, template.ID);
+                await Store.GrantAsync(session.UserId.UserId, template.ID);
             }
             if (!CanManage(session) || _shopTokens.GetValueOrDefault(session.UserId) != ev.Token) return;
             var before = SelectedLayout(session.UserId)?.Template ?? _config.GetCVar(ApartmentCVars.DefaultTemplate);
-            Store.Select(session.UserId.UserId, template);
+            await Store.SelectAsync(session.UserId.UserId, template);
             _templates[session.UserId] = template.ID;
             if (before != template.ID) _numbers.Rotate(session.UserId.UserId);
             _editors.Remove(session.UserId); _lobbyEditors.Remove(session.UserId);
@@ -143,7 +149,7 @@ public sealed partial class ApartmentSystem
         catch (Exception e) { Log.Error($"Apartment shop operation failed for {session.UserId}: {e}"); if (CanManage(session) && _shopTokens.GetValueOrDefault(session.UserId) == ev.Token) PublishShop(session,
             ev.Action is "buyItem" or "retryItem" ? "Покупка не завершена. Если доступно, нажмите «Завершить доставку»; повторного списания не будет."
                 : "Операция не завершена. Повторите запрос; повторного списания за этот шаблон не будет."); }
-        finally { _shopping.Remove(session.UserId); }
+        finally { _shopping.Remove(session.UserId); _shopWrites.Remove(session.UserId); completion.SetResult(); }
     }
     private void OpenLobbyEditor(ICommonSession session)
     {

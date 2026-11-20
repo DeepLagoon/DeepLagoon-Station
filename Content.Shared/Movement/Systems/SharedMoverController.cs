@@ -140,6 +140,7 @@ public abstract partial class SharedMoverController : VirtualController
         Entity<InputMoverComponent> entity,
         float frameTime)
     {
+        if (CaptureMoverBranches) MoverBranches.Entered++;
         var wasActive = entity.Comp.SpeedBoostActive;
         entity.Comp.SpeedBoostActive = false;
         HandleMobMovementInternal(entity, frameTime);
@@ -165,7 +166,11 @@ public abstract partial class SharedMoverController : VirtualController
         if (RelayQuery.TryComp(uid, out var relay))
         {
             if (!MoverQuery.TryComp(relay.RelayEntity, out var relayTargetMover))
+            {
+                if (CaptureMoverBranches) MoverBranches.RelayMissing++;
                 return;
+            }
+            if (CaptureMoverBranches) MoverBranches.Relay++;
 
             // Always lerp rotation so relay entities aren't cooked.
             LerpRotation(uid, mover, frameTime);
@@ -204,7 +209,10 @@ public abstract partial class SharedMoverController : VirtualController
         }
 
         if (!XformQuery.TryComp(entity.Owner, out var xform))
+        {
+            if (CaptureMoverBranches) MoverBranches.NoTransform++;
             return;
+        }
 
         RelayTargetQuery.TryComp(uid, out var relayTarget);
         var relaySource = relayTarget?.Source;
@@ -222,10 +230,24 @@ public abstract partial class SharedMoverController : VirtualController
         }
 
         // If we can't move then just use tile-friction / no movement handling.
-        if (!mover.CanMove
-            || !PhysicsQuery.TryComp(uid, out var physicsComponent)
-            || PullableQuery.TryGetComponent(uid, out var pullable) && pullable.BeingPulled)
+        // Keep the native short-circuit order; count only the branch actually taken.
+        if (!mover.CanMove)
         {
+            if (CaptureMoverBranches) MoverBranches.CannotMove++;
+            UsedMobMovement[uid] = false;
+            SetGridVelocityRotation(entity, null);
+            return;
+        }
+        if (!PhysicsQuery.TryComp(uid, out var physicsComponent))
+        {
+            if (CaptureMoverBranches) MoverBranches.NoPhysics++;
+            UsedMobMovement[uid] = false;
+            SetGridVelocityRotation(entity, null);
+            return;
+        }
+        if (PullableQuery.TryGetComponent(uid, out var pullable) && pullable.BeingPulled)
+        {
+            if (CaptureMoverBranches) MoverBranches.Pulled++;
             UsedMobMovement[uid] = false;
             SetGridVelocityRotation(entity, null);
             return;
@@ -240,11 +262,13 @@ public abstract partial class SharedMoverController : VirtualController
         {
             if (!weightless)
             {
+                if (CaptureMoverBranches) MoverBranches.AirBlocked++;
                 UsedMobMovement[uid] = false;
                 SetGridVelocityRotation(entity, null);
                 return;
             }
             inAirHelpless = true;
+            if (CaptureMoverBranches) MoverBranches.AirWeightless++;
         }
 
         UsedMobMovement[uid] = true;
@@ -355,7 +379,9 @@ public abstract partial class SharedMoverController : VirtualController
         var step = new MobMovementStep(uid, mover, physicsComponent, xform, tileDef, relaySource,
             weightless, wishDir, velocity, minimumFrictionSpeed, frameTime, friction, accel, !weightless || touching,
             precisionTileSize, gridRotation.GetValueOrDefault());
-        if (!QueueMobMovement(step))
+        var queued = QueueMobMovement(step);
+        if (CaptureMoverBranches) CountPreparedMover(in step, queued);
+        if (!queued)
             FinishMobMovement(step, step.Calculate());
     }
 

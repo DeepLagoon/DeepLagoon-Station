@@ -1,0 +1,61 @@
+# Mining configs in salvage_factions.yml reference these marker layers.
+# Use the faction's existing expedition spawners rather than dungeon-only mobs.
+- type: biomeMarkerLayer
+  id: Carp
+  prototype: NFMobCarp
+  minGroupSize: 1
+  maxGroupSize: 2
+
+- type: biomeMarkerLayer
+  id: Syndicate
+  prototype: SpawnMobSyndicateNavalDeckhand
+  minGroupSize: 2
+  maxGroupSize: 3
+
+- type: biomeMarkerLayer
+  id: Cultists
+  prototype: SpawnMobBloodCultLeech
+  minGroupSize: 2
+  maxGroupSize: 3
+
+- type: biomeMarkerLayer
+  id: Flesh
+  prototype: SpawnMobAberrantFleshExpeditions
+  minGroupSize: 1
+  maxGroupSize: 2
+
+- type: biomeMarkerLayer
+  id: Argocytes
+  prototype: SpawnMobArgocyteTiny
+  minGroupSize: 3
+  maxGroupSize: 5
+
+- type: biomeMarkerLayer
+  id: Dinosaurs
+  prototype: SpawnMobDinosaurSmall
+  minGroupSize: 1
+  maxGroupSize: 2
+
+- type: biomeMarkerLayer
+  id: Mercenaries
+  prototype: SpawnMobMercenaryT1
+  minGroupSize: 1
+  maxGroupSize: 2
+
+- type: biomeMarkerLayer
+  id: Explorers
+  prototype: SpawnMobExplorerT1
+  minGroupSize: 1
+  maxGroupSize: 2
+
+- type: biomeMarkerLayer
+  id: Silicons
+  prototype: SpawnMobRogueScapT1
+  minGroupSize: 2
+  maxGroupSize: 3
+
+- type: biomeMarkerLayer
+  id: Punks
+  prototype: SpawnMobPunkT1
+  minGroupSize: 1
+  maxGroupSize: 2

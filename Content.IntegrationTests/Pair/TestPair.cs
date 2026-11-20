@@ -88,6 +88,10 @@ public sealed partial class TestPair : RobustIntegrationTest.TestPair
         opts.LoadTestAssembly = false;
         opts.ContentStart = true;
         opts.FailureLogLevel = LogLevel.Warning;
+        // Server load/persistence regressions do not render. Avoid pre-decoding the entire sprite catalog
+        // on memory-limited local runners; resources still load normally on demand.
+        if (System.Environment.GetEnvironmentVariable("DEEPLAGOON_HEADLESS_TESTS") == "1")
+            opts.CVarOverrides[Robust.Shared.CVars.ResTexturePreloadingEnabled.Name] = "false";
         opts.Options = new()
         {
             LoadConfigAndUserData = false,

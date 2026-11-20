@@ -15,6 +15,7 @@ using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics.Events;
 using Robust.Shared.Physics.Systems;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Profiling;
 using Robust.Shared.Spawners;
 using System.Numerics;
 
@@ -23,6 +24,7 @@ namespace Content.Server._Mono.NPC.HTN;
 public sealed partial class ShipSteeringSystem : EntitySystem
 {
     [Dependency] private EntityLookupSystem _lookup = default!;
+    [Dependency] private ProfManager _prof = default!;
     private SharedMapSystem _mapMan => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private MoverController _mover = default!;
@@ -41,7 +43,7 @@ public sealed partial class ShipSteeringSystem : EntitySystem
     [Dependency] private EntityQuery<TimedDespawnComponent> _timedQuery;
 
     private List<Entity<MapGridComponent>> _avoidGrids = new();
-    private HashSet<Entity<ShipWeaponProjectileComponent>> _avoidProjs = new();
+    private readonly HashSet<Entity<ShipWeaponProjectileComponent>> _avoidProjs = new();
     private List<(EntityUid Uid, bool IsGrid)> _avoidPotentialEnts = new();
     private List<ObstacleCandidate> _avoidEnts = new();
 
@@ -232,14 +234,18 @@ public sealed partial class ShipSteeringSystem : EntitySystem
         ref SteeringContext ctx,
         in SteeringConfig config)
     {
+        using var movementGroup = _prof.IsEnabled ? _prof.Group("Ship steering movement") : (ProfManager.GroupGuard?) null;
         // check our braking power
         var brakeCtx = GetBrakeContext(ref ctx, config.MaxArrivedVel);
 
         var navVec = CalculateNavigationVector(ref ctx, brakeCtx);
 
         // check obstacle avoidance
-        ScanForObstacles(ref ctx, config, brakeCtx);
-        var avoidanceRes = CalculateAvoidanceVector(ref ctx, config, brakeCtx, navVec);
+        using (_prof.IsEnabled ? _prof.Group("Ship steering scan") : (ProfManager.GroupGuard?) null)
+            ScanForObstacles(ref ctx, config, brakeCtx);
+        AvoidanceResult avoidanceRes;
+        using (_prof.IsEnabled ? _prof.Group("Ship steering avoidance") : (ProfManager.GroupGuard?) null)
+            avoidanceRes = CalculateAvoidanceVector(ref ctx, config, brakeCtx, navVec);
         var avoidanceVec = avoidanceRes.AvoidVec;
 
         // use avoidance vector if available or proceed with thrust as normal
@@ -321,8 +327,8 @@ public sealed partial class ShipSteeringSystem : EntitySystem
 
         _avoidProjs.Clear();
         if (config.AvoidProjectiles)
-            _avoidProjs = _lookup.GetEntitiesInRange<ShipWeaponProjectileComponent>(
-                ctx.ShipPos, ProjectileSearchBounds, LookupFlags.Approximate | LookupFlags.Dynamic | LookupFlags.Sensors);
+            _lookup.GetEntitiesInRange(
+                ctx.ShipPos, ProjectileSearchBounds, _avoidProjs, LookupFlags.Approximate | LookupFlags.Dynamic | LookupFlags.Sensors);
 
         // pool all queried ents
         _avoidPotentialEnts.Clear();
@@ -382,17 +388,25 @@ public sealed partial class ShipSteeringSystem : EntitySystem
         in BrakeContext brake,
         Vector2 wishDir)
     {
-        var shipPos = ctx.ShipPos.Position;
-        var shipVel = ctx.ShipBody.LinearVelocity;
-        // we have to take radius so that if we rotate it doesn't clip us into the obstacle
+        _sectors.Clear();
+        // No obstacle can change the navigation input. Avoid building the alternate
+        // thrust sectors (and evaluating their acceleration) in empty space.
+        if (_avoidEnts.Count == 0)
+            return new(null, false);
+
+        // We have to take radius so that rotation cannot clip us into an obstacle.
         var shipRadius = ctx.ShipGrid.LocalAABB.Size.Length() / 2f + config.EvasionBuffer;
-
-        var targetVec = ctx.DestMapPos.Position - shipPos;
-        var normTarget = NormalizedOrZero(targetVec);
-
-        // ignore collisions more than this far into the future
         var simTime = brake.BrakeAccel == 0f ? 10f : 2f * ctx.ShipBody.LinearVelocity.Length() / brake.BrakeAccel;
         simTime += config.BaseEvasionTime;
+
+        // Each sector is independent. Evaluate the desired input against every
+        // obstacle first; alternate sectors cannot affect a clear wish sector.
+        var wishDirThrust = _mover.GetWorldDirectionAccel(wishDir, ctx.Shuttle, ctx.ShipBody, ctx.ShipXform);
+        _sectors.Add(new(wishDir, wishDirThrust, -1f));
+        EvaluateAvoidanceSectors(ref ctx, shipRadius, simTime, 1);
+        var wishSector = _sectors[0];
+        if (wishSector.ImpactTime == null)
+            return new(null, false);
 
         var forwardAccelVec = _mover.GetDirectionAccel(new Vector2(0f, 1f), ctx.Shuttle, ctx.ShipBody, ctx.ShipXform);
         forwardAccelVec = ctx.ShipNorthAngle.RotateVec(forwardAccelVec);
@@ -417,11 +431,51 @@ public sealed partial class ShipSteeringSystem : EntitySystem
                     _sectors.Add(new(dir, dirAccel / depth, 1f / depth));
             }
         }
-        // set scale to -1 to mark it as the wish-sector
-        var wishDirThrust = _mover.GetWorldDirectionAccel(wishDir, ctx.Shuttle, ctx.ShipBody, ctx.ShipXform);
-        var wishI = _sectors.Count;
-        _sectors.Add(new(wishDir, wishDirThrust, -1f));
+        // Preserve the original candidate order and tie-breaking. The wish sector
+        // already includes every obstacle in the same accumulation order.
+        var alternateCount = _sectors.Count;
+        _sectors.Add(wishSector);
+        EvaluateAvoidanceSectors(ref ctx, shipRadius, simTime, alternateCount);
 
+        // neither is clear, search for something that is
+        var closestSector = (int?)null;
+        var closestDistance = float.PositiveInfinity;
+
+        var bestSector = 0;
+        var bestScore = 0f;
+        for (var i = 0; i < _sectors.Count; i++)
+        {
+            var sector = _sectors[i];
+            if (sector.ImpactTime == null)
+            {
+                var toWishSq = (wishDir - NormalizedOrZero(sector.Accel) * sector.Scale).LengthSquared();
+                if (toWishSq < closestDistance)
+                {
+                    closestDistance = toWishSq;
+                    closestSector = i;
+                }
+            }
+            else
+            {
+                var score = sector.ImpactTime.Value / sector.Threat;
+                if (score > bestScore)
+                {
+                    bestSector = i;
+                    bestScore = score;
+                }
+            }
+        }
+
+        var chosenI = closestSector ?? bestSector;
+        var chosen = _sectors[chosenI];
+
+        return new(NormalizedOrZero(chosen.Input) * chosen.Scale, closestSector == null);
+    }
+
+    private void EvaluateAvoidanceSectors(ref SteeringContext ctx, float shipRadius, float simTime, int sectorCount)
+    {
+        var shipPos = ctx.ShipPos.Position;
+        var shipVel = ctx.ShipBody.LinearVelocity;
         foreach (var obstacle in _avoidEnts)
         {
             var obsRadius = obstacle.Radius;
@@ -442,7 +496,7 @@ public sealed partial class ShipSteeringSystem : EntitySystem
             var obsDistanceCenter = toObsVec.Length();
 
             var l = Vector2.Dot(toObsDir, relVel);
-            for (var i = 0; i < _sectors.Count; i++)
+            for (var i = 0; i < sectorCount; i++)
             {
                 var sector = _sectors[i];
 
@@ -517,44 +571,6 @@ public sealed partial class ShipSteeringSystem : EntitySystem
             }
         }
 
-        // choose wish if clear
-        var wishSector = _sectors[wishI];
-        if (wishSector.ImpactTime == null)
-            return new(null, false);
-
-        // neither is clear, search for something that is
-        var closestSector = (int?)null;
-        var closestDistance = float.PositiveInfinity;
-
-        var bestSector = 0;
-        var bestScore = 0f;
-        for (var i = 0; i < _sectors.Count; i++)
-        {
-            var sector = _sectors[i];
-            if (sector.ImpactTime == null)
-            {
-                var toWishSq = (wishDir - NormalizedOrZero(sector.Accel) * sector.Scale).LengthSquared();
-                if (toWishSq < closestDistance)
-                {
-                    closestDistance = toWishSq;
-                    closestSector = i;
-                }
-            }
-            else
-            {
-                var score = sector.ImpactTime.Value / sector.Threat;
-                if (score > bestScore)
-                {
-                    bestSector = i;
-                    bestScore = score;
-                }
-            }
-        }
-
-        var chosenI = closestSector ?? bestSector;
-        var chosen = _sectors[chosenI];
-
-        return new(NormalizedOrZero(chosen.Input) * chosen.Scale, closestSector == null);
     }
 
     // navigation for if we aren't avoiding a collision

@@ -62,16 +62,17 @@ public sealed partial class ApartmentAtmosphereSystem : EntitySystem
 
     private void OnOpen(EntityUid uid, ApartmentAtmosphereComponent component, BoundUIOpenedEvent args) => Publish(uid);
 
-    private void OnSet(EntityUid uid, ApartmentAtmosphereComponent component, ApartmentAtmosphereSetMessage args)
+    private async void OnSet(EntityUid uid, ApartmentAtmosphereComponent component, ApartmentAtmosphereSetMessage args)
     {
         if (args.UiKey is not ApartmentAtmosphereUiKey.Key || args.OxygenPercent is < 0 or > 100 ||
             !TryGetApartment(uid, out var grid) || Transform(args.Actor).GridUid != grid)
             return;
-        if (!_apartments.SaveAtmosphereSettings(grid, args.OxygenPercent))
+        if (!await _apartments.SaveAtmosphereSettingsAsync(grid, args.OxygenPercent))
         {
-            Publish(uid, false);
+            if (Exists(uid)) Publish(uid, false);
             return;
         }
+        if (!Exists(uid) || !Exists(grid)) return;
         EnsureComp<ApartmentAtmosphereSettingsComponent>(grid).OxygenPercent = args.OxygenPercent;
         _atmos.SetSafeGridAtmosphere(grid);
         _regulated.Add(grid);

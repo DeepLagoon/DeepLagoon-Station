@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 using System.Linq;
 using System.Numerics;
 using Content.Server.Atmos.EntitySystems;
@@ -151,6 +152,7 @@ public sealed partial class ApartmentSystem : EntitySystem
     public override void Shutdown()
     {
         _players.PlayerStatusChanged -= OnStatus;
+        _closingPersistence = true;
         SaveApartments(ApartmentSaveReason.Shutdown);
         _store?.Dispose();
         base.Shutdown();
@@ -399,16 +401,17 @@ public sealed partial class ApartmentSystem : EntitySystem
     {
         // Reserve frozen apartments too: waking them must restore the same free location.
         // Maps have no fixed edge, so extend the rows when the current ones are full.
-        var columns = _instances.Values.Concat(_retiring).Select(i => i.Position.X + i.Template.Width + ApartmentGap)
+        var occupied = _instances.Values.Concat(_retiring).Concat(_unloading.Where(i => Exists(i.Grid))).ToArray();
+        var columns = occupied.Select(i => i.Position.X + i.Template.Width + ApartmentGap)
             .Append(0f).Distinct().OrderBy(x => x).ToArray();
-        var rows = _instances.Values.Concat(_retiring).Select(i => i.Position.Y + i.Template.Height + ApartmentGap)
+        var rows = occupied.Select(i => i.Position.Y + i.Template.Height + ApartmentGap)
             .Append(0f).Distinct().OrderBy(y => y);
         foreach (var y in rows)
         foreach (var x in columns)
         {
             if (x + template.Width > ApartmentRowWidth)
                 continue;
-            if (_instances.Values.Concat(_retiring).Any(i =>
+            if (occupied.Any(i =>
                     x < i.Position.X + i.Template.Width + ApartmentGap &&
                     x + template.Width + ApartmentGap > i.Position.X &&
                     y < i.Position.Y + i.Template.Height + ApartmentGap &&
@@ -607,19 +610,40 @@ public sealed partial class ApartmentSystem : EntitySystem
         if (ev.Action == "exit") { RequestLeave(session.UserId, out var message); Result(session, false, message, _visits.TryGetValue(session.UserId, out var visit) ? visit.Apartment.Delta.Revision : -1); }
     }
 
-    private void OnApply(ApartmentApplyEvent ev, EntitySessionEventArgs args)
+    private async void OnApply(ApartmentApplyEvent ev, EntitySessionEventArgs args)
     {
         var session = args.SenderSession;
         var mapCount = _visits.TryGetValue(session.UserId, out var current) ? current.Apartment.MapFurniture.Count : _lobbyEditors.GetValueOrDefault(session.UserId)?.MapFurniture.Count ?? 0;
         if (ev.Layout == null || ev.Layout.Count > ApartmentLayout.SafetyLimit || ev.Layout.Any(p => p == null))
         { Result(session, false, "Некорректный проект квартиры.", -1); return; }
-        var error = Apply(session, ev.Token, ev.Revision, ev.Layout);
-        var revision = _visits.TryGetValue(session.UserId, out var visit) ? visit.Apartment.Delta.Revision : _lobbyEditors.GetValueOrDefault(session.UserId)?.Delta.Revision ?? -1;
-        Result(session, error == null, error ?? "Обстановка сохранена.", revision);
-        if (error == null) { if (InLobby(session)) OpenLobbyEditor(session); else OpenEditor(session); }
+        try
+        {
+            var error = await ApplyAsync(session, ev.Token, ev.Revision, ev.Layout);
+            if (!session.Channel.IsConnected || _closingPersistence) return;
+            var revision = _visits.TryGetValue(session.UserId, out var visit) ? visit.Apartment.Delta.Revision : _lobbyEditors.GetValueOrDefault(session.UserId)?.Delta.Revision ?? -1;
+            Result(session, error == null, error ?? "Обстановка сохранена.", revision);
+            if (error == null) { if (InLobby(session)) OpenLobbyEditor(session); else OpenEditor(session); }
+        }
+        catch (Exception error)
+        {
+            Log.Error($"Apartment editor save failed: {error}");
+            if (session.Channel.IsConnected) Result(session, false, "Сохранение не подтверждено. Повторите запрос.", -1);
+        }
     }
 
     public string? Apply(ICommonSession session, Guid token, int revision, IReadOnlyList<ApartmentPlacement> layout)
+        => WaitPersistence(ApplyAsync(session, token, revision, layout));
+
+    public Task<string?> ApplyAsync(ICommonSession session, Guid token, int revision, IReadOnlyList<ApartmentPlacement> layout)
+    {
+        if (_closingPersistence || _applyTasks.TryGetValue(session.UserId, out var pending) && !pending.IsCompleted)
+            return Task.FromResult<string?>("Предыдущее сохранение ещё выполняется. Повторите запрос после подтверждения.");
+        var task = ApplyCoreAsync(session, token, revision, layout.Select(p => p.Copy()).ToArray());
+        _applyTasks[session.UserId] = task;
+        return task;
+    }
+
+    private async Task<string?> ApplyCoreAsync(ICommonSession session, Guid token, int revision, IReadOnlyList<ApartmentPlacement> layout)
     {
         if (!Enabled || !_editors.TryGetValue(session.UserId, out var expected) || token != expected) return "Нет доступа к редактированию квартиры.";
         var lobby = InLobby(session) && _lobbyEditors.ContainsKey(session.UserId);
@@ -699,7 +723,7 @@ public sealed partial class ApartmentSystem : EntitySystem
             delta.PurchasedPlacements.UnionWith(layout.Where(p => prepared.ContainsKey(p.Id) ||
                 instance.Furniture.TryGetValue(p.Id, out var entity) &&
                 TryComp<ApartmentFurnitureIdentityComponent>(entity, out var identity) && identity.PlacedWithPurchase).Select(p => p.Id));
-            if (!Store.Save(session.UserId.UserId, delta, revision)) return "Сохранение изменилось. Откройте квартиру заново.";
+            if (!await Store.SaveAsync(session.UserId.UserId, delta, revision)) return "Сохранение изменилось. Откройте квартиру заново.";
             committed = true;
         }
         catch (Exception e)
@@ -728,7 +752,7 @@ public sealed partial class ApartmentSystem : EntitySystem
             instance.Furniture[p.Id] = entity;
         }
         instance.Delta = delta;
-        if (!SaveApartment(instance, ApartmentSaveReason.Layout)) return "Не удалось записать полный снимок. Обстановка находится в памяти; откройте редактор заново и повторите сохранение.";
+        if (!await SaveApartmentAsync(instance, ApartmentSaveReason.Layout)) return "Не удалось записать полный снимок. Обстановка находится в памяти; откройте редактор заново и повторите сохранение.";
         return null;
     }
 
@@ -783,6 +807,14 @@ public sealed partial class ApartmentSystem : EntitySystem
         base.Update(frameTime);
         RemoveEscapedChameleonGear();
         ContainResidents();
+        for (var i = _unloading.Count - 1; i >= 0; i--)
+        {
+            var unloaded = _unloading[i];
+            if (Exists(unloaded.Grid)) continue;
+            _unloading.RemoveAt(i);
+            _snapshotLocks.Remove(unloaded);
+            _snapshotRequests.Remove(unloaded);
+        }
         var now = _timing.RealTime;
         if (now < _nextUpdate || _instances.Count == 0 && _retiring.Count == 0 && _pendingGearReturns.Count == 0) return;
         _nextUpdate = now + TimeSpan.FromSeconds(1);
@@ -823,20 +855,15 @@ public sealed partial class ApartmentSystem : EntitySystem
         }
 
         // Serialize at most one grid per maintenance pass. Unloads take priority.
-        if (unload == null)
-        {
-            if (checkpoint != null)
-                SaveApartment(checkpoint, ApartmentSaveReason.Checkpoint);
-            return;
-        }
-        if (!SaveApartment(unload, ApartmentSaveReason.Unload)) return;
-        Del(unload.Grid);
-        if (_instances.GetValueOrDefault(unload.Owner) == unload) _instances.Remove(unload.Owner);
-        _retiring.Remove(unload);
+        if (!_maintenanceSave.IsCompleted || _closingPersistence) return;
+        if (unload != null) _maintenanceSave = MaintainApartment(unload, true);
+        else if (checkpoint != null) _maintenanceSave = MaintainApartment(checkpoint, false);
     }
 
     private void Cleanup()
     {
+        _closingPersistence = true;
+        AwaitApartmentOperations();
         FinishApartmentRound();
         SaveApartments(ApartmentSaveReason.RoundCleanup);
         _numbers.Reset();
@@ -848,9 +875,11 @@ public sealed partial class ApartmentSystem : EntitySystem
         _commerceRequests.Clear();
         _lastShopPreview.Clear();
         _visits.Clear(); _instances.Clear(); _editors.Clear(); _lastApply.Clear(); _guestAccess.Clear(); _templates.Clear(); _shopTokens.Clear(); _lobbyEditors.Clear(); _retiring.Clear();
+        _unloading.Clear();
         if (Exists(_activeMap)) Del(_activeMap);
         if (Exists(_sleepMap)) Del(_sleepMap);
         if (Exists(_escrowMap)) Del(_escrowMap);
         _activeMap = _sleepMap = _escrowMap = EntityUid.Invalid;
+        _applyTasks.Clear(); _snapshotLocks.Clear(); _snapshotRequests.Clear(); _closingPersistence = false;
     }
 }

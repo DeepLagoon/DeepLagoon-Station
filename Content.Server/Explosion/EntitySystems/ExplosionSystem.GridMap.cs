@@ -57,7 +57,8 @@ public sealed partial class ExplosionSystem
         MapCoordinates epicentre,
         EntityUid? referenceGrid,
         List<EntityUid> localGrids,
-        float maxDistance)
+        float maxDistance,
+        bool includeReference = true)
     {
         Dictionary<Vector2i, BlockedSpaceTile> transformedEdges = new();
 
@@ -159,7 +160,7 @@ public sealed partial class ExplosionSystem
             }
         }
 
-        if (referenceGrid == null)
+        if (referenceGrid == null || !includeReference)
             return (transformedEdges, tileSize);
 
         // finally, we also include the blocking tiles from the reference grid.
@@ -227,6 +228,8 @@ public sealed partial class ExplosionSystem
             }
         }
     }
+
+    internal Dictionary<Vector2i, NeighborFlag>? ReferenceEdges(EntityUid grid) => _gridEdges.GetValueOrDefault(grid);
 
     /// <summary>
     ///     When a tile is updated, we might need to update the grid edge maps.

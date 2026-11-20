@@ -1,5 +1,8 @@
 using System.IO;
+using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
+using Content.Server._DeepLagoon.Persistence;
 using Microsoft.Data.Sqlite;
 
 namespace Content.Server._DeepLagoon.Currency;
@@ -11,13 +14,14 @@ public sealed record PendingLagoonCoinReward(Guid User, string Key, long Amount,
 public sealed class LagoonCoinOutbox : IDisposable
 {
     private readonly SqliteConnection _connection;
+    private readonly SerialPersistenceQueue _writer = new();
     public LagoonCoinOutbox(string path)
     {
         if (path != ":memory:") Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
 #if USE_SYSTEM_SQLITE
         SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_sqlite3());
 #endif
-        _connection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = path }.ToString());
+        _connection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = path, Pooling = false }.ToString());
         _connection.Open();
         using var command = _connection.CreateCommand();
         command.CommandText = """
@@ -30,13 +34,21 @@ public sealed class LagoonCoinOutbox : IDisposable
         command.ExecuteNonQuery();
     }
 
-    public bool Store(PendingLagoonCoinReward reward)
+    public bool Store(PendingLagoonCoinReward reward) => StoreAsync(reward).GetAwaiter().GetResult();
+    public Task<bool> StoreAsync(PendingLagoonCoinReward reward) => _writer.Enqueue(() => StoreCore(reward));
+    private bool StoreCore(PendingLagoonCoinReward reward)
     {
         using var command = CreateInsert();
         return Insert(command, reward);
     }
 
-    public bool[] StoreBatch(IReadOnlyList<PendingLagoonCoinReward> rewards)
+    public bool[] StoreBatch(IReadOnlyList<PendingLagoonCoinReward> rewards) => StoreBatchAsync(rewards).GetAwaiter().GetResult();
+    public Task<bool[]> StoreBatchAsync(IReadOnlyList<PendingLagoonCoinReward> rewards)
+    {
+        var owned = rewards.ToArray();
+        return _writer.Enqueue(() => StoreBatchCore(owned));
+    }
+    private bool[] StoreBatchCore(IReadOnlyList<PendingLagoonCoinReward> rewards)
     {
         var inserted = new bool[rewards.Count];
         using var transaction = _connection.BeginTransaction();
@@ -67,7 +79,8 @@ public sealed class LagoonCoinOutbox : IDisposable
         return command.ExecuteNonQuery() == 1;
     }
 
-    public IEnumerable<PendingLagoonCoinReward> Load()
+    public IEnumerable<PendingLagoonCoinReward> Load() => _writer.Enqueue(() => LoadCore().ToArray()).GetAwaiter().GetResult();
+    private IEnumerable<PendingLagoonCoinReward> LoadCore()
     {
         using var command = _connection.CreateCommand();
         command.CommandText = "SELECT payload FROM rewards ORDER BY sequence";
@@ -75,7 +88,9 @@ public sealed class LagoonCoinOutbox : IDisposable
         while (reader.Read()) yield return JsonSerializer.Deserialize<PendingLagoonCoinReward>(reader.GetString(0))!;
     }
 
-    public void Complete(PendingLagoonCoinReward reward)
+    public void Complete(PendingLagoonCoinReward reward) => CompleteAsync(reward).GetAwaiter().GetResult();
+    public Task CompleteAsync(PendingLagoonCoinReward reward) => _writer.Enqueue(() => CompleteCore(reward));
+    private void CompleteCore(PendingLagoonCoinReward reward)
     {
         using var command = _connection.CreateCommand();
         command.CommandText = "DELETE FROM rewards WHERE user_id=$user AND operation_id=$key";
@@ -83,5 +98,6 @@ public sealed class LagoonCoinOutbox : IDisposable
         command.Parameters.AddWithValue("$key", reward.Key);
         command.ExecuteNonQuery();
     }
-    public void Dispose() => _connection.Dispose();
+    public Task FlushAsync() => _writer.FlushAsync();
+    public void Dispose() { _writer.Dispose(); _connection.Dispose(); }
 }

@@ -14,6 +14,9 @@ public sealed class ExplosionSpaceTileFlood : ExplosionTileFlood
     ///     to propagate from this tile.
     /// </summary>
     private readonly Dictionary<Vector2i, BlockedSpaceTile> _gridBlockMap;
+    private readonly EntityUid? _referenceGrid;
+    private readonly Dictionary<Vector2i, ExplosionSystem.NeighborFlag>? _referenceEdges;
+    private readonly Dictionary<Vector2i, BlockedSpaceTile> _referenceBlockers = new();
     private readonly Vector2i _blockerMin;
     private readonly Vector2i _blockerMax;
 
@@ -27,7 +30,9 @@ public sealed class ExplosionSpaceTileFlood : ExplosionTileFlood
 
     public ExplosionSpaceTileFlood(ExplosionSystem system, MapCoordinates epicentre, EntityUid? referenceGrid, List<EntityUid> localGrids, float maxDistance)
     {
-        (_gridBlockMap, TileSize) = system.TransformGridEdges(epicentre, referenceGrid, localGrids, maxDistance);
+        _referenceGrid = referenceGrid;
+        _referenceEdges = referenceGrid is { } reference ? system.ReferenceEdges(reference) : null;
+        (_gridBlockMap, TileSize) = system.TransformGridEdges(epicentre, referenceGrid, localGrids, maxDistance, includeReference: false);
         system.GetUnblockedDirections(_gridBlockMap, TileSize);
         _blockerMin = new Vector2i(int.MaxValue, int.MaxValue);
         _blockerMax = new Vector2i(int.MinValue, int.MinValue);
@@ -119,13 +124,13 @@ public sealed class ExplosionSpaceTileFlood : ExplosionTileFlood
         // It might be the case that the initial space-explosion tile actually overlaps on a grid. In that case we
         // need to manually add it to the `spaceToGridTiles` dictionary. This would normally be done automatically
         // during the neighbor finding steps.
-        if (_gridBlockMap.TryGetValue(initialTile, out var blocker))
+        if (TryGetBlocker(initialTile, out var blocker))
             JumpToGrid(blocker);
     }
 
     protected override void ProcessNewTile(int iteration, Vector2i tile, AtmosDirection entryDirection)
     {
-        if (!MayIntersectGrid(tile) || !_gridBlockMap.TryGetValue(tile, out var blocker))
+        if (!MayIntersectGrid(tile) || !TryGetBlocker(tile, out var blocker))
         {
             // this tile does not intersect any grids. Add it (if its new) and continue.
             if (ProcessedTiles.Add(tile))
@@ -167,13 +172,31 @@ public sealed class ExplosionSpaceTileFlood : ExplosionTileFlood
 
     protected override AtmosDirection GetUnblockedDirectionOrAll(Vector2i tile)
     {
+        if (_referenceEdges?.ContainsKey(tile) == true) return AtmosDirection.Invalid;
         return MayIntersectGrid(tile) && _gridBlockMap.TryGetValue(tile, out var blocker)
             ? blocker.UnblockedDirections
             : AtmosDirection.All;
     }
 
+    private bool TryGetBlocker(Vector2i tile, out BlockedSpaceTile blocker)
+    {
+        // Reference-grid edges are already in this coordinate system. Materialize only edges actually reached;
+        // copying all edges of a procedural planet made even a small bomb allocate tens of megabytes.
+        if (_referenceGrid is { } reference && _referenceEdges != null && _referenceEdges.TryGetValue(tile, out var directions))
+        {
+            if (_referenceBlockers.TryGetValue(tile, out blocker!)) return true;
+            blocker = new BlockedSpaceTile { UnblockedDirections = AtmosDirection.Invalid };
+            blocker.BlockingGridEdges.Add(new((directions & ExplosionSystem.NeighborFlag.Cardinal) == 0 ? default : tile,
+                (directions & ExplosionSystem.NeighborFlag.Cardinal) == 0 ? null : reference,
+                (tile + new System.Numerics.Vector2(.5f, .5f)) * TileSize, 0, TileSize));
+            _referenceBlockers.Add(tile, blocker);
+            return true;
+        }
+        return _gridBlockMap.TryGetValue(tile, out blocker!);
+    }
+
     // Most tiles of a large blast in space are far outside every grid.
     private bool MayIntersectGrid(Vector2i tile) =>
-        tile.X >= _blockerMin.X && tile.X <= _blockerMax.X &&
+        _referenceGrid != null || tile.X >= _blockerMin.X && tile.X <= _blockerMax.X &&
         tile.Y >= _blockerMin.Y && tile.Y <= _blockerMax.Y;
 }

@@ -15,6 +15,19 @@ public sealed partial class BiomeSystem
 {
     private readonly record struct MarkerRequest(BiomeComponent Biome, string Layer, Vector2i Origin);
     private readonly Dictionary<MarkerRequest, bool> _pendingMarkerPreloads = new();
+    private readonly List<MarkerRequest> _removedMarkerPreloads = new();
+
+    private void RemovePendingMarkerPreloads(BiomeComponent biome)
+    {
+        _removedMarkerPreloads.Clear();
+        foreach (var request in _pendingMarkerPreloads.Keys)
+            if (ReferenceEquals(request.Biome, biome))
+                _removedMarkerPreloads.Add(request);
+
+        foreach (var request in _removedMarkerPreloads)
+            _pendingMarkerPreloads.Remove(request);
+        _removedMarkerPreloads.Clear();
+    }
 
     private void QueueMarkerPreloads()
     {

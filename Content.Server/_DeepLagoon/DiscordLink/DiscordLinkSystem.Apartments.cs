@@ -24,7 +24,7 @@ public sealed partial class DiscordLinkSystem
             string.IsNullOrWhiteSpace(request.Message)) return ModerationError("invalid_request");
         if (await _database.GetPlayerRecordByUserId(uid) == null) return ModerationError("player_not_in_slot");
         var apartments = EntityManager.System<ApartmentSystem>();
-        var error = apartments.GrantTemplate(uid, request.Template, out var alreadyOwned);
+        var (error, alreadyOwned) = await apartments.GrantTemplateAsync(uid, request.Template);
         if (error != null) return ModerationError(error);
         Log.Info($"Discord apartment grant: target={uid} actor={actor} template={request.Template} alreadyOwned={alreadyOwned} reason={request.Message.Replace('\r', ' ').Replace('\n', ' ')}");
         return new ApiResult(HttpStatusCode.OK, new { ok = true, uid = uid.ToString(), template = request.Template, already_owned = alreadyOwned });

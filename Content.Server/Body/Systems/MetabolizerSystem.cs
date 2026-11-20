@@ -28,6 +28,8 @@ namespace Content.Server.Body.Systems
 
         private EntityQuery<OrganComponent> _organQuery;
         private EntityQuery<SolutionContainerManagerComponent> _solutionQuery;
+        private ValueList<(EntityUid Uid, MetabolizerComponent Component)> _metabolizerSnapshot;
+        private bool _metabolizerSnapshotInUse;
 
         public override void Initialize()
         {
@@ -84,22 +86,38 @@ namespace Content.Server.Body.Systems
         {
             base.Update(frameTime);
 
-            var metabolizers = new ValueList<(EntityUid Uid, MetabolizerComponent Component)>(Count<MetabolizerComponent>());
-            var query = EntityQueryEnumerator<MetabolizerComponent>();
-
-            while (query.MoveNext(out var uid, out var comp))
+            // Effects can mutate the component registry or re-enter this system. Keep a
+            // complete snapshot, renting the reusable buffer only to the outer update.
+            var reuse = !_metabolizerSnapshotInUse;
+            var metabolizers = reuse ? _metabolizerSnapshot : default;
+            if (reuse) _metabolizerSnapshotInUse = true;
+            try
             {
-                metabolizers.Add((uid, comp));
+                metabolizers.EnsureCapacity(Count<MetabolizerComponent>());
+                var query = EntityQueryEnumerator<MetabolizerComponent>();
+                while (query.MoveNext(out var uid, out var comp))
+                    metabolizers.Add((uid, comp));
+
+                foreach (var (uid, metab) in metabolizers)
+                {
+                    // Only update as frequently as it should
+                    if (_gameTiming.CurTime < metab.NextUpdate)
+                        continue;
+
+                    metab.NextUpdate += metab.UpdateInterval;
+                    TryMetabolize((uid, metab));
+                }
             }
-
-            foreach (var (uid, metab) in metabolizers)
+            finally
             {
-                // Only update as frequently as it should
-                if (_gameTiming.CurTime < metab.NextUpdate)
-                    continue;
-
-                metab.NextUpdate += metab.UpdateInterval;
-                TryMetabolize((uid, metab));
+                // Clear releases component references; copying the cleared ValueList back
+                // also retains any backing-array growth performed by this local struct.
+                metabolizers.Clear();
+                if (reuse)
+                {
+                    _metabolizerSnapshot = metabolizers;
+                    _metabolizerSnapshotInUse = false;
+                }
             }
         }
 

@@ -32,7 +32,7 @@ public sealed class ExplosionGridTileFlood : ExplosionTileFlood
     private float _intensityStepSize;
     private int _typeIndex;
 
-    private UniqueVector2iSet _spaceTiles = new();
+
     private UniqueVector2iSet _processedSpaceTiles = new();
 
     public HashSet<Vector2i> SpaceJump = new();
@@ -58,17 +58,6 @@ public sealed class ExplosionGridTileFlood : ExplosionTileFlood
         _typeIndex = typeIndex;
         _edgeTiles = edgeTiles;
         _explosionSystem = explosionSystem;
-
-        // initialise SpaceTiles
-        foreach (var (tile, spaceNeighbors) in _edgeTiles)
-        {
-            for (var i = 0; i < NeighbourVectors.Length; i++)
-            {
-                var dir = (NeighborFlag) (1 << i);
-                if ((spaceNeighbors & dir) != NeighborFlag.Invalid)
-                    _spaceTiles.Add(tile + NeighbourVectors[i]);
-            }
-        }
 
         if (referenceGrid == Grid.Owner)
             return;
@@ -157,6 +146,14 @@ public sealed class ExplosionGridTileFlood : ExplosionTileFlood
         return NewTiles.Count + NewBlockedTiles.Count;
     }
 
+    private bool IsSpaceTile(Vector2i tile)
+    {
+        for (var i = 0; i < NeighbourVectors.Length; i++)
+            if (_edgeTiles.TryGetValue(tile - NeighbourVectors[i], out var directions) &&
+                (directions & (NeighborFlag)(1 << i)) != NeighborFlag.Invalid) return true;
+        return false;
+    }
+
     protected override void ProcessNewTile(int iteration, Vector2i tile, AtmosDirection entryDirections)
     {
         // Is there an airtight blocker on this tile?
@@ -164,7 +161,7 @@ public sealed class ExplosionGridTileFlood : ExplosionTileFlood
         {
             // No blocker. Ezy. Though maybe this a space tile?
 
-            if (_spaceTiles.Contains(tile))
+            if (IsSpaceTile(tile))
                 JumpToSpace(tile);
             else if (ProcessedTiles.Add(tile))
                 NewTiles.Add(tile);

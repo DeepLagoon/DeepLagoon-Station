@@ -120,9 +120,11 @@ public sealed class ApartmentPersistenceTests
 
                 now += TimeSpan.FromMinutes(9) + TimeSpan.FromSeconds(59);
                 apartments.Update(0);
+                AwaitMaintenance(apartments);
                 Assert.That(store.LoadSnapshot(home.Owner.UserId, home.Template.ID), Is.Null);
                 now += TimeSpan.FromSeconds(1);
                 apartments.Update(0);
+                AwaitMaintenance(apartments);
                 var checkpoint = store.LoadSnapshot(home.Owner.UserId, home.Template.ID);
                 Assert.That(checkpoint?.Grid, Does.Contain("Checkpoint contents").And.Contain("N14JunkMirror"));
                 Assert.That(mirror.DoAfter, Is.Not.Null, "Saving must preserve the running interaction in memory.");
@@ -133,10 +135,12 @@ public sealed class ApartmentPersistenceTests
                 Assert.That(home.Frozen, Is.True);
                 now += TimeSpan.FromSeconds(1);
                 apartments.Update(0);
+                AwaitMaintenance(apartments);
                 Assert.That(store.LoadSnapshot(home.Owner.UserId, home.Template.ID)!.Grid, Is.EqualTo(checkpoint!.Grid));
 
                 now += TimeSpan.FromSeconds(pair.Server.CfgMan.GetCVar(ApartmentCVars.EmptyTimeout));
                 apartments.Update(0);
+                AwaitMaintenance(apartments);
                 Assert.That(entities.EntityExists(home.Grid), Is.False);
                 Assert.That(store.LoadSnapshot(home.Owner.UserId, home.Template.ID)!.Grid, Does.Contain("Contents saved before unload"));
                 Assert.That(apartments.Enter(session, session.UserId, out message), Is.True, message);
@@ -183,12 +187,10 @@ public sealed class ApartmentPersistenceTests
             clock.SetupGet(timing => timing.TickPeriod).Returns(TimeSpan.FromSeconds(1d / 30));
             var store = new Mock<IApartmentLayoutStore>();
             var fail = true;
-            store.Setup(s => s.SaveSnapshot(owner.UserId, home.Template.ID,
-                It.IsAny<ApartmentSnapshot>(), It.IsAny<ApartmentSnapshot>(), Guid.Empty)).Callback(() =>
-            {
-                if (fail)
-                    throw new InvalidOperationException("Simulated apartment write failure");
-            });
+            store.Setup(s => s.SaveCapturedSnapshotAsync(owner.UserId, home.Template.ID,
+                It.IsAny<ApartmentSnapshotCapture>(), It.IsAny<ApartmentSnapshot>(), Guid.Empty))
+                .Returns(() => fail ? Task.FromException<ApartmentSnapshotWriteResult>(new InvalidOperationException("Simulated apartment write failure"))
+                    : Task.FromResult(default(ApartmentSnapshotWriteResult)));
 
             var failureLevel = pair.ServerLogHandler.FailureLevel;
             try
@@ -197,17 +199,20 @@ public sealed class ApartmentPersistenceTests
                 storeField.SetValue(apartments, store.Object);
                 timingField.SetValue(apartments, clock.Object);
                 apartments.Update(0);
+                AwaitMaintenance(apartments);
                 Assert.That(apartments.Instances[owner], Is.SameAs(home));
                 Assert.That(home.RetrySaveAt, Is.EqualTo(now + TimeSpan.FromMinutes(1)));
 
                 now += TimeSpan.FromSeconds(59);
                 apartments.Update(0);
+                AwaitMaintenance(apartments);
                 Assert.That(store.Invocations, Has.Count.EqualTo(1));
                 Assert.That(pair.Server.EntMan.EntityExists(home.Grid), Is.True);
 
                 fail = false;
                 now += TimeSpan.FromSeconds(1);
                 apartments.Update(0);
+                AwaitMaintenance(apartments);
                 Assert.That(store.Invocations, Has.Count.EqualTo(2));
                 Assert.That(apartments.Instances.ContainsKey(owner), Is.False);
                 Assert.That(pair.Server.EntMan.EntityExists(home.Grid), Is.False);
@@ -423,10 +428,64 @@ public sealed class ApartmentPersistenceTests
         await pair.CleanReturnAsync();
     }
 
+    [Test]
+    public async Task ReentryReservesThePositionOfAnApartmentStillBeingDeleted()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        var outside = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.Enabled, true);
+            pair.Server.CfgMan.SetCVar(ApartmentCVars.DefaultTemplate, "DLApartmentSmall");
+            var entities = pair.Server.EntMan;
+            var session = pair.Server.PlayerMan.Sessions.Single();
+            var apartments = entities.System<ApartmentSystem>();
+            var body = entities.SpawnEntity("MobHuman", outside.GridCoords);
+            pair.Server.PlayerMan.SetAttachedEntity(session, body);
+            Assert.That(apartments.Enter(session, session.UserId, out var message), Is.True, message);
+            var old = apartments.Instances[session.UserId];
+            Assert.That(apartments.Leave(session.UserId, out message), Is.True, message);
+            old.IdleSince = TimeSpan.FromSeconds(-10000);
+            typeof(ApartmentSystem).GetField("_nextUpdate", Private)!.SetValue(apartments, TimeSpan.Zero);
+            apartments.Update(1);
+            typeof(ApartmentSystem).GetMethod("AwaitApartmentOperations", Private)!.Invoke(apartments, null);
+            var deletion = entities.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>();
+            Assert.That(deletion.IsPending(old.Grid), Is.True);
+            Assert.That(entities.EntityExists(old.Grid), Is.True);
+            Assert.That(apartments.Enter(session, session.UserId, out message), Is.True, message);
+            var fresh = apartments.Instances[session.UserId];
+            Assert.That(fresh.Grid, Is.Not.EqualTo(old.Grid));
+            var oldBounds = new Box2(old.Position, old.Position + new Vector2(old.Template.Width, old.Template.Height));
+            var newBounds = new Box2(fresh.Position, fresh.Position + new Vector2(fresh.Template.Width, fresh.Template.Height));
+            Assert.That(oldBounds.Intersects(newBounds), Is.False, "Pending map deletion must still reserve its space.");
+            for (var i = 0; i < 1000 && deletion.PendingCount > 0; i++) deletion.Update(0);
+            Assert.That(entities.EntityExists(old.Grid), Is.False);
+            Assert.That(entities.EntityExists(fresh.Grid), Is.True);
+            Assert.That(entities.GetComponent<TransformComponent>(body).GridUid, Is.EqualTo(fresh.Grid));
+            Assert.That(apartments.Leave(session.UserId, out message), Is.True, message);
+            pair.Server.PlayerMan.SetAttachedEntity(session, null);
+            entities.DeleteEntity(body);
+        });
+        await pair.CleanReturnAsync();
+    }
+
     private static void Unload(ApartmentSystem apartments, ApartmentSystem.Instance home)
     {
         home.IdleSince = TimeSpan.FromSeconds(-10000);
         typeof(ApartmentSystem).GetField("_nextUpdate", Private)!.SetValue(apartments, TimeSpan.Zero);
         apartments.Update(1);
+        AwaitMaintenance(apartments);
+        var entities = Robust.Shared.IoC.IoCManager.Resolve<IEntityManager>();
+        Assert.That(entities.EntityExists(home.Grid), Is.False);
     }
+    private static void AwaitMaintenance(ApartmentSystem apartments)
+    {
+        var pending = (Task)typeof(ApartmentSystem).GetField("_maintenanceSave", Private)!.GetValue(apartments)!;
+        Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.Asynchronous.ITaskManager>().BlockWaitOnTask(pending);
+        var entities = Robust.Shared.IoC.IoCManager.Resolve<IEntityManager>();
+        var deletion = entities.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>();
+        for (var i = 0; i < 1000 && deletion.PendingCount > 0; i++) deletion.Update(0);
+        Assert.That(deletion.PendingCount, Is.Zero);
+    }
+
 }

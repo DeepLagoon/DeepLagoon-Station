@@ -31,15 +31,30 @@ public sealed partial class ExplosionSystem
     /// <param name="maxIntensity">The maximum intensity that the explosion can have at any given tile. This
     /// effectively caps the damage that this explosion can do.</param>
     /// <returns>A list of tile-sets and a list of intensity values which describe the explosion.</returns>
+    private sealed class TileGeneration
+    {
+        public (int, List<float>, ExplosionSpaceTileFlood?, Dictionary<EntityUid, ExplosionGridTileFlood>, Matrix3x2)? Result;
+        public IEnumerator<object?> Steps = default!;
+        public QueuedExplosion Queued = default!;
+        public MapCoordinates Position;
+        public long Started;
+        public int Slices;
+    }
+
     private (int, List<float>, ExplosionSpaceTileFlood?, Dictionary<EntityUid, ExplosionGridTileFlood>, Matrix3x2)? GetExplosionTiles(
-        MapCoordinates epicenter,
-        string typeID,
-        float totalIntensity,
-        float slope,
-        float maxIntensity)
+        MapCoordinates epicenter, string typeID, float totalIntensity, float slope, float maxIntensity)
+    {
+        // Editor preview deliberately remains synchronous. Gameplay advances the same generator within its budget.
+        var generation = new TileGeneration();
+        foreach (var _ in GenerateExplosionTiles(epicenter, typeID, totalIntensity, slope, maxIntensity, generation)) { }
+        return generation.Result;
+    }
+
+    private IEnumerable<object?> GenerateExplosionTiles(MapCoordinates epicenter, string typeID,
+        float totalIntensity, float slope, float maxIntensity, TileGeneration generation)
     {
         if (totalIntensity <= 0 || slope <= 0)
-            return null;
+            yield break;
 
         var typeIndex = _explosionTypes[typeID];
 
@@ -127,8 +142,10 @@ public sealed partial class ExplosionSystem
 
         // Is this even a multi-tile explosion?
         if (totalIntensity < stepSize)
-            // Bit anticlimactic. All that set up for nothing....
-            return (1, new List<float> { totalIntensity }, spaceData, gridData, spaceMatrix);
+        {
+            generation.Result = (1, new List<float> { totalIntensity }, spaceData, gridData, spaceMatrix);
+            yield break;
+        }
 
         // These variables keep track of the total intensity we have distributed
         List<int> tilesInIteration = new() { 1 };
@@ -147,6 +164,7 @@ public sealed partial class ExplosionSystem
         // Main flood-fill / neighbor-finding loop
         while (remainingIntensity > 0 && iteration <= MaxIterations && totalTiles < MaxArea)
         {
+            yield return null;
             previousIntensity = remainingIntensity;
 
             // First, we increase the intensity of the tiles that were already discovered in previous iterations.
@@ -199,13 +217,15 @@ public sealed partial class ExplosionSystem
             // 3. Process grids and immediate space->grid jumps
             foreach (var grid in encounteredGrids)
             {
+                yield return null;
+                if (!TryComp<MapGridComponent>(grid, out var liveGrid)) continue;
                 // is this a new grid, for which we must create a new explosion data set
                 if (!gridData.TryGetValue(grid, out var data))
                 {
                     var airtightMap = CompOrNull<ExplosionAirtightGridComponent>(grid)?.Tiles ?? new();
 
                     data = new ExplosionGridTileFlood(
-                        (grid, Comp<MapGridComponent>(grid)),
+                        (grid, liveGrid),
                         airtightMap,
                         maxIntensity,
                         stepSize,
@@ -254,7 +274,7 @@ public sealed partial class ExplosionSystem
         }
         spaceData?.CleanUp();
 
-        return (totalTiles, iterationIntensity, spaceData, gridData, spaceMatrix);
+        generation.Result = (totalTiles, iterationIntensity, spaceData, gridData, spaceMatrix);
     }
 
     /// <summary>

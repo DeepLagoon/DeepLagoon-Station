@@ -181,7 +181,7 @@ public sealed partial class SalvageSystem
         }
 
         // Last shuttle has left so finish the mission.
-        QueueDel(ev.FromMapUid.Value);
+        EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(ev.FromMapUid.Value);
     }
 
     // Runs the expedition
@@ -196,7 +196,7 @@ public sealed partial class SalvageSystem
             if (comp.DispatchExpiresAt is { } dispatchExpiry)
             {
                 if (_timing.CurTime >= dispatchExpiry)
-                    QueueDel(uid);
+                    EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(uid);
                 continue;
             }
 
@@ -273,7 +273,7 @@ public sealed partial class SalvageSystem
 
             if (remaining < TimeSpan.Zero && !pendingDeparture)
             {
-                QueueDel(uid);
+                EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(uid);
             }
         }
 

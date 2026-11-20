@@ -94,6 +94,7 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
         _xformQuery = GetEntityQuery<TransformComponent>();
         SubscribeLocalEvent<BiomeComponent, MapInitEvent>(OnBiomeMapInit);
         SubscribeLocalEvent<BiomeComponent, ComponentShutdown>(OnBiomeShutdown);
+        SubscribeLocalEvent<BiomeComponent, ComponentRemove>(OnBiomeRemoved);
         SubscribeLocalEvent<FTLStartedEvent>(OnFTLStarted);
         SubscribeLocalEvent<ShuttleFlattenEvent>(OnShuttleFlatten);
         SubscribeLocalEvent<EntityTerminatingEvent>(OnEntityTerminating);
@@ -144,6 +145,13 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
         _markerChunks.Remove(biome);
         _sceneryDefaults.Remove(biome);
         CancelMarkerScan(biome);
+    }
+
+    private void OnBiomeRemoved(EntityUid uid, BiomeComponent biome, ComponentRemove args)
+    {
+        // Shutdown can be followed by Startup; only final removal discards queued work.
+        CancelMarkerScan(biome);
+        RemovePendingMarkerPreloads(biome);
     }
 
     private void OnShuttleFlatten(ref ShuttleFlattenEvent ev)

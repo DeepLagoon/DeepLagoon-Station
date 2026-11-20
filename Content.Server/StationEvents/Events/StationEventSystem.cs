@@ -27,6 +27,8 @@ public abstract partial class StationEventSystem<T> : GameRuleSystem<T> where T 
     [Dependency] protected RadioSystem RadioSystem = default!; // Frontier
     [Dependency] protected MapSystem MapSystem = default!; // Frontier
 
+    [Dependency] private StationEventLifecycleSystem _lifecycle = default!;
+
     protected ISawmill Sawmill = default!;
 
     public override void Initialize()
@@ -120,36 +122,6 @@ public abstract partial class StationEventSystem<T> : GameRuleSystem<T> where T 
     {
         base.Update(frameTime);
 
-        var query = EntityQueryEnumerator<StationEventComponent, GameRuleComponent>();
-        while (query.MoveNext(out var uid, out var stationEvent, out var ruleData))
-        {
-            if (!GameTicker.IsGameRuleAdded(uid, ruleData))
-                continue;
-
-            if (!GameTicker.IsGameRuleActive(uid, ruleData) && !HasComp<DelayedStartRuleComponent>(uid))
-            {
-                GameTicker.StartGameRule(uid, ruleData);
-            }
-            else if (stationEvent.EndTime != null && Timing.CurTime >= stationEvent.EndTime && GameTicker.IsGameRuleActive(uid, ruleData))
-            {
-                GameTicker.EndGameRule(uid, ruleData);
-            }
-            // Frontier: Added Warning for events ending soon
-            else if (!stationEvent.WarningAnnounced && stationEvent.EndTime != null && (stationEvent.EndTime.Value - Timing.CurTime).TotalSeconds <= stationEvent.WarningDurationLeft && GameTicker.IsGameRuleActive(uid, ruleData))
-            {
-                Filter allPlayersInGame = Filter.Empty().AddWhere(GameTicker.UserHasJoinedGame); // we don't want to send to players who aren't in game (i.e. in the lobby)
-                if (stationEvent.WarningAnnouncement != null)
-                    ChatSystem.DispatchFilteredAnnouncement(allPlayersInGame, Loc.GetString(stationEvent.WarningAnnouncement), sender: stationEvent.AnnounceSender is { } send ? Loc.GetString(send) : null, playSound: false, colorOverride: stationEvent.WarningAnnouncementColor);
-                if (stationEvent.WarningRadioAnnouncement != null)
-                {
-                    var message = Loc.GetString(stationEvent.WarningRadioAnnouncement);
-                    var mapUid = MapSystem.GetMap(GameTicker.DefaultMap); // Hack: need a reference to a valid entity on the default map - the map itself works.
-                    RadioSystem.SendRadioMessage(uid, message, stationEvent.WarningRadioAnnouncementChannel, mapUid, escapeMarkup: false);
-                }
-                Audio.PlayGlobal(stationEvent.WarningAudio, allPlayersInGame, true);
-                stationEvent.WarningAnnounced = true;
-            }
-            // End Frontier
-        }
+        _lifecycle.ProcessEvents();
     }
 }

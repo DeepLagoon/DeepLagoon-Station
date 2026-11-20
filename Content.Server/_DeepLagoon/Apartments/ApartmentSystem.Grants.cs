@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Robust.Shared.Network;
 using Content.Shared._DeepLagoon.Apartments;
 
@@ -7,13 +8,17 @@ public sealed partial class ApartmentSystem
 {
     public string? GrantTemplate(NetUserId owner, string templateId, out bool alreadyOwned)
     {
-        alreadyOwned = false;
-        if (!Enabled) return "apartments_disabled";
+        var result = WaitPersistence(GrantTemplateAsync(owner, templateId));
+        alreadyOwned = result.AlreadyOwned; return result.Error;
+    }
+    public async Task<(string? Error, bool AlreadyOwned)> GrantTemplateAsync(NetUserId owner, string templateId)
+    {
+        if (!Enabled) return ("apartments_disabled", false);
         if (!_prototypes.TryIndex<ApartmentTemplatePrototype>(templateId, out var template) || !Available(template))
-            return "apartment_unavailable";
-        alreadyOwned = OwnsTemplate(owner, template);
-        if (alreadyOwned) return null;
-        if (template.ExistingOnly) return "apartment_unavailable";
+            return ("apartment_unavailable", false);
+        var alreadyOwned = OwnsTemplate(owner, template);
+        if (alreadyOwned) return (null, true);
+        if (template.ExistingOnly) return ("apartment_unavailable", false);
         try
         {
             EnsureMaps();
@@ -23,10 +28,10 @@ public sealed partial class ApartmentSystem
         catch (Exception e)
         {
             Log.Warning($"Apartment grant validation failed: template={template.ID} error={e.GetType().Name}");
-            return "apartment_invalid_map";
+            return ("apartment_invalid_map", false);
         }
-        Store.BeginPurchase(owner.UserId, template.ID, 0);
-        Store.Grant(owner.UserId, template.ID);
-        return null;
+        await Store.BeginPurchaseAsync(owner.UserId, template.ID, 0);
+        await Store.GrantAsync(owner.UserId, template.ID);
+        return (null, false);
     }
 }

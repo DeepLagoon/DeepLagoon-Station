@@ -14,11 +14,12 @@ public sealed partial class ApartmentSystem
         _visits.TryGetValue(session.UserId, out var visit) && visit.Apartment.Owner == session.UserId &&
         Transform(target).GridUid == visit.Apartment.Grid;
 
-    public bool SaveDecoration(EntityUid target)
+    public bool SaveDecoration(EntityUid target) => WaitPersistence(SaveDecorationAsync(target));
+    public async Task<bool> SaveDecorationAsync(EntityUid target)
     {
         var grid = Transform(target).GridUid;
         var instance = _instances.Values.FirstOrDefault(home => home.Grid == grid);
-        return instance != null && SaveApartment(instance, ApartmentSaveReason.Decoration);
+        return instance != null && await SaveApartmentAsync(instance, ApartmentSaveReason.Decoration);
     }
 
     private List<ApartmentShopEntry> ShopItems() => _prototypes.EnumeratePrototypes<ApartmentItemPrototype>()
@@ -39,7 +40,7 @@ public sealed partial class ApartmentSystem
             if (ev.Order == Guid.Empty || !_prototypes.TryIndex<ApartmentItemPrototype>(ev.Template, out var item) ||
                 item.Price is < 1 or > 500 || ev.UnitPrice != item.Price)
             { PublishShop(session, "Цена изменилась или предмет недоступен. Проверьте каталог."); return; }
-            order = Store.BeginItemOrder(session.UserId.UserId, ev.Order, item.ID, item.Price);
+            order = await Store.BeginItemOrderAsync(session.UserId.UserId, ev.Order, item.ID, item.Price);
         }
         if (order.Delivered) { PublishShop(session, "Этот заказ уже доставлен."); return; }
         var product = _prototypes.Index<ApartmentItemPrototype>(order.Product);
@@ -55,7 +56,7 @@ public sealed partial class ApartmentSystem
         }
         catch (InsufficientLagoonCoinsException)
         {
-            Store.CancelItemOrder(session.UserId.UserId, order.Id);
+            await Store.CancelItemOrderAsync(session.UserId.UserId, order.Id);
             throw;
         }
         _economy.Remember(session, result);
@@ -64,7 +65,7 @@ public sealed partial class ApartmentSystem
             return; // Persisted pending order remains available on reopening the shop.
         var entity = Spawn(product.Entity, new EntityCoordinates(instance.Grid,
             new System.Numerics.Vector2(instance.Template.Arrival.X + .5f, instance.Template.Arrival.Y + .5f)));
-        if (!SaveApartment(instance, ApartmentSaveReason.Delivery, order.Id))
+        if (!await SaveApartmentAsync(instance, ApartmentSaveReason.Delivery, order.Id))
         {
             Del(entity);
             throw new InvalidOperationException("Оплата учтена, доставка ожидает сохранения. Нажмите «Завершить доставку»; повторного списания не будет.");

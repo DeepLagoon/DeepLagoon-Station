@@ -60,6 +60,14 @@ public sealed partial class ExplosionSystem
     ///     The explosion currently being processed.
     /// </summary>
     private Explosion? _activeExplosion;
+    private TileGeneration? _tileGeneration;
+    private long _nextPreparationReport;
+    private int _preparationsSinceReport;
+    private int _maxPreparationSlices;
+    private double _maxPreparationWallMs;
+    private double _maxPreparationSliceMs;
+    private double _maxSpawnMs;
+    private double _maxDamageSliceMs;
 
     /// <summary>
     /// This list is used when raising <see cref="BeforeExplodeEvent"/> to avoid allocating a new list per event.
@@ -79,10 +87,12 @@ public sealed partial class ExplosionSystem
     private void OnMapRemoved(MapRemovedEvent ev)
     {
         // If a map was deleted, check the explosion currently being processed belongs to that map.
+        if (_tileGeneration?.Position.MapId == ev.MapId) { _tileGeneration.Steps.Dispose(); _tileGeneration = null; }
         if (_activeExplosion?.Epicenter.MapId != ev.MapId)
             return;
 
         QueueDel(_activeExplosion.VisualEnt);
+        _activeExplosion.Dispose();
         _activeExplosion = null;
         _nodeGroupSystem.PauseUpdating = false;
         _pathfindingSystem.PauseUpdating = false;
@@ -93,11 +103,12 @@ public sealed partial class ExplosionSystem
     /// </summary>
     public override void Update(float frameTime)
     {
-        if (_activeExplosion == null && _explosionQueue.Count == 0)
+        if (_activeExplosion == null && _tileGeneration == null && _explosionQueue.Count == 0)
             // nothing to do
             return;
 
         Stopwatch.Restart();
+        _measureConsequences = _cfg.IsCVarRegistered("log.perf_diagnostics") && _cfg.GetCVar<int>("log.perf_diagnostics") > 0;
         _remainingItemThrowsThisTick = ItemThrowsPerTick;
 
         var tilesRemaining = TilesPerTick;
@@ -111,11 +122,54 @@ public sealed partial class ExplosionSystem
                 if (MathF.Max(MaxProcessingTime - 1, 0.1f) < Stopwatch.Elapsed.TotalMilliseconds)
                     break;
 
-                if (!_explosionQueue.TryDequeue(out var queued))
-                    break;
-
-                _queuedExplosions.Remove(queued);
-                _activeExplosion = SpawnExplosion(queued);
+                if (_tileGeneration == null)
+                {
+                    if (!_explosionQueue.TryDequeue(out var queued)) break;
+                    _queuedExplosions.Remove(queued);
+                    if (TerminatingOrDeleted(queued.Epicenter.EntityId)) continue;
+                    var position = _transformSystem.ToMapCoordinates(queued.Epicenter);
+                    if (!_map.MapExists(position.MapId)) continue;
+                    var source = Transform(queued.Epicenter.EntityId).GridUid ?? queued.Epicenter.EntityId;
+                    if (TryComp<Content.Shared.Tiles.ProtectedGridComponent>(source, out var protectedGrid) && protectedGrid.PreventExplosions) continue;
+                    _tileGeneration = new TileGeneration { Queued = queued, Position = position, Started = System.Diagnostics.Stopwatch.GetTimestamp() };
+                    _tileGeneration.Steps = GenerateExplosionTiles(position, queued.Proto.ID, queued.TotalIntensity,
+                        queued.Slope, queued.MaxTileIntensity, _tileGeneration).GetEnumerator();
+                }
+                var generation = _tileGeneration;
+                generation.Slices++;
+                var ready = false;
+                var preparationStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+                try
+                {
+                    while (Stopwatch.Elapsed.TotalMilliseconds < MaxProcessingTime)
+                    {
+                        if (generation.Steps.MoveNext()) continue;
+                        ready = true; break;
+                    }
+                }
+                catch
+                {
+                    generation.Steps.Dispose(); _tileGeneration = null;
+                    throw;
+                }
+                _maxPreparationSliceMs = Math.Max(_maxPreparationSliceMs,
+                    System.Diagnostics.Stopwatch.GetElapsedTime(preparationStarted).TotalMilliseconds);
+                if (!ready) break;
+                generation.Steps.Dispose(); _tileGeneration = null;
+                var spawnStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+                _activeExplosion = SpawnExplosion(generation.Queued, generation);
+                _maxSpawnMs = Math.Max(_maxSpawnMs, System.Diagnostics.Stopwatch.GetElapsedTime(spawnStarted).TotalMilliseconds);
+                _preparationsSinceReport++;
+                _maxPreparationSlices = Math.Max(_maxPreparationSlices, generation.Slices);
+                _maxPreparationWallMs = Math.Max(_maxPreparationWallMs, System.Diagnostics.Stopwatch.GetElapsedTime(generation.Started).TotalMilliseconds);
+                var reportAt = System.Diagnostics.Stopwatch.GetTimestamp();
+                if (reportAt >= _nextPreparationReport && _cfg.IsCVarRegistered("log.perf_diagnostics") && _cfg.GetCVar<int>("log.perf_diagnostics") > 0)
+                {
+                    Log.Info($"Explosion preparation summary: count={_preparationsSinceReport} max_slices={_maxPreparationSlices} max_wall_ms={_maxPreparationWallMs:F1} max_prepare_slice_ms={_maxPreparationSliceMs:F2} max_spawn_ms={_maxSpawnMs:F2} max_damage_slice_ms={_maxDamageSliceMs:F2}");
+                    _preparationsSinceReport = _maxPreparationSlices = 0; _maxPreparationWallMs = 0;
+                    _maxPreparationSliceMs = _maxSpawnMs = _maxDamageSliceMs = 0;
+                    _nextPreparationReport = reportAt + 30 * System.Diagnostics.Stopwatch.Frequency;
+                }
 
                 // explosion spawning can be null if something somewhere went wrong. (e.g., negative explosion
                 // intensity).
@@ -142,7 +196,11 @@ public sealed partial class ExplosionSystem
             try
             {
 #endif
+            var damageStarted = System.Diagnostics.Stopwatch.GetTimestamp();
             var processed = _activeExplosion.Process(tilesRemaining);
+            _maxDamageSliceMs = Math.Max(_maxDamageSliceMs,
+                System.Diagnostics.Stopwatch.GetElapsedTime(damageStarted).TotalMilliseconds);
+            ReportConsequences();
             tilesRemaining -= processed;
 
             // has the explosion finished processing?
@@ -151,6 +209,7 @@ public sealed partial class ExplosionSystem
                 var comp = EnsureComp<TimedDespawnComponent>(_activeExplosion.VisualEnt);
                 comp.Lifetime = _cfg.GetCVar(CCVars.ExplosionPersistence);
                 _appearance.SetData(_activeExplosion.VisualEnt, ExplosionAppearanceData.Progress, int.MaxValue);
+                _activeExplosion.Dispose();
                 _activeExplosion = null;
             }
 #if EXCEPTION_TOLERANCE
@@ -159,7 +218,10 @@ public sealed partial class ExplosionSystem
             {
                 // Ensure the system does not get stuck in an error-loop.
                 if (_activeExplosion != null)
+                {
                     QueueDel(_activeExplosion.VisualEnt);
+                    _activeExplosion.Dispose();
+                }
                 _activeExplosion = null;
                 _nodeGroupSystem.PauseUpdating = false;
                 _pathfindingSystem.PauseUpdating = false;
@@ -233,10 +295,13 @@ public sealed partial class ExplosionSystem
         var state = (list, processed, EntityManager.TransformQuery);
 
         // get entities:
-        lookup.DynamicTree.QueryAabb(ref state, GridQueryCallback, gridBox, true);
-        lookup.StaticTree.QueryAabb(ref state, GridQueryCallback, gridBox, true);
-        lookup.SundriesTree.QueryAabb(ref state, GridQueryCallback, gridBox, true);
-        lookup.StaticSundriesTree.QueryAabb(ref state, GridQueryCallback, gridBox, true);
+        using (MeasureConsequence(ConsequencePhase.EntityLookup, grid.Owner))
+        {
+            lookup.DynamicTree.QueryAabb(ref state, GridQueryCallback, gridBox, true);
+            lookup.StaticTree.QueryAabb(ref state, GridQueryCallback, gridBox, true);
+            lookup.SundriesTree.QueryAabb(ref state, GridQueryCallback, gridBox, true);
+            lookup.StaticSundriesTree.QueryAabb(ref state, GridQueryCallback, gridBox, true);
+        }
 
         // process those entities
         foreach (var (uid, xform) in list)
@@ -247,7 +312,8 @@ public sealed partial class ExplosionSystem
         // process anchored entities
         var tileBlocked = false;
         _anchored.Clear();
-        _map.GetAnchoredEntities(grid, tile, _anchored);
+        using (MeasureConsequence(ConsequencePhase.EntityLookup, grid.Owner))
+            _map.GetAnchoredEntities(grid, tile, _anchored);
         _subFloorDeferred.Clear(); // Exodus
         foreach (var entity in _anchored)
         {
@@ -265,6 +331,7 @@ public sealed partial class ExplosionSystem
         // heat the atmosphere
         if (temperature != null)
         {
+            using var measurement = MeasureConsequence(ConsequencePhase.AtmosphereAndFire, grid.Owner);
             _atmosphere.HotspotExpose(grid.Owner, tile, temperature.Value, currentIntensity, cause, true);
         }
 
@@ -275,7 +342,8 @@ public sealed partial class ExplosionSystem
         if (_anchored.Count > 0)
         {
             _anchored.Clear();
-            _map.GetAnchoredEntities(grid, tile, _anchored);
+            using (MeasureConsequence(ConsequencePhase.EntityLookup, grid.Owner))
+                _map.GetAnchoredEntities(grid, tile, _anchored);
             foreach (var entity in _anchored)
             {
                 tileBlocked |= IsBlockingTurf(entity);
@@ -284,6 +352,7 @@ public sealed partial class ExplosionSystem
 // ES START
         if (!tileBlocked)
         {
+            using var measurement = MeasureConsequence(ConsequencePhase.AtmosphereAndFire, grid.Owner);
             var explosionType = _prototypeManager.Index<ExplosionPrototype>(id);
             if (_robustRandom.Prob(explosionType.FireChance))
             {
@@ -312,8 +381,11 @@ public sealed partial class ExplosionSystem
             return !tileBlocked;
 
         list.Clear();
-        lookup.DynamicTree.QueryAabb(ref state, GridQueryCallback, gridBox, true);
-        lookup.SundriesTree.QueryAabb(ref state, GridQueryCallback, gridBox, true);
+        using (MeasureConsequence(ConsequencePhase.EntityLookup, grid.Owner))
+        {
+            lookup.DynamicTree.QueryAabb(ref state, GridQueryCallback, gridBox, true);
+            lookup.SundriesTree.QueryAabb(ref state, GridQueryCallback, gridBox, true);
+        }
 
         foreach (var (uid, xform) in list)
         {
@@ -366,10 +438,13 @@ public sealed partial class ExplosionSystem
         var state = (list, processed, invSpaceMatrix, lookup.Owner, EntityManager.TransformQuery, gridBox, _transformSystem);
 
         // get entities:
-        lookup.Comp.DynamicTree.QueryAabb(ref state, SpaceQueryCallback, worldBox, true);
-        lookup.Comp.StaticTree.QueryAabb(ref state, SpaceQueryCallback, worldBox, true);
-        lookup.Comp.SundriesTree.QueryAabb(ref state, SpaceQueryCallback, worldBox, true);
-        lookup.Comp.StaticSundriesTree.QueryAabb(ref state, SpaceQueryCallback, worldBox, true);
+        using (MeasureConsequence(ConsequencePhase.EntityLookup, lookup.Owner))
+        {
+            lookup.Comp.DynamicTree.QueryAabb(ref state, SpaceQueryCallback, worldBox, true);
+            lookup.Comp.StaticTree.QueryAabb(ref state, SpaceQueryCallback, worldBox, true);
+            lookup.Comp.SundriesTree.QueryAabb(ref state, SpaceQueryCallback, worldBox, true);
+            lookup.Comp.StaticSundriesTree.QueryAabb(ref state, SpaceQueryCallback, worldBox, true);
+        }
 
         foreach (var (uid, xform) in state.Item1)
         {
@@ -382,8 +457,11 @@ public sealed partial class ExplosionSystem
         // Also, throw any entities that were spawned as shrapnel. Compared to entity spawning & destruction, this extra
         // lookup is relatively minor computational cost, and throwing is disabled for nukes anyways.
         list.Clear();
-        lookup.Comp.DynamicTree.QueryAabb(ref state, SpaceQueryCallback, worldBox, true);
-        lookup.Comp.SundriesTree.QueryAabb(ref state, SpaceQueryCallback, worldBox, true);
+        using (MeasureConsequence(ConsequencePhase.EntityLookup, lookup.Owner))
+        {
+            lookup.Comp.DynamicTree.QueryAabb(ref state, SpaceQueryCallback, worldBox, true);
+            lookup.Comp.SundriesTree.QueryAabb(ref state, SpaceQueryCallback, worldBox, true);
+        }
 
         foreach (var (uid, xform) in list)
         {
@@ -484,7 +562,8 @@ public sealed partial class ExplosionSystem
     {
         if (originalDamage != null)
         {
-            GetEntitiesToDamage(uid, originalDamage, id);
+            using (MeasureConsequence(ConsequencePhase.ResistanceAndContents, uid))
+                GetEntitiesToDamage(uid, originalDamage, id);
             foreach (var (entity, damage) in _toDamage)
             {
                 if (_actorQuery.HasComp(entity))
@@ -502,6 +581,7 @@ public sealed partial class ExplosionSystem
                 }
 
                 // TODO EXPLOSIONS turn explosions into entities, and pass the the entity in as the damage origin.
+                using var measurement = MeasureConsequence(ConsequencePhase.Damage, entity);
                 _damageableSystem.TryChangeDamage(entity, damage, ignoreResistances: true, ignoreGlobalModifiers: true,
                 // Mono: Explosion flag for plate protection
                 originFlag: DamageableSystem.DamageOriginFlag.Explosion);
@@ -510,6 +590,7 @@ public sealed partial class ExplosionSystem
         }
 
         // ignite entities with the flammable component
+        using var igniteAndThrow = MeasureConsequence(ConsequencePhase.IgniteAndThrow, uid);
         if (fireStacksOnIgnite != null)
         {
             if (_flammableQuery.TryGetComponent(uid, out var flammable))
@@ -563,6 +644,7 @@ public sealed partial class ExplosionSystem
         List<(Vector2i GridIndices, Tile Tile)> damagedTiles,
         ExplosionPrototype type)
     {
+        using var measurement = MeasureConsequence(ConsequencePhase.FloorDamage, tileRef.GridUid);
         if (_tileDefinitionManager[tileRef.Tile.TypeId] is not ContentTileDefinition tileDef
             || tileDef.Indestructible)
             return;
@@ -618,7 +700,7 @@ public sealed partial class ExplosionSystem
 ///     iterating over the tiles, along with the ability to keep track of what entities have already been damaged by
 ///     this explosion.
 /// </remarks>
-sealed class Explosion
+sealed class Explosion : IDisposable
 {
     /// <summary>
     ///     For every grid (+ space) that the explosion reached, this data struct stores information about the tiles and
@@ -683,7 +765,8 @@ sealed class Explosion
     /// <summary>
     ///     Have all the tiles on all the grids been processed?
     /// </summary>
-    public bool FinishedProcessing;
+    private bool _effectsFinished;
+    public bool FinishedProcessing => _effectsFinished && _tileCommit.Finished;
 
     // Variables used for enumerating over tiles, grids, etc
     private DamageSpecifier _currentDamage = default!;
@@ -702,7 +785,8 @@ sealed class Explosion
     ///     The set of tiles that need to be updated when the explosion has finished processing. Used to avoid having
     ///     the explosion trigger chunk regeneration & shuttle-system processing every tick.
     /// </summary>
-    private readonly Dictionary<Entity<MapGridComponent>, List<(Vector2i, Tile)>> _tileUpdateDict = new();
+    private readonly ExplosionTileCommit _tileCommit;
+    private readonly Func<bool> _hasTimeRemaining;
 
     // Entity Queries
     private readonly EntityQuery<TransformComponent> _xformQuery;
@@ -774,6 +858,8 @@ sealed class Explosion
         _canCreateVacuum = canCreateVacuum;
         _entMan = entMan;
         _damageable = damageable;
+        _tileCommit = new(entMan, mapSystem, system);
+        _hasTimeRemaining = () => _system.Stopwatch.Elapsed.TotalMilliseconds < _system.MaxProcessingTime;
 
         _xformQuery = entMan.GetEntityQuery<TransformComponent>();
         _physicsQuery = entMan.GetEntityQuery<PhysicsComponent>();
@@ -867,7 +953,7 @@ sealed class Explosion
         }
 
         // No more explosion tiles to process
-        FinishedProcessing = true;
+        _effectsFinished = true;
         return false;
     }
 
@@ -876,10 +962,10 @@ sealed class Explosion
     /// </summary>
     private bool MoveNext()
     {
-        if (FinishedProcessing)
+        if (_effectsFinished)
             return false;
 
-        while (!FinishedProcessing)
+        while (!_effectsFinished)
         {
             if (_currentEnumerator.MoveNext())
                 return true;
@@ -900,7 +986,7 @@ sealed class Explosion
         SetTiles();
 
         int processed;
-        for (processed = 0; processed < processingTarget; processed++)
+        for (processed = 0; !_effectsFinished && processed < processingTarget; processed++)
         {
             if (processed % ExplosionSystem.TileCheckIteration == 0 &&
                 _system.Stopwatch.Elapsed.TotalMilliseconds > _system.MaxProcessingTime)
@@ -913,11 +999,7 @@ sealed class Explosion
                 _mapSystem.TryGetTileRef(currentGrid, currentGrid.Comp, _currentEnumerator.Current, out var tileRef) &&
                 !tileRef.Tile.IsEmpty)
             {
-                if (!_tileUpdateDict.TryGetValue(currentGrid, out var tileUpdateList))
-                {
-                    tileUpdateList = new();
-                    _tileUpdateDict[currentGrid] = tileUpdateList;
-                }
+                var tileUpdateList = _tileCommit.GetChanges(currentGrid);
 
                 // damage entities on the tile. Also figures out whether there are any solid entities blocking the floor
                 // from being destroyed.
@@ -973,19 +1055,13 @@ sealed class Explosion
         // Updating the grid can result in chunk collision regeneration & slow processing by the shuttle system.
         // Therefore, tile breaking may be configure to only happen at the end of an explosion, rather than during every
         // tick.
-        if (!_system.IncrementalTileBreaking && !FinishedProcessing)
+        if (!_system.IncrementalTileBreaking && !_effectsFinished)
             return;
 
-        foreach (var (grid, list) in _tileUpdateDict)
-        {
-            if (list.Count > 0 && _entMan.EntityExists(grid.Owner) &&
-                !(_entMan.TryGetComponent<ProtectedGridComponent>(grid.Owner, out var protection) && protection.PreventExplosions))
-            {
-                _mapSystem.SetTiles(grid.Owner, grid, list);
-            }
-        }
-        _tileUpdateDict.Clear();
+        _tileCommit.Flush(_hasTimeRemaining, _effectsFinished);
     }
+
+    public void Dispose() => _tileCommit.Dispose();
 }
 
 /// <summary>

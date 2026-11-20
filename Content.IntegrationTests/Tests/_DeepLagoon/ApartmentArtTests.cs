@@ -249,6 +249,7 @@ public sealed class ApartmentArtTests
             var install = new AfterInteractEvent(user, frameItem, wall, wallCoords, true);
             entities.EventBus.RaiseLocalEvent(frameItem, install);
             Assert.That(install.Handled, Is.True);
+            typeof(ApartmentSystem).GetMethod("AwaitApartmentOperations", Private)!.Invoke(apartments, null);
             var frame = entities.EntityQuery<ArtFrameComponent, ApartmentPaintingFrameComponent>().Single().Item1.Owner;
             Assert.That(entities.GetComponent<ApartmentPaintingFrameComponent>(frame).Owner, Is.EqualTo(session.UserId.UserId));
             Assert.That(entities.GetComponent<TransformComponent>(frame).Anchored, Is.True);
@@ -272,12 +273,17 @@ public sealed class ApartmentArtTests
             var insert = new InteractUsingEvent(user, canvas, frame, wallCoords);
             entities.EventBus.RaiseLocalEvent(frame, insert);
             Assert.That(insert.Handled, Is.True);
+            typeof(ApartmentSystem).GetMethod("AwaitApartmentOperations", Private)!.Invoke(apartments, null);
             Assert.That(slot.ContainedEntities.Single(), Is.EqualTo(canvas));
             Assert.That(entities.GetComponent<ArtDisplayComponent>(frame).Preview, Is.EqualTo(baked.Preview));
             Assert.That(apartments.Leave(session.UserId, out message), Is.True, message);
             home.IdleSince = TimeSpan.FromSeconds(-10000);
             typeof(ApartmentSystem).GetField("_nextUpdate", Private)!.SetValue(apartments, TimeSpan.Zero);
             apartments.Update(1);
+            typeof(ApartmentSystem).GetMethod("AwaitApartmentOperations", Private)!.Invoke(apartments, null);
+            var deletion = entities.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>();
+            for (var i = 0; i < 1000 && deletion.PendingCount > 0; i++) deletion.Update(0);
+            Assert.That(deletion.PendingCount, Is.Zero);
             Assert.That(entities.EntityExists(home.Grid), Is.False);
             Assert.That(apartments.Enter(session, session.UserId, out message), Is.True, message);
             AssertPainting();

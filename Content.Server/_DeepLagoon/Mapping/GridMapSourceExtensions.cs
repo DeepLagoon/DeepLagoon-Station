@@ -42,7 +42,7 @@ public static class GridMapSourceExtensions
         return true;
     }
 
-    private static void Record(EntityUid grid, ResPath file)
+    internal static void Record(EntityUid grid, ResPath file)
     {
         var path = file.ToRootedPath().Clean();
         var resources = IoCManager.Resolve<IResourceManager>();

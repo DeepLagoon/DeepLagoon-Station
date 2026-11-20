@@ -1,18 +1,21 @@
 using System.Linq;
+using System.Threading.Tasks;
 using Content.Shared._DeepLagoon.Apartments;
 
 namespace Content.Server._DeepLagoon.Apartments;
 
 public sealed partial class ApartmentSystem
 {
-    public bool SaveAtmosphereSettings(EntityUid grid, int oxygenPercent)
+    public bool SaveAtmosphereSettings(EntityUid grid, int oxygenPercent) => WaitPersistence(SaveAtmosphereSettingsAsync(grid, oxygenPercent));
+    public async Task<bool> SaveAtmosphereSettingsAsync(EntityUid grid, int oxygenPercent)
     {
-        if (oxygenPercent is < 0 or > 100 || !HasComp<ApartmentGridComponent>(grid))
+        if (_closingPersistence || oxygenPercent is < 0 or > 100 || !HasComp<ApartmentGridComponent>(grid))
             return false;
         var instance = _instances.Values.FirstOrDefault(value => value.Grid == grid);
         // Admin-created apartment grids have no account save.
         if (instance == null)
             return !_retiring.Any(value => value.Grid == grid);
+        using var edit = BeginDecorationChange(grid);
         if (instance.Delta.OxygenPercent == oxygenPercent)
         {
             EnsureComp<ApartmentAtmosphereSettingsComponent>(grid).OxygenPercent = oxygenPercent;
@@ -24,10 +27,11 @@ public sealed partial class ApartmentSystem
             SchemaVersion = previous.SchemaVersion, Template = previous.Template, TemplateVersion = previous.TemplateVersion,
             Revision = previous.Revision + 1, Removed = previous.Removed, Changed = previous.Changed, Added = previous.Added,
             OxygenPercent = oxygenPercent,
+            PurchasedPlacements = new(previous.PurchasedPlacements),
         };
         try
         {
-            if (!Store.Save(instance.Owner.UserId, delta, previous.Revision))
+            if (!await Store.SaveAsync(instance.Owner.UserId, delta, previous.Revision))
                 return false;
         }
         catch (Exception exception)
@@ -35,6 +39,7 @@ public sealed partial class ApartmentSystem
             Log.Error($"Apartment atmosphere save failed: {exception}");
             return false;
         }
+        if (!Exists(grid)) return false;
         instance.Delta = delta;
         EnsureComp<ApartmentAtmosphereSettingsComponent>(grid).OxygenPercent = oxygenPercent;
         return true;

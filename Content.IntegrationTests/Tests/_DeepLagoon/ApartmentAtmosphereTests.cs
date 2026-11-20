@@ -151,6 +151,10 @@ public sealed class ApartmentAtmosphereTests
             home.IdleSince = TimeSpan.FromSeconds(-10000);
             typeof(ApartmentSystem).GetField("_nextUpdate", flags)!.SetValue(system, TimeSpan.Zero);
             system.Update(1);
+            typeof(ApartmentSystem).GetMethod("AwaitApartmentOperations", flags)!.Invoke(system, null);
+            var deletion = entities.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>();
+            for (var i = 0; i < 1000 && deletion.PendingCount > 0; i++) deletion.Update(0);
+            Assert.That(deletion.PendingCount, Is.Zero);
             Assert.That(system.Instances.ContainsKey(session.UserId), Is.False);
             Assert.That(system.Enter(session, session.UserId, out message), Is.True, message);
             var reopened = system.Instances[session.UserId];

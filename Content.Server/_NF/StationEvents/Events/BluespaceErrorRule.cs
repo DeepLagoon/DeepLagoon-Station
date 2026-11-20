@@ -28,6 +28,7 @@ using Content.Server._Mono.GridClaimer;
 using Content.Server._Mono.Store.Components;
 using Content.Server._Mono.Store;
 using Newtonsoft.Json;
+using Robust.Shared.Configuration;
 using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Content.Server._NF.StationEvents.Events;
@@ -57,6 +58,7 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
     [Dependency] private SharedSalvageSystem _salvage = default!;
     [Dependency] private AutoExtendRuleSystem _autoExtend = default!;
     [Dependency] private CurrencyInjectionSystem _currencyInjection = default!;
+    [Dependency] private IConfigurationManager _performanceConfig = default!;
 
     public override void Initialize()
     {
@@ -70,22 +72,25 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
         if (id is null || (id != "BluespaceSalvage" && !id.StartsWith("BluespaceDungeon", StringComparison.Ordinal)))
             return null;
 
-        return new BluespaceEventTiming(_performanceLog, id, rule, Timing.TickPeriod);
+        return new BluespaceEventTiming(_performanceLog, id, rule, Timing.TickPeriod,
+            _performanceConfig.GetCVar(Robust.Shared.CVars.PerformanceLogLevel) > 1);
     }
 
     protected override void Started(EntityUid uid, BluespaceErrorRuleComponent component, GameRuleComponent gameRule, GameRuleStartedEvent args)
     {
         base.Started(uid, component, gameRule, args);
+        QueueEventLoad(uid, component);
+    }
 
+    private IEnumerable<object?> SpawnEventSteps(EntityUid uid, BluespaceErrorRuleComponent component)
+    {
         if (!_map.TryGetMap(GameTicker.DefaultMap, out var mapUid))
-            return;
+            yield break;
 
         var timing = GetEventTiming(uid);
         var mapOrigin = new EntityCoordinates(mapUid.Value, Vector2.Zero);
         var needsStartingValue = HasComp<CurrencyInjectionOnBluespaceErrorComponent>(uid);
 
-        // Spawn on a dummy map and try to FTL if possible, otherwise dump it.
-        var stagingMap = _map.CreateMap(out var mapId);
 
         foreach (var group in component.Groups.Values)
         {
@@ -103,9 +108,20 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
 
                         break;
                     case BluespaceGridSpawnGroup grid:
-                        if (!TryGridSpawn(mapOrigin, uid, mapId, grid, i, timing, out spawned))
+                        // A dedicated pre-mapinit staging map isolates each incomplete grid.
+                        var stage = _map.CreateMap(out var stagingId, runMapInit: false);
+                        component.MapsUid.Add(stagingId);
+                        Entity<MapGridComponent>? loaded = null;
+                        foreach (var step in LoadEventGrid(uid, stagingId, grid, i, timing, value => loaded = value))
+                            yield return step;
+                        if (loaded == null || !HasComp<ShuttleComponent>(loaded.Value) || !TryPlaceGrid(loaded.Value, mapOrigin, grid))
+                        {
+                            EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(stage);
                             continue;
-
+                        }
+                        spawned = loaded.Value;
+                        if (grid.NameGrid) _metadata.SetEntityName(spawned, GetLastSelectedPath(grid).FilenameWithoutExtension);
+                        EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(stage);
                         break;
                     default:
                         throw new NotImplementedException();
@@ -150,12 +166,11 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
 
                 if (component.ExtendIfPopulated && group is BluespaceGridSpawnGroup)
                     _autoExtend.AutoExtend(uid, spawned);
+                yield return null;
             }
         }
 
-        var deleteStart = timing != null ? Stopwatch.GetTimestamp() : 0;
-        _map.DeleteMap(mapId);
-        timing?.Deletion("delete_staging_map", stagingMap, deleteStart);
+
     }
 
     private bool TryPlaceGrid(EntityUid grid, EntityCoordinates mapOrigin, IBluespaceSpawnGroup group)
@@ -242,6 +257,8 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
         _transform.SetMapCoordinates(spawnedGrid, new MapCoordinates(Vector2.Zero, mapId));
         _dungeon.GenerateDungeon(dungeonProto, dungeonProto.ID, spawnedGrid.Owner, spawnedGrid.Comp, Vector2i.Zero, _random.Next(), grid =>
         {
+            if (TerminatingOrDeleted(ruleUid) || !GameTicker.IsGameRuleActive(ruleUid))
+                return false;
             if (TryPlaceGrid(grid, mapOrigin, group))
             {
                 if (component.ExtendIfPopulated)
@@ -259,49 +276,9 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
         return true;
     }
 
-    private bool TryGridSpawn(EntityCoordinates mapOrigin, EntityUid stationUid, MapId mapId, BluespaceGridSpawnGroup group,
-        int i, BluespaceEventTiming? timing, out EntityUid spawned)
-    {
-        spawned = EntityUid.Invalid;
-
-        if (group.Paths.Count == 0)
-        {
-            Log.Error($"Found no paths for GridSpawn");
-            return false;
-        }
-
-        // Enforce randomness with some round-robin-ish behaviour
-        int maxIndex = group.Paths.Count - (i % group.Paths.Count);
-        int index = _random.Next(maxIndex);
-        var path = group.Paths[index];
-        // Move selected item to the end of the list
-        group.Paths.RemoveAt(index);
-        group.Paths.Add(path);
-
-        var options = BluespaceEventTiming.MeasureMapLoad(timing, "load_grid", path, DeserializationOptions.Default);
-
-        // Do we support maps with multiple grids?
-        if (_loader.TryLoadGridTracked(mapId, path, out var ent, options))
-        {
-            if (!HasComp<ShuttleComponent>(ent.Value) || !TryPlaceGrid(ent.Value.Owner, mapOrigin, group))
-                return false;
-
-            if (group.NameGrid)
-            {
-                var name = path.FilenameWithoutExtension;
-                _metadata.SetEntityName(ent.Value, name);
-            }
-
-            spawned = ent.Value;
-            return true;
-        }
-
-        Log.Error($"Error loading gridspawn for {ToPrettyString(stationUid)} / {path}");
-        return false;
-    }
-
     protected override void Ended(EntityUid uid, BluespaceErrorRuleComponent component, GameRuleComponent gameRule, GameRuleEndedEvent args)
     {
+        CancelEventLoad(uid);
         base.Ended(uid, component, gameRule, args);
 
         if (component.GridsUid == null)
@@ -324,6 +301,11 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
 
             // don't delete it if claimed
             if (TryComp<ClaimableGridComponent>(componentGridUid, out var claimable) && claimable.Claimed)
+                continue;
+
+            // A published root can also be listed by another event or by a linked family.
+            // Its retirement map owns cleanup now; do not appraise/reward it a second time.
+            if (IsGridRetiring(gridTransform))
                 continue;
 
             if (component.DeleteGridsOnEnd)
@@ -350,47 +332,45 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
                     }
                 }
 
-                var playerMobs = _linkedLifecycleGrid.GetEntitiesToReparent(gridUid);
-                foreach (var mob in playerMobs)
-                {
-                    _transform.DetachEntity(mob.Entity.Owner, mob.Entity.Comp);
-                }
+                var retirement = PrepareGridRetirement(gridUid);
 
-                var injectCurrency = TryComp<CurrencyInjectionOnBluespaceErrorComponent>(uid, out var comp);
-                var gridValue = injectCurrency || component.RewardAccounts.Count != 0 ? _pricing.AppraiseGrid(gridUid) : 0;
-                // Mono: currency injections
-                if (comp != null)
+                double gridValue = 0;
+                try
                 {
-                    var childQuery = Transform(gridUid).ChildEnumerator;
-                    var requiredEntitiesFound = true;
-                    foreach (var entProtoId in comp.RequiredEntities)
+                    var injectCurrency = TryComp<CurrencyInjectionOnBluespaceErrorComponent>(uid, out var comp);
+                    gridValue = injectCurrency || component.RewardAccounts.Count != 0 ? _pricing.AppraiseGrid(gridUid) : 0;
+                    // Mono: currency injections
+                    if (comp != null)
                     {
-                        requiredEntitiesFound = false;
-                        while (childQuery.MoveNext(out var entity))
+                        var childQuery = Transform(gridUid).ChildEnumerator;
+                        var requiredEntitiesFound = true;
+                        foreach (var entProtoId in comp.RequiredEntities)
                         {
-                            var metaData = MetaData(entity);
-                            if (metaData.EntityPrototype != null && entProtoId.Equals(metaData.EntityPrototype.ID))
+                            requiredEntitiesFound = false;
+                            while (childQuery.MoveNext(out var entity))
                             {
-                                requiredEntitiesFound = true;
-                                break;
+                                var metaData = MetaData(entity);
+                                if (metaData.EntityPrototype != null && entProtoId.Equals(metaData.EntityPrototype.ID))
+                                {
+                                    requiredEntitiesFound = true;
+                                    break;
+                                }
                             }
+                            if (!requiredEntitiesFound)
+                                break;
                         }
-                        if (!requiredEntitiesFound)
-                            break;
+                        if (gridValue / component.StartingValue > comp.IntegrityRequirement && requiredEntitiesFound) // good job!
+                            _currencyInjection.InjectCurrency(comp.Company, comp.Amount);
                     }
-                    if (gridValue / component.StartingValue > comp.IntegrityRequirement && requiredEntitiesFound) // good job!
-                        _currencyInjection.InjectCurrency(comp.Company, comp.Amount);
+                    // Mono end
+
+                    // Retire the entire linked family before restoring players. Keeping an
+                    // expiring grid on the public map would let traversal attach them again.
+                    RetirePublishedGrid(retirement, timing != null);
                 }
-                // Mono end
-
-                // Deletion has to happen before grid traversal re-parents players.
-                var deleteStart = timing != null ? Stopwatch.GetTimestamp() : 0;
-                Del(gridUid);
-                var deleteEnd = timing != null ? Stopwatch.GetTimestamp() : 0;
-
-                foreach (var mob in playerMobs)
+                finally
                 {
-                    _transform.SetCoordinates(mob.Entity.Owner, new EntityCoordinates(mob.MapUid, mob.MapPosition));
+                    RestoreRetirementPlayers(retirement);
                 }
 
                 foreach (var (account, rewardCoeff) in component.RewardAccounts)
@@ -399,7 +379,9 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
                     _bank.TrySectorDeposit(account, reward, LedgerEntryType.BluespaceReward);
                 }
 
-                timing?.GridCleanup(gridUid, cleanupStart, deleteStart, deleteEnd);
+                timing?.GridRetirement(gridUid, retirement.Map, retirement.Grids.Count, retirement.Players.Count,
+                    cleanupStart, retirement.Start, retirement.MapCreated, retirement.Paused, retirement.Moved,
+                    retirement.LifecycleReleased, retirement.Queued, Stopwatch.GetTimestamp());
             }
         }
 
@@ -409,8 +391,8 @@ public sealed partial class BluespaceErrorRule : StationEventSystem<BluespaceErr
                 continue;
 
             var deleteStart = timing != null ? Stopwatch.GetTimestamp() : 0;
-            _map.DeleteMap(mapId);
-            timing?.Deletion("delete_dungeon_map", mapUid.Value, deleteStart);
+            EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(mapUid.Value);
+            timing?.Deletion("queue_dungeon_map_deletion", mapUid.Value, deleteStart);
         }
     }
 }

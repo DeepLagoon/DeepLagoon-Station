@@ -65,6 +65,11 @@ public sealed partial class LagoonCoinSystem : EntitySystem
     private TimeSpan _nextSave;
     private TimeSpan _retryAt;
     private Task _drainTask = Task.CompletedTask;
+    private readonly Queue<Reward> _unpersisted = new();
+    private Reward[]? _persistBatch;
+    private Task _persistTask = Task.CompletedTask;
+    private bool _persisting;
+    private TimeSpan _persistRetryAt;
     private LagoonCoinOutbox _outbox = default!;
     private readonly SemaphoreSlim _walletOperations = new(1, 1);
 
@@ -129,6 +134,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
     {
         _players.PlayerStatusChanged -= OnStatusChanged;
         SaveParticipation();
+        _tasks.BlockWaitOnTask(FlushOutbox());
         _tasks.BlockWaitOnTask(_drainTask);
         _drainTask = Drain();
         _tasks.BlockWaitOnTask(_drainTask);
@@ -194,6 +200,8 @@ public sealed partial class LagoonCoinSystem : EntitySystem
         }
         if (!_draining && _pending.Count > 0 && _timing.RealTime >= _retryAt)
             _drainTask = Drain();
+        if (!_persisting && (_persistBatch != null || _unpersisted.Count > 0) && now >= _persistRetryAt)
+            _persistTask = PersistOutbox();
     }
 
     private void Accumulate(ICommonSession session)
@@ -260,12 +268,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
         var collected = measure ? Stopwatch.GetTimestamp() : 0;
         if (rewards.Count > 0)
         {
-            var inserted = _outbox.StoreBatch(rewards.Select(Pending).ToArray());
-            for (var i = 0; i < rewards.Count; i++)
-            {
-                if (inserted[i])
-                    _pending.Enqueue(rewards[i]);
-            }
+            foreach (var reward in rewards) _unpersisted.Enqueue(reward);
             foreach (var (_, data) in sessions)
                 data.Buckets.Clear();
         }
@@ -278,7 +281,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
         if (Log.IsLogLevelEnabled(level))
         {
             Log.Log(level,
-                "Lagoon Coin playtime checkpoint: elapsed_ms={ElapsedMs:F1} collect_ms={CollectMs:F1} outbox_ms={OutboxMs:F1} tick_budget_ms={TickBudgetMs:F1} sessions={Sessions} buckets={Buckets} connected={Connected}",
+                "Lagoon Coin playtime checkpoint queued: elapsed_ms={ElapsedMs:F1} collect_ms={CollectMs:F1} enqueue_ms={EnqueueMs:F1} tick_budget_ms={TickBudgetMs:F1} sessions={Sessions} buckets={Buckets} connected={Connected}",
                 elapsed.TotalMilliseconds, Stopwatch.GetElapsedTime(start, collected).TotalMilliseconds,
                 Stopwatch.GetElapsedTime(collected).TotalMilliseconds, _timing.TickPeriod.TotalMilliseconds,
                 sessions.Length, rewards.Count, _players.PlayerCount);
@@ -322,7 +325,49 @@ public sealed partial class LagoonCoinSystem : EntitySystem
 
     private void Queue(Reward reward)
     {
-        if (_outbox.Store(Pending(reward))) _pending.Enqueue(reward);
+        _unpersisted.Enqueue(reward);
+    }
+
+    private async Task PersistOutbox()
+    {
+        if (_persisting) return;
+        _persisting = true;
+        var started = Stopwatch.GetTimestamp();
+        try
+        {
+            if (_persistBatch == null)
+            {
+                var batch = new List<Reward>(Math.Min(256, _unpersisted.Count));
+                while (batch.Count < 256 && _unpersisted.TryDequeue(out var reward)) batch.Add(reward);
+                _persistBatch = batch.ToArray();
+            }
+            var inserted = await _outbox.StoreBatchAsync(_persistBatch.Select(Pending).ToArray());
+            for (var i = 0; i < _persistBatch.Length; i++)
+                if (inserted[i]) _pending.Enqueue(_persistBatch[i]);
+            _persistBatch = null;
+            _persistRetryAt = TimeSpan.Zero;
+            var wait = Stopwatch.GetElapsedTime(started).TotalMilliseconds;
+            if (wait >= 1000)
+                Log.Warning($"Lagoon Coin background outbox committed: await_ms={wait:F1} staged={_unpersisted.Count} durable_pending={_pending.Count}");
+        }
+        catch (Exception error)
+        {
+            // Retain the exact operation IDs and amounts until the durable transaction succeeds.
+            _persistRetryAt = _timing.RealTime + TimeSpan.FromSeconds(30);
+            Log.Error($"Lagoon Coin outbox write failed; retained {_persistBatch?.Length ?? 0} rewards for retry: {error}");
+        }
+        finally { _persisting = false; }
+    }
+
+    private async Task FlushOutbox()
+    {
+        await _persistTask;
+        while (_persistBatch != null || _unpersisted.Count > 0)
+        {
+            await PersistOutbox();
+            if (_persistBatch != null) await Task.Delay(1000);
+        }
+        await _outbox.FlushAsync();
     }
 
     private async Task Drain()
@@ -362,7 +407,7 @@ public sealed partial class LagoonCoinSystem : EntitySystem
                                 NotifyOperation(recipient, referral.Result, "Реферальная награда");
                             }
                         }
-                        _outbox.Complete(Pending(reward));
+                        await _outbox.CompleteAsync(Pending(reward));
                     }
                     finally { _walletOperations.Release(); }
                 }

@@ -1,11 +1,14 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using Content.Server.NPC.Pathfinding;
 using Content.Server.Parallax;
 using Content.Server.Salvage.Expeditions;
 using Content.Shared.Parallax.Biomes;
+using Content.Shared.Parallax.Biomes.Markers;
 using Robust.Shared;
 using Robust.Shared.Configuration;
 using Robust.Shared.GameObjects;
@@ -219,6 +222,63 @@ public sealed class BiomeStreamingTests
             Assert.That(biome.PendingMarkers.Values.SelectMany(layers => layers[Marker]).Count(), Is.EqualTo(1));
             Assert.That(biome.LoadedChunks, Is.Empty);
             entities.DeleteEntity(map);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task RemovingBiomeDropsOnlyItsMarkerBacklogAndCancelsItsScan()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = false, Destructive = true });
+        var entities = pair.Server.EntMan;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var (firstMap, _, firstBiome, _) = SpawnPlanet(entities, pair.Server.ProtoMan.Index(EmptyBiome));
+            var (otherMap, _, otherBiome, _) = SpawnPlanet(entities, pair.Server.ProtoMan.Index(EmptyBiome));
+            var biomes = entities.System<BiomeSystem>();
+            biomes.AddMarkerLayer(firstMap, firstBiome, Marker);
+            biomes.AddMarkerLayer(otherMap, otherBiome, Marker);
+            var area = new Box2(1, 1, 255, 127);
+            biomes.Preload(firstMap, firstBiome, area);
+            biomes.Preload(otherMap, otherBiome, area);
+
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var type = typeof(BiomeSystem);
+            type.GetMethod("QueueMarkerPreloads", flags)!.Invoke(biomes, null);
+            var pending = (IDictionary) type.GetField("_pendingMarkerPreloads", flags)!.GetValue(biomes)!;
+            object[] RequestsFor(BiomeComponent biome) => pending.Keys.Cast<object>()
+                .Where(request => ReferenceEquals(request.GetType().GetProperty("Biome")!.GetValue(request), biome)).ToArray();
+            var firstRequests = RequestsFor(firstBiome);
+            var otherRequests = RequestsFor(otherBiome);
+            Assert.That(firstRequests.Length, Is.GreaterThanOrEqualTo(2));
+            Assert.That(otherRequests.Length, Is.GreaterThanOrEqualTo(2));
+
+            var activeRequest = firstRequests[0];
+            pending.Remove(activeRequest);
+            var startScan = type.GetMethod("StartMarkerScan", flags)!;
+            var layer = pair.Server.ProtoMan.Index<BiomeMarkerLayerPrototype>(Marker);
+            void StartScan() => startScan.Invoke(biomes, [activeRequest, layer, 1, false]);
+            var scanField = type.GetField("_markerScan", flags)!;
+            StartScan();
+            Assert.That(scanField.GetValue(biomes), Is.Not.Null);
+
+            // A stopped component may restart. Pending requests must survive this boundary.
+            var shutdown = new ComponentShutdown();
+            entities.EventBus.RaiseComponentEvent(firstMap, firstBiome, ref shutdown);
+            Assert.That(scanField.GetValue(biomes), Is.Null);
+            Assert.That(RequestsFor(firstBiome), Has.Length.EqualTo(firstRequests.Length - 1));
+            Assert.That(RequestsFor(otherBiome), Is.EquivalentTo(otherRequests));
+
+            var prepare = type.GetMethod("PrepareChunkMarkers", flags)!;
+            Assert.That(prepare.Invoke(biomes, [firstBiome, Vector2i.Zero]), Is.False);
+            Assert.That(scanField.GetValue(biomes), Is.Not.Null);
+            entities.DeleteEntity(firstMap);
+            Assert.That(scanField.GetValue(biomes), Is.Null);
+            Assert.That(RequestsFor(firstBiome), Is.Empty);
+            Assert.That(RequestsFor(otherBiome), Is.EquivalentTo(otherRequests));
+            Assert.That(entities.EntityExists(otherMap), Is.True);
+            entities.DeleteEntity(otherMap);
+            Assert.That(pending.Count, Is.Zero);
         });
         await pair.CleanReturnAsync();
     }

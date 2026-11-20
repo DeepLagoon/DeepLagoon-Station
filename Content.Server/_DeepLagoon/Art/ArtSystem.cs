@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -280,10 +280,18 @@ public sealed partial class ArtSystem : EntitySystem
         display.Preview = preview; Dirty(uid, display);
     }
 
-    private ContainerSlot Slot(EntityUid uid) => _containers.EnsureContainer<ContainerSlot>(uid, "art-canvas");
-    private void OnInstallFrame(EntityUid uid, ArtFrameItemComponent c, AfterInteractEvent ev)
+    private readonly HashSet<EntityUid> _installingPrivateFrames = new();
+    private async System.Threading.Tasks.Task<bool> SavePrivateFrame(EntityUid uid, ArtFrameComponent frame)
     {
-        if (ev.Handled || !ev.CanReach || ev.Target is not { } wall || !_tags.HasTag(wall, "Wall")
+        frame.Busy = true;
+        try { return await EntityManager.System<ApartmentSystem>().SaveDecorationAsync(uid); }
+        finally { frame.Busy = false; }
+    }
+
+    private ContainerSlot Slot(EntityUid uid) => _containers.EnsureContainer<ContainerSlot>(uid, "art-canvas");
+    private async void OnInstallFrame(EntityUid uid, ArtFrameItemComponent c, AfterInteractEvent ev)
+    {
+        if (_installingPrivateFrames.Contains(uid) || ev.Handled || !ev.CanReach || ev.Target is not { } wall || !_tags.HasTag(wall, "Wall")
             || !_hands.IsHolding(ev.User, uid, out _) || Transform(wall).GridUid == null) return;
         var apartments = EntityManager.System<ApartmentSystem>();
         var privateFrame = HasComp<ApartmentPaintingFrameComponent>(uid) || HasComp<ApartmentGridComponent>(Transform(wall).GridUid);
@@ -293,6 +301,8 @@ public sealed partial class ArtSystem : EntitySystem
             _popup.PopupEntity(Loc.GetString("dl-art-apartment-owner-only"), uid, ev.User);
             return;
         }
+        using var saveLease = privateFrame ? apartments.BeginDecorationChange(wall) : null;
+        if (privateFrame && saveLease == null) return;
         var coords = Transform(wall).Coordinates;
         var frames = EntityQueryEnumerator<ArtFrameComponent, TransformComponent>();
         while (frames.MoveNext(out _, out _, out var xform))
@@ -307,7 +317,11 @@ public sealed partial class ArtSystem : EntitySystem
             Comp<ApartmentPaintingFrameComponent>(frame).Owner = owner.UserId.UserId;
             // The held item is excluded with the visitor from the snapshot. Commit
             // the mounted frame before consuming it, so failed writes keep the item.
-            if (!apartments.SaveDecoration(frame))
+            _installingPrivateFrames.Add(uid);
+            bool saved;
+            try { saved = await apartments.SaveDecorationAsync(frame); }
+            finally { _installingPrivateFrames.Remove(uid); }
+            if (!saved)
             {
                 Del(frame);
                 _popup.PopupEntity(Loc.GetString("dl-art-apartment-save-failed"), uid, ev.User);
@@ -319,7 +333,7 @@ public sealed partial class ArtSystem : EntitySystem
         if (!_hands.TryDrop(ev.User, uid)) { QueueDel(frame); return; }
         QueueDel(uid);
     }
-    private void OnFrameInteract(EntityUid uid, ArtFrameComponent c, InteractUsingEvent ev)
+    private async void OnFrameInteract(EntityUid uid, ArtFrameComponent c, InteractUsingEvent ev)
     {
         if (ev.Handled || c.Busy || !Transform(uid).Anchored || !TryComp<ArtCanvasComponent>(ev.Used, out var canvas)
             || !_hands.IsHolding(ev.User, ev.Used, out _) || !_interaction.InRangeUnobstructed(ev.User, uid) || Slot(uid).ContainedEntity != null) return;
@@ -332,10 +346,13 @@ public sealed partial class ArtSystem : EntitySystem
         if (canvas.Artist != null) { _popup.PopupEntity(Loc.GetString("dl-art-close-first"), uid, ev.User); return; }
         if (privateFrame ? CurrentPreview(canvas).Length == 0 : canvas.RevisionHash.Length == 0)
         { _popup.PopupEntity(Loc.GetString("dl-art-empty"), uid, ev.User); return; }
+        using var saveLease = privateFrame ? EntityManager.System<ApartmentSystem>().BeginDecorationChange(uid) : null;
+        if (privateFrame && saveLease == null) return;
         if (!_hands.TryDropIntoContainer(ev.User, ev.Used, Slot(uid))) return;
         SetPreview(uid, privateFrame ? CurrentPreview(canvas) : canvas.SavedPreview);
-        if (privateFrame && !EntityManager.System<ApartmentSystem>().SaveDecoration(uid))
+        if (privateFrame && !await SavePrivateFrame(uid, c))
         {
+            if (!Exists(uid) || !Exists(ev.Used)) return;
             _containers.Remove(ev.Used, Slot(uid));
             _hands.TryPickupAnyHand(ev.User, ev.Used);
             SetPreview(uid, "");
@@ -348,16 +365,20 @@ public sealed partial class ArtSystem : EntitySystem
         if (!ev.CanAccess || !ev.CanInteract || c.Busy || Slot(uid).ContainedEntity is not { } canvas ||
             HasComp<ApartmentPaintingFrameComponent>(uid) && !CanChangeApartmentFrame(uid, ev.User)) return;
         var user = ev.User;
-        ev.Verbs.Add(new AlternativeVerb { Text = Loc.GetString("dl-art-remove"), Act = () =>
+        ev.Verbs.Add(new AlternativeVerb { Text = Loc.GetString("dl-art-remove"), Act = async () =>
         {
             if (!Exists(uid) || c.Busy || Slot(uid).ContainedEntity != canvas || !_interaction.InRangeUnobstructed(user, uid)) return;
             if (HasComp<ApartmentPaintingFrameComponent>(uid) && !CanChangeApartmentFrame(uid, user)) return;
+            var privateFrame = HasComp<ApartmentPaintingFrameComponent>(uid);
+            using var saveLease = privateFrame ? EntityManager.System<ApartmentSystem>().BeginDecorationChange(uid) : null;
+            if (privateFrame && saveLease == null) return;
             if (!_containers.Remove(canvas, Slot(uid))) return;
             SetPreview(uid, "");
             // Save the removed canvas on the floor before handing it over, rather
             // than excluding it with a visitor's inventory from this checkpoint.
-            if (HasComp<ApartmentPaintingFrameComponent>(uid) && !EntityManager.System<ApartmentSystem>().SaveDecoration(uid))
+            if (HasComp<ApartmentPaintingFrameComponent>(uid) && !await SavePrivateFrame(uid, c))
             {
+                if (!Exists(uid) || !Exists(canvas)) return;
                 _containers.Insert(canvas, Slot(uid));
                 SetPreview(uid, CurrentPreview(Comp<ArtCanvasComponent>(canvas)));
                 _popup.PopupEntity(Loc.GetString("dl-art-apartment-save-failed"), uid, user);

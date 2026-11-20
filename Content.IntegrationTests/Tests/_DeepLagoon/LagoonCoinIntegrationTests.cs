@@ -486,7 +486,12 @@ public sealed class LagoonCoinIntegrationTests
 
     private static void AwaitRewards(ITaskManager tasks, ServerWallet wallet)
     {
+        // A reward becomes deliverable only after the background journal acknowledges it.
+        tasks.BlockWaitOnTask((Task)typeof(ServerWallet).GetMethod("FlushOutbox", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(wallet, null)!);
         var drain = (Task) typeof(ServerWallet).GetField("_drainTask", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(wallet)!;
+        tasks.BlockWaitOnTask(drain);
+        drain.GetAwaiter().GetResult();
+        drain = (Task)typeof(ServerWallet).GetMethod("Drain", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(wallet, null)!;
         tasks.BlockWaitOnTask(drain);
         drain.GetAwaiter().GetResult();
     }

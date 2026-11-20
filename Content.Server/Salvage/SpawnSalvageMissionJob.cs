@@ -118,28 +118,41 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
     protected override async Task<bool> Process()
     {
         // Frontier: gracefully handle expedition failures
-        bool success = true;
-        string? errorStackTrace = null;
+        var success = false;
+        Exception? generationError = null;
         try
         {
-            await InternalProcess().ContinueWith((t) => { success = false; errorStackTrace = t.Exception?.InnerException?.StackTrace; }, TaskContinuationOptions.OnlyOnFaulted);
+            // OnlyOnFaulted cancels its continuation on success and discards a false result.
+            // Await the real result on the job's main-thread continuation instead.
+            success = await InternalProcess();
+        }
+        catch (OperationCanceledException) when (Cancellation.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            generationError = exception;
         }
         finally
         {
             ExpeditionSpawnCompleteEvent ev = new(Station, success, _missionParams.Index);
-            _entManager.EventBus.RaiseLocalEvent(Station, ev);
-            if (errorStackTrace != null)
-                Logger.GetSawmill("salvage").Error( $"Expedition generation failed with exception: {errorStackTrace}!");
+            if (_entManager.EntityExists(Station))
+                _entManager.EventBus.RaiseLocalEvent(Station, ev);
+            if (generationError != null)
+                Logger.GetSawmill("salvage").Error(
+                    $"Expedition generation failed: type={_missionParams.MissionType} seed={_missionParams.Seed} difficulty={_missionParams.Difficulty} map={mapUid}: {generationError}");
             if (!success)
             {
-                if (CoordinatesDisk is { } disk)
+                if (CoordinatesDisk is { } disk && _entManager.EntityExists(disk))
                     _entManager.QueueDeleteEntity(disk);
 
                 // Invalidate station, expedition cancellation will be handled by task handler
                 if (_entManager.TryGetComponent<SalvageExpeditionComponent>(mapUid, out var salvage))
                     salvage.Station = EntityUid.Invalid;
 
-                _entManager.QueueDeleteEntity(mapUid);
+                if (mapUid.IsValid() && _entManager.EntityExists(mapUid))
+                    _entManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(mapUid);
             }
         }
         return success;
@@ -282,10 +295,10 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
 
         // Frontier: get map bounding box
         Box2 dungeonBox = new Box2(dungeonOffset, dungeonOffset);
-        foreach (var tile in dungeon.AllTiles)
-        {
-            dungeonBox = dungeonBox.ExtendToContain(tile);
-        }
+        // Mining expeditions use biome markers and do not create a dungeon.
+        if (config != SalvageMissionType.Mining)
+            foreach (var tile in dungeon.AllTiles)
+                dungeonBox = dungeonBox.ExtendToContain(tile);
 
         var shuttleUid = CoordinatesDisk.HasValue ? null : _salvage.GetExpeditionDepartureGrid(Station);
         Box2 shuttleBox = new Box2();

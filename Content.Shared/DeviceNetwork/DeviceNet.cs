@@ -30,6 +30,7 @@ public sealed class DeviceNet
     public readonly Dictionary<uint, HashSet<DeviceNetworkComponent>> ReceiveAllDevices = new();
 
     private readonly IRobustRandom _random;
+    private uint _nextFallbackAddress;
     public readonly int NetId;
 
     public DeviceNet(int netId, IRobustRandom random)
@@ -225,14 +226,26 @@ public sealed class DeviceNet
     private string GenerateValidAddress(string? prefix)
     {
         prefix = string.IsNullOrWhiteSpace(prefix) ? null : Loc.GetString(prefix);
-        string address;
-        do
+        // A faulty/shared RNG must not stall map initialization forever on an occupied address.
+        for (var attempt = 0; attempt < 16; attempt++)
         {
             var num = _random.Next();
-            address = $"{prefix}{num >> 16:X4}-{num & 0xFFFF:X4}";
+            var address = $"{prefix}{num >> 16:X4}-{num & 0xFFFF:X4}";
+            if (!Devices.ContainsKey(address))
+                return address;
         }
-        while (Devices.ContainsKey(address));
 
-        return address;
+        // Count + 1 distinct candidates necessarily include a free address. Keep the cursor so
+        // repeated collisions do not rescan the same occupied prefix on every new device.
+        for (long checkedAddresses = 0; checkedAddresses <= Devices.Count; checkedAddresses++)
+        {
+            var num = _nextFallbackAddress;
+            _nextFallbackAddress = unchecked(num + 1);
+            var address = $"{prefix}{num >> 16:X4}-{num & 0xFFFF:X4}";
+            if (!Devices.ContainsKey(address))
+                return address;
+        }
+
+        throw new InvalidOperationException("Unable to allocate a free device-network address.");
     }
 }

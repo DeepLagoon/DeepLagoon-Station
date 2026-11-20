@@ -294,7 +294,7 @@ public sealed partial class SalvageSystem
                 if (!_loader.TryLoadGridTracked(salvMapXform.MapID, salvageProto.MapPath, out _))
                 {
                     Report(magnet, MagnetChannel, "salvage-system-announcement-spawn-debris-disintegrated");
-                    _mapSystem.DeleteMap(salvMapXform.MapID);
+                    EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(salvMap);
                     return;
                 }
 
@@ -308,6 +308,7 @@ public sealed partial class SalvageSystem
         if (salvMapXform.ChildCount == 0)
         {
             Report(magnet.Owner, MagnetChannel, "salvage-system-announcement-spawn-no-debris-available");
+            EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(salvMap);
             return;
         }
 
@@ -355,14 +356,17 @@ public sealed partial class SalvageSystem
         if (!TryGetSalvagePlacementLocation(magnet, mapId, attachedBounds, bounds!.Value, worldAngle, out var spawnLocation, out var spawnAngle))
         {
             Report(magnet.Owner, MagnetChannel, "salvage-system-announcement-spawn-no-debris-available");
-            _mapSystem.DeleteMap(salvMapXform.MapID);
+            EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(salvMap);
             return;
         }
 
         // I have no idea if we want to return on failure or not
         // but I assume trying to set the parent with a null value wouldn't have worked out anyways
         if (!_mapSystem.TryGetMap(spawnLocation.MapId, out var spawnUid))
+        {
+            EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(salvMap);
             return;
+        }
 
         data.Comp.ActiveEntities = null;
         mapChildren = salvMapXform.ChildEnumerator;
@@ -392,7 +396,7 @@ public sealed partial class SalvageSystem
         }
 
         Report(magnet.Owner, MagnetChannel, "salvage-system-announcement-arrived", ("timeLeft", data.Comp.ActiveTime.TotalSeconds));
-        _mapSystem.DeleteMap(salvMapXform.MapID);
+        EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(salvMap);
 
         data.Comp.Announced = false;
 
