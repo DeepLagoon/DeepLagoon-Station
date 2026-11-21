@@ -16,19 +16,19 @@ ent-BaseImplantOnlyImplanter = { ent-Implanter }
 ent-BaseImplantOnlyImplanterSyndi = имплантер Синдиката
     .desc = Компактный одноразовый шприц, специально предназначенный для введения подкожных имплантов.
 
-ent-SadTromboneImplanter = { ent-BaseImplantOnlyImplanter }
+ent-SadTromboneImplanter = имплантер грустного трамбона
     .suffix = Грустный тромбон
     .desc = { ent-BaseImplantOnlyImplanter.desc }
 
-ent-LightImplanter = { ent-BaseImplantOnlyImplanter }
+ent-LightImplanter = имплантер Света
     .suffix = Свет
     .desc = { ent-BaseImplantOnlyImplanter.desc }
 
-ent-BikeHornImplanter = { ent-BaseImplantOnlyImplanter }
+ent-BikeHornImplanter = имплантер Клаксона
     .suffix = Клаксон
     .desc = { ent-BaseImplantOnlyImplanter.desc }
 
-ent-TrackingImplanter = { ent-BaseImplantOnlyImplanter }
+ent-TrackingImplanter = имплантер Трекер
     .suffix = Трекер
     .desc = { ent-BaseImplantOnlyImplanter.desc }
 
