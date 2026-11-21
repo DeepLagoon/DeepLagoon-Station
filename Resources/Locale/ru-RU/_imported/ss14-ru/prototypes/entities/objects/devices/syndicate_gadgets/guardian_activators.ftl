@@ -1,10 +1,10 @@
 # Imported from ru-RU-additional; existing Russian keys are preserved.
 
-ent-HoloparasiteInjector = имплантер
+ent-HoloparasiteInjector = имплантер голопаразита
     .desc = Одноразовый шприц, специально предназначенный для введения подкожных имплантов.
     .suffix = инъектор голопаразита
 
-ent-HoloClownInjector = имплантер
+ent-HoloClownInjector = имплантер голоклоуна
     .desc = Одноразовый шприц, специально предназначенный для введения подкожных имплантов.
     .suffix = инъектор голоклоуна
 
