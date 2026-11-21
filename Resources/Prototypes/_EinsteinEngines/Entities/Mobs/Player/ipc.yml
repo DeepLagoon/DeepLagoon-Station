@@ -111,6 +111,7 @@
       1: 0.45
       0: 0.00
   - type: BatteryDrinker
+    drinkAll: true
   - type: EncryptionKeyHolder
     keySlots: 8 # Mono
     examineWhileLocked: false
