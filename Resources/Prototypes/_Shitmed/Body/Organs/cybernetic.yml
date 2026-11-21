@@ -7,6 +7,7 @@
   - type: Sprite
     sprite: _EinsteinEngines/Mobs/Species/IPC/organs.rsi
     state: "eyes"
+  - type: CyberneticEyesEmp
   - type: PirateBountyItem # Mono
     id: Cybernetics
 

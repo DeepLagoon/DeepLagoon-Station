@@ -526,6 +526,7 @@
     quickEquip: false
     sprite: Mobs/Animals/mothroach/mothroach.rsi
     equippedPrefix: 0
+    hairOcclusion: false
     slots:
     - HEAD
   - type: Appearance
