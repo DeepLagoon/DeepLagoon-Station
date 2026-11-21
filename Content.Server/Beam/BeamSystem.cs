@@ -61,15 +61,15 @@ public sealed partial class BeamSystem : SharedBeamSystem
     /// </summary>
     /// <param name="prototype">The prototype used to make the beam</param>
     /// <param name="userAngle">Angle of the user firing the beam</param>
-    /// <param name="calculatedDistance">The calculated distance from the user to the target.</param>
+    /// <param name="direction">The normalized direction from the user to the target.</param>
     /// <param name="beamStartPos">Where the beam will spawn in</param>
     /// <param name="distanceCorrection">Calculated correction so the <see cref="EdgeShape"/> can be properly dynamically created</param>
     /// <param name="controller"> The virtual beam controller that this beam will use. If one doesn't exist it will be created here.</param>
     /// <param name="bodyState">Optional sprite state for the <see cref="prototype"/> if it needs a dynamic one</param>
     /// <param name="shader">Optional shader for the <see cref="prototype"/> and <see cref="bodyState"/> if it needs something other than default</param>
-    private void CreateBeam(string prototype,
+    private bool CreateBeam(string prototype,
         Angle userAngle,
-        Vector2 calculatedDistance,
+        Vector2 direction,
         MapCoordinates beamStartPos,
         Vector2 distanceCorrection,
         EntityUid? controller,
@@ -81,10 +81,13 @@ public sealed partial class BeamSystem : SharedBeamSystem
         var shape = new EdgeShape(distanceCorrection, new Vector2(0,0));
 
         if (!TryComp<PhysicsComponent>(ent, out var physics) || !TryComp<BeamComponent>(ent, out var beam))
-            return;
+        {
+            QueueDel(ent);
+            return false;
+        }
 
         FixturesComponent? manager = null;
-        _fixture.TryCreateFixture(
+        if (!_fixture.TryCreateFixture(
             ent,
             shape,
             "BeamBody",
@@ -92,7 +95,11 @@ public sealed partial class BeamSystem : SharedBeamSystem
             collisionMask: (int)CollisionGroup.ItemMask,
             collisionLayer: (int)CollisionGroup.MobLayer,
             manager: manager,
-            body: physics);
+            body: physics))
+        {
+            QueueDel(ent);
+            return false;
+        }
 
         _physics.SetBodyType(ent, BodyType.Dynamic, manager: manager, body: physics);
         _physics.SetCanCollide(ent, true, manager: manager, body: physics);
@@ -120,7 +127,7 @@ public sealed partial class BeamSystem : SharedBeamSystem
         //Create the rest of the beam, sprites handled through the BeamVisualizerEvent
         for (var i = 0; i < distanceLength-1; i++)
         {
-            beamSpawnPos = beamSpawnPos.Offset(calculatedDistance.Normalized());
+            beamSpawnPos = beamSpawnPos.Offset(direction);
             var newEnt = Spawn(prototype, beamSpawnPos);
 
             var ev = new BeamVisualizerEvent(GetNetEntity(newEnt), distanceLength, userAngle, bodyState, shader);
@@ -129,6 +136,7 @@ public sealed partial class BeamSystem : SharedBeamSystem
 
         var beamFiredEvent = new BeamFiredEvent(ent);
         RaiseLocalEvent(beam.VirtualBeamController.Value, beamFiredEvent);
+        return true;
     }
 
     /// <summary>
@@ -143,25 +151,33 @@ public sealed partial class BeamSystem : SharedBeamSystem
     /// <param name="controller"></param>
     public void TryCreateBeam(EntityUid user, EntityUid target, string bodyPrototype, string? bodyState = null, string shader = "unshaded", EntityUid? controller = null)
     {
-        if (Deleted(user) || Deleted(target))
+        if (TerminatingOrDeleted(user) || TerminatingOrDeleted(target))
             return;
 
         var userMapPos = _transform.GetMapCoordinates(user);
         var targetMapPos = _transform.GetMapCoordinates(target);
 
-        //The distance between the target and the user.
+        if (userMapPos.MapId == MapId.Nullspace || userMapPos.MapId != targetMapPos.MapId)
+            return;
+
         var calculatedDistance = targetMapPos.Position - userMapPos.Position;
-        var userAngle = calculatedDistance.ToWorldAngle();
-
-        if (userMapPos.MapId != targetMapPos.MapId)
+        var distance = calculatedDistance.Length();
+        // Validate before normalization, angle conversion or spawning any entity.
+        if (!float.IsFinite(distance) || distance <= 0)
             return;
 
-        //Where the start of the beam will spawn
-        var beamStartPos = userMapPos.Offset(calculatedDistance.Normalized());
-
-        //Don't divide by zero
-        if (calculatedDistance.Length() == 0)
-            return;
+        var direction = calculatedDistance / distance;
+        var userAngle = direction.ToWorldAngle();
+        var startOffset = direction;
+        var distanceCorrection = calculatedDistance - startOffset;
+        // A one-tile offset collapses the edge for adjacent tile centers. Use their midpoint
+        // in that case; retain the existing collision span of every other beam.
+        if (distanceCorrection == Vector2.Zero)
+        {
+            startOffset = calculatedDistance * .5f;
+            distanceCorrection = calculatedDistance - startOffset;
+        }
+        var beamStartPos = userMapPos.Offset(startOffset);
 
         if (controller != null && TryComp<BeamComponent>(controller, out var controllerBeamComp))
         {
@@ -169,9 +185,8 @@ public sealed partial class BeamSystem : SharedBeamSystem
             controllerBeamComp.HitTargets.Add(target);
         }
 
-        var distanceCorrection = calculatedDistance - calculatedDistance.Normalized();
-
-        CreateBeam(bodyPrototype, userAngle, calculatedDistance, beamStartPos, distanceCorrection, controller, bodyState, shader);
+        if (!CreateBeam(bodyPrototype, userAngle, direction, beamStartPos, distanceCorrection, controller, bodyState, shader))
+            return;
 
         var ev = new CreateBeamSuccessEvent(user, target);
         RaiseLocalEvent(user, ev);

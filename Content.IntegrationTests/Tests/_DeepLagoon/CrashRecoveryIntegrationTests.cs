@@ -14,6 +14,9 @@ using Content.Shared.GameTicking;
 using Content.Shared.Preferences;
 using Content.Shared.Preferences.Loadouts;
 using Content.Shared.Storage;
+using Robust.Shared.Audio;
+using Robust.Shared.Audio.Components;
+using Robust.Shared.Audio.Systems;
 using Robust.Shared.Containers;
 using Robust.Shared.EntitySerialization;
 using Robust.Shared.EntitySerialization.Components;
@@ -26,6 +29,71 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class CrashRecoveryIntegrationTests
 {
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task TransientAudioChildrenDoNotEnterRecoverySnapshots(bool soundOnContainedItem)
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings
+        {
+            Destructive = true, InLobby = true, Connected = false,
+        });
+        var map = await pair.CreateTestMap();
+        var scope = "test" + Guid.NewGuid().ToString("N");
+        CrashRecoverySystem recovery = default!;
+        EntityUid bag = default, disk = default, audio = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            pair.Server.CfgMan.SetCVar(RecoveryCVars.Scope, scope);
+            pair.Server.CfgMan.SetCVar(RecoveryCVars.Enabled, true);
+            recovery = pair.Server.EntMan.System<CrashRecoverySystem>();
+        });
+        await PoolManager.WaitUntil(pair.Server, () => recovery.Ready, 3600);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var em = pair.Server.EntMan;
+            var body = em.SpawnEntity("MobHumanDummy", map.GridCoords);
+            recovery.RegisterBody(body, Guid.NewGuid(), 1);
+            bag = em.SpawnEntity("ClothingBackpack", map.GridCoords);
+            Assert.That(em.System<InventorySystem>().TryEquip(body, bag, "back", force: true), Is.True);
+            disk = em.SpawnEntity("ResearchDisk", map.GridCoords);
+            em.GetComponent<Content.Server.Research.Disk.ResearchDiskComponent>(disk).Points = 47382;
+            Assert.That(em.System<SharedContainerSystem>().Insert(disk, em.GetComponent<StorageComponent>(bag).Container), Is.True);
+            var source = soundOnContainedItem ? disk : bag;
+            var sound = em.System<SharedAudioSystem>().PlayPvs(
+                new SoundPathSpecifier("/Audio/Effects/beep1.ogg"), source, AudioParams.Default.WithLoop(true));
+            Assert.That(sound, Is.Not.Null);
+            audio = sound!.Value.Entity;
+            Assert.That(em.GetComponent<TransformComponent>(audio).ParentUid, Is.EqualTo(source));
+        });
+
+        RecoveryIncident snapshot = default!;
+        await PoolManager.WaitUntil(pair.Server, async () =>
+        {
+            snapshot = await pair.Server.ResolveDependency<IServerDbManager>().ReadCrashRecovery(scope, recovery.RunIdentity);
+            return snapshot.Assets.Any(a => a.Prototype == "ClothingBackpack" && a.Data.Length > 0)
+                && snapshot.Assets.Any(a => a.Prototype == "ResearchDisk" && a.Data.Length > 0);
+        }, 600);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var em = pair.Server.EntMan;
+            Assert.That(em.HasComponent<RecoveryIdentityComponent>(audio), Is.False,
+                "A temporary sound must not acquire a recovery entitlement or enter the capture retry queue.");
+            Assert.That(snapshot.Assets, Has.Length.EqualTo(2));
+            Assert.That(recovery.TryLoadRecoveryEntities(snapshot.Assets, out var result), Is.True);
+            Assert.That(result!.Entities.Any(em.HasComponent<AudioComponent>), Is.False);
+            var restoredBag = result.Entities.Single(uid => em.HasComponent<StorageComponent>(uid));
+            var restoredDisk = em.GetComponent<StorageComponent>(restoredBag).Container.ContainedEntities.Single();
+            Assert.That(em.GetComponent<Content.Server.Research.Disk.ResearchDiskComponent>(restoredDisk).Points,
+                Is.EqualTo(47382));
+            Assert.That(em.EntityExists(audio), Is.True, "Capturing a snapshot must leave the live sound alone.");
+            Assert.That(em.GetComponent<TransformComponent>(audio).ParentUid, Is.EqualTo(soundOnContainedItem ? disk : bag));
+            em.System<SharedAudioSystem>().Stop(audio);
+        });
+        await recovery.CloseNormally();
+        await recovery.StopWorker();
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task PaidStartingGearKeepsTheOriginalCharacterIdentity()
     {
