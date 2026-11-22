@@ -1,14 +1,14 @@
-# T0 = 25k for 5
-# T1 = 75k for 5
-# T2 = 150k for 5
-# T3 = 300k for 5
-# T4 = 500k for 5
+# T0 = 2.5k for 5
+# T1 = 7.5k for 5
+# T2 = 15k for 5
+# T3 = 30k for 5
+# T4 = 50k for 5
 # There is no order to how I chose these tiers. I kinda just scrolled through every recipe. Try to put the stuff that needs more complex or rarer ingredients up higher (eg high variety of botany, carp fillet, xeno/anom meat)
 
 # T0
 - type: cargoBounty
   id: CCBountyAmanitaJelly
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -20,7 +20,7 @@
 
 - type: cargoBounty
   id: CCBountyBun
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -32,7 +32,7 @@
 
 - type: cargoBounty
   id: CCBountyBread
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -44,7 +44,7 @@
 
 - type: cargoBounty
   id: CCBountyBoiledRice
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -56,7 +56,7 @@
 
 - type: cargoBounty
   id: CCBountyBoiledSnail
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -68,7 +68,7 @@
 
 - type: cargoBounty
   id: CCBountyCarrotFries
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -80,7 +80,7 @@
 
 - type: cargoBounty
   id: CCBountyCookedSausage
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -92,7 +92,7 @@
 
 - type: cargoBounty
   id: CCBountyOatmeal
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -104,7 +104,7 @@
 
 - type: cargoBounty
   id: CCBountyOnionRings
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -116,7 +116,7 @@
 
 - type: cargoBounty
   id: CCBountyPickle
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -128,7 +128,7 @@
 
 - type: cargoBounty
   id: CCBountyPopcorn
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -140,7 +140,7 @@
 
 - type: cargoBounty
   id: CCBountyRatBurger
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -152,7 +152,7 @@
 
 - type: cargoBounty
   id: CCBountySpaceFries
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -164,7 +164,7 @@
 
 - type: cargoBounty
   id: CCBountyBagel
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -176,7 +176,7 @@
 
 - type: cargoBounty
   id: CCBountyBaguette
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -188,7 +188,7 @@
 
 - type: cargoBounty
   id: CCBountyCookedSpaceshroom
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -200,7 +200,7 @@
 
 - type: cargoBounty
   id: CCBountyCottonBagel
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -212,7 +212,7 @@
 
 - type: cargoBounty
   id: CCBountyCottonBread
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -224,7 +224,7 @@
 
 - type: cargoBounty
   id: CCBountyRaisinBag
-  reward: 25000
+  reward: 2500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T0
   entries:
@@ -237,7 +237,7 @@
 # T1
 - type: cargoBounty
   id: CCBountyRicePudding
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -249,7 +249,7 @@
 
 - type: cargoBounty
   id: CCBountyCottonCroissant
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -261,7 +261,7 @@
 
 - type: cargoBounty
   id: CCBountyBasicNoodles
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -273,7 +273,7 @@
 
 - type: cargoBounty
   id: CCBountyBoiledPasta
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -285,7 +285,7 @@
 
 - type: cargoBounty
   id: CCBountyButterNoodles
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -297,7 +297,7 @@
 
 - type: cargoBounty
   id: CCBountyCottonPizza
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -309,7 +309,7 @@
 
 - type: cargoBounty
   id: CCBountyCornbread
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -321,7 +321,7 @@
 
 - type: cargoBounty
   id: CCBountyCottonChevreChaud
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -333,7 +333,7 @@
 
 - type: cargoBounty
   id: CCBountyButteredToast
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -345,7 +345,7 @@
 
 - type: cargoBounty
   id: CCBountyAvocadoToast
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -357,7 +357,7 @@
 
 - type: cargoBounty
   id: CCBountyBrainBurger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -369,7 +369,7 @@
 
 - type: cargoBounty
   id: CCBountyAppendixBurger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -381,7 +381,7 @@
 
 - type: cargoBounty
   id: CCBountyMargheritaPizza
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -393,7 +393,7 @@
 
 - type: cargoBounty
   id: CCBountyMushroomPizza
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -405,7 +405,7 @@
 
 - type: cargoBounty
   id: CCBountyBaseballBurger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -417,7 +417,7 @@
 
 - type: cargoBounty
   id: CCBountyButteredGrits
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -429,7 +429,7 @@
 
 - type: cargoBounty
   id: CCBountyCatBurger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -441,7 +441,7 @@
 
 - type: cargoBounty
   id: CCBountyChickenSandwich
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -453,7 +453,7 @@
 
 - type: cargoBounty
   id: CCBountyClownBurger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -465,7 +465,7 @@
 
 - type: cargoBounty
   id: CCBountyAnomalousSteak
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -477,7 +477,7 @@
 
 - type: cargoBounty
   id: CCBountyCorger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -489,7 +489,7 @@
 
 - type: cargoBounty
   id: CCBountyCornInButter
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -501,7 +501,7 @@
 
 - type: cargoBounty
   id: CCBountyCrabBurger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -513,7 +513,7 @@
 
 - type: cargoBounty
   id: CCBountyDuckSandwich
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -525,7 +525,7 @@
 
 - type: cargoBounty
   id: CCBountyDumplings
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -537,7 +537,7 @@
 
 - type: cargoBounty
   id: CCBountyEggFriedRice
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -549,7 +549,7 @@
 
 - type: cargoBounty
   id: CCBountyEmpoweredBurger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -561,7 +561,7 @@
 
 - type: cargoBounty
   id: CCBountyHotdog
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -573,7 +573,7 @@
 
 - type: cargoBounty
   id: CCBountyHumanBurger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -585,7 +585,7 @@
 
 - type: cargoBounty
   id: CCBountyJellyBurger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -597,7 +597,7 @@
 
 - type: cargoBounty
   id: CCBountyLoadedBakedPotato
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -609,7 +609,7 @@
 
 - type: cargoBounty
   id: CCBountyMcguffin
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -621,7 +621,7 @@
 
 - type: cargoBounty
   id: CCBountyMimeBurger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -633,7 +633,7 @@
 
 - type: cargoBounty
   id: CCBountyNachos
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -645,7 +645,7 @@
 
 - type: cargoBounty
   id: CCBountyPlainBurger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -657,7 +657,7 @@
 
 - type: cargoBounty
   id: CCBountyRatTaco
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -669,7 +669,7 @@
 
 - type: cargoBounty
   id: CCBountyRiceAndPork
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -681,7 +681,7 @@
 
 - type: cargoBounty
   id: CCBountyRoburger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -693,7 +693,7 @@
 
 - type: cargoBounty
   id: CCBountySoylentBurger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -705,7 +705,7 @@
 
 - type: cargoBounty
   id: CCBountySpellBurger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -717,7 +717,7 @@
 
 - type: cargoBounty
   id: CCBountyTofuBurger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -729,7 +729,7 @@
 
 - type: cargoBounty
   id: CCBountyXenoburger
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -741,7 +741,7 @@
 
 - type: cargoBounty
   id: CCBountyCreamCheeseBread
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -753,7 +753,7 @@
 
 - type: cargoBounty
   id: CCBountyGarlicBread
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -765,7 +765,7 @@
 
 - type: cargoBounty
   id: CCBountyHoneyBun
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -777,7 +777,7 @@
 
 - type: cargoBounty
   id: CCBountyJellyToast
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -789,7 +789,7 @@
 
 - type: cargoBounty
   id: CCBountyMeatBread
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -801,7 +801,7 @@
 
 - type: cargoBounty
   id: CCBountyMimanaBread
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -813,7 +813,7 @@
 
 - type: cargoBounty
   id: CCBountyMoldyLoaf
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -825,7 +825,7 @@
 
 - type: cargoBounty
   id: CCBountyPoppySeedBagel
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -837,7 +837,7 @@
 
 - type: cargoBounty
   id: CCBountySausageBread
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -849,7 +849,7 @@
 
 - type: cargoBounty
   id: CCBountySpiderMeatBread
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -861,7 +861,7 @@
 
 - type: cargoBounty
   id: CCBountyTofuBread
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -873,7 +873,7 @@
 
 - type: cargoBounty
   id: CCBountyTwoSlice
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -885,7 +885,7 @@
 
 - type: cargoBounty
   id: CCBountyXenoMeatBread
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -897,7 +897,7 @@
 
 - type: cargoBounty
   id: CCBountyFrenchToast
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -909,7 +909,7 @@
 
 - type: cargoBounty
   id: CCBountyPancake
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -921,7 +921,7 @@
 
 - type: cargoBounty
   id: CCBountyWaffles
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -933,7 +933,7 @@
 
 - type: cargoBounty
   id: CCBountySoyWaffles
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -945,7 +945,7 @@
 
 - type: cargoBounty
   id: CCBountyCottonBaguette
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -957,7 +957,7 @@
 
 - type: cargoBounty
   id: CCBountyMacaroniCheese
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -969,7 +969,7 @@
 
 - type: cargoBounty
   id: CCBountySpaghetti
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -981,7 +981,7 @@
 
 - type: cargoBounty
   id: CCBountyShioNoodles
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -993,7 +993,7 @@
 
 - type: cargoBounty
   id: CCBountyCroissant
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1005,7 +1005,7 @@
 
 - type: cargoBounty
   id: CCBountyFiberMochi
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1017,7 +1017,7 @@
 
 - type: cargoBounty
   id: CCBountyMeatDonut
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1029,7 +1029,7 @@
 
 - type: cargoBounty
   id: CCBountyMochi
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1041,7 +1041,7 @@
 
 - type: cargoBounty
   id: CCBountyMuffin
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1053,7 +1053,7 @@
 
 - type: cargoBounty
   id: CCBountyMushroomSoup
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1065,7 +1065,7 @@
 
 - type: cargoBounty
   id: CCBountyPeaSoup
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1077,7 +1077,7 @@
 
 - type: cargoBounty
   id: CCBountyOatmealCookie
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1089,7 +1089,7 @@
 
 - type: cargoBounty
   id: CCBountyRaisinCookie
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1101,7 +1101,7 @@
 
 - type: cargoBounty
   id: CCBountySimpleBiscuit
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1113,7 +1113,7 @@
 
 - type: cargoBounty
   id: CCBountySugarCookie
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1125,7 +1125,7 @@
 
 - type: cargoBounty
   id: CCBountyCake
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1137,7 +1137,7 @@
 
 - type: cargoBounty
   id: CCBountyCheeseCottonPizza
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1149,7 +1149,7 @@
 
 - type: cargoBounty
   id: CCBountyGrilledCheeseSandwich
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1161,7 +1161,7 @@
 
 - type: cargoBounty
   id: CCBountyMoffin
-  reward: 75000
+  reward: 7500
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T1
   entries:
@@ -1174,7 +1174,7 @@
 # T2
 - type: cargoBounty
   id: CCBountyQueso
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1186,7 +1186,7 @@
 
 - type: cargoBounty
   id: CCBountyFrenchOnionSoup
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1198,7 +1198,7 @@
 
 - type: cargoBounty
   id: CCBountyNettleSoup
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1210,7 +1210,7 @@
 
 - type: cargoBounty
   id: CCBountyAppleDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1222,7 +1222,7 @@
 
 - type: cargoBounty
   id: CCBountyAppleJellyDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1234,7 +1234,7 @@
 
 - type: cargoBounty
   id: CCBountyBananaMuffin
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1246,7 +1246,7 @@
 
 - type: cargoBounty
   id: CCBountyBerryMuffin
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1258,7 +1258,7 @@
 
 - type: cargoBounty
   id: CCBountyBluePumpkinDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1270,7 +1270,7 @@
 
 - type: cargoBounty
   id: CCBountyBluePumpkinJellyDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1282,7 +1282,7 @@
 
 - type: cargoBounty
   id: CCBountyBungoDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1294,7 +1294,7 @@
 
 - type: cargoBounty
   id: CCBountyBungoJellyDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1306,7 +1306,7 @@
 
 - type: cargoBounty
   id: CCBountyBungoMochi
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1318,7 +1318,7 @@
 
 - type: cargoBounty
   id: CCBountyCaramelDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1330,7 +1330,7 @@
 
 - type: cargoBounty
   id: CCBountyCaramelJellyDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1342,7 +1342,7 @@
 
 - type: cargoBounty
   id: CCBountyCherryMochi
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1354,7 +1354,7 @@
 
 - type: cargoBounty
   id: CCBountyCherryMuffin
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1366,7 +1366,7 @@
 
 - type: cargoBounty
   id: CCBountyChocolateDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1378,7 +1378,7 @@
 
 - type: cargoBounty
   id: CCBountyChocolateJellyDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1390,7 +1390,7 @@
 
 - type: cargoBounty
   id: CCBountyChocolateMochi
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1402,7 +1402,7 @@
 
 - type: cargoBounty
   id: CCBountyChocolateMuffin
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1414,7 +1414,7 @@
 
 - type: cargoBounty
   id: CCBountyDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1426,7 +1426,7 @@
 
 - type: cargoBounty
   id: CCBountyJellyDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1438,7 +1438,7 @@
 
 - type: cargoBounty
   id: CCBountyMatchaDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1450,7 +1450,7 @@
 
 - type: cargoBounty
   id: CCBountyMatchaJellyDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1462,7 +1462,7 @@
 
 - type: cargoBounty
   id: CCBountyPearMuffin
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1474,7 +1474,7 @@
 
 - type: cargoBounty
   id: CCBountyPinkDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1486,7 +1486,7 @@
 
 - type: cargoBounty
   id: CCBountyPinkJellyDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1498,7 +1498,7 @@
 
 - type: cargoBounty
   id: CCBountyRosyMochi
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1510,7 +1510,7 @@
 
 - type: cargoBounty
   id: CCBountySpacemansDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1522,7 +1522,7 @@
 
 - type: cargoBounty
   id: CCBountySpacemansJellyDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1534,7 +1534,7 @@
 
 - type: cargoBounty
   id: CCBountySweetPeaDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1546,7 +1546,7 @@
 
 - type: cargoBounty
   id: CCBountySweetPeaJellyDonut
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1558,7 +1558,7 @@
 
 - type: cargoBounty
   id: CCBountyTeaMochi
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1570,7 +1570,7 @@
 
 - type: cargoBounty
   id: CCBountyUbeMochi
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1582,7 +1582,7 @@
 
 - type: cargoBounty
   id: CCBountySpaghettiAndMeatballs
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1594,7 +1594,7 @@
 
 - type: cargoBounty
   id: CCBountySpicyNoodles
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1606,7 +1606,7 @@
 
 - type: cargoBounty
   id: CCBountyMisoNoodles
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1618,7 +1618,7 @@
 
 - type: cargoBounty
   id: CCBountyCopypasta
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1630,7 +1630,7 @@
 
 - type: cargoBounty
   id: CCBountyBlueberryPancake
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1642,7 +1642,7 @@
 
 - type: cargoBounty
   id: CCBountyCucumberSandwich
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1654,7 +1654,7 @@
 
 - type: cargoBounty
   id: CCBountyHoneyGlazedHam
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1666,7 +1666,7 @@
 
 - type: cargoBounty
   id: CCBountyChickenTaco
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1678,7 +1678,7 @@
 
 - type: cargoBounty
   id: CCBountyBlackEyedGumbo
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1690,7 +1690,7 @@
 
 - type: cargoBounty
   id: CCBountyMeatPizza
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1702,7 +1702,7 @@
 
 - type: cargoBounty
   id: CCBountySpicyRockPizza
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1714,7 +1714,7 @@
 
 - type: cargoBounty
   id: CCBountyDankPizza
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1726,7 +1726,7 @@
 
 - type: cargoBounty
   id: CCBountyDonkPocketPizza
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1738,7 +1738,7 @@
 
 - type: cargoBounty
   id: CCBountyHawaiianPizza
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1750,7 +1750,7 @@
 
 - type: cargoBounty
   id: CCBountyBucketOfFriedChicken
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1762,7 +1762,7 @@
 
 - type: cargoBounty
   id: CCBountyBucketOfFriedResomi
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1774,7 +1774,7 @@
 
 - type: cargoBounty
   id: CCBountyBaconBurger
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1786,7 +1786,7 @@
 
 - type: cargoBounty
   id: CCBountyBbqRibs
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1798,7 +1798,7 @@
 
 - type: cargoBounty
   id: CCBountyBearger
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1810,7 +1810,7 @@
 
 - type: cargoBounty
   id: CCBountyBeefTaco
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1822,7 +1822,7 @@
 
 - type: cargoBounty
   id: CCBountyCarpSushi
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1834,7 +1834,7 @@
 
 - type: cargoBounty
   id: CCBountyCheeseGrits
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1846,7 +1846,7 @@
 
 - type: cargoBounty
   id: CCBountyCheeseBurger
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1858,7 +1858,7 @@
 
 - type: cargoBounty
   id: CCBountyCheesyFries
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1870,7 +1870,7 @@
 
 - type: cargoBounty
   id: CCBountyCheesyNachos
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1882,7 +1882,7 @@
 
 - type: cargoBounty
   id: CCBountyChevreChaud
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1894,7 +1894,7 @@
 
 - type: cargoBounty
   id: CCBountyClurger
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1906,7 +1906,7 @@
 
 - type: cargoBounty
   id: CCBountyEnchiladas
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1918,7 +1918,7 @@
 
 - type: cargoBounty
   id: CCBountyFilletOCarpBurger
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1930,7 +1930,7 @@
 
 - type: cargoBounty
   id: CCBountyFiveAlarmBurger
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1942,7 +1942,7 @@
 
 - type: cargoBounty
   id: CCBountySashimi
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1954,7 +1954,7 @@
 
 - type: cargoBounty
   id: CCBountySuperBiteBurger
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1966,7 +1966,7 @@
 
 - type: cargoBounty
   id: CCBountyHoneyChallah
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1978,7 +1978,7 @@
 
 - type: cargoBounty
   id: CCBountyBreakfastBagel
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -1990,7 +1990,7 @@
 
 - type: cargoBounty
   id: CCBountyPoppyseedBreakfastBagel
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2002,7 +2002,7 @@
 
 - type: cargoBounty
   id: CCBountyBungoCurry
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2014,7 +2014,7 @@
 
 - type: cargoBounty
   id: CCBountyClownsTears
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2026,7 +2026,7 @@
 
 - type: cargoBounty
   id: CCBountyColdChili
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2038,7 +2038,7 @@
 
 - type: cargoBounty
   id: CCBountyEscargot
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2050,7 +2050,7 @@
 
 - type: cargoBounty
   id: CCBountyEyeballSoup
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2062,7 +2062,7 @@
 
 - type: cargoBounty
   id: CCBountyBowlOfHotChili
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2074,7 +2074,7 @@
 
 - type: cargoBounty
   id: CCBountyMonkeysDelight
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2086,7 +2086,7 @@
 
 - type: cargoBounty
   id: CCBountyTomatoSoupEither
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2098,7 +2098,7 @@
 
 - type: cargoBounty
   id: CCBountyWingFangChu
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2110,7 +2110,7 @@
 
 - type: cargoBounty
   id: CCBountyAmanitaPie
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2122,7 +2122,7 @@
 
 - type: cargoBounty
   id: CCBountyApplePie
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2134,7 +2134,7 @@
 
 - type: cargoBounty
   id: CCBountyBerryClafoutis
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2146,7 +2146,7 @@
 
 - type: cargoBounty
   id: CCBountyCherryPie
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2158,7 +2158,7 @@
 
 - type: cargoBounty
   id: CCBountyChocolateLavaTart
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2170,7 +2170,7 @@
 
 - type: cargoBounty
   id: CCBountyFrostyPie
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2182,7 +2182,7 @@
 
 - type: cargoBounty
   id: CCBountyMeatPie
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2194,7 +2194,7 @@
 
 - type: cargoBounty
   id: CCBountyMimeTart
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2206,7 +2206,7 @@
 
 - type: cargoBounty
   id: CCBountyPearAndCheeseTart
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2218,7 +2218,7 @@
 
 - type: cargoBounty
   id: CCBountyPumpkinPie
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2230,7 +2230,7 @@
 
 - type: cargoBounty
   id: CCBountyXenoPie
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2242,7 +2242,7 @@
 
 - type: cargoBounty
   id: CCBountyBaklava
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2254,7 +2254,7 @@
 
 - type: cargoBounty
   id: CCBountyBrownies
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2266,7 +2266,7 @@
 
 - type: cargoBounty
   id: CCBountyChocolateChipPancake
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2278,7 +2278,7 @@
 
 - type: cargoBounty
   id: CCBountyCookie
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2290,7 +2290,7 @@
 
 - type: cargoBounty
   id: CCBountyAppleCake
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2302,7 +2302,7 @@
 
 - type: cargoBounty
   id: CCBountyBirthdayCake
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2314,7 +2314,7 @@
 
 - type: cargoBounty
   id: CCBountyBlueberryCake
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2326,7 +2326,7 @@
 
 - type: cargoBounty
   id: CCBountyCarrotCake
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2338,7 +2338,7 @@
 
 - type: cargoBounty
   id: CCBountyCheeseCake
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2350,7 +2350,7 @@
 
 - type: cargoBounty
   id: CCBountyChocolateCake
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2362,7 +2362,7 @@
 
 - type: cargoBounty
   id: CCBountyClownCake
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2374,7 +2374,7 @@
 
 - type: cargoBounty
   id: CCBountyLemonCake
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2386,7 +2386,7 @@
 
 - type: cargoBounty
   id: CCBountyLimeCake
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2398,7 +2398,7 @@
 
 - type: cargoBounty
   id: CCBountyOrangeCake
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2410,7 +2410,7 @@
 
 - type: cargoBounty
   id: CCBountyPumpkinSpiceCake
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2422,7 +2422,7 @@
 
 - type: cargoBounty
   id: CCBountySlimeCake
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2434,7 +2434,7 @@
 
 - type: cargoBounty
   id: CCBountyCitrusSalad
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2446,7 +2446,7 @@
 
 - type: cargoBounty
   id: CCBountyColeslaw
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2458,7 +2458,7 @@
 
 - type: cargoBounty
   id: CCBountyFruitSalad
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2470,7 +2470,7 @@
 
 - type: cargoBounty
   id: CCBountyGreekSalad
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2482,7 +2482,7 @@
 
 - type: cargoBounty
   id: CCBountyHerbSalad
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2494,7 +2494,7 @@
 
 - type: cargoBounty
   id: CCBountyJungleSalad
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2506,7 +2506,7 @@
 
 - type: cargoBounty
   id: CCBountyKimchiSalad
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2518,7 +2518,7 @@
 
 - type: cargoBounty
   id: CCBountyValidSalad
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2530,7 +2530,7 @@
 
 - type: cargoBounty
   id: CCBountyCottonSoup
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2542,7 +2542,7 @@
 
 - type: cargoBounty
   id: CCBountyMothmallowTray
-  reward: 150000
+  reward: 15000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T2
   entries:
@@ -2555,7 +2555,7 @@
 # T3
 - type: cargoBounty
   id: CCBountyMelonFruitBowl
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2567,7 +2567,7 @@
 
 - type: cargoBounty
   id: CCBountyAvocadoSalad
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2579,7 +2579,7 @@
 
 - type: cargoBounty
   id: CCBountyCaesarSalad
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2591,7 +2591,7 @@
 
 - type: cargoBounty
   id: CCBountyLemoonCake
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2603,7 +2603,7 @@
 
 - type: cargoBounty
   id: CCBountyBrainCake
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2615,7 +2615,7 @@
 
 - type: cargoBounty
   id: CCBountySpecialBrownies
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2627,7 +2627,7 @@
 
 - type: cargoBounty
   id: CCBountyAppleStrudelBite
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2639,7 +2639,7 @@
 
 - type: cargoBounty
   id: CCBountyGoldenAppleStreuselTart
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2651,7 +2651,7 @@
 
 - type: cargoBounty
   id: CCBountyGrapeTart
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2663,7 +2663,7 @@
 
 - type: cargoBounty
   id: CCBountyHoneyAppleStreuselPie
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2675,7 +2675,7 @@
 
 - type: cargoBounty
   id: CCBountyBananaCreamPie
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2687,7 +2687,7 @@
 
 - type: cargoBounty
   id: CCBountyStew
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2699,7 +2699,7 @@
 
 - type: cargoBounty
   id: CCBountyVegtableSoup
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2711,7 +2711,7 @@
 
 - type: cargoBounty
   id: CCBountyChiliConCarnival
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2723,7 +2723,7 @@
 
 - type: cargoBounty
   id: CCBountyMeatballSoup
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2735,7 +2735,7 @@
 
 - type: cargoBounty
   id: CCBountyBisque
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2747,7 +2747,7 @@
 
 - type: cargoBounty
   id: CCBountyPoachedPears
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2759,7 +2759,7 @@
 
 - type: cargoBounty
   id: CCBountyPearsBelleHelene
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2771,7 +2771,7 @@
 
 - type: cargoBounty
   id: CCBountyTonkatsuNoodles
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2783,7 +2783,7 @@
 
 - type: cargoBounty
   id: CCBountyShoyuNoodles
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2795,7 +2795,7 @@
 
 - type: cargoBounty
   id: CCBountyChowMein
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2807,7 +2807,7 @@
 
 - type: cargoBounty
   id: CCBountyFreshFishSushi
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2819,7 +2819,7 @@
 
 - type: cargoBounty
   id: CCBountyGhostBurger
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2831,7 +2831,7 @@
 
 - type: cargoBounty
   id: CCBountyAvocadoSushi
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2843,7 +2843,7 @@
 
 - type: cargoBounty
   id: CCBountyVegetablePizza
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2855,7 +2855,7 @@
 
 - type: cargoBounty
   id: CCBountyBbqRibSandwich
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2867,7 +2867,7 @@
 
 - type: cargoBounty
   id: CCBountyBeefTacoSupreme
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2879,7 +2879,7 @@
 
 - type: cargoBounty
   id: CCBountyChickenTacoSupreme
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2891,7 +2891,7 @@
 
 - type: cargoBounty
   id: CCBountyBigBiteBurger
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2903,7 +2903,7 @@
 
 - type: cargoBounty
   id: CCBountyCubanCarp
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2915,7 +2915,7 @@
 
 - type: cargoBounty
   id: CCBountyCubanNachos
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2927,7 +2927,7 @@
 
 - type: cargoBounty
   id: CCBountyFishTaco
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2939,7 +2939,7 @@
 
 - type: cargoBounty
   id: CCBountySaltySweetMisoColaSoup
-  reward: 300000
+  reward: 30000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T3
   entries:
@@ -2952,7 +2952,7 @@
 # T4
 - type: cargoBounty
   id: CCBountySuppermatter
-  reward: 500000
+  reward: 50000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T4
   entries:
@@ -2964,7 +2964,7 @@
 
 - type: cargoBounty
   id: CCBountyChaosDonut
-  reward: 500000
+  reward: 50000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T4
   entries:
@@ -2976,7 +2976,7 @@
 
 - type: cargoBounty
   id: CCBountyCrispy
-  reward: 500000
+  reward: 50000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T4
   entries:
@@ -2988,7 +2988,7 @@
 
 - type: cargoBounty
   id: CCBountyCak
-  reward: 500000
+  reward: 50000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T4
   entries:
@@ -3000,7 +3000,7 @@
 
 - type: cargoBounty
   id: CCBountyBreadDog
-  reward: 500000
+  reward: 50000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T4
   entries:
@@ -3012,7 +3012,7 @@
 
 - type: cargoBounty
   id: CCBountyCrazyHamburger
-  reward: 500000
+  reward: 50000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T4
   entries:
@@ -3024,7 +3024,7 @@
 
 - type: cargoBounty
   id: CCBountyDragonOmelette
-  reward: 500000
+  reward: 50000
   description: cc-food-bounty-desc-generic
   idPrefix: CC-SRV-T4
   entries:
