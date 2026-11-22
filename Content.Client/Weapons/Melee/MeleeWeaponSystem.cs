@@ -1,5 +1,5 @@
-using System.Numerics;
 using System.Linq;
+using System.Numerics;
 using Content.Client.Gameplay;
 using Content.Shared._White.Blink;
 using Content.Shared.CombatMode;
@@ -103,29 +103,13 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
             return;
         }
 
-        EntityCoordinates coordinates;
-        // Convert the render-space mouse position into coordinates relative to
-        // the rendered shuttle, not its predicted/physics world transform.
-        // Use the attacker's grid first: at high shuttle speeds the grid's
-        // physics bounds may no longer be under the rendered cursor.
-        if (Transform(userOverride).GridUid is { } userGrid &&
-            TryComp<TransformComponent>(userGrid, out var userGridXform))
-        {
-            coordinates = new EntityCoordinates(userGrid,
-                Vector2.Transform(mousePos.Position,
-                    _transform.GetInvRenderWorldMatrix((userGrid, userGridXform))));
-        }
-        else if (MapManager.TryFindGridAt(mousePos, out var gridUid, out _) &&
-                 TryComp<TransformComponent>(gridUid, out var gridXform))
-        {
-            coordinates = new EntityCoordinates(gridUid,
-                Vector2.Transform(mousePos.Position,
-                    _transform.GetInvRenderWorldMatrix((gridUid, gridXform))));
-        }
-        else
-        {
-            coordinates = TransformSystem.ToCoordinates(_map.GetMap(mousePos.MapId), mousePos);
-        }
+        // Use the same camera frame as PixelToMap. On fast grids the
+        // eye and the interpolated character pose can be a frame apart.
+        var aimOrigin = GetAimOrigin(userOverride, mousePos);
+        var simulatedAttacker = TransformSystem.GetMapCoordinates(userOverride);
+        var coordinates = TransformSystem.ToCoordinates(userOverride, new MapCoordinates(
+            simulatedAttacker.Position + mousePos.Position - aimOrigin.Position,
+            mousePos.MapId));
 
         // If the gun has AltFireComponent, it can be used to attack.
         if (TryComp<GunComponent>(weaponUid, out var gun) && gun.UseKey)
@@ -191,14 +175,13 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
             return;
         }
 
-        // Light attack
+        // LMB: precise target click path (restored) + original light attack path.
+        // RMB: the wide attack above is unchanged.
         if (useDown == BoundKeyState.Down)
         {
-            var attackerPos = TransformSystem.GetMapCoordinates(userOverride);
-            var targetPos = TransformSystem.ToMapCoordinates(coordinates);
-
-            if (targetPos.MapId != attackerPos.MapId ||
-                (attackerPos.Position - targetPos.Position).LengthSquared() > weapon.Range * weapon.Range)
+            var attackerPos = GetAimOrigin(userOverride, mousePos);
+            if (mousePos.MapId != attackerPos.MapId ||
+                (attackerPos.Position - mousePos.Position).Length() > weapon.Range)
             {
                 if (weapon.HeavyOnLightMiss)
                     ClientHeavyAttack(userOverride, coordinates, weaponUid, weapon);
@@ -206,13 +189,9 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
             }
 
             EntityUid? target = null;
-
             if (_stateManager.CurrentState is GameplayStateBase screen)
-            {
-                target = screen.GetDamageableClickedEntity(mousePos); // Goob edit
-            }
+                target = screen.GetDamageableClickedEntity(mousePos);
 
-            // Don't light-attack if interaction will be handling this instead // Mono - add hands check (why is this duplicated?)
             if (HasComp<HandsComponent>(userOverride) && Interaction.CombatModeCanHandInteract(userOverride, target))
                 return;
 
@@ -222,7 +201,11 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
                 return;
             }
 
+            // Restore original direct precise-click event.
             RaisePredictiveEvent(new LightAttackEvent(GetNetEntity(target), GetNetEntity(weaponUid), GetNetCoordinates(coordinates)));
+
+            // Restore second light attack call, as in the original client system.
+            ClientLightAttack(userOverride, mousePos, coordinates, weaponUid, weapon);
         }
     }
 
@@ -308,12 +291,26 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
         RaisePredictiveEvent(new DisarmAttackEvent(GetNetEntity(target), GetNetCoordinates(coordinates)));
     }
 
+    private MapCoordinates GetAimOrigin(EntityUid attacker, MapCoordinates mousePos)
+    {
+        var renderedAttacker = _transform.GetRenderMapCoordinates((attacker, Transform(attacker)));
+        var eyePosition = _eyeManager.CurrentEye.Position;
+
+        // If the camera is following this actor, use the same origin the
+        // viewport used to calculate mousePos. Preserve other camera modes.
+        if (eyePosition.MapId == mousePos.MapId &&
+            renderedAttacker.MapId == mousePos.MapId &&
+            Vector2.DistanceSquared(eyePosition.Position, renderedAttacker.Position) < 36f)
+            return eyePosition;
+
+        return renderedAttacker;
+    }
+
     private void ClientLightAttack(EntityUid attacker, MapCoordinates mousePos, EntityCoordinates coordinates, EntityUid weaponUid, MeleeWeaponComponent meleeComponent)
     {
-        var attackerPos = TransformSystem.GetMapCoordinates(attacker);
-        var targetPos = TransformSystem.ToMapCoordinates(coordinates);
+        var attackerPos = GetAimOrigin(attacker, mousePos);
 
-        if (targetPos.MapId != attackerPos.MapId || (attackerPos.Position - targetPos.Position).LengthSquared() > meleeComponent.Range * meleeComponent.Range)
+        if (mousePos.MapId != attackerPos.MapId || (attackerPos.Position - mousePos.Position).Length() > meleeComponent.Range)
         {
             if (meleeComponent.HeavyOnLightMiss)
                 ClientHeavyAttack(attacker, coordinates, weaponUid, meleeComponent);
@@ -323,7 +320,7 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
         EntityUid? target = null;
 
         if (_stateManager.CurrentState is GameplayStateBase screen)
-            target = screen.GetClickedEntity(mousePos);
+            target = screen.GetDamageableClickedEntity(mousePos);
 
         // Don't light-attack if interaction will be handling this instead // Mono - only if attacker has hands
         if (HasComp<HandsComponent>(attacker) && Interaction.CombatModeCanHandInteract(attacker, target))
