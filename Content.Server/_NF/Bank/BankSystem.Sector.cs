@@ -28,7 +28,7 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="amount">The amount of spesos to remove from the account.</param>
     /// <returns>true if the transaction was successful, false if it was not.</returns>
     [PublicAPI]
-    public bool TrySectorWithdraw(SectorBankAccount account, int amount, LedgerEntryType reason, SectorBankComponent? bank = null)
+    public bool TrySectorWithdraw(SectorBankAccount account, long amount, LedgerEntryType reason, SectorBankComponent? bank = null)
     {
         if (amount <= 0)
         {
@@ -69,7 +69,7 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="reason">The purpose of this withdrawal</param>
     /// <returns>true if the transaction was successful, false if it was not</returns>
     [PublicAPI]
-    public bool TrySectorDeposit(SectorBankAccount account, int amount, LedgerEntryType reason, SectorBankComponent? bank=null)
+    public bool TrySectorDeposit(SectorBankAccount account, long amount, LedgerEntryType reason, SectorBankComponent? bank=null)
     {
         if (amount <= 0)
         {
@@ -91,6 +91,8 @@ public sealed partial class BankSystem : SharedBankSystem
         }
 
         var bankAccount = CollectionsMarshal.GetValueRefOrNullRef(bank.Accounts, account);
+        if (amount > long.MaxValue - bankAccount.Balance)
+            return false;
         bankAccount.Balance += amount;
         AddLedgerEntry(account, reason, amount);
         return true;
@@ -103,7 +105,7 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="balance">When successful, contains the account balance in spesos. Otherwise, set to 0.</param>
     /// <returns>true if the account was successfully queried.</returns>
     [PublicAPI]
-    public bool TryGetBalance(SectorBankAccount account, out int balance)
+    public bool TryGetBalance(SectorBankAccount account, out long balance)
     {
         // Lookup sector banks
         if (!TryComp(_sectorService.GetServiceEntity(), out SectorBankComponent? bank))

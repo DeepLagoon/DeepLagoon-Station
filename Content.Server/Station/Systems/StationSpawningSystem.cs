@@ -250,7 +250,6 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
             /// Frontier: overwriting EquipRoleLoadout
             //EquipRoleLoadout(entity.Value, loadout, roleProto!);
             long initialBankBalance = profile!.BankBalance; //Frontier
-            initialBankBalance = Math.Min(int.MaxValue, initialBankBalance);
             var bankBalance = initialBankBalance; //Frontier
             bool hasBalance = false; // Frontier
 
@@ -278,8 +277,8 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
                         plannedBalance -= Math.Max(0, equipment.Price);
                 }
             }
-            var totalCost = (int)(initialBankBalance - plannedBalance);
-            int? paidBankBalance = null;
+            var totalCost = initialBankBalance - plannedBalance;
+            long? paidBankBalance = null;
             var recovery = EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>();
             var recoveryPayment = session == null ? null : recovery.BeginProfilePurchase(session.UserId.UserId, totalCost);
             if (totalCost > 0 && !_bank.TryBankWithdraw(session!, prefs!, profile!, totalCost, out paidBankBalance, recoveryPayment))

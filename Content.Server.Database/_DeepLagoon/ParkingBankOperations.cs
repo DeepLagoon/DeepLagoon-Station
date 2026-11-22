@@ -7,13 +7,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Content.Server.Database;
 
-public readonly record struct ParkingCredit(int Character, int Balance);
+public readonly record struct ParkingCredit(int Character, long Balance);
 
 public static class ParkingBankOperations
 {
-    private sealed record Receipt(int Slot, int Amount);
+    private sealed record Receipt(int Slot, long Amount);
     /// <summary>Debit and receipt share the account transaction. A retry reads today's balance without another debit.</summary>
-    public static async Task<int> Debit(ServerDbContext db, Guid user, int slot, int amount, Guid operation, CancellationToken cancel = default)
+    public static async Task<long> Debit(ServerDbContext db, Guid user, int slot, long amount, Guid operation, CancellationToken cancel = default)
     {
         if (amount <= 0 || slot < 0 || operation == Guid.Empty) throw new ArgumentException("Invalid parking payment.");
         await using var tx = await db.Database.BeginTransactionAsync(cancel);
@@ -38,7 +38,7 @@ public static class ParkingBankOperations
         return profile.BankBalance;
     }
 
-    public static async Task<ParkingCredit> Credit(ServerDbContext db, Guid user, int slot, int amount, Guid operation, CancellationToken cancel = default)
+    public static async Task<ParkingCredit> Credit(ServerDbContext db, Guid user, int slot, long amount, Guid operation, CancellationToken cancel = default)
     {
         if (amount <= 0 || operation == Guid.Empty)
             throw new ArgumentException("Invalid parking credit.");

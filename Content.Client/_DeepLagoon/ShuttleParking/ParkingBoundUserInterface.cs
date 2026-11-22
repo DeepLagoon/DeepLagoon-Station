@@ -45,7 +45,7 @@ public sealed class ParkingBoundUserInterface(EntityUid owner, Enum uiKey) : Bou
         var receivedAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var data = new TguiData().Bool("id", state.IdPresent).Bool("hasShip", state.HasShip).Bool("parked", state.Parked).Bool("busy", state.Busy)
             .String("user", state.User).String("owner", state.OwnerName).String("shipName", state.ShipName).String("category", ParkingRules.CategoryName(state.Category))
-            .Number("shipCategory", state.Category).Number("credits", state.Credits).String("coins", state.Coins < 0 ? "…" : state.Coins.ToString())
+            .Number("shipCategory", state.Category).String("credits", state.Credits.ToString()).String("coins", state.Coins < 0 ? "…" : state.Coins.ToString())
             .String("message", state.Message).String("description", ParkingRules.StorageDescription)
             .String("reviewToken", state.ReviewToken == Guid.Empty ? "" : state.ReviewToken.ToString()).String("reviewSlot", state.ReviewSlot.ToString())
             .String("buyToken", state.BuyToken.ToString())

@@ -93,7 +93,8 @@ public sealed class ParkingUpdate : BoundUserInterfaceMessage
 {
     public bool IdPresent, Parked, HasShip, Busy;
     public string User = "", ShipName = "", Message = "", OwnerName = "";
-    public int Category = -1, Credits;
+    public int Category = -1;
+    public long Credits;
     public long Coins = -1;
     public Guid ReviewToken;
     public Guid ReviewSlot;

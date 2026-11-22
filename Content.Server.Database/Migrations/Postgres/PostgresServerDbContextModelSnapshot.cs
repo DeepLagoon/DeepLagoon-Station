@@ -809,8 +809,8 @@ namespace Content.Server.Database.Migrations.Postgres
                         .HasColumnType("text")
                         .HasColumnName("kind");
 
-                    b.Property<int>("Amount")
-                        .HasColumnType("integer")
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint")
                         .HasColumnName("amount");
 
                     b.Property<Guid>("UserId")
@@ -822,8 +822,8 @@ namespace Content.Server.Database.Migrations.Postgres
                         .HasColumnType("text")
                         .HasColumnName("character");
 
-                    b.Property<int>("Balance")
-                        .HasColumnType("integer")
+                    b.Property<long>("Balance")
+                        .HasColumnType("bigint")
                         .HasColumnName("balance");
 
                     b.Property<Guid?>("RecipientId")
@@ -834,8 +834,8 @@ namespace Content.Server.Database.Migrations.Postgres
                         .HasColumnType("text")
                         .HasColumnName("recipient_character");
 
-                    b.Property<int?>("RecipientBalance")
-                        .HasColumnType("integer")
+                    b.Property<long?>("RecipientBalance")
+                        .HasColumnType("bigint")
                         .HasColumnName("recipient_balance");
 
                     b.Property<string>("OriginJson")
@@ -1091,8 +1091,8 @@ namespace Content.Server.Database.Migrations.Postgres
                         .HasColumnType("integer")
                         .HasColumnName("age");
 
-                    b.Property<int>("BankBalance")
-                        .HasColumnType("integer")
+                    b.Property<long>("BankBalance")
+                        .HasColumnType("bigint")
                         .HasColumnName("bank_balance");
 
                     b.Property<string>("BodyFeaturesJson")

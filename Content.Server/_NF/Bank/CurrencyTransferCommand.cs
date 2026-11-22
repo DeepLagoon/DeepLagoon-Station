@@ -30,7 +30,7 @@ public sealed partial class CurrencyTransferCommand : LocalizedCommands
 
         var targetPlayerName = args[0];
 
-        if (!int.TryParse(args[1], out var amount))
+        if (!long.TryParse(args[1], out var amount))
         {
             shell.WriteError("Amount must be a valid integer.");
             return;

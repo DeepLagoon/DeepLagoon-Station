@@ -17,7 +17,7 @@ public sealed partial class CrashRecoverySystem
         public void Dispose() => owner._spawnPayment = previous;
     }
 
-    public RecoveryPayment? BeginProfilePurchase(Guid user, int total)
+    public RecoveryPayment? BeginProfilePurchase(Guid user, long total)
         => _open && total > 0 ? new(_scope, _run, [Guid.NewGuid()], total, user, 0) : null;
 
     public IDisposable SpawnPurchaseScope(RecoveryPayment? payment)
@@ -47,7 +47,7 @@ public sealed partial class CrashRecoverySystem
         return new(_scope, _run, items.Select(uid => EnsureComp<RecoveryIdentityComponent>(uid).Identity).ToArray());
     }
 
-    public RecoveryPayment? BeginPurchase(EntityUid buyer, int total, int quantity = 1, int[]? unitPrices = null)
+    public RecoveryPayment? BeginPurchase(EntityUid buyer, long total, int quantity = 1, long[]? unitPrices = null)
     {
         if (!_open || _closing || total <= 0 || quantity is < 1 or > 8192 || !TryComp<RecoveryBodyComponent>(buyer, out var body)) return null;
         return new(_scope, _run, Enumerable.Range(0, quantity).Select(_ => Guid.NewGuid()).ToArray(), total, body.User, body.Profile, unitPrices);

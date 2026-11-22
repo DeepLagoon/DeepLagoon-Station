@@ -274,10 +274,85 @@ public sealed class CurrencyDatabaseTests
         Assert.That(page1.All(r => r.Amount != 0), Is.True);
     }
 
-    private async Task SaveBank(Guid user, int balance, int slot = 0)
+    private async Task SaveBank(Guid user, long balance, int slot = 0)
     {
         var backend = new ServerDbSqlite(() => _options, true, Mock.Of<IConfigurationManager>(), true, Mock.Of<ISawmill>());
         await backend.SaveCharacterSlotAsync(new NetUserId(user), new HumanoidCharacterProfile().WithBankBalance(balance), slot);
+    }
+
+    [TestCase(3_000_000_000L)]
+    [TestCase(9_007_199_254_740_993L)]
+    public async Task LargeBankPaymentsTransfersAndAuditSurviveReload(long initial)
+    {
+        await SaveBank(_user, initial);
+        await SaveBank(_recipient, 4_000_000_000L);
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.That(await AccountCurrencyOperations.DepositBank(db, _user, 0, initial, 5_000_000_000L,
+                origins: [new SpawnedCashSource(_user, "Spawner", 5_000_000_000L)]), Is.EqualTo(initial + 5_000_000_000L));
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.That(await AccountCurrencyOperations.WithdrawBank(db, _user, 0, initial + 5_000_000_000L, 3_000_000_000L),
+                Is.EqualTo(initial + 2_000_000_000L));
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.That(await AccountCurrencyOperations.TransferBank(db, _user, 0, initial + 2_000_000_000L,
+                _recipient, 0, 4_000_000_000L, 4_000_000_000L), Is.EqualTo(new BankTransfer(initial - 2_000_000_000L, 8_000_000_000L)));
+
+        await using var read = new SqliteServerDbContext(_options);
+        Assert.That((await read.Profile.SingleAsync(p => p.Preference.UserId == _user)).BankBalance, Is.EqualTo(initial - 2_000_000_000L));
+        Assert.That((await read.Profile.SingleAsync(p => p.Preference.UserId == _recipient)).BankBalance, Is.EqualTo(8_000_000_000L));
+        var transfer = await read.BankFinancialOperations.SingleAsync(p => p.Kind == "bank_transfer");
+        Assert.That((transfer.Amount, transfer.Balance, transfer.RecipientBalance),
+            Is.EqualTo((4_000_000_000L, initial - 2_000_000_000L, (long?)8_000_000_000L)));
+        var deposit = await read.BankFinancialOperations.SingleAsync(p => p.Kind == "bank_deposit");
+        Assert.That(System.Text.Json.JsonSerializer.Deserialize<SpawnedCashSource[]>(deposit.OriginJson!)!.Single().Amount,
+            Is.EqualTo(5_000_000_000L));
+        var backend = new ServerDbSqlite(() => _options, true, Mock.Of<IConfigurationManager>(), true, Mock.Of<ISawmill>());
+        var prefs = await backend.GetPlayerPreferencesAsync(new NetUserId(_user), default);
+        Assert.That(((HumanoidCharacterProfile)prefs!.SelectedCharacter).BankBalance, Is.EqualTo(initial - 2_000_000_000L));
+    }
+
+    [Test]
+    public async Task BankMigrationPreservesExistingSavingsAndRefusesUnsafeRollback()
+    {
+        await using (var old = new SqliteServerDbContext(_options))
+            await old.GetService<IMigrator>().MigrateAsync("20261116122000_StartingHandAssignments");
+        await SaveBank(_user, int.MaxValue);
+        var transaction = Guid.NewGuid();
+        await using (var old = new SqliteServerDbContext(_options))
+        {
+            old.BankFinancialOperations.Add(new BankFinancialOperation
+            {
+                TransactionId = transaction, CreatedAt = DateTime.UtcNow, UserId = _user, Character = "Existing",
+                Kind = "bank_transfer", Amount = int.MaxValue, Balance = int.MaxValue, RecipientBalance = int.MaxValue,
+            });
+            await old.SaveChangesAsync();
+            await old.Database.MigrateAsync();
+        }
+        await using (var upgraded = new SqliteServerDbContext(_options))
+        {
+            Assert.That((await upgraded.Profile.SingleAsync()).BankBalance, Is.EqualTo(int.MaxValue));
+            var history = await upgraded.BankFinancialOperations.SingleAsync(p => p.TransactionId == transaction);
+            Assert.That((history.Amount, history.Balance, history.RecipientBalance),
+                Is.EqualTo(((long)int.MaxValue, (long)int.MaxValue, (long?)int.MaxValue)));
+            await AccountCurrencyOperations.DepositBank(upgraded, _user, 0, int.MaxValue, 3_000_000_000L);
+        }
+        await using (var rollback = new SqliteServerDbContext(_options))
+            Assert.ThrowsAsync<SqliteException>(() => rollback.GetService<IMigrator>().MigrateAsync("20261116122000_StartingHandAssignments"));
+        await using var read = new SqliteServerDbContext(_options);
+        Assert.That((await read.Profile.SingleAsync()).BankBalance, Is.EqualTo(int.MaxValue + 3_000_000_000L));
+        Assert.That(await read.BankFinancialOperations.CountAsync(), Is.EqualTo(2));
+        Assert.That(await read.Database.GetAppliedMigrationsAsync(), Does.Contain("20261122120000_BankAmounts64Bit"));
+    }
+
+    [Test]
+    public void PostgresBankMigrationWidensEveryStoredBankAmount()
+    {
+        using var db = new PostgresServerDbContext(new DbContextOptionsBuilder<PostgresServerDbContext>()
+            .UseNpgsql("Host=localhost;Database=unused;Username=unused").Options);
+        var sql = db.GetService<IMigrator>().GenerateScript("20261116122000_StartingHandAssignments", "20261122120000_BankAmounts64Bit");
+        foreach (var column in new[] { "bank_balance", "amount", "balance", "recipient_balance" })
+            Assert.That(sql, Does.Contain($"ALTER COLUMN {column} TYPE bigint"));
+        Assert.That(sql, Does.Not.Contain("DROP TABLE"));
+        Assert.That(db.Database.HasPendingModelChanges(), Is.False);
     }
 
     [Test]
@@ -324,16 +399,16 @@ public sealed class CurrencyDatabaseTests
     public async Task FailedTransferAndOverflowLeaveBothCharacterAccountsUnchanged()
     {
         await SaveBank(_user, 10);
-        await SaveBank(_recipient, int.MaxValue);
+        await SaveBank(_recipient, long.MaxValue);
         await using (var db = new SqliteServerDbContext(_options))
-            Assert.ThrowsAsync<OverflowException>(() => AccountCurrencyOperations.TransferBank(db, _user, 0, 10, _recipient, 0, int.MaxValue, 1));
+            Assert.ThrowsAsync<OverflowException>(() => AccountCurrencyOperations.TransferBank(db, _user, 0, 10, _recipient, 0, long.MaxValue, 1));
         await using (var db = new SqliteServerDbContext(_options))
-            Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.TransferBank(db, _user, 0, 10, _recipient, 0, int.MaxValue, 11));
+            Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.TransferBank(db, _user, 0, 10, _recipient, 0, long.MaxValue, 11));
         await using (var db = new SqliteServerDbContext(_options))
             Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.TransferBank(db, _user, 0, 10, Guid.NewGuid(), 0, 0, 1));
         await using var read = new SqliteServerDbContext(_options);
         Assert.That((await read.Profile.SingleAsync(p => p.Preference.UserId == _user)).BankBalance, Is.EqualTo(10));
-        Assert.That((await read.Profile.SingleAsync(p => p.Preference.UserId == _recipient)).BankBalance, Is.EqualTo(int.MaxValue));
+        Assert.That((await read.Profile.SingleAsync(p => p.Preference.UserId == _recipient)).BankBalance, Is.EqualTo(long.MaxValue));
     }
 
     [TestCase(0)]
@@ -385,7 +460,7 @@ public sealed class CurrencyDatabaseTests
         await using (var db = new SqliteServerDbContext(_options))
             Assert.That(await AccountCurrencyOperations.DepositBank(db, _user, 0, 7, 9), Is.EqualTo(16));
         await using (var db = new SqliteServerDbContext(_options))
-            Assert.ThrowsAsync<OverflowException>(() => AccountCurrencyOperations.DepositBank(db, _user, 0, 16, int.MaxValue));
+            Assert.ThrowsAsync<OverflowException>(() => AccountCurrencyOperations.DepositBank(db, _user, 0, 16, long.MaxValue));
         await using (var db = new SqliteServerDbContext(_options))
             Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.DepositBank(db, _user, 0, 7, 9));
         await using var read = new SqliteServerDbContext(_options);

@@ -8,24 +8,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Content.Server.Database;
 
-public sealed record SpawnedCashSource(Guid PlayerId, string PlayerName, int Amount);
+public sealed record SpawnedCashSource(Guid PlayerId, string PlayerName, long Amount);
 
 public sealed class BankFinancialOperation
 {
     public Guid TransactionId { get; set; }
     public DateTime CreatedAt { get; set; }
     public string Kind { get; set; } = "";
-    public int Amount { get; set; }
+    public long Amount { get; set; }
     public Guid UserId { get; set; }
     public string Character { get; set; } = "";
-    public int Balance { get; set; }
+    public long Balance { get; set; }
     public Guid? RecipientId { get; set; }
     public string? RecipientCharacter { get; set; }
-    public int? RecipientBalance { get; set; }
+    public long? RecipientBalance { get; set; }
     public string? OriginJson { get; set; }
     public bool Delivered { get; set; }
 
-    internal static Guid Record(ServerDbContext db, Guid userId, Profile profile, int amount, string kind,
+    internal static Guid Record(ServerDbContext db, Guid userId, Profile profile, long amount, string kind,
         IReadOnlyList<SpawnedCashSource>? origins = null, Guid? recipientId = null, Profile? recipient = null)
     {
         var id = Guid.NewGuid();

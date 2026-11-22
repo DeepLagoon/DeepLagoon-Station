@@ -19,7 +19,7 @@ public sealed record PlayerInfo(
     bool Connected,
     bool ActiveThisRound,
     TimeSpan? OverallPlaytime,
-    int Balance) // Frontier
+    long Balance) // Frontier
 {
     private string? _playtimeString;
 

@@ -10,10 +10,10 @@ namespace Content.Shared._NF.Bank.Events;
 public sealed class StationBankDepositMessage : BoundUserInterfaceMessage
 {
     //amount to deposit. validation is happening server side but we still need client input from a text field.
-    public int Amount;
+    public long Amount;
     public string? Reason;
     public string? Description;
-    public StationBankDepositMessage(int amount, string? reason, string? description)
+    public StationBankDepositMessage(long amount, string? reason, string? description)
     {
         Amount = amount;
         Reason = reason;

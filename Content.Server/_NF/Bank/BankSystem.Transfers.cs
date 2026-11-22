@@ -10,7 +10,7 @@ namespace Content.Server._NF.Bank;
 
 public sealed partial class BankSystem
 {
-    public ParkingCredit? CreditParkingSale(NetUserId user, int character, int amount, Guid operation)
+    public ParkingCredit? CreditParkingSale(NetUserId user, int character, long amount, Guid operation)
     {
         if (!_bankPayments.Add(user))
             return null;
@@ -41,7 +41,7 @@ public sealed partial class BankSystem
         }
     }
 
-    public bool TryTransfer(ICommonSession sender, ICommonSession recipient, int amount, out BankTransfer result)
+    public bool TryTransfer(ICommonSession sender, ICommonSession recipient, long amount, out BankTransfer result)
     {
         result = default;
         if (amount <= 0 || sender.UserId == recipient.UserId ||
@@ -84,7 +84,7 @@ public sealed partial class BankSystem
         }
     }
 
-    private void PublishTransferBalance(ICommonSession session, int slot, HumanoidCharacterProfile profile, int balance)
+    private void PublishTransferBalance(ICommonSession session, int slot, HumanoidCharacterProfile profile, long balance)
     {
         try
         {

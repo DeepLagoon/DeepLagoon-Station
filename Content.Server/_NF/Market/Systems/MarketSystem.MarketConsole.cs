@@ -368,7 +368,7 @@ public sealed partial class MarketSystem
 
     private void RefreshState(
         EntityUid consoleUid,
-        int balance,
+        long balance,
         float marketMultiplier,
         MarketConsoleComponent? component
     )

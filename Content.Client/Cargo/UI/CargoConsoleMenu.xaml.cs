@@ -192,7 +192,7 @@ namespace Content.Client.Cargo.UI
             ShuttleCapacityLabel.Text = $"{count}/{capacity}";
         }
 
-        public void UpdateBankData(string name, int bankBalance)
+        public void UpdateBankData(string name, long bankBalance)
         {
             AccountNameLabel.Text = name;
             PointsLabel.Text = BankSystemExtensions.ToSpesoString(bankBalance);

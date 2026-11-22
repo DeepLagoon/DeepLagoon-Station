@@ -71,7 +71,7 @@ namespace Content.Server.Cargo.Systems
                 return;
 
             _audio.PlayPvs(component.ConfirmSound, uid);
-            UpdateBankAccount(stationUid.Value, bank, (int) price);
+            UpdateBankAccount(stationUid.Value, bank, checked((long) price));
             QueueDel(args.Used);
             args.Handled = true;
         }
@@ -427,7 +427,7 @@ namespace Content.Server.Cargo.Systems
             var uiUsers = _uiSystem.GetActors((uid, null), CargoConsoleUiKey.Orders);
             foreach (var user in uiUsers)
             {
-                var balance = 0;
+                long balance = 0;
 
                 if (TryComp<BankAccountComponent>(user, out var playerBank))
                 {

@@ -78,10 +78,10 @@ public sealed partial class MarketSystem
             return;
 
         // Withdraw spesos from player
-        var spawnCost = int.Abs(MarketDataExtensions.GetMarketValue(consoleComponent.CartDataList, marketMod));
+        var spawnCost = Math.Abs(cartBalance);
         var recovery = EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>();
         if (!recovery.CanProtectBuyer(player)) return;
-        var recoveryPrices = new List<int>();
+        var recoveryPrices = new List<long>();
         foreach (var lot in consoleComponent.CartDataList)
         {
             var stack = GetMarketStack(lot);
@@ -92,7 +92,7 @@ public sealed partial class MarketSystem
                 perStack = _stackSystem.GetMaxCount(componentStack);
             }
             var count = stack != null ? (lot.Quantity - 1) / Math.Max(1, perStack) + 1 : lot.Quantity;
-            var lotCost = (int)Math.Round(lot.Price * lot.Quantity * marketMod);
+            var lotCost = checked((long)Math.Round(lot.Price * lot.Quantity * marketMod));
             for (var i = 0; i < count; i++) recoveryPrices.Add(lotCost / count + (i < lotCost % count ? 1 : 0));
         }
         var recoveryPayment = recovery.BeginPurchase(player, spawnCost, recoveryPrices.Count, recoveryPrices.ToArray());

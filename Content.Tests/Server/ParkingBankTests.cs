@@ -46,7 +46,7 @@ public sealed class ParkingBankTests
     public async Task ConcurrentRetriesChargeOnceAndReceiptSurvivesContextRestart()
     {
         var key = Guid.NewGuid();
-        async Task<int> Debit()
+        async Task<long> Debit()
         {
             await using var db = new SqliteServerDbContext(_options);
             return await ParkingBankOperations.Debit(db, _user, 0, 204333, key);
@@ -76,6 +76,23 @@ public sealed class ParkingBankTests
         await using var read = new SqliteServerDbContext(_options);
         Assert.That((await read.Profile.SingleAsync()).BankBalance, Is.EqualTo(812345));
         Assert.That(await read.LagoonEconomyRecords.CountAsync(p => p.Id.StartsWith("parking-sale:")), Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task LargeParkingReceiptsPreserveAmountsAcrossRetries()
+    {
+        var creditKey = Guid.NewGuid();
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.That((await ParkingBankOperations.Credit(db, _user, 0, 5_000_000_000L, creditKey)).Balance, Is.EqualTo(5_000_800_000L));
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.That((await ParkingBankOperations.Credit(db, _user, 0, 5_000_000_000L, creditKey)).Balance, Is.EqualTo(5_000_800_000L));
+        var debitKey = Guid.NewGuid();
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.That(await ParkingBankOperations.Debit(db, _user, 0, 3_000_000_000L, debitKey), Is.EqualTo(2_000_800_000L));
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.That(await ParkingBankOperations.Debit(db, _user, 0, 3_000_000_000L, debitKey), Is.EqualTo(2_000_800_000L));
+        await using var read = new SqliteServerDbContext(_options);
+        Assert.That(await read.BankFinancialOperations.CountAsync(), Is.EqualTo(2));
     }
 
     [Test]

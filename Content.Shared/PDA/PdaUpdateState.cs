@@ -16,7 +16,7 @@ namespace Content.Shared.PDA
         public bool HasUplink;
         public bool CanPlayMusic;
         public string? Address;
-        public int Balance; // Frontier
+        public long Balance; // Frontier
         public string? OwnedShipName; // Frontier
 
         public PdaUpdateState(
@@ -26,7 +26,7 @@ namespace Content.Shared.PDA
             bool hasPen,
             bool hasPai,
             PdaIdInfoText pdaOwnerInfo,
-            int balance, // Frontier
+            long balance, // Frontier
             string? ownedShipName, // Frontier
             string? stationName,
             bool hasUplink = false,

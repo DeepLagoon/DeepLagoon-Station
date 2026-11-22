@@ -16,14 +16,14 @@ public sealed record RecoveryAsset(
     RecoveryLocation Location, Guid? Parent, string[] BodyPath, string Data,
     string Kind = "item", int Amount = 0, Guid Purchase = default, Guid? ContainerStore = null);
 
-public sealed record RecoveryPurchase(Guid Identity, Guid User, int Profile, int Amount,
+public sealed record RecoveryPurchase(Guid Identity, Guid User, int Profile, long Amount,
     Guid[] Products, string State = "paid", Guid BankTransaction = default);
 
 public sealed record RecoveryRun(Guid Identity, string State, DateTime Heartbeat, int Round = 0);
 public sealed record RecoveryIncident(RecoveryRun Run, RecoveryAsset[] Assets, RecoveryPurchase[] Purchases);
 public sealed record RecoveryBoot(RecoveryIncident[] Incidents);
-public sealed record RecoveryClaim(int Balance, RecoveryAsset[] Assets);
-public sealed record RecoveryPayment(string Scope, Guid Run, Guid[] Products, int Total, Guid User, int Profile, int[]? UnitPrices = null);
+public sealed record RecoveryClaim(long Balance, RecoveryAsset[] Assets);
+public sealed record RecoveryPayment(string Scope, Guid Run, Guid[] Products, long Total, Guid User, int Profile, long[]? UnitPrices = null);
 public sealed record RecoveryRemoval(string Scope, Guid Run, Guid[] Items);
 
 /// <summary>

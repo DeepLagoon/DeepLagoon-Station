@@ -10,5 +10,5 @@ public sealed partial class BankAccountComponent : Component
     // Should not be modified directly, may be out-of-date.
     [DataField, Access(typeof(SharedBankSystem))]
     [AutoNetworkedField]
-    public int Balance;
+    public long Balance;
 }

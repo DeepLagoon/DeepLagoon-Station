@@ -44,7 +44,7 @@ public sealed partial class BankCommand : IConsoleCommand
         var target = args[0];
         var bankSystem = _entitySystemManager.GetEntitySystem<BankSystem>();
 
-        if (!int.TryParse(args[1], out var amount))
+        if (!long.TryParse(args[1], out var amount) || amount == long.MinValue)
         {
             shell.WriteError("Amount must be a valid number.");
             return;
@@ -100,7 +100,7 @@ public sealed partial class BankCommand : IConsoleCommand
         shell.WriteError($"Unable to find player or character '{target}'.");
     }
 
-    private async Task HandleOnlinePlayer(IConsoleShell shell, ICommonSession targetSession, int amount, string target)
+    private async Task HandleOnlinePlayer(IConsoleShell shell, ICommonSession targetSession, long amount, string target)
     {
         var bankSystem = _entitySystemManager.GetEntitySystem<BankSystem>();
 
@@ -126,7 +126,7 @@ public sealed partial class BankCommand : IConsoleCommand
         }
 
         bool success;
-        int? newBalance = null;
+        long? newBalance = null;
 
         // Check if player is currently in-game with an entity
         EntityUid? playerEntity = targetSession.AttachedEntity;
@@ -140,7 +140,7 @@ public sealed partial class BankCommand : IConsoleCommand
                 if (success)
                 {
                     // Get updated balance after deposit
-                    success = bankSystem.TryGetBalance(targetSession, out int updatedBalance);
+                    success = bankSystem.TryGetBalance(targetSession, out long updatedBalance);
                     if (success)
                         newBalance = updatedBalance;
                 }
@@ -151,7 +151,7 @@ public sealed partial class BankCommand : IConsoleCommand
                 if (success)
                 {
                     // Get updated balance after withdrawal
-                    success = bankSystem.TryGetBalance(targetSession, out int updatedBalance);
+                    success = bankSystem.TryGetBalance(targetSession, out long updatedBalance);
                     if (success)
                         newBalance = updatedBalance;
                 }
@@ -194,7 +194,7 @@ public sealed partial class BankCommand : IConsoleCommand
             : $"Removed {Math.Abs(amount)} from player '{target}' balance. New balance: {newBalance.Value}");
     }
 
-    private async Task HandleOfflinePlayer(IConsoleShell shell, NetUserId userId, PlayerPreferences prefs, HumanoidCharacterProfile profile, int amount, string target)
+    private async Task HandleOfflinePlayer(IConsoleShell shell, NetUserId userId, PlayerPreferences prefs, HumanoidCharacterProfile profile, long amount, string target)
     {
         var bankSystem = _entitySystemManager.GetEntitySystem<BankSystem>();
         var currentBalance = profile.BankBalance;
@@ -213,7 +213,7 @@ public sealed partial class BankCommand : IConsoleCommand
         }
 
         bool success;
-        int? newBalance = null;
+        long? newBalance = null;
 
         // Use the new offline bank methods
         if (amount > 0)

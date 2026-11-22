@@ -14,12 +14,12 @@ public sealed partial class StationAdminConsoleMenu : FancyWindow
     public string? WithdrawalReason;
     public string? WithdrawalDescription;
     private readonly List<string> _withdrawalReasonStrings = new();
-    public int WithdrawalAmount;
+    public long WithdrawalAmount;
     public Action? DepositRequest;
     public string? DepositReason;
     public string? DepositDescription;
     private readonly List<string> _depositReasonStrings = new();
-    public int DepositAmount;
+    public long DepositAmount;
     public bool Enabled;
 
     public static (string, string)[] WithdrawalReasonArray = {
@@ -87,12 +87,12 @@ public sealed partial class StationAdminConsoleMenu : FancyWindow
         DepositDescription = args.Text;
         UpdateDepositButtonStatus();
     }
-    public void SetBalance(int amount)
+    public void SetBalance(long amount)
     {
         BalanceLabel.Text = BankSystemExtensions.ToSpesoString(amount);
     }
 
-    public void SetDeposit(int amount)
+    public void SetDeposit(long amount)
     {
         if (amount >= 0) // Valid
             DepositLabel.Text = BankSystemExtensions.ToSpesoString(amount);
@@ -131,7 +131,7 @@ public sealed partial class StationAdminConsoleMenu : FancyWindow
 
     private void OnWithdrawalAmountChanged(LineEdit.LineEditEventArgs args)
     {
-        if (int.TryParse(args.Text, out var amount))
+        if (long.TryParse(args.Text, out var amount) && amount is > 0 and <= int.MaxValue)
             WithdrawalAmount = amount;
         else
             WithdrawalAmount = 0;

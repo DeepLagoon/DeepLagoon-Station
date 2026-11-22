@@ -17,7 +17,7 @@ public sealed partial class BankSystem : SharedBankSystem
 
     // Adds an entry to the ledger.
     // Only positive amounts are added.
-    public void AddLedgerEntry(SectorBankAccount account, LedgerEntryType entryType, int amount)
+    public void AddLedgerEntry(SectorBankAccount account, LedgerEntryType entryType, long amount)
     {
         if (amount <= 0)
             return;
@@ -34,10 +34,10 @@ public sealed partial class BankSystem : SharedBankSystem
 
     sealed class AccountInfo
     {
-        public int TotalIncome;
-        public int TotalExpenses;
-        public List<(LedgerEntryType Type, int Value)> Income = new();
-        public List<(LedgerEntryType Type, int Value)> Expenses = new();
+        public long TotalIncome;
+        public long TotalExpenses;
+        public List<(LedgerEntryType Type, long Value)> Income = new();
+        public List<(LedgerEntryType Type, long Value)> Expenses = new();
     }
 
     public string GetLedgerPrintout()

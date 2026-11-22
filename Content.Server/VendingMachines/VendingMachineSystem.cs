@@ -349,13 +349,13 @@ namespace Content.Server.VendingMachines
 
             if (IsAuthorized(uid, sender, component))
             {
-                int bankBalance = 0;
+                long bankBalance = 0;
                 if (!HasComp<IronmanComponent>(sender) && TryComp<BankAccountComponent>(sender, out var bank))
                     bankBalance = bank.Balance;
 
                 _cash.TryGetCash(uid, out _, out var cashSlotBalance); //Mono: Moved this logic to CreditReceiverSystem
 
-                if (totalPrice > (long)bankBalance + cashSlotBalance)
+                if (totalPrice > bankBalance && totalPrice - bankBalance > cashSlotBalance)
                 {
                     _popupSystem.PopupEntity(Loc.GetString("bank-insufficient-funds"), uid);
                     Deny(uid, component);

@@ -469,7 +469,7 @@ namespace Content.Server.Database
         public string BodyFeaturesJson { get; set; } = "[]";
         public bool PlantigradeLegs { get; set; }
         public int Age { get; set; }
-        public int BankBalance { get; set; }
+        public long BankBalance { get; set; }
         public string Sex { get; set; } = null!;
         public string Gender { get; set; } = null!;
         public string Species { get; set; } = null!;

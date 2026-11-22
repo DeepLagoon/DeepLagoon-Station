@@ -49,6 +49,14 @@ public sealed partial class BankSystem
         if (args.Actor is not { Valid : true } player)
             return;
 
+        // Cash stack quantities remain Int32; reject before charging the account.
+        if (args.Amount is <= 0 or > int.MaxValue)
+        {
+            ConsolePopup(player, Loc.GetString("bank-atm-menu-invalid-withdrawal"));
+            PlayDenySound(uid, component);
+            return;
+        }
+
         // to keep the window stateful
         GetInsertedCashAmount(component, out var deposit);
 
@@ -96,7 +104,7 @@ public sealed partial class BankSystem
 
         //spawn the cash stack of whatever cash type the ATM is configured to.
         var stackPrototype = _prototypeManager.Index<StackPrototype>(component.CashType);
-        var cash = _stackSystem.Spawn(args.Amount, stackPrototype, uid.ToCoordinates());
+        var cash = _stackSystem.Spawn((int) args.Amount, stackPrototype, uid.ToCoordinates());
         recovery.AttachPurchase(cash, conversion);
         recovery.BindPurchasedProduct(cash, cash);
 

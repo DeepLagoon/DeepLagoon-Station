@@ -77,7 +77,7 @@ namespace Content.Server._NF.Bank.Commands
             shell.WriteLine($"Could not find bank account for player {username}.");
         }
 
-        private bool TryGetOfflinePlayerBalance(string username, out int balance)
+        private bool TryGetOfflinePlayerBalance(string username, out long balance)
         {
             balance = 0;
 

@@ -62,9 +62,9 @@ public sealed partial class NFAdventureRuleSystem : GameRuleSystem<NFAdventureRu
     public sealed class PlayerRoundBankInformation
     {
         // Initial balance, obtained on spawn
-        public int StartBalance;
+        public long StartBalance;
         // Ending balance, obtained on game end or detach (NOTE: multiple detaches possible), whichever happens first.
-        public int EndBalance;
+        public long EndBalance;
         // Entity name: used for display purposes ("The Feel of Fresh Bills earned 100,000 spesos")
         public string Name;
         // User ID: used to validate incoming information.
@@ -72,7 +72,7 @@ public sealed partial class NFAdventureRuleSystem : GameRuleSystem<NFAdventureRu
         public NetUserId UserId;
         public int Character;
 
-        public PlayerRoundBankInformation(int startBalance, string name, NetUserId userId, int character)
+        public PlayerRoundBankInformation(long startBalance, string name, NetUserId userId, int character)
         {
             StartBalance = startBalance;
             EndBalance = -1;
@@ -272,7 +272,7 @@ public sealed partial class NFAdventureRuleSystem : GameRuleSystem<NFAdventureRu
         _players.Clear();
     }
 
-    public void RecordParkingBalance(NetUserId user, int character, int balance)
+    public void RecordParkingBalance(NetUserId user, int character, long balance)
     {
         foreach (var info in _players.Values)
             if (info.UserId == user && info.Character == character)
@@ -524,9 +524,9 @@ public sealed partial class NFAdventureRuleSystem : GameRuleSystem<NFAdventureRu
 public record struct BankData
 {
     public string PlayerName { get; set; }
-    public int Profit { get; set; }
+    public long Profit { get; set; }
 
-    public BankData(string playerName, int profit)
+    public BankData(string playerName, long profit)
     {
         PlayerName = playerName;
         Profit = profit;

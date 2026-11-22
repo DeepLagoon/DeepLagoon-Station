@@ -99,6 +99,28 @@ public sealed class CrashRecoveryTests
     }
 
     [Test]
+    public async Task LargeUndeliveredPurchaseRefundsOnceWithoutNarrowing()
+    {
+        await using (var db = Db())
+            await AccountCurrencyOperations.DepositBank(db, _user, 0, 1000, 8_000_000_000L);
+        var incident = Guid.NewGuid(); var current = Guid.NewGuid(); var product = Guid.NewGuid();
+        await using (var db = Db()) await CrashRecoveryOperations.Boot(db, "test", incident, _now);
+        await using (var db = Db())
+            await AccountCurrencyOperations.WithdrawBank(db, _user, 0, 8_000_001_000L, 5_000_000_000L,
+                recovery: new RecoveryPayment("test", incident, [product], 5_000_000_000L, _user, _profile, [5_000_000_000L]));
+        await using (var db = Db()) await CrashRecoveryOperations.Boot(db, "test", current, _now.AddMinutes(1));
+        for (var i = 0; i < 2; i++)
+        {
+            await using var db = Db();
+            var result = await CrashRecoveryOperations.Claim(db, "test", incident, current, _user, _profile, [], [product]);
+            Assert.That(result.Balance, Is.EqualTo(8_000_001_000L));
+        }
+        await using var read = Db();
+        var refund = await read.BankFinancialOperations.SingleAsync(t => t.Kind == "bank_crash_refund");
+        Assert.That((refund.Amount, refund.Balance), Is.EqualTo((5_000_000_000L, 8_000_001_000L)));
+    }
+
+    [Test]
     public async Task PaidButUndeliveredPurchaseRefundsExactlyOnce()
     {
         var incident = Guid.NewGuid(); var current = Guid.NewGuid(); var product = Guid.NewGuid();

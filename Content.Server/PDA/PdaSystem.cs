@@ -234,7 +234,7 @@ namespace Content.Server.PDA
 
             var programs = _cartridgeLoader.GetAvailablePrograms(uid, loader);
             var id = CompOrNull<IdCardComponent>(pda.ContainedId);
-            var balance = 0; // frontier
+            long balance = 0; // frontier
             if (actor_uid != null && TryComp<BankAccountComponent>(actor_uid, out var account)) // frontier
                 balance = account.Balance; // frontier
             var ownedShipName = ""; // Frontier

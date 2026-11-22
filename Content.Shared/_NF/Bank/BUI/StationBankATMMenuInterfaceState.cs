@@ -13,7 +13,7 @@ public sealed class StationBankATMMenuInterfaceState : BoundUserInterfaceState
     /// <summary>
     /// bank balance of the character using the atm
     /// </summary>
-    public int Balance;
+    public long Balance;
 
     /// <summary>
     /// are the buttons enabled
@@ -25,7 +25,7 @@ public sealed class StationBankATMMenuInterfaceState : BoundUserInterfaceState
     /// </summary>
     public int Deposit;
 
-    public StationBankATMMenuInterfaceState(int balance, bool enabled, int deposit)
+    public StationBankATMMenuInterfaceState(long balance, bool enabled, int deposit)
     {
         Balance = balance;
         Enabled = enabled;

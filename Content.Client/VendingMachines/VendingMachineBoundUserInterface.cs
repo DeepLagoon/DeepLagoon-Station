@@ -26,7 +26,7 @@ namespace Content.Client.VendingMachines
         [ViewVariables]
         private float _mod = 1f;
         [ViewVariables]
-        private int _balance = 0;
+        private long _balance = 0;
         [ViewVariables]
         private int _cashSlotBalance = 0;
         // End Frontier

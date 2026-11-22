@@ -12,7 +12,7 @@ public sealed partial class ShipyardConsoleBoundUserInterface : BoundUserInterfa
     private ShipyardConsoleMenu? _menu;
     private ShipyardRulesPopup? _rulesWindow;
     [Dependency] private ShipyardPreviewSystem _preview = default!;
-    public int Balance { get; private set; }
+    public long Balance { get; private set; }
 
     public int? ShipSellValue { get; private set; }
 

@@ -12,7 +12,7 @@ public sealed class MarketConsoleBoundUserInterface : BoundUserInterface
     private MarketMenu? _menu;
 
     [ViewVariables]
-    public int BankBalance { get; private set; }
+    public long BankBalance { get; private set; }
 
     public MarketConsoleBoundUserInterface(EntityUid owner, Enum uiKey) : base(owner, uiKey) { }
 

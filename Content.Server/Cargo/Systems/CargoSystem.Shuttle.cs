@@ -586,32 +586,32 @@ public sealed partial class CargoSystem
         // End Frontier: market modifiers & immune objects
         // Mono Begin
         if (blackMarketTaxAmount > 0)
-            _bank.TrySectorDeposit(SectorBankAccount.BlackMarket, (int)blackMarketTaxAmount, LedgerEntryType.BlackMarketSales);
+            _bank.TrySectorDeposit(SectorBankAccount.BlackMarket, checked((long)blackMarketTaxAmount), LedgerEntryType.BlackMarketSales);
         if (frontierTaxAmount > 0)
-            _bank.TrySectorDeposit(SectorBankAccount.Frontier, (int)frontierTaxAmount, LedgerEntryType.ColonialOutpostSales);
+            _bank.TrySectorDeposit(SectorBankAccount.Frontier, checked((long)frontierTaxAmount), LedgerEntryType.ColonialOutpostSales);
         if (nfsdTaxAmount > 0)
-            _bank.TrySectorDeposit(SectorBankAccount.Nfsd, (int)nfsdTaxAmount, LedgerEntryType.TSFMCSales);
+            _bank.TrySectorDeposit(SectorBankAccount.Nfsd, checked((long)nfsdTaxAmount), LedgerEntryType.TSFMCSales);
         if (medicalTaxAmount > 0)
-            _bank.TrySectorDeposit(SectorBankAccount.Medical, (int)medicalTaxAmount, LedgerEntryType.MedicalSales);
+            _bank.TrySectorDeposit(SectorBankAccount.Medical, checked((long)medicalTaxAmount), LedgerEntryType.MedicalSales);
         if (blackMarketTaxAmount < 0)
         {
             blackMarketTaxAmount = -blackMarketTaxAmount;
-            _bank.TrySectorWithdraw(SectorBankAccount.BlackMarket, (int)blackMarketTaxAmount, LedgerEntryType.BlackMarketPenalties);
+            _bank.TrySectorWithdraw(SectorBankAccount.BlackMarket, checked((long)blackMarketTaxAmount), LedgerEntryType.BlackMarketPenalties);
         }
         if (frontierTaxAmount < 0)
         {
             frontierTaxAmount = -frontierTaxAmount;
-            _bank.TrySectorWithdraw(SectorBankAccount.Frontier, (int)frontierTaxAmount, LedgerEntryType.ColonialOutpostPenalties);
+            _bank.TrySectorWithdraw(SectorBankAccount.Frontier, checked((long)frontierTaxAmount), LedgerEntryType.ColonialOutpostPenalties);
         }
         if (nfsdTaxAmount < 0)
         {
             nfsdTaxAmount = -nfsdTaxAmount;
-            _bank.TrySectorWithdraw(SectorBankAccount.Nfsd, (int)nfsdTaxAmount, LedgerEntryType.TSFMCPenalties);
+            _bank.TrySectorWithdraw(SectorBankAccount.Nfsd, checked((long)nfsdTaxAmount), LedgerEntryType.TSFMCPenalties);
         }
         if (medicalTaxAmount < 0)
         {
             medicalTaxAmount = -medicalTaxAmount;
-            _bank.TrySectorWithdraw(SectorBankAccount.Medical, (int)medicalTaxAmount, LedgerEntryType.MedicalPenalties);
+            _bank.TrySectorWithdraw(SectorBankAccount.Medical, checked((long)medicalTaxAmount), LedgerEntryType.MedicalPenalties);
         }
 
         // Faction currency injections

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Content.Server.Database;
 
-public readonly record struct BankTransfer(int SenderBalance, int RecipientBalance);
+public readonly record struct BankTransfer(long SenderBalance, long RecipientBalance);
 public readonly record struct LagoonCoinResult(long Balance, long Awarded, bool Applied);
 public readonly record struct LagoonCoinTransfer(long SenderBalance, long RecipientBalance, bool Applied);
 
@@ -69,7 +69,7 @@ public static class AccountCurrencyOperations
             throw new InvalidOperationException("Player preferences do not exist.");
     }
 
-    public static async Task<int> WithdrawBank(ServerDbContext db, Guid user, int slot, int expectedBalance, int amount,
+    public static async Task<long> WithdrawBank(ServerDbContext db, Guid user, int slot, long expectedBalance, long amount,
         CancellationToken cancel = default, RecoveryPayment? recovery = null)
     {
         if (amount <= 0 || expectedBalance < amount)
@@ -88,7 +88,7 @@ public static class AccountCurrencyOperations
     }
 
     public static async Task<BankTransfer> TransferBank(ServerDbContext db, Guid sender, int senderSlot,
-        int senderBalance, Guid recipient, int recipientSlot, int recipientBalance, int amount,
+        long senderBalance, Guid recipient, int recipientSlot, long recipientBalance, long amount,
         CancellationToken cancel = default)
     {
         if (sender == recipient || amount <= 0)
@@ -112,8 +112,8 @@ public static class AccountCurrencyOperations
         return new BankTransfer(from.BankBalance, to.BankBalance);
     }
 
-    public static async Task<int> DepositBank(ServerDbContext db, Guid user, int profileSlot,
-        int expectedBankBalance, int amount, CancellationToken cancel = default,
+    public static async Task<long> DepositBank(ServerDbContext db, Guid user, int profileSlot,
+        long expectedBankBalance, long amount, CancellationToken cancel = default,
         IReadOnlyList<SpawnedCashSource>? origins = null, RecoveryRemoval? recovery = null)
     {
         if (amount <= 0 || expectedBankBalance < 0)

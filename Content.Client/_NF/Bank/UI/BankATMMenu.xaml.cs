@@ -12,7 +12,7 @@ public sealed partial class BankATMMenu : FancyWindow
 
     public Action? WithdrawRequest;
     public Action? DepositRequest;
-    public int Amount;
+    public long Amount;
     public BankATMMenu()
     {
         RobustXamlLoader.Load(this);
@@ -23,12 +23,12 @@ public sealed partial class BankATMMenu : FancyWindow
         WithdrawEdit.OnTextChanged += OnAmountChanged;
     }
 
-    public void SetBalance(int amount)
+    public void SetBalance(long amount)
     {
         BalanceLabel.Text = BankSystemExtensions.ToSpesoString(amount);
     }
 
-    public void SetDeposit(int amount)
+    public void SetDeposit(long amount)
     {
         DepositButton.Disabled = amount <= 0;
         if (amount >= 0) // Valid
@@ -58,9 +58,6 @@ public sealed partial class BankATMMenu : FancyWindow
 
     private void OnAmountChanged(LineEdit.LineEditEventArgs args)
     {
-        if (int.TryParse(args.Text, out var amount))
-        {
-            Amount = amount;
-        }
+        Amount = long.TryParse(args.Text, out var amount) && amount is > 0 and <= int.MaxValue ? amount : 0;
     }
 }

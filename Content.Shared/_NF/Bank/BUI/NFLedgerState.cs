@@ -18,7 +18,7 @@ public struct NFLedgerEntry
 {
     public SectorBankAccount Account;
     public LedgerEntryType Type;
-    public int Amount;
+    public long Amount;
 }
 
 public enum LedgerEntryType : byte

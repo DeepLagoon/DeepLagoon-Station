@@ -32,7 +32,7 @@ public sealed class StationAdminConsoleBoundUserInterface : BoundUserInterface
 
     private void OnWithdraw()
     {
-        if (_menu?.WithdrawalAmount is not int amount)
+        if (_menu?.WithdrawalAmount is not long amount)
             return;
 
         SendMessage(new StationBankWithdrawMessage(amount, _menu.WithdrawalReason, _menu.WithdrawalDescription));
@@ -40,7 +40,7 @@ public sealed class StationAdminConsoleBoundUserInterface : BoundUserInterface
 
     private void OnDeposit()
     {
-        if (_menu?.DepositAmount is not int amount)
+        if (_menu?.DepositAmount is not long amount)
             return;
 
         SendMessage(new StationBankDepositMessage(amount, _menu.DepositReason, _menu.DepositDescription));

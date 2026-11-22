@@ -32,7 +32,7 @@ public sealed class BankATMMenuBoundUserInterface : BoundUserInterface
 
     private void OnWithdraw()
     {
-        if (_menu?.Amount is not int amount)
+        if (_menu?.Amount is not long amount)
             return;
 
         SendMessage(new BankWithdrawMessage(amount));

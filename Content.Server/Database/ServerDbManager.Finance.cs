@@ -11,7 +11,7 @@ public sealed record FinanceQueueId(Guid UserId, string OperationId);
 public sealed record FinanceNotice(
     FinanceQueueId Id, DateTime CreatedAt, string Kind, long Amount, long Balance, string User,
     string? Character = null, string? Recipient = null, string? RecipientCharacter = null,
-    int? RecipientBalance = null, SpawnedCashSource[]? Origins = null, string? Reason = null);
+    long? RecipientBalance = null, SpawnedCashSource[]? Origins = null, string? Reason = null);
 
 public partial interface IServerDbManager
 {

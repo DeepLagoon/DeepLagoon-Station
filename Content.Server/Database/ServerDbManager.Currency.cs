@@ -33,21 +33,21 @@ public sealed partial class ServerDbManager
         return RunDbCommand(() => _db.CompleteLagoonCoinWebhookAsync(user, key, owner, cancel));
     }
 
-    public Task<int> WithdrawBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default, RecoveryPayment? recovery = null)
+    public Task<long> WithdrawBankAsync(NetUserId user, int slot, long expectedBalance, long amount, CancellationToken cancel = default, RecoveryPayment? recovery = null)
     {
         DbWriteOpsMetric.Inc();
         return RunDbCommand(() => _db.WithdrawBankAsync(user, slot, expectedBalance, amount, cancel, recovery));
     }
 
-    public Task<int> DepositBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default,
+    public Task<long> DepositBankAsync(NetUserId user, int slot, long expectedBalance, long amount, CancellationToken cancel = default,
         IReadOnlyList<SpawnedCashSource>? origins = null, RecoveryRemoval? recovery = null)
     {
         DbWriteOpsMetric.Inc();
         return RunDbCommand(() => _db.DepositBankAsync(user, slot, expectedBalance, amount, cancel, origins, recovery));
     }
 
-    public Task<BankTransfer> TransferBankAsync(NetUserId sender, int senderSlot, int senderBalance,
-        NetUserId recipient, int recipientSlot, int recipientBalance, int amount, CancellationToken cancel = default)
+    public Task<BankTransfer> TransferBankAsync(NetUserId sender, int senderSlot, long senderBalance,
+        NetUserId recipient, int recipientSlot, long recipientBalance, long amount, CancellationToken cancel = default)
     {
         DbWriteOpsMetric.Inc();
         return RunDbCommand(() => _db.TransferBankAsync(sender, senderSlot, senderBalance,

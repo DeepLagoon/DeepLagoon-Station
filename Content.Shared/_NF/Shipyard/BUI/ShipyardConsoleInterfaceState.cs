@@ -5,7 +5,7 @@ namespace Content.Shared._NF.Shipyard.BUI;
 [NetSerializable, Serializable]
 public sealed class ShipyardConsoleInterfaceState : BoundUserInterfaceState
 {
-    public int Balance;
+    public long Balance;
     public int CashBalance = 0; // Mono
     public readonly bool AccessGranted;
     public readonly string? ShipDeedTitle;
@@ -19,7 +19,7 @@ public sealed class ShipyardConsoleInterfaceState : BoundUserInterfaceState
     public readonly float SellRate;
 
     public ShipyardConsoleInterfaceState(
-        int balance,
+        long balance,
         int cashBalance,
         bool accessGranted,
         string? shipDeedTitle,

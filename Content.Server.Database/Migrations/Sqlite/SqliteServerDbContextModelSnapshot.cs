@@ -772,7 +772,7 @@ namespace Content.Server.Database.Migrations.Sqlite
                         .HasColumnType("TEXT")
                         .HasColumnName("kind");
 
-                    b.Property<int>("Amount")
+                    b.Property<long>("Amount")
                         .HasColumnType("INTEGER")
                         .HasColumnName("amount");
 
@@ -785,7 +785,7 @@ namespace Content.Server.Database.Migrations.Sqlite
                         .HasColumnType("TEXT")
                         .HasColumnName("character");
 
-                    b.Property<int>("Balance")
+                    b.Property<long>("Balance")
                         .HasColumnType("INTEGER")
                         .HasColumnName("balance");
 
@@ -797,7 +797,7 @@ namespace Content.Server.Database.Migrations.Sqlite
                         .HasColumnType("TEXT")
                         .HasColumnName("recipient_character");
 
-                    b.Property<int?>("RecipientBalance")
+                    b.Property<long?>("RecipientBalance")
                         .HasColumnType("INTEGER")
                         .HasColumnName("recipient_balance");
 
@@ -1043,7 +1043,7 @@ namespace Content.Server.Database.Migrations.Sqlite
                         .HasColumnType("INTEGER")
                         .HasColumnName("age");
 
-                    b.Property<int>("BankBalance")
+                    b.Property<long>("BankBalance")
                         .HasColumnType("INTEGER")
                         .HasColumnName("bank_balance");
 

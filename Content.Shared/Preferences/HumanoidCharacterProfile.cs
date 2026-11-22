@@ -37,7 +37,7 @@ namespace Content.Shared.Preferences
         public const int MaxDescLength = 4096;
         public const int MaxCustomSpeciesNameLength = 48;
 
-        public const int DefaultBalance = 75000;
+        public const long DefaultBalance = 75000;
 
         //private readonly Dictionary<string, JobPriority> _jobPriorities; // Frontier: commented out during merge.
         //private readonly List<string> _antagPreferences; // Frontier: commented out during merge.
@@ -123,7 +123,7 @@ namespace Content.Shared.Preferences
         public Gender Gender { get; private set; } = Gender.Male;
 
         [DataField] // Frontier: Bank balance
-        public int BankBalance { get; private set; } = DefaultBalance; // Frontier: Bank balance
+        public long BankBalance { get; private set; } = DefaultBalance; // Frontier: Bank balance
 
         /// <summary>
         /// <see cref="Appearance"/>
@@ -190,7 +190,7 @@ namespace Content.Shared.Preferences
             int age,
             Sex sex,
             Gender gender,
-            int bankBalance,
+            long bankBalance,
             HumanoidCharacterAppearance appearance,
             SpawnPriorityPreference spawnPriority,
             Dictionary<ProtoId<JobPrototype>, JobPriority> jobPriorities,
@@ -294,7 +294,7 @@ namespace Content.Shared.Preferences
         }
 
         // TODO: This should eventually not be a visual change only.
-        public static HumanoidCharacterProfile Random(HashSet<string>? ignoredSpecies = null, int balance = DefaultBalance)
+        public static HumanoidCharacterProfile Random(HashSet<string>? ignoredSpecies = null, long balance = DefaultBalance)
         {
             var prototypeManager = IoCManager.Resolve<IPrototypeManager>();
             var random = IoCManager.Resolve<IRobustRandom>();
@@ -308,7 +308,7 @@ namespace Content.Shared.Preferences
             return RandomWithSpecies(species: species, balance: balance);
         }
 
-        public static HumanoidCharacterProfile RandomWithSpecies(string? species = null, int balance = DefaultBalance)
+        public static HumanoidCharacterProfile RandomWithSpecies(string? species = null, long balance = DefaultBalance)
         {
             species ??= SharedHumanoidAppearanceSystem.DefaultSpecies.Id;
             var prototypeManager = IoCManager.Resolve<IPrototypeManager>();
@@ -372,7 +372,7 @@ namespace Content.Shared.Preferences
         }
 
         // Frontier: this is probably an issue and should be removed.
-        public HumanoidCharacterProfile WithBankBalance(int bankBalance)
+        public HumanoidCharacterProfile WithBankBalance(long bankBalance)
         {
             return new(this) { BankBalance = bankBalance };
         }

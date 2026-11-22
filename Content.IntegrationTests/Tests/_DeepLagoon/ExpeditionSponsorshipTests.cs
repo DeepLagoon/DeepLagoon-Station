@@ -50,7 +50,7 @@ public sealed class ExpeditionSponsorshipTests
             void SpawnAs(string job) => entities.EventBus.RaiseEvent(EventSource.Local,
                 new PlayerSpawnCompleteEvent(body, session, job, true, false, 1, map.MapUid, profile));
 
-            void CheckBalance(int expected)
+            void CheckBalance(long expected)
             {
                 Assert.That(entities.GetComponent<BankAccountComponent>(body).Balance, Is.EqualTo(expected));
                 var persisted = database.GetPlayerPreferencesAsync(session.UserId, default);

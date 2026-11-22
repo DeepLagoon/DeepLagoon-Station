@@ -233,7 +233,7 @@ public sealed partial class AdminSystem : EntitySystem
         var name = data.UserName;
         var entityName = string.Empty;
         var identityName = string.Empty;
-        int balance = int.MinValue; // Frontier
+        long balance = long.MinValue; // Frontier
         var sortWeight = 0;
 
         if (session?.AttachedEntity != null)
@@ -243,7 +243,7 @@ public sealed partial class AdminSystem : EntitySystem
 
             // Frontier
             if (!_bank.TryGetBalance(session.AttachedEntity.Value, out balance))
-                balance = int.MinValue; // Reset value to "no balance" flag value.
+                balance = long.MinValue; // Reset value to "no balance" flag value.
             // Frontier
         }
 

@@ -208,7 +208,7 @@ public sealed class LagoonCoinIntegrationTests
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
         var map = await pair.CreateTestMap();
         List<LagoonCoinRewardEvent> rewards = null!;
-        var initialBankBalance = 0;
+        long initialBankBalance = 0;
         await pair.Client.WaitPost(() =>
         {
             var recorder = pair.Client.EntMan.System<RewardRecorder>();
@@ -389,7 +389,7 @@ public sealed class LagoonCoinIntegrationTests
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
         List<LagoonCoinRewardEvent> rewards = null!;
-        var initialBankBalance = 0;
+        long initialBankBalance = 0;
         await pair.Client.WaitPost(() =>
         {
             var recorder = pair.Client.EntMan.System<RewardRecorder>();
@@ -463,7 +463,7 @@ public sealed class LagoonCoinIntegrationTests
     }
 
 
-    private static int ReadBankBalance(IServerDbManager database, ITaskManager tasks, NetUserId user)
+    private static long ReadBankBalance(IServerDbManager database, ITaskManager tasks, NetUserId user)
     {
         var preferences = database.GetPlayerPreferencesAsync(user, default);
         tasks.BlockWaitOnTask(preferences);

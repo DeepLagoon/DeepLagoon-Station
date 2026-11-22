@@ -287,7 +287,7 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
         var recovery = EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>();
         if (!recovery.CanProtectBuyer(player)) return;
         var recoveryPayment = recovery.BeginPurchase(player, cost);
-        if (!_bankSystem.TryBankWithdraw(session!, prefs!, profile, (int)(initialBankBalance - bankBalance), out var newBalance, recoveryPayment))
+        if (!_bankSystem.TryBankWithdraw(session!, prefs!, profile, initialBankBalance - bankBalance, out var newBalance, recoveryPayment))
         {
             ConsolePopup(player, "Transaction failed.");
             PlayDenySound(uid, component);

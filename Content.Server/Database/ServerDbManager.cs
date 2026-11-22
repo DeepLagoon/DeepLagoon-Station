@@ -52,11 +52,11 @@ namespace Content.Server.Database
         #endregion
 
         #region Currencies
-        Task<int> WithdrawBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default, RecoveryPayment? recovery = null);
-        Task<int> DepositBankAsync(NetUserId user, int slot, int expectedBalance, int amount, CancellationToken cancel = default,
+        Task<long> WithdrawBankAsync(NetUserId user, int slot, long expectedBalance, long amount, CancellationToken cancel = default, RecoveryPayment? recovery = null);
+        Task<long> DepositBankAsync(NetUserId user, int slot, long expectedBalance, long amount, CancellationToken cancel = default,
             IReadOnlyList<SpawnedCashSource>? origins = null, RecoveryRemoval? recovery = null);
-        Task<BankTransfer> TransferBankAsync(NetUserId sender, int senderSlot, int senderBalance,
-            NetUserId recipient, int recipientSlot, int recipientBalance, int amount, CancellationToken cancel = default);
+        Task<BankTransfer> TransferBankAsync(NetUserId sender, int senderSlot, long senderBalance,
+            NetUserId recipient, int recipientSlot, long recipientBalance, long amount, CancellationToken cancel = default);
         Task<long> GetLagoonCoinsAsync(NetUserId user, CancellationToken cancel = default);
         Task<List<LagoonCoinOperation>> GetLagoonCoinHistoryAsync(NetUserId user, int page, CancellationToken cancel = default);
         Task<LagoonCoinOperation?> ClaimLagoonCoinWebhookAsync(Guid owner, CancellationToken cancel = default);

@@ -20,11 +20,13 @@ namespace Content.IntegrationTests.Tests._DeepLagoon;
 [TestFixture, NonParallelizable]
 public sealed class CharacterBankIntegrationTests
 {
-    [TestCase("ComputerBankATM", false)]
-    [TestCase("ComputerBlackMarketBankATM", false)]
-    [TestCase("ComputerBankATM", true)]
-    [TestCase("ComputerBlackMarketBankATM", true)]
-    public async Task FullCashDepositAndWithdrawalUpdateCharacterAccount(string atmPrototype, bool fromSpawnPanel)
+    [TestCase("ComputerBankATM", false, false)]
+    [TestCase("ComputerBlackMarketBankATM", false, false)]
+    [TestCase("ComputerBankATM", true, false)]
+    [TestCase("ComputerBlackMarketBankATM", true, false)]
+    [TestCase("ComputerBankATM", false, true)]
+    [TestCase("ComputerBlackMarketBankATM", false, true)]
+    public async Task FullCashDepositAndWithdrawalUpdateCharacterAccount(string atmPrototype, bool fromSpawnPanel, bool largeAccount)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
         var map = await pair.CreateTestMap();
@@ -43,6 +45,16 @@ public sealed class CharacterBankIntegrationTests
             pair.Server.CfgMan.SetCVar(MonoCVars.DepositEnabled, true);
             pair.Server.CfgMan.SetCVar(MonoCVars.DepositThreshold, 1f);
             pair.Server.CfgMan.SetCVar(MonoCVars.DepositHighExp, 1f);
+            if (largeAccount)
+            {
+                var initial = (long) int.MaxValue - 50;
+                Assert.That(bank.TryBankDeposit(actor, initial - senderBalance), Is.True);
+                senderBalance = initial;
+                var seed = database.ReadFinanceQueue("bank", default);
+                tasks.BlockWaitOnTask(seed);
+                var clear = database.AcknowledgeFinanceQueue("bank", seed.GetAwaiter().GetResult().Select(entry => entry.Id).ToArray(), default);
+                tasks.BlockWaitOnTask(clear);
+            }
             var atm = entities.SpawnEntity(atmPrototype, map.GridCoords);
             var key = atmPrototype == "ComputerBlackMarketBankATM" ? BankATMMenuUiKey.BlackMarket : BankATMMenuUiKey.ATM;
             var component = entities.GetComponent<BankATMComponent>(atm);
@@ -98,7 +110,10 @@ public sealed class CharacterBankIntegrationTests
             Assert.That(entities.GetComponent<BankAccountComponent>(actor).Balance, Is.EqualTo(senderBalance + 60));
 
             Assert.That(bank.TryTransfer(sender, sender, 1, out _), Is.False);
-            Assert.That(bank.TryBankWithdraw(actor, int.MaxValue), Is.False);
+            Assert.That(bank.TryBankWithdraw(actor, long.MaxValue), Is.False);
+            entities.EventBus.RaiseLocalEvent(atm, new BankWithdrawMessage((long)int.MaxValue + 1) { Actor = actor, UiKey = key });
+            Assert.That(entities.GetComponent<BankAccountComponent>(actor).Balance, Is.EqualTo(senderBalance + 60),
+                "An unrepresentable cash stack must never debit the account");
             entities.EnsureComponent<IronmanComponent>(actor);
             Assert.That(bank.TryBankWithdraw(actor, 1), Is.False);
             var saved = database.GetPlayerPreferencesAsync(sender.UserId, default);

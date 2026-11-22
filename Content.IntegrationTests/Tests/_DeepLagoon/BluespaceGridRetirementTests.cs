@@ -68,7 +68,8 @@ public sealed class BluespaceGridRetirementTests
         EntityUid root = default, fragment = default, claimed = default, privateMap = default;
         EntityUid player = default, fragmentPlayer = default, backpack = default, carriedCargo = default;
         var discarded = new List<EntityUid>();
-        int mapCountBefore = 0, expectedReward = 0, rewardLedgerAfter = 0;
+        int mapCountBefore = 0, expectedReward = 0;
+        long rewardLedgerAfter = 0;
         SectorBankComponent sector = default!;
         double endMs = 0, totalSlicesMs = 0, maximumSliceMs = 0;
         var slices = 0;

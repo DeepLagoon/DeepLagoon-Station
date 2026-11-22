@@ -17,8 +17,8 @@ public static class MarketDataExtensions
             stock.Add(lot);
     }
 
-    public static int GetMarketValue(IEnumerable<MarketLot> lots, float marketModifier)
+    public static long GetMarketValue(IEnumerable<MarketLot> lots, float marketModifier)
     {
-        return lots.Sum(lot => (int)Math.Round(lot.Price * lot.Quantity * marketModifier));
+        return lots.Sum(lot => checked((long)Math.Round(lot.Price * lot.Quantity * marketModifier)));
     }
 }

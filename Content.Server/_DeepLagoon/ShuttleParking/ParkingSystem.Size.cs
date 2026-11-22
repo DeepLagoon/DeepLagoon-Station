@@ -65,7 +65,7 @@ public sealed partial class ParkingSystem
             throw new InvalidDataException($"В исходной карте шаттла должен быть один грид: {path}");
 
         var component = _dependencies.Resolve<ISerializationManager>()
-            .Read<MapGridComponent>(grids[0].Components!["MapGrid"], context);
+            .Read<MapGridComponent>(grids[0].Components!["MapGrid"], context, notNullableOverride: true);
         var hull = GetParkingHull(EntityUid.Invalid, component);
         _stockParkingHulls.Add(path, hull);
         return hull;

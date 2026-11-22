@@ -40,6 +40,13 @@ public sealed partial class BankSystem
         if (args.Actor is not { Valid: true } player)
             return;
 
+        if (args.Amount is <= 0 or > int.MaxValue)
+        {
+            ConsolePopup(player, Loc.GetString("bank-atm-menu-invalid-withdrawal"));
+            PlayDenySound(uid, component);
+            return;
+        }
+
         GetInsertedCashAmount(component, out var deposit);
 
         if (!TryGetBalance(component.Account, out var stationBank))
@@ -99,7 +106,7 @@ public sealed partial class BankSystem
         _adminLogger.Add(LogType.ATMUsage, LogImpact.Low, $"{ToPrettyString(player):actor} withdrew {args.Amount} from {component.Account} station bank account. '{args.Reason}': {args.Description}");
         //spawn the cash stack of whatever cash type the ATM is configured to.
         var stackPrototype = _prototypeManager.Index<StackPrototype>(component.CashType);
-        _stackSystem.Spawn(args.Amount, stackPrototype, uid.ToCoordinates());
+        _stackSystem.Spawn((int) args.Amount, stackPrototype, uid.ToCoordinates());
 
         _uiSystem.SetUiState(uid, args.UiKey,
             new StationBankATMMenuInterfaceState(stationBank - args.Amount, hasAccess, deposit));
@@ -211,7 +218,7 @@ public sealed partial class BankSystem
 
         _adminLogger.Add(LogType.ATMUsage, LogImpact.Low, $"{ToPrettyString(player):actor} deposited {args.Amount} to {component.Account} station bank account. '{args.Reason}': {args.Description}");
 
-        SetInsertedCashAmount(component, args.Amount, out int leftAmount, out bool empty);
+        SetInsertedCashAmount(component, checked((int) args.Amount), out int leftAmount, out bool empty);
 
         // yeet and delete the stack in the cash slot after success if it's worth 0
         if (empty)

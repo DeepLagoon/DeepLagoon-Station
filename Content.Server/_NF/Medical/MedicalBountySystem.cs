@@ -219,7 +219,7 @@ public sealed partial class MedicalBountySystem : EntitySystem
             // Pay tax accounts
             foreach (var (account, taxCoeff) in component.TaxAccounts)
             {
-                _bank.TrySectorDeposit(account, (int)(bountyPayout * taxCoeff), LedgerEntryType.MedicalBountyTax);
+                _bank.TrySectorDeposit(account, checked((long)(bountyPayout * taxCoeff)), LedgerEntryType.MedicalBountyTax);
             }
         }
 

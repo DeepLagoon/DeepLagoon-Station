@@ -11,8 +11,8 @@ namespace Content.Client._NF.CartridgeLoader.Cartridges;
 public sealed partial class LedgerTab : Control
 {
     public SectorBankAccount Account = SectorBankAccount.Invalid;
-    private int _totalIncome = 0;
-    private int _totalExpenses = 0;
+    private long _totalIncome = 0;
+    private long _totalExpenses = 0;
     private bool _hasIncome = false;
     private bool _hasExpenses = false;
 
@@ -41,7 +41,7 @@ public sealed partial class LedgerTab : Control
         InvalidateMeasure();
     }
 
-    public void AddLedgerEntry(LedgerEntryType type, int amount)
+    public void AddLedgerEntry(LedgerEntryType type, long amount)
     {
         if (amount <= 0)
             return;
@@ -82,7 +82,7 @@ public sealed partial class LedgerTab : Control
 
         if (_hasIncome || _hasExpenses)
         {
-            int totalBalance = _totalIncome - _totalExpenses;
+            long totalBalance = _totalIncome - _totalExpenses;
             BalanceValue.Text = BankSystemExtensions.ToSpesoString(totalBalance);
             BalanceValue.FontColorOverride = totalBalance < 0 ? ExpenseColor : IncomeColor;
         }

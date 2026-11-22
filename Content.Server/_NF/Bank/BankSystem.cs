@@ -27,7 +27,7 @@ public sealed partial class BankSystem : SharedBankSystem
 
     private ISawmill _log = default!;
 
-    public void SetConfirmedBankBalance(EntityUid uid, int balance)
+    public void SetConfirmedBankBalance(EntityUid uid, long balance)
     {
         var bank = EnsureComp<BankAccountComponent>(uid);
         bank.Balance = balance;
@@ -70,7 +70,7 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="mobUid">The UID that the bank account is attached to, typically the player controlled mob</param>
     /// <param name="amount">The integer amount of which to decrease the bank account</param>
     /// <returns>true if the transaction was successful, false if it was not</returns>
-    public bool TryBankWithdraw(EntityUid mobUid, int amount, RecoveryPayment? recovery = null)
+    public bool TryBankWithdraw(EntityUid mobUid, long amount, RecoveryPayment? recovery = null)
     {
         if (amount <= 0)
         {
@@ -125,10 +125,10 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="mobUid">The UID that the bank account is connected to, typically the player controlled mob</param>
     /// <param name="amount">The amount of spesos to remove from the bank account</param>
     /// <returns>true if the transaction was successful, false if it was not</returns>
-    public bool TryBankDeposit(EntityUid mobUid, int amount)
+    public bool TryBankDeposit(EntityUid mobUid, long amount)
         => TryBankDeposit(mobUid, amount, null);
 
-    private bool TryBankDeposit(EntityUid mobUid, int amount, IReadOnlyList<SpawnedCashSource>? origins, RecoveryRemoval? recovery = null)
+    private bool TryBankDeposit(EntityUid mobUid, long amount, IReadOnlyList<SpawnedCashSource>? origins, RecoveryRemoval? recovery = null)
     {
         // Mono start
         if (!_cfg.GetCVar(MonoCVars.DepositEnabled))
@@ -188,7 +188,7 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="amount">The number of spesos to be withdrawn.</param>
     /// <param name="newBalance">The new value of the bank account.</param>
     /// <returns>true if the transaction was successful, false if it was not.  When successful, newBalance contains the character's new balance.</returns>
-    public bool TryBankWithdraw(ICommonSession session, PlayerPreferences prefs, HumanoidCharacterProfile profile, int amount, [NotNullWhen(true)] out int? newBalance, RecoveryPayment? recovery = null)
+    public bool TryBankWithdraw(ICommonSession session, PlayerPreferences prefs, HumanoidCharacterProfile profile, long amount, [NotNullWhen(true)] out long? newBalance, RecoveryPayment? recovery = null)
     {
         newBalance = null; // Default return
         if (amount <= 0 || amount > profile.BankBalance)
@@ -235,11 +235,11 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="amount">The number of spesos to be deposited.</param>
     /// <param name="newBalance">The new value of the bank account.</param>
     /// <returns>true if the transaction was successful, false if it was not.  When successful, newBalance contains the character's new balance.</returns>
-    public bool TryBankDeposit(ICommonSession session, PlayerPreferences prefs, HumanoidCharacterProfile profile, int amount, [NotNullWhen(true)] out int? newBalance)
+    public bool TryBankDeposit(ICommonSession session, PlayerPreferences prefs, HumanoidCharacterProfile profile, long amount, [NotNullWhen(true)] out long? newBalance)
         => TryBankDeposit(session, prefs, profile, amount, out newBalance, null);
 
-    private bool TryBankDeposit(ICommonSession session, PlayerPreferences prefs, HumanoidCharacterProfile profile, int amount,
-        [NotNullWhen(true)] out int? newBalance, IReadOnlyList<SpawnedCashSource>? origins, RecoveryRemoval? recovery = null)
+    private bool TryBankDeposit(ICommonSession session, PlayerPreferences prefs, HumanoidCharacterProfile profile, long amount,
+        [NotNullWhen(true)] out long? newBalance, IReadOnlyList<SpawnedCashSource>? origins, RecoveryRemoval? recovery = null)
     {
         newBalance = null; // Default return
         if (amount <= 0)
@@ -248,7 +248,7 @@ public sealed partial class BankSystem : SharedBankSystem
             return false;
         }
 
-        if ((long)profile.BankBalance + amount > int.MaxValue)
+        if (amount > long.MaxValue - profile.BankBalance)
             return false;
         var index = prefs.IndexOfCharacter(profile);
         if (index == -1)
@@ -286,7 +286,7 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="profile">The character profile to modify</param>
     /// <param name="amount">The amount to withdraw</param>
     /// <returns>true if the transaction was successful, false if it was not</returns>
-    public async Task<bool> TryBankWithdrawOffline(NetUserId userId, PlayerPreferences prefs, HumanoidCharacterProfile profile, int amount)
+    public async Task<bool> TryBankWithdrawOffline(NetUserId userId, PlayerPreferences prefs, HumanoidCharacterProfile profile, long amount)
     {
         if (amount <= 0)
         {
@@ -294,7 +294,7 @@ public sealed partial class BankSystem : SharedBankSystem
             return false;
         }
 
-        int balance = profile.BankBalance;
+        long balance = profile.BankBalance;
 
         if (balance < amount)
         {
@@ -333,7 +333,7 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="profile">The character profile to modify</param>
     /// <param name="amount">The amount to deposit</param>
     /// <returns>true if the transaction was successful, false if it was not</returns>
-    public async Task<bool> TryBankDepositOffline(NetUserId userId, PlayerPreferences prefs, HumanoidCharacterProfile profile, int amount)
+    public async Task<bool> TryBankDepositOffline(NetUserId userId, PlayerPreferences prefs, HumanoidCharacterProfile profile, long amount)
     {
         if (amount <= 0)
         {
@@ -341,8 +341,8 @@ public sealed partial class BankSystem : SharedBankSystem
             return false;
         }
 
-        if ((long)profile.BankBalance + amount > int.MaxValue) return false;
-        int newBalance = profile.BankBalance + amount;
+        if (amount > long.MaxValue - profile.BankBalance) return false;
+        long newBalance = profile.BankBalance + amount;
 
         var newProfile = profile.WithBankBalance(newBalance);
         var index = prefs.IndexOfCharacter(profile);
@@ -370,7 +370,7 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="ent">The UID that the bank account is connected to, typically the player controlled mob</param>
     /// <param name="balance">When successful, contains the account balance in spesos. Otherwise, set to 0.</param>
     /// <returns>true if the account was successfully queried.</returns>
-    public bool TryGetBalance(EntityUid ent, out int balance)
+    public bool TryGetBalance(EntityUid ent, out long balance)
     {
         // Mono
         if (HasComp<IronmanComponent>(ent))
@@ -403,7 +403,7 @@ public sealed partial class BankSystem : SharedBankSystem
     /// <param name="session">The session of the player character to query.</param>
     /// <param name="balance">When successful, contains the account balance in spesos. Otherwise, set to 0.</param>
     /// <returns>true if the account was successfully queried.</returns>
-    public bool TryGetBalance(ICommonSession session, out int balance)
+    public bool TryGetBalance(ICommonSession session, out long balance)
     {
         // Mono
         if (session.AttachedEntity is { } attached && HasComp<IronmanComponent>(attached))

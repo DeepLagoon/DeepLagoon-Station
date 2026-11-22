@@ -10,9 +10,9 @@ namespace Content.Shared._NF.Bank.Events;
 public sealed class BankWithdrawMessage : BoundUserInterfaceMessage
 {
     //amount to withdraw. validation is happening server side but we still need client input from a text field.
-    public int Amount;
+    public long Amount;
 
-    public BankWithdrawMessage(int amount)
+    public BankWithdrawMessage(long amount)
     {
         Amount = amount;
     }
