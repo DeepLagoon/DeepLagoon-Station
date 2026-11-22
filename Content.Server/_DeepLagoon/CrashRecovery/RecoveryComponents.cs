@@ -61,22 +61,34 @@ public sealed class RecoveryCVars
 /// <summary>Deduplicated FIFO. Repeated container spam cannot grow its allocation or starve other owners.</summary>
 public sealed class RecoveryWorkQueue<T> where T : notnull
 {
-    private readonly Queue<T> _queue = new();
-    private readonly HashSet<T> _set = new();
-    public int Count => _set.Count;
+    private readonly LinkedList<T> _queue = new();
+    private readonly Dictionary<T, LinkedListNode<T>> _nodes = new();
+    private readonly Stack<LinkedListNode<T>> _pool = new();
+    public int Count => _nodes.Count;
     public bool Enqueue(T value, int limit)
     {
-        if (_set.Contains(value)) return true;
-        if (_set.Count >= limit) return false;
-        _set.Add(value);
-        _queue.Enqueue(value);
+        if (_nodes.ContainsKey(value)) return true;
+        if (_nodes.Count >= limit) return false;
+        var node = _pool.TryPop(out var recycled) ? recycled : new LinkedListNode<T>(value);
+        node.Value = value;
+        _nodes.Add(value, node);
+        _queue.AddLast(node);
         return true;
     }
     public bool TryDequeue(out T value)
     {
-        if (!_queue.TryDequeue(out value!)) return false;
-        _set.Remove(value);
+        if (_queue.First is not { } node) { value = default!; return false; }
+        value = node.Value;
+        Remove(value);
         return true;
     }
-    public void Clear() { _queue.Clear(); _set.Clear(); }
+    public bool Remove(T value)
+    {
+        if (!_nodes.Remove(value, out var node)) return false;
+        _queue.Remove(node);
+        node.Value = default!;
+        if (_pool.Count < 1024) _pool.Push(node);
+        return true;
+    }
+    public void Clear() { _queue.Clear(); _nodes.Clear(); _pool.Clear(); }
 }

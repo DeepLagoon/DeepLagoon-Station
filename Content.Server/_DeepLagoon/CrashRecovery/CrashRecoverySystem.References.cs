@@ -15,6 +15,8 @@ public sealed partial class CrashRecoverySystem
 {
     private const string ReferenceTag = "!recovery-ref";
     private const string ReferencePrefix = "recovery-ref:";
+    private const string ExternalReferencePrefix = "recovery-external:";
+    private const string ExternalReferenceTag = "!recovery-external";
     [Dependency] private ISerializationManager _serialization = default!;
     private ReferenceContext? _referenceContext;
 
@@ -37,9 +39,15 @@ public sealed partial class CrashRecoverySystem
     {
         public DataNode Write(ISerializationManager serializationManager, EntityUid value,
             IDependencyCollection dependencies, bool alwaysWrite = false, ISerializationContext? context = null)
-            => system._assets.TryGetValue(value, out var asset)
-                ? new ValueDataNode(ReferencePrefix + asset.Identity.ToString("N"))
-                : new ValueDataNode("invalid");
+        {
+            if (!value.IsValid()) return new ValueDataNode("invalid");
+            var tracked = system._assets.TryGetValue(value, out var asset) && asset.YamlId > 0;
+            var external = ExternalReferencePrefix + value;
+            if (tracked) return new ValueDataNode(ReferencePrefix + asset!.Identity.ToString("N"));
+            // Different external keys must stay distinct until reference annotation prunes them.
+            // Collapsing them to "invalid" here makes dictionaries throw before any item can be saved.
+            return new ValueDataNode(external) { Tag = ExternalReferenceTag };
+        }
 
         public DataNode Write(ISerializationManager serializationManager, NetEntity value,
             IDependencyCollection dependencies, bool alwaysWrite = false, ISerializationContext? context = null)
@@ -59,6 +67,7 @@ public sealed partial class CrashRecoverySystem
 
     private DataNode AnnotateReferences(DataNode original, DataNode annotated)
     {
+        if (annotated is ValueDataNode { Tag: ExternalReferenceTag }) return new ValueDataNode("invalid");
         if (original is ValueDataNode value && annotated is ValueDataNode reference
             && TryReference(reference.Value, out var identity, out var yaml) && value.Value == yaml)
             return new ValueDataNode(identity.ToString("N")) { Tag = ReferenceTag };

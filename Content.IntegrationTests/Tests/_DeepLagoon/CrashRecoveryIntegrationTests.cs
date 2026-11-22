@@ -463,6 +463,18 @@ public sealed class CrashRecoveryIntegrationTests
         });
         samples.Sort();
         TestContext.WriteLine($"70 offline bodies / {expected} protected entities: ticks={samples.Count}; p50_ms={samples[samples.Count / 2]:F3}; p99_ms={samples[(int)(samples.Count * .99)]:F3}; max_ms={samples[^1]:F3}; max_capture_ms={recovery.MaxCaptureMilliseconds:F3}; slowest={recovery.MaxCapturePrototype}; collections_during_slowest={recovery.MaxCaptureCollections}");
+        RecoveryIncident durable = default!;
+        await PoolManager.WaitUntil(pair.Server, async () =>
+        {
+            durable = await pair.Server.ResolveDependency<IServerDbManager>().ReadCrashRecovery(scope, recovery.RunIdentity);
+            var items = durable.Assets.Where(a => a.Kind == "item" && a.Location == RecoveryLocation.Carried).ToArray();
+            return items.Length >= expected && items.All(a => a.Data.Length > 0);
+        }, 1800);
+        var owners = durable.Assets.Where(a => a.Kind == "item" && a.Location == RecoveryLocation.Carried)
+            .GroupBy(a => (a.User, a.Profile)).ToArray();
+        Assert.That(owners, Has.Length.EqualTo(70), "Every offline character needs durable snapshots, not just queued captures.");
+        Assert.That(owners.All(owner => owner.Count() >= 18), Is.True);
+        TestContext.WriteLine($"Durable nonempty snapshots: owners={owners.Length}; items={owners.Sum(owner => owner.Count())}");
         await recovery.CloseNormally();
         await recovery.StopWorker();
         await pair.CleanReturnAsync();

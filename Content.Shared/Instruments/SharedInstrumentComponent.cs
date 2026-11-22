@@ -40,6 +40,7 @@ public abstract partial class SharedInstrumentComponent : Component
 /// </summary>
 [RegisterComponent, NetworkedComponent]
 [AutoGenerateComponentState(true)]
+[UnsavedComponent]
 public sealed partial class ActiveInstrumentComponent : Component
 {
     [DataField]

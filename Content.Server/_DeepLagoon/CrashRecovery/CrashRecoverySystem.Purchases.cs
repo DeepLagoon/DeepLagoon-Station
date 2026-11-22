@@ -34,9 +34,8 @@ public sealed partial class CrashRecoverySystem
         var state = new RecoveryAsset(identity, ++_revision, payment.User, payment.Profile, ++_nextYaml,
             MetaData(uid).EntityPrototype?.ID ?? "", RecoveryLocation.Loose, null, [], "", Purchase: payment.Products[0]);
         _assets[uid] = state;
-        _tracked.Add(uid);
+        Track(uid);
         _entitiesByIdentity[identity] = uid;
-        _serializer?.YamlUidMap.TryAdd(uid, state.YamlId);
         Stage(state);
         _discover.Enqueue(uid, 65536);
     }
@@ -75,8 +74,7 @@ public sealed partial class CrashRecoverySystem
         var state = new RecoveryAsset(identity, ++_revision, payment.User, payment.Profile, ++_nextYaml,
             MetaData(product).EntityPrototype?.ID ?? "", RecoveryLocation.Loose, null, [], "", Purchase: identity);
         _assets[product] = state;
-        _tracked.Add(product);
-        _serializer?.YamlUidMap.TryAdd(product, state.YamlId);
+        Track(product);
         Stage(state);
         _discover.Enqueue(product, 65536);
         if (delivery.Next >= payment.Products.Length) _purchaseDeliveries.Remove(deliveryKey);

@@ -50,9 +50,8 @@ public sealed partial class CrashRecoverySystem
         var asset = pending with { Revision = ++_revision, Kind = "item", Amount = 0, YamlId = ++_nextYaml,
             Prototype = MetaData(disk).EntityPrototype?.ID ?? "ResearchDisk", Location = RecoveryLocation.Loose };
         _assets[disk] = asset;
-        _tracked.Add(disk);
+        Track(disk);
         _entitiesByIdentity[asset.Identity] = disk;
-        _serializer?.YamlUidMap.TryAdd(disk, asset.YamlId);
         Stage(asset);
         _discover.Enqueue(disk, 65536);
     }

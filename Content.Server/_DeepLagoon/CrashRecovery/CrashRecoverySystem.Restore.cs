@@ -156,7 +156,8 @@ public sealed partial class CrashRecoverySystem
                 }
                 if (bundle.Entities.Count != items.Length)
                     throw new InvalidDataException($"Recovery entity count mismatch: {bundle.Entities.Count}/{items.Length}; missing: {string.Join(", ", items.Where(a => !bundle.Entities.ContainsKey(a.Identity)).Select(a => a.Prototype).Distinct())}");
-                foreach (var asset in items.Where(a => a.Parent == null || !bundle.Entities.ContainsKey(a.Parent.Value)))
+                foreach (var asset in items.Where(a => a.Parent == null || !bundle.Entities.ContainsKey(a.Parent.Value)
+                             || !Transform(bundle.Entities[a.Identity]).ParentUid.IsValid()))
                     _transform.SetCoordinates(bundle.Entities[asset.Identity], new EntityCoordinates(RecoveryMap(), 0, 0));
             }
             foreach (var research in bundle.Assets.Where(a => a.Kind == "research" && a.Amount > 0))
@@ -191,6 +192,9 @@ public sealed partial class CrashRecoverySystem
     {
         var byId = assets.ToDictionary(a => a.Identity);
         var yamlIds = assets.Select((asset, index) => (asset.Identity, Id: index + 1)).ToDictionary(pair => pair.Identity, pair => pair.Id);
+        var childrenByParent = assets.Where(a => a.Parent != null).ToLookup(a => a.Parent!.Value);
+        var nodes = new Dictionary<Guid, YamlMappingNode>();
+        var detached = new HashSet<Guid>();
         var groups = new Dictionary<string, YamlSequenceNode>();
         var roots = new YamlSequenceNode();
         foreach (var asset in assets)
@@ -198,6 +202,7 @@ public sealed partial class CrashRecoverySystem
             var yaml = new YamlStream();
             yaml.Load(new StringReader(asset.Data));
             var node = (YamlMappingNode)ResolveReferences(yaml.Documents[0].RootNode, yamlIds);
+            nodes.Add(asset.Identity, node);
             node.Children[new YamlScalarNode("uid")] = new YamlScalarNode(yamlIds[asset.Identity].ToString(CultureInfo.InvariantCulture));
             node.Children.Remove(new YamlScalarNode("paused"));
             var hasParent = asset.Parent is { } parent && byId.ContainsKey(parent);
@@ -218,7 +223,7 @@ public sealed partial class CrashRecoverySystem
                     if (type == "Storage" && component.Children.TryGetValue(new YamlScalarNode("storedItems"), out var storedNode)
                         && storedNode is YamlMappingNode stored)
                     {
-                        var children = assets.Where(a => a.Parent == asset.Identity)
+                        var children = childrenByParent[asset.Identity].Where(a => a.BodyPath.LastOrDefault() == Content.Shared.Storage.StorageComponent.ContainerId)
                             .Select(a => yamlIds[a.Identity].ToString(CultureInfo.InvariantCulture)).ToHashSet();
                         foreach (var key in stored.Children.Keys.ToArray())
                             if (!children.Contains(key.ToString())) stored.Children.Remove(key);
@@ -228,14 +233,39 @@ public sealed partial class CrashRecoverySystem
                             if (containerNode is YamlMappingNode container)
                             {
                                 var contents = new YamlSequenceNode();
-                                foreach (var child in assets.Where(a => a.Parent == asset.Identity && a.BodyPath.LastOrDefault() == id.ToString()))
+                                var slotChildren = childrenByParent[asset.Identity].Where(a => a.BodyPath.LastOrDefault() == id.ToString()).ToArray();
+                                foreach (var child in slotChildren)
                                     contents.Add(new YamlScalarNode(yamlIds[child.Identity].ToString(CultureInfo.InvariantCulture)));
-                                container.Children[new YamlScalarNode("ents")] = contents;
+                                if (container.Tag == "!type:ContainerSlot" || container.Children.ContainsKey(new YamlScalarNode("ent")))
+                                {
+                                    // Journal rows can straddle a slot transfer. Keep its last captured
+                                    // occupant when available; preserve any other children as loose roots.
+                                    var selected = contents.Children.FirstOrDefault();
+                                    if (container.Children.TryGetValue(new YamlScalarNode("ent"), out var previous)
+                                        && contents.Children.Any(c => c.ToString() == previous.ToString())) selected = previous;
+                                    foreach (var child in slotChildren)
+                                        if (yamlIds[child.Identity].ToString(CultureInfo.InvariantCulture) != selected?.ToString()) detached.Add(child.Identity);
+                                    container.Children.Remove(new YamlScalarNode("ents"));
+                                    container.Children[new YamlScalarNode("ent")] = selected ?? new YamlScalarNode("null");
+                                }
+                                else container.Children[new YamlScalarNode("ents")] = contents;
                             }
                 }
             }
             if (!groups.TryGetValue(asset.Prototype, out var group)) groups[asset.Prototype] = group = new YamlSequenceNode();
             group.Add(node);
+        }
+        foreach (var identity in detached)
+        {
+            var node = nodes[identity];
+            if (node.Children.TryGetValue(new YamlScalarNode("components"), out var componentNodes) && componentNodes is YamlSequenceNode components)
+                foreach (var component in components.Children.OfType<YamlMappingNode>())
+                    if (component.Children.TryGetValue(new YamlScalarNode("type"), out var type) && type.ToString() == "Transform")
+                    {
+                        component.Children[new YamlScalarNode("parent")] = new YamlScalarNode("invalid");
+                        component.Children[new YamlScalarNode("pos")] = new YamlScalarNode("0,0");
+                    }
+            roots.Add(new YamlScalarNode(yamlIds[identity].ToString(CultureInfo.InvariantCulture)));
         }
         var entities = new YamlSequenceNode();
         foreach (var (prototype, group) in groups)
@@ -295,7 +325,8 @@ public sealed partial class CrashRecoverySystem
         {
             bundle.DeliveryInitialized = true;
             var result = claim.GetAwaiter().GetResult();
-            foreach (var asset in result.Assets.Where(a => a.Parent == null || !bundle.Entities.ContainsKey(a.Parent.Value))) bundle.Roots.Enqueue(asset);
+            foreach (var asset in result.Assets.Where(a => bundle.Entities.TryGetValue(a.Identity, out var uid)
+                         && Transform(uid).ParentUid == _recoveryMap)) bundle.Roots.Enqueue(asset);
             if (!TerminatingOrDeleted(bundle.Body)) _bank.SetConfirmedBankBalance(bundle.Body, result.Balance);
             if (TryComp<RecoveryBodyComponent>(bundle.Body, out var body) && body.Slot >= 0 &&
                 _preferences.TryGetCachedPreferences(new NetUserId(bundle.User), out var prefs) &&

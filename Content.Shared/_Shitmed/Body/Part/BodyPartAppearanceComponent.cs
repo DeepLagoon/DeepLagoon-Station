@@ -12,7 +12,8 @@ public sealed partial class BodyPartAppearanceComponent : Component
     /// <summary>
     ///     HumanoidVisualLayer type for this body part.
     /// </summary>
-    [DataField, AutoNetworkedField]
+    // "type" is reserved for the component discriminator in entity/map snapshots.
+    [DataField("visualLayer"), AutoNetworkedField]
     public HumanoidVisualLayers Type { get; set; }
 
     /// <summary>

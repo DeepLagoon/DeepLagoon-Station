@@ -106,7 +106,7 @@ public sealed partial class CrashRecoverySystem : EntitySystem
         SubscribeLocalEvent<PlayerSpawnCompleteEvent>(OnSpawn);
         EntityManager.EntityInitialized += OnEntityInitialized;
         SubscribeLocalEvent<EntParentChangedMessage>(OnParentChanged);
-        SubscribeLocalEvent<RecoveryIdentityComponent, EntityTerminatingEvent>(OnItemTerminating);
+        SubscribeLocalEvent<EntityTerminatingEvent>(OnEntityTerminating);
         SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => EndRound());
         SubscribeLocalEvent<GameRunLevelChangedEvent>(args =>
         {
@@ -241,13 +241,18 @@ public sealed partial class CrashRecoverySystem : EntitySystem
             _discover.Enqueue(args.Entity, 65536);
     }
 
-    private void OnItemTerminating(Entity<RecoveryIdentityComponent> ent, ref EntityTerminatingEvent args)
+    private void OnEntityTerminating(ref EntityTerminatingEvent args)
     {
-        if (!_open || _closing || _suppressDeletion || !_assets.TryGetValue(ent, out var old)) return;
-        if (old.Location is RecoveryLocation.Destroyed or RecoveryLocation.Persistent) return;
-        var update = old with { Revision = ++_revision, Location = RecoveryLocation.Destroyed, Data = "" };
-        _assets[ent] = update;
-        Stage(update);
+        if (!_enabled) return;
+        var uid = args.Entity.Owner;
+        if (_open && !_closing && !_suppressDeletion && _assets.TryGetValue(uid, out var old)
+            && old.Location is not (RecoveryLocation.Destroyed or RecoveryLocation.Persistent or RecoveryLocation.Issued))
+            Stage(old with { Revision = ++_revision, Location = RecoveryLocation.Destroyed, Data = "" });
+        Retire(uid);
+        if (HasComp<RecoveryBodyComponent>(uid)) _bodies.Remove(uid);
+        if (HasComp<RecoveryEscrowComponent>(uid)) _escrowRoots.Remove(uid);
+        _mindProfiles.Remove(uid);
+        // Pending profile lookups may still assign an apartment escrow after its old body is gone.
     }
 
     private (Guid User, int Profile, string[] Path)? FindOwner(EntityUid entity)
@@ -298,8 +303,9 @@ public sealed partial class CrashRecoverySystem : EntitySystem
 
     private void DiscoverOne(EntityUid uid)
     {
+        if (TerminatingOrDeleted(uid)) { Retire(uid); return; }
         _discoveredEntities.Add(uid);
-        if (TerminatingOrDeleted(uid) || HasComp<BitrunVirtualEntityComponent>(uid)) return;
+        if (HasComp<BitrunVirtualEntityComponent>(uid)) return;
         // Sounds are temporary children of items, not recoverable contents. Skip them before assigning
         // an identity, reserving YAML IDs or walking a helper subtree. Other non-savable roots can
         // still own real equipment, so they must retain the normal child traversal.
@@ -320,7 +326,6 @@ public sealed partial class CrashRecoverySystem : EntitySystem
         {
             if (!_assets.ContainsKey(uid) && (owner != null || ancestor != null))
             {
-                if (_assets.Count >= 65536) return;
                 var found = owner ?? (User: ancestor!.User, Profile: ancestor.Profile, Path: Array.Empty<string>());
                 var id = EnsureComp<RecoveryIdentityComponent>(uid).Identity;
                 // A duplicate identity is quarantined instead of silently manufacturing a second entitlement.
@@ -329,8 +334,7 @@ public sealed partial class CrashRecoverySystem : EntitySystem
                 var state = new RecoveryAsset(id, ++_revision, found.User, found.Profile, ++_nextYaml,
                     MetaData(uid).EntityPrototype?.ID ?? "", owner == null ? RecoveryLocation.Loose : RecoveryLocation.Carried, parentTracked ? ancestor!.Identity : null, found.Path, "");
                 _assets.Add(uid, state);
-                _tracked.Add(uid);
-                _serializer?.YamlUidMap.TryAdd(uid, state.YamlId);
+                Track(uid);
             }
             // The async profile lookup can finish after an initial, unowned purchase capture.
             // Adding the body's owner marker does not modify the item's metadata tick.
@@ -367,7 +371,7 @@ public sealed partial class CrashRecoverySystem : EntitySystem
         {
             // A parent snapshot may contain dictionaries keyed by its children. Wait for
             // each queued child to receive its YAML identity before finishing this scan.
-            if (scan.PendingChild is { } pending && !_discoveredEntities.Contains(pending))
+            if (scan.PendingChild is { } pending && !TerminatingOrDeleted(pending) && !_discoveredEntities.Contains(pending))
             {
                 _discover.Enqueue(pending, 65536);
                 return;
@@ -383,7 +387,8 @@ public sealed partial class CrashRecoverySystem : EntitySystem
                 scan.PendingChild = child;
                 return;
             }
-            _childrenDiscovered.Add(scan.Parent);
+            // A terminating parent's scan can finish after its live bookkeeping was retired.
+            if (!TerminatingOrDeleted(scan.Parent)) _childrenDiscovered.Add(scan.Parent);
         }
         catch (InvalidOperationException)
         {
@@ -399,7 +404,7 @@ public sealed partial class CrashRecoverySystem : EntitySystem
     private void CaptureOne(EntityUid uid)
     {
         if (TerminatingOrDeleted(uid) || !_assets.TryGetValue(uid, out var old) || old.Kind != "item") return;
-        if (old.Location == RecoveryLocation.Destroyed) return;
+        if (old.Location is RecoveryLocation.Destroyed or RecoveryLocation.Persistent or RecoveryLocation.Issued) return;
         if (Transform(uid).ChildCount > 0 && !_childrenDiscovered.Contains(uid))
         {
             _dirty.Enqueue(uid, 65536);
@@ -424,12 +429,14 @@ public sealed partial class CrashRecoverySystem : EntitySystem
         {
             SaveImplantState(uid);
             _serializer ??= NewSerializer();
+            _serializer.YamlUidMap[uid] = current.YamlId;
             _serializer.SerializeEntity(uid);
             var node = _serializer.EntityData[current.YamlId].Node;
             MarkReferences(uid, node);
             // Detach only newly created data nodes, never pass ECS objects to the writer.
             Stage(current, node);
             _capturedTicks[uid] = MetaData(uid).EntityLastModifiedTick;
+            _failedUntil.Remove(uid);
         }
         catch (Exception e)
         {
@@ -462,7 +469,11 @@ public sealed partial class CrashRecoverySystem : EntitySystem
     {
         var serializer = new EntitySerializer(_dependencies, new SerializationOptions
         { Category = FileCategory.Save, MissingEntityBehaviour = MissingEntityBehaviour.Ignore, ErrorOnOrphan = false });
-        foreach (var (uid, asset) in _assets) serializer.YamlUidMap[uid] = asset.YamlId;
+        serializer.SerializerProvider.RegisterSerializer(typeof(RecoveryDictionaryWriter<,>));
+        // Rebuild only on initial creation or after a failed capture. Normal captures reuse
+        // this map; Track/Retire keep it bounded by live equipment instead of round history.
+        foreach (var (uid, asset) in _assets)
+            if (asset.YamlId > 0) serializer.YamlUidMap[uid] = asset.YamlId;
         return serializer;
     }
 
@@ -514,7 +525,7 @@ public sealed partial class CrashRecoverySystem : EntitySystem
         if (now >= _nextMetrics)
         {
             _nextMetrics = now + TimeSpan.FromMinutes(1);
-            Log.Info($"Recovery: tracked={TrackedCount} pending={PendingCount} tick_ms={LastTickMilliseconds:F3} max_tick_ms={MaxTickMilliseconds:F3} write_failures={_writeFailures} dirty={_dirty.Count} discover={_discover.Count} scans={_equipmentScans.Count}/{_childScans.Count} child_ready={_childrenDiscovered.Count}");
+            Log.Info($"Recovery: tracked={TrackedCount} pending={PendingCount} tick_ms={LastTickMilliseconds:F3} max_tick_ms={MaxTickMilliseconds:F3} write_failures={_writeFailures} capture_failures={_failedUntil.Count} dirty={_dirty.Count} discover={_discover.Count} scans={_equipmentScans.Count}/{_childScans.Count} child_ready={_childrenDiscovered.Count}");
         }
     }
 
@@ -524,6 +535,8 @@ public sealed partial class CrashRecoverySystem : EntitySystem
         if (_tracked.Count == 0) return;
         if (_pollCursor >= _tracked.Count) _pollCursor = 0;
         var uid = _tracked[_pollCursor++];
+        if (TerminatingOrDeleted(uid)) { Retire(uid); return; }
+        if (!_assets.TryGetValue(uid, out var asset) || asset.Location is RecoveryLocation.Destroyed or RecoveryLocation.Persistent or RecoveryLocation.Issued) return;
         if (now < _captureAfter.GetValueOrDefault(uid)) return;
         _captureAfter[uid] = now + TimeSpan.FromSeconds(Math.Max(15, _cfg.GetCVar(RecoveryCVars.CheckpointSeconds)));
         _dirty.Enqueue(uid, 65536);
@@ -563,7 +576,7 @@ public sealed partial class CrashRecoverySystem : EntitySystem
     private void EndRound()
     {
         _ = CloseNormally();
-        _assets.Clear(); _entitiesByIdentity.Clear(); _tracked.Clear(); _bodies.Clear();
+        _assets.Clear(); _entitiesByIdentity.Clear(); _tracked.Clear(); _trackedIndices.Clear(); _bodies.Clear();
         _escrowRoots.Clear(); _deferredEscrows.Clear();
         _dirty.Clear(); _discover.Clear(); _captureAfter.Clear(); _profiles.Clear(); _profileUsers.Clear();
         _profileSlots.Clear();
