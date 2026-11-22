@@ -54,6 +54,7 @@ public sealed partial class GunSystem : SharedGunSystem
     [Dependency] private Robust.Client.Physics.PhysicsSystem _physics = default!;
 
     public static readonly EntProtoId HitscanProto = "HitscanEffect";
+    public static readonly EntProtoId HitscanRootProto = "HitscanEffectRoot";
 
     public bool SpreadOverlay
     {
@@ -136,59 +137,146 @@ public sealed partial class GunSystem : SharedGunSystem
         CreateEffect(gunUid, args, holder);
     }
 
+
+
     private void OnHitscan(HitscanEvent ev)
     {
-        // ALL I WANT IS AN ANIMATED EFFECT
+        if (!float.IsFinite(ev.Distance) || ev.Distance <= 0f)
+            return;
 
-        // TODO EFFECTS
-        // This is very jank
-        // because the effect consists of three unrelatd entities, the hitscan beam can be split appart.
-        // E.g., if a grid rotates while part of the beam is parented to the grid, and part of it is parented to the map.
-        // Ideally, there should only be one entity, with one sprite that has multiple layers
-        // Or at the very least, have the other entities parented to the same entity to make sure they stick together.
-        foreach (var a in ev.Sprites)
+        var origin = GetCoordinates(ev.Origin);
+
+        if (!HasComp<TransformComponent>(origin.EntityId))
+            return;
+
+        // Создаём луч в исходной точке выстрела,
+        // не привязывая его к движению стрелка.
+        var root = SpawnAttachedTo(
+            HitscanRootProto,
+            origin,
+            rotation: ev.ShotAngle);
+
+        // Вспышка у ствола.
+        if (ev.MuzzleFlash != null && ev.Distance >= 1f)
         {
-            if (a.Sprite is not SpriteSpecifier.Rsi rsi)
-                continue;
-
-            var coords = GetCoordinates(a.coordinates);
-
-            if (!TryComp(coords.EntityId, out TransformComponent? relativeXform))
-                continue;
-
-            var ent = Spawn(HitscanProto, coords);
-            var sprite = Comp<SpriteComponent>(ent);
-
-            var xform = Transform(ent);
-            var targetWorldRot = a.angle + _xform.GetWorldRotation(relativeXform);
-            var delta = targetWorldRot - _xform.GetWorldRotation(xform);
-            _xform.SetLocalRotationNoLerp(ent, xform.LocalRotation + delta, xform);
-
-            sprite[EffectLayers.Unshaded].AutoAnimated = false;
-            sprite.LayerSetSprite(EffectLayers.Unshaded, rsi);
-            sprite.LayerSetState(EffectLayers.Unshaded, rsi.RsiState);
-            sprite.Scale = new Vector2(a.Distance, 1f);
-            sprite[EffectLayers.Unshaded].Visible = true;
-
-            var anim = new Animation()
-            {
-                Length = TimeSpan.FromSeconds(0.48f),
-                AnimationTracks =
-                {
-                    new AnimationTrackSpriteFlick()
-                    {
-                        LayerKey = EffectLayers.Unshaded,
-                        KeyFrames =
-                        {
-                            new AnimationTrackSpriteFlick.KeyFrame(rsi.RsiState, 0f),
-                        }
-                    }
-                }
-            };
-
-            _animPlayer.Play(ent, anim, "hitscan-effect");
+            SpawnHitscanPart(
+                root,
+                0.5f,
+                ev.MuzzleFlash,
+                1f);
         }
+
+        // Основная линия лазера.
+        if (ev.TravelFlash != null && ev.Distance > 1.5f)
+        {
+            SpawnHitscanPart(
+                root,
+                (ev.Distance + 0.5f) / 2f,
+                ev.TravelFlash,
+                ev.Distance - 1.5f);
+        }
+
+        // Место попадания.
+        if (ev.ImpactFlash != null)
+        {
+            SpawnHitscanPart(
+                root,
+                ev.Distance,
+                ev.ImpactFlash,
+                1f);
+        }
+
+        // Сбрасываем интерполяцию отображения
+        // у всего лазера и его дочерних частей.
+        EntityManager.System<TransformSystem>()
+            .SnapRenderTransform(root, recursive: true);
     }
+
+    private void SpawnHitscanPart(
+        EntityUid root,
+        float localOffset,
+        SpriteSpecifier spriteSpecifier,
+        float scale,
+        Angle? localRotation = null)
+    {
+        if (spriteSpecifier is not SpriteSpecifier.Rsi rsi)
+            return;
+
+        var coords = new EntityCoordinates(
+            root,
+            new Vector2(localOffset, 0f));
+
+        // Создаём часть луча сразу с нужным
+        // локальным поворотом.
+        var ent = SpawnAttachedTo(
+            HitscanProto,
+            coords,
+            rotation: localRotation ?? Angle.Zero);
+
+        var sprite = Comp<SpriteComponent>(ent);
+
+        sprite[EffectLayers.Unshaded].AutoAnimated = false;
+        sprite.LayerSetSprite(EffectLayers.Unshaded, rsi);
+        sprite.LayerSetState(EffectLayers.Unshaded, rsi.RsiState);
+        sprite.Scale = new Vector2(scale, 1f);
+        sprite[EffectLayers.Unshaded].Visible = true;
+
+        // Возвращаем исходную анимацию на 0.48 секунды.
+        var anim = new Animation()
+        {
+            Length = TimeSpan.FromSeconds(0.48f),
+            AnimationTracks =
+        {
+            new AnimationTrackSpriteFlick()
+            {
+                LayerKey = EffectLayers.Unshaded,
+                KeyFrames =
+                {
+                    new AnimationTrackSpriteFlick.KeyFrame(
+                        rsi.RsiState,
+                        0f),
+                }
+            }
+        }
+        };
+
+        _animPlayer.Play(ent, anim, "hitscan-effect");
+    }
+
+
+    private static void SetupHitscanLayer(
+        SpriteComponent sprite,
+        EffectLayers layer,
+        SpriteSpecifier? specifier,
+        float offset,
+        float scale,
+        Angle rotation = default)
+    {
+        if (specifier is not SpriteSpecifier.Rsi rsi)
+            return;
+
+        // Устанавливаем спрайт слоя.
+        sprite.LayerSetSprite(layer, rsi);
+        sprite.LayerSetState(layer, rsi.RsiState);
+
+        // Смещаем слой относительно единого начала луча.
+        sprite.LayerSetOffset(
+            layer,
+            new Vector2(offset, 0f));
+
+        // Масштабируем только этот слой.
+        sprite.LayerSetScale(
+            layer,
+            new Vector2(scale, 1f));
+
+        // Поворот относительно основного направления.
+        sprite.LayerSetRotation(layer, rotation);
+
+        // Анимация и видимость слоя.
+        sprite[layer].AutoAnimated = true;
+        sprite[layer].Visible = true;
+    }
+
 
     public override void Update(float frameTime)
     {

@@ -900,7 +900,13 @@ public abstract partial class SharedGunSystem : EntitySystem
     [Serializable, NetSerializable]
     public sealed class HitscanEvent : EntityEventArgs
     {
-        public List<(NetCoordinates coordinates, Angle angle, SpriteSpecifier Sprite, float Distance)> Sprites = new();
+        public NetCoordinates Origin;
+        public Angle ShotAngle;
+        public float Distance;
+
+        public SpriteSpecifier? MuzzleFlash;
+        public SpriteSpecifier? TravelFlash;
+        public SpriteSpecifier? ImpactFlash;
     }
 }
 
@@ -932,6 +938,7 @@ public enum EffectLayers : byte
 {
     Unshaded,
 }
+
 
 [Serializable, NetSerializable]
 public enum AmmoVisuals : byte

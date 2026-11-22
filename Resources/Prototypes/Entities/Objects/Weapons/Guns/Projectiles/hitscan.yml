@@ -1,4 +1,3 @@
-# Used to animate the hitscan effects because effectsystem doesn't support it
 - type: entity
   id: HitscanEffect
   categories: [ HideSpawnMenu ]
@@ -15,6 +14,16 @@
     tags:
       - HideContextMenu
   - type: AnimationPlayer
+
+- type: entity
+  id: HitscanEffectRoot
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: TimedDespawn
+    lifetime: 0.48
+  - type: Tag
+    tags:
+      - HideContextMenu
 
 - type: entity
   id: BasicHitscan
