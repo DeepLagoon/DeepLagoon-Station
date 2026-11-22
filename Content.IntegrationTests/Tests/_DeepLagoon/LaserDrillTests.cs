@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Numerics;
 using Content.Client._DeepLagoon.Mining;
+using Content.Server._DeepLagoon.Mining;
 using Content.Server._Goobstation.ItemMiner;
 using Content.Server.Power.Components;
 using Content.Shared._DeepLagoon.Mining;
@@ -36,6 +37,7 @@ public sealed class LaserDrillTests
             var actor = entities.SpawnEntity(null, map.GridCoords);
             var config = entities.GetComponent<LaserDrillComponent>(drill);
             var miner = entities.GetComponent<ItemMinerComponent>(drill);
+            var baseInterval = miner.Interval;
             var consumer = entities.GetComponent<PowerConsumerComponent>(drill);
             consumer.PowerBypass = true;
             entities.GetComponent<ApcPowerReceiverComponent>(silo).Powered = true;
@@ -84,6 +86,24 @@ public sealed class LaserDrillTests
                     .ToDictionary(p => p.Key, p => -p.Value), localOnly: true);
                 Select(material);
                 Assert.That(CanMine(), Is.True);
+                var multiplier = material.Id switch
+                {
+                    "Coal" => 0.6,
+                    "RawQuartz" => 1.5,
+                    "RawSilver" => 3,
+                    "RawGold" or "RawPlasma" or "RawUranium" or "RawBananium" => 4,
+                    "RawDiamond" => 10,
+                    "RawBluespace" => 150,
+                    _ => 1,
+                };
+                Assert.That(miner.Interval.TotalSeconds,
+                    Is.EqualTo(baseInterval.TotalSeconds * multiplier).Within(0.000001), material.Id);
+                // Checking repeatedly must neither compound the interval nor pay out early.
+                var deadline = miner.NextAt;
+                Assert.That(CanMine(), Is.True);
+                Assert.That(miner.NextAt, Is.EqualTo(deadline));
+                system.Update(0);
+                Assert.That(mats.GetStoredMaterials(silo, true), Is.Empty);
                 Cycle();
                 var stored = mats.GetStoredMaterials(silo, true);
                 Assert.That(stored, Has.Count.EqualTo(1));
@@ -94,6 +114,14 @@ public sealed class LaserDrillTests
             Select("RawIron");
             miner.PendingPayouts = 3;
             Select("RawGold");
+            Assert.That(miner.PendingPayouts, Is.Zero);
+            Assert.That(miner.NextAt, Is.EqualTo(timing.CurTime + miner.Interval));
+            // Loading an old drill with an existing selection must also apply the new interval.
+            miner.Interval = baseInterval;
+            miner.NextAt = timing.CurTime - TimeSpan.FromMilliseconds(1);
+            miner.PendingPayouts = 3;
+            Assert.That(CanMine(), Is.True);
+            Assert.That(miner.Interval, Is.EqualTo(TimeSpan.FromSeconds(baseInterval.TotalSeconds * 4)));
             Assert.That(miner.PendingPayouts, Is.Zero);
             Assert.That(miner.NextAt, Is.EqualTo(timing.CurTime + miner.Interval));
             Toggle(other);
@@ -141,6 +169,61 @@ public sealed class LaserDrillTests
             using var window = new LaserDrillWindow();
             window.SetState(new LaserDrillState(new() { { "RawIron", 1500 }, { "RawGold", 1500 } },
                 "RawGold", "Test silo", LaserDrillStatus.Mining));
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task GridDrillCountScalesEveryDrillsPowerDemand()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
+        var map = await pair.CreateTestMap();
+        var otherMap = await pair.CreateTestMap();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var entities = pair.Server.EntMan;
+            var system = entities.System<LaserDrillSystem>();
+            var transforms = entities.System<SharedTransformSystem>();
+            var first = entities.SpawnEntity("LaserDrill", map.GridCoords);
+            var separate = entities.SpawnEntity("LaserDrill", otherMap.GridCoords);
+            PowerConsumerComponent Consumer(EntityUid uid) => entities.GetComponent<PowerConsumerComponent>(uid);
+            void AssertDemand(EntityUid uid, float watts)
+            {
+                system.Update(0);
+                Assert.That(Consumer(uid).DrawRate, Is.EqualTo(watts));
+            }
+
+            Assert.That(entities.GetComponent<TransformComponent>(first).Anchored, Is.True);
+            AssertDemand(first, 50000);
+            AssertDemand(separate, 50000);
+            var second = entities.SpawnEntity("StationLaserDrill", map.GridCoords);
+            AssertDemand(first, 100000);
+            AssertDemand(second, 300000);
+            var third = entities.SpawnEntity("LaserDrill", map.GridCoords);
+            AssertDemand(first, 200000);
+            var fourth = entities.SpawnEntity("LaserDrill", map.GridCoords);
+            AssertDemand(first, 400000);
+            AssertDemand(second, 1200000);
+            AssertDemand(third, 400000);
+            AssertDemand(fourth, 400000);
+            AssertDemand(separate, 50000);
+
+            transforms.Unanchor(fourth);
+            AssertDemand(first, 200000);
+            AssertDemand(fourth, 50000);
+            Assert.That(transforms.AnchorEntity(fourth), Is.True);
+            AssertDemand(first, 400000);
+            transforms.Unanchor(fourth);
+            transforms.SetCoordinates(fourth, otherMap.GridCoords);
+            Assert.That(transforms.AnchorEntity(fourth), Is.True);
+            AssertDemand(first, 200000);
+            AssertDemand(separate, 100000);
+            AssertDemand(fourth, 100000);
+
+            entities.DeleteEntity(third);
+            AssertDemand(first, 100000);
+            entities.QueueDeleteEntity(second);
+            AssertDemand(first, 50000);
         });
         await pair.CleanReturnAsync();
     }

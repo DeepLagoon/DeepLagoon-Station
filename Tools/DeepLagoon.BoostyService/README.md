@@ -1,8 +1,8 @@
 # Boosty paid-period rewards
 
-Independent Python 3.11+ service, using the standard library. No game, Bot or
-AccountService code/restart is required. It sends the existing `economy_payment`
-contract to the already deployed AccountService. The game remains running.
+Independent Python 3.11+ service, using the standard library. No game or Bot
+restart is required. It sends `economy_payment` requests to AccountService;
+paid upgrades require the AccountService capability described below.
 
 The author API is **undocumented**. Confirm authenticated compatibility with
 `discover` and `probe` before starting payouts. The public tier IDs below were
@@ -15,8 +15,12 @@ Positive `subscribe` and `recurrent` accounting events grant one gift per paid
 period: Искра 0, Импульс 100, Сияние 250, Сверхновая 1000 LC. Multi-month purchases
 record their calendar-month duration and receive one gift per payment event.
 The API, not this process, owns balances, gifts and the atomic payment journal.
-Discord roles, trial/restoration events, zero payments, upgrades, post purchases
-and mere passage of a month never trigger a gift. `isFeePaid` describes who pays
+Paid `up_subscription` events with the verified `level_period_up` schema grant
+the difference between the new and previous tier gifts (Импульс → Сверхновая:
+900 LC). The new paid period also preserves access independently of Discord.
+The next `recurrent` renewal grants the full gift again. Free changes, unknown
+upgrade schemas, Discord roles, trial/restoration events, zero payments, post
+purchases and mere passage of a month never trigger a gift. `isFeePaid` describes who pays
 Boosty's fee; it is not a payment-success indicator.
 
 `start_at` is a fixed activation boundary, in UTC. Events before it are not paid.
@@ -25,6 +29,13 @@ the existing ZubastiyGrisha/Dent1st grants and older paid periods are not replay
 Do not backdate it to recover history without reconciling prior manual grants.
 After activation, use the service's payment record for financial reconciliation;
 independent `/lc_add` grants cannot be automatically matched to a Boosty payment.
+
+Before upgrading this worker, deploy AccountService with
+`paid_subscription_upgrade_api_version: 1`. The worker refuses older versions
+that would silently ignore `previous_tier` and award the full gift for an upgrade.
+Existing journal rows and queued request bodies are preserved. Reconcile any
+manual upgrade compensation with its exact source event in the worker journal
+before enabling the updated worker, so the compensation cannot be paid again.
 
 The worker uses the linked Discord ID from the authenticated Boosty subscriber
 profile, with `bindings` available for operator-verified overrides. Missing

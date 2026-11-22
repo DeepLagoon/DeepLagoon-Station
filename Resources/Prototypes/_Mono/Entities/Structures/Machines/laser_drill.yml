@@ -81,7 +81,7 @@
   id: LaserDrill
   name: automated laser drill
   parent: LaserDrillBase
-  description: An automated drill that delivers a selected raw material directly to a linked material silo. Requires 50 kW of HV power and an expedition planet. Connect it using the silo's menu.
+  description: An automated drill that delivers a selected raw material directly to a linked material silo. More valuable materials take longer to mine. Requires an expedition planet and a base of 50 kW of HV power; each additional anchored drill on the same grid doubles every drill's power demand. Connect it using the silo's menu.
   components:
   - type: PlanetMiner
     requireExpedition: true
@@ -91,12 +91,12 @@
   id: StationLaserDrill
   name: advanced automated laser drill
   parent: LaserDrillBase
-  description: An advanced drill that delivers a selected raw material directly to a linked material silo, even in space. Requires 150 kW of HV power. Connect it using the silo's menu.
+  description: An advanced drill that delivers a selected raw material directly to a linked material silo, even in space. More valuable materials take longer to mine. Requires a base of 150 kW of HV power; each additional anchored drill on the same grid doubles every drill's power demand. Connect it using the silo's menu.
   components:
   - type: Anchorable
     flags: None # 1984
   - type: ItemMiner
-    interval: 11.5 # Approximately 100k spesos of ore per hour from both Drillsite drills.
+    interval: 11.5 # Base cycle for RawIron; scaled by the selected material's price.
   - type: PowerConsumer
     voltage: High
     drawRate: 150000

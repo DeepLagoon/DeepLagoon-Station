@@ -8,7 +8,8 @@ namespace DeepLagoon.AccountService;
 public sealed record EconomyRequest(string DiscordId, string ActorDiscordId, string RequestId,
     bool HostAuthorized = false, string? TaskId = null, string? Category = null, int Amount = 0, string? Reason = null,
     int Tier = 0, string? Receipt = null, DateTimeOffset PaidAt = default, bool Historical = false, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] DateTimeOffset? PaidUntil = null,
-    string? Color = null, string? ReferralCode = null, int ExternalTier = 0, string? NewcomerDiscordId = null, DateTimeOffset ObservedAt = default, string? OperationId = null, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Guid? ExpectedUid = null);
+    string? Color = null, string? ReferralCode = null, int ExternalTier = 0, string? NewcomerDiscordId = null, DateTimeOffset ObservedAt = default, string? OperationId = null, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Guid? ExpectedUid = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] int PreviousTier = 0);
 
 public sealed partial class AccountOperations
 {
@@ -105,7 +106,7 @@ public sealed partial class AccountOperations
                         request.Category ?? "", request.Reason ?? "", now, cancel, OnboardingStable); break;
                 case "economy_payment":
                     result = await AccountEconomyOperations.ConfirmPayment(db, target.Uid, author.Uid, request.Receipt ?? "", request.Tier,
-                        target.Username, request.PaidAt.UtcDateTime, request.Historical, now, cancel, Stable, request.PaidUntil?.UtcDateTime); break;
+                        target.Username, request.PaidAt.UtcDateTime, request.Historical, now, cancel, Stable, request.PaidUntil?.UtcDateTime, request.PreviousTier); break;
             }
             db.ChangeTracker.Clear();
             var snapshot = await AccountEconomyOperations.Get(db, target.Uid, 0, now, cancel, Stable);

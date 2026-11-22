@@ -289,7 +289,7 @@ class Boosty:
         for _ in range(self.settings.max_pages):
             if time.monotonic() - started > 120:
                 raise ServiceError("boosty_scan_deadline")
-            params = dict(event_types="subscribe,recurrent", limit=100,
+            params = dict(event_types="subscribe,recurrent,up_subscription", limit=100,
                           **{"from": self.settings.start_at, "to": until})
             if offset is not None:
                 params["offset"] = offset
@@ -317,13 +317,25 @@ class PaidEvent:
     kind: str
     amount: str
     months: int
+    previous_tier: int = 0
+
+    @property
+    def gift(self):
+        return GIFTS[self.tier] - GIFTS.get(self.previous_tier, 0)
+
+    def source(self):
+        data = asdict(self)
+        # Preserve existing journal fingerprints and immutable source rows.
+        if not self.previous_tier:
+            del data["previous_tier"]
+        return canonical(data)
 
 
 def paid_event(raw, settings, now):
     if not isinstance(raw, dict):
         raise ServiceError("invalid_boosty_event")
     kind = raw.get("eventType")
-    if kind not in ("subscribe", "recurrent"):
+    if kind not in ("subscribe", "recurrent", "up_subscription"):
         return None
     try:
         amount = Decimal(str(raw["amount"]))
@@ -342,6 +354,14 @@ def paid_event(raw, settings, now):
         level = positive_id(raw["levelId"])
         if level not in settings.levels:
             raise ServiceError("unmapped_boosty_level")
+        previous_tier = 0
+        if kind == "up_subscription":
+            old_level = positive_id(raw["oldLevelId"])
+            if old_level not in settings.levels:
+                raise ServiceError("unmapped_boosty_level")
+            previous_tier = settings.levels[old_level]
+            if previous_tier >= settings.levels[level] or raw.get("switchType") != "level_period_up":
+                raise ServiceError("unsupported_boosty_upgrade")
         months = raw.get("period", 1)
         if type(months) is not int or not 1 <= months <= 12:
             raise ValueError()
@@ -353,7 +373,7 @@ def paid_event(raw, settings, now):
             identity = dict(blog=settings.owner_id, event=str(raw["id"]))
         return PaidEvent(digest(identity), user, settings.levels[level], stamp,
                          add_months(stamp, months).isoformat().replace("+00:00", "Z"),
-                         kind, str(amount.normalize()), months)
+                         kind, str(amount.normalize()), months, previous_tier)
     except (KeyError, TypeError, ValueError, InvalidOperation, AttributeError):
         raise ServiceError("unknown_boosty_paid_event") from None
 
@@ -385,7 +405,7 @@ class Store:
         # conflicting source row. Only the minimum accounting facts are retained.
         with self.db:
             for event in events:
-                source = canonical(asdict(event))
+                source = event.source()
                 previous = self.db.execute("SELECT source FROM events WHERE key=?", (event.key,)).fetchone()
                 if previous and previous[0] != source:
                     raise ServiceError("boosty_event_changed")
@@ -427,6 +447,8 @@ class Accounts:
     def ready(self):
         result = self.http.request("GET", self.settings.account_url + "/health/ready")
         if result.get("ready") is not True or result.get("paid_subscription_api_version") != 1:
+            raise ServiceError("account_upgrade_required")
+        if result.get("paid_subscription_upgrade_api_version") != 1:
             raise ServiceError("account_upgrade_required")
 
 
@@ -491,14 +513,15 @@ def prepare(event, settings, accounts, resolve_discord=None):
     return dict(discord_id=target, actor_discord_id=settings.actor_discord_id,
                 request_id=request_id(event.key), host_authorized=True, expected_uid=uid,
                 receipt="boosty:event:" + settings.owner_id + ":" + event.key, tier=event.tier,
-                paid_at=iso(event.paid_at), paid_until=event.until, historical=False)
+                paid_at=iso(event.paid_at), paid_until=event.until, historical=False,
+                **({"previous_tier": event.previous_tier} if event.previous_tier else {}))
 
 
 def acknowledgement(reply, payload, tier):
     if (reply.get("uid") != payload["expected_uid"] or reply.get("request_id") != payload["request_id"] or
             type(reply.get("balance")) is not int or reply["balance"] < 0 or
             type(reply.get("applied")) is not bool or type(reply.get("awarded")) is not int or
-            reply["awarded"] != (GIFTS[tier] if reply["applied"] else 0)):
+            reply["awarded"] != (GIFTS[tier] - GIFTS.get(payload.get("previous_tier", 0), 0) if reply["applied"] else 0)):
         raise ServiceError("invalid_payment_acknowledgement")
     return {k: reply[k] for k in ("uid", "request_id", "balance", "applied", "awarded")}
 

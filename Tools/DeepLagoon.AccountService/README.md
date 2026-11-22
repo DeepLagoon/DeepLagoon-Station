@@ -217,6 +217,15 @@ Discord role changes its short observation only; the paid period survives.
 Historical imports grant neither a gift nor current access. Replaying a receipt
 cannot credit again, extend its expiry or move it to another account.
 
+A verified paid tier increase supplies `previous_tier` (1–3, strictly below
+`tier`). The atomic payment then grants `PaidGift(tier) - PaidGift(previous_tier)`
+and records the new tier and paid period. Regular purchases and renewals omit
+this field and grant the full gift. The previous tier is part of the immutable
+receipt; replay cannot change it. Historical imports cannot be upgrades.
+Health additionally advertises `paid_subscription_upgrade_api_version: 1`.
+Deploy this AccountService version before the Boosty worker that handles
+`up_subscription`; older workers and existing queued payment bodies stay compatible.
+
 Paid periods stay in `payment:<receipt>`. `external:<uid>` publishes the highest
 active source with its corresponding end for existing game builds. Its separate
 `DiscordTier`/`DiscordExpiresAt` fields retain the original 15-minute observation.

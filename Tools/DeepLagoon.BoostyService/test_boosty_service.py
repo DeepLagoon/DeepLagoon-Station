@@ -41,7 +41,8 @@ class FakeAccounts:
         if existing and existing != canonical(body):
             raise HttpError(409)
         applied = existing is None
-        awarded = {1: 0, 2: 100, 3: 250, 4: 1000}[body["tier"]] if applied else 0
+        gifts = {0: 0, 1: 0, 2: 100, 3: 250, 4: 1000}
+        awarded = gifts[body["tier"]] - gifts[body.get("previous_tier", 0)] if applied else 0
         self.balance += awarded
         self.receipts[body["receipt"]] = canonical(body)
         if self.drop:
@@ -137,11 +138,75 @@ class Tests(unittest.TestCase):
 
     def test_paid_at_cutoff_and_no_free_upgrade_or_role_gifts(self):
         for fields in [dict(createdAt=NOW - 1), dict(amount=0), dict(amount=-1),
-                       dict(eventType="up_subscription"), dict(eventType="unsubscribe"),
+                       dict(eventType="unsubscribe"),
                        dict(isRestore=True), dict(promo={"trialDays": 7})]:
             with self.subTest(fields=fields):
                 self.assertIsNone(self.event(**fields))
         self.assertIsNotNone(self.event(isFeePaid=False, promo=None))
+
+    def test_upgrade_pays_difference_and_renewal_pays_full_gift_after_restart(self):
+        initial = self.event(levelId=4125180)
+        upgrade = paid_event({**source(), "eventType": "up_subscription", "createdAt": NOW + 1,
+                              "amount": 1775, "oldLevelId": 4125180, "levelId": 4125184,
+                              "switchType": "level_period_up"}, self.settings, NOW + 1)
+        renewal = paid_event({**source(), "createdAt": NOW + 31 * 86400,
+                              "amount": 2000, "levelId": 4125184}, self.settings, NOW + 31 * 86400)
+        self.store.ingest([initial])
+        deliver(self.store, self.settings, self.accounts, NOW)
+        self.store.ingest([upgrade])
+        self.accounts.drop = True
+        deliver(self.store, self.settings, self.accounts, NOW + 1)
+        self.assertEqual(self.accounts.balance, 1000)
+        self.store.close()
+        self.store = Store(self.settings)
+        self.store.ingest([initial, upgrade, renewal])
+        deliver(self.store, self.settings, self.accounts, NOW + 31 * 86400)
+        self.assertEqual(self.accounts.balance, 2000)
+        self.assertEqual(self.store.status(), {"confirmed": 3})
+        payments = [json.loads(body) for action, body in self.accounts.calls if action == "economy_payment"]
+        upgrades = [body for body in payments if body.get("previous_tier") == 2]
+        self.assertEqual(upgrades[0], upgrades[1])
+        self.assertNotIn("previous_tier", payments[0])
+        self.assertEqual(upgrade.gift, 900)
+
+    def test_upgrade_requires_known_lower_level_and_verified_switch_type(self):
+        raw = dict(eventType="up_subscription", oldLevelId=4125180, levelId=4125184, switchType="level_period_up")
+        for changes in [dict(oldLevelId=9), dict(oldLevelId=4125184), dict(oldLevelId=None),
+                        dict(levelId=4140151), dict(switchType="period_up"), dict(switchType=None)]:
+            with self.subTest(changes=changes), self.assertRaises(ServiceError):
+                self.event(**{**raw, **changes})
+        self.assertIsNone(self.event(**raw, amount=0))
+        self.assertIsNone(self.event(**raw, isRestore=True))
+        self.assertIsNone(self.event(**raw, promo={"trialDays": 1}))
+
+    def test_existing_journal_sources_keep_their_original_shape(self):
+        event = self.event()
+        self.assertNotIn("previous_tier", json.loads(event.source()))
+        self.store.ingest([event])
+        before = self.store.db.execute('select source from events').fetchone()[0]
+        self.store.ingest([PaidEvent(**json.loads(before))])
+        self.assertEqual(self.store.db.execute('select source from events').fetchone()[0], before)
+
+    def test_reconciled_manual_upgrade_is_not_paid_again(self):
+        event = self.event(eventType="up_subscription", oldLevelId=4125180,
+                           levelId=4125184, switchType="level_period_up", amount=1775)
+        # An operator has already verified a 900 LC compensation in the main API.
+        self.store.db.execute("INSERT INTO events(key,source,state,acknowledgement) VALUES(?,?,'confirmed',?)",
+                              (event.key, event.source(), canonical(dict(awarded=900, manual_operation="discord:receipt"))))
+        self.store.db.commit()
+        self.store.close()
+        self.store = Store(self.settings)
+        self.store.ingest([event])
+        deliver(self.store, self.settings, self.accounts, NOW + 4000)
+        self.assertEqual(self.accounts.calls, [])
+        self.assertEqual(self.store.status(), {"confirmed": 1})
+
+    def test_worker_refuses_old_account_api_that_would_ignore_upgrade_difference(self):
+        class Transport:
+            def request(self, *args):
+                return dict(ready=True, paid_subscription_api_version=1)
+        with self.assertRaisesRegex(ServiceError, "account_upgrade_required"):
+            Accounts(self.settings, Transport()).ready()
 
     def test_unknown_levels_dates_periods_stop_without_paying(self):
         for fields in [dict(levelId=9), dict(createdAt=NOW + 301), dict(period=13),
@@ -179,8 +244,13 @@ class Tests(unittest.TestCase):
         responses = [dict(isOwner=True, owner={"id": 45945494}),
                      dict(data=[source()], extra=dict(isLast=False, offset="cursor")),
                      dict(data=[], extra=dict(isLast=True))]
-        provider.get = lambda *a, **kw: responses.pop(0)
+        calls = []
+        def get(*args, **kwargs):
+            calls.append(kwargs)
+            return responses.pop(0)
+        provider.get = get
         self.assertEqual(provider.events(NOW), [source()])
+        self.assertEqual(calls[1]["event_types"], "subscribe,recurrent,up_subscription")
         provider.get = lambda *a, **kw: dict(isOwner=False, owner={"id": 45945494})
         with self.assertRaisesRegex(ServiceError, "wrong_boosty_owner"):
             provider.events(NOW)

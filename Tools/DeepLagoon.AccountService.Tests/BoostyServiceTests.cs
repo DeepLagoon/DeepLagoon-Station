@@ -32,9 +32,9 @@ public sealed partial class AccountServiceTests
         Assert.That(process.ExitCode, Is.Zero, await error + await output);
         await using var db = _settings.OpenDatabase();
         var rows = await db.LagoonCoinOperations.Where(p => p.UserId == _user && p.OperationId.StartsWith("payment:boosty:event:")).ToListAsync();
-        Assert.That(rows, Has.Count.EqualTo(1));
-        Assert.That(rows[0].Amount, Is.EqualTo(250));
-        Assert.That((await Economy(_user)).Balance, Is.EqualTo(250));
+        Assert.That(rows, Has.Count.EqualTo(3));
+        Assert.That(rows.Select(p => p.Amount), Is.EquivalentTo(new long[] { 250, 750, 1000 }));
+        Assert.That((await Economy(_user)).Balance, Is.EqualTo(2000));
         Assert.That(await db.Preference.Where(p => p.UserId == _user).Select(p => p.Money).SingleAsync(), Is.EqualTo(777));
         TestContext.Out.WriteLine(await output);
     }

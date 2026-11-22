@@ -8,6 +8,51 @@ namespace DeepLagoon.AccountService.Tests;
 public sealed partial class AccountServiceTests
 {
     [Test]
+    public async Task PaidUpgradeAwardsOnlyDifferenceAndRenewalAwardsFullGift()
+    {
+        LinkReviewer();
+        var now = DateTime.UtcNow;
+        object Payment(string request, string receipt, int tier, int previousTier = 0) => new {
+            discord_id = Target, actor_discord_id = Actor, request_id = request,
+            host_authorized = true, receipt, tier, previous_tier = previousTier,
+            paid_at = now, paid_until = now.AddMonths(1), historical = false };
+        var initial = await Call("economy_payment", Payment(Receipt, "boosty:initial", 2));
+        Assert.That(initial.Body.GetProperty("awarded").GetInt64(), Is.EqualTo(100));
+        var upgrade = Payment("1554164947804487911", "boosty:upgrade", 4, 2);
+        var upgraded = await Call("economy_payment", upgrade);
+        Assert.That(upgraded.Status, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(upgraded.Body.GetProperty("awarded").GetInt64(), Is.EqualTo(900));
+        var replay = await Call("economy_payment", upgrade);
+        Assert.That(replay.Body.GetProperty("applied").GetBoolean(), Is.False);
+        Assert.That(replay.Body.GetProperty("awarded").GetInt64(), Is.Zero);
+        Assert.That((await Call("economy_payment", Payment("1554164947804487912", "boosty:upgrade", 4, 3))).Status,
+            Is.EqualTo(HttpStatusCode.Conflict));
+        await using (var db = _settings.OpenDatabase())
+            await AccountEconomyOperations.SyncExternal(db, _user, 0, now.AddSeconds(1), now.AddSeconds(1));
+        var paid = await Economy(_user, at: now.AddSeconds(2));
+        Assert.That(paid.Balance, Is.EqualTo(1000));
+        Assert.That(paid.State.ExternalTier, Is.EqualTo(4));
+        Assert.That(paid.State.ExternalExpiresAt, Is.EqualTo(now.AddMonths(1)));
+        var renewed = await Call("economy_payment", Payment("1554164947804487913", "boosty:renewal", 4));
+        Assert.That(renewed.Body.GetProperty("awarded").GetInt64(), Is.EqualTo(1000));
+        Assert.That((await Economy(_user)).Balance, Is.EqualTo(2000));
+    }
+
+    [TestCase(-1, false)]
+    [TestCase(4, false)]
+    [TestCase(5, false)]
+    [TestCase(2, true)]
+    public async Task InvalidUpgradeCannotAwardCoins(int previousTier, bool historical)
+    {
+        LinkReviewer();
+        var response = await Call("economy_payment", new { discord_id = Target, actor_discord_id = Actor,
+            request_id = Receipt, host_authorized = true, receipt = "invalid-upgrade", tier = 4,
+            previous_tier = previousTier, paid_at = DateTime.UtcNow, historical });
+        Assert.That(response.Status, Is.EqualTo(HttpStatusCode.BadRequest));
+        Assert.That((await Economy(_user)).Balance, Is.Zero);
+    }
+
+    [Test]
     public async Task ConfirmedPaidPeriodSurvivesRoleRemovalAndExpiresWithoutDoubleGift()
     {
         LinkReviewer();

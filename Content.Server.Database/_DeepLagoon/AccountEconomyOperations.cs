@@ -245,11 +245,13 @@ public static partial class AccountEconomyOperations
     }
     public static async Task<LagoonCoinResult> ConfirmPayment(ServerDbContext db, Guid user, Guid actor, string receipt,
         int tier, string name, DateTime paidAt, bool historical, DateTime now, CancellationToken cancel = default, Action? beforeCommit = null,
-        DateTime? paidUntil = null)
+        DateTime? paidUntil = null, int previousTier = 0)
     {
         var expiresAt = paidUntil ?? paidAt.AddMonths(1);
         if (expiresAt <= paidAt || expiresAt > paidAt.AddYears(1)) throw new ArgumentException("Invalid paid period.");
         if (receipt.Length is < 1 or > 120 || name.Length is < 1 or > 64 || tier is < 1 or > 4 || paidAt == default || paidAt > now.AddMinutes(5)) throw new ArgumentException("Invalid payment.");
+        if (previousTier < 0 || previousTier >= tier || historical && previousTier != 0)
+            throw new ArgumentException("Invalid subscription upgrade.");
         await using var tx = await db.Database.BeginTransactionAsync(cancel);
         await AccountCurrencyOperations.LockAccount(db, user, cancel);
         var wallet = await db.Preference.SingleAsync(p => p.UserId == user, cancel);
@@ -257,15 +259,16 @@ public static partial class AccountEconomyOperations
         if (existing != null)
         {
             var payment = Read<LagoonPayment>(existing);
-            if (existing.UserId != user || payment.Tier != tier || payment.PaidAt != paidAt || payment.Historical != historical ||
+            if (existing.UserId != user || payment.Tier != tier || payment.PaidAt != paidAt || payment.Historical != historical || payment.PreviousTier != previousTier ||
                 paidUntil.HasValue && payment.ExpiresAt != expiresAt)
                 throw new InvalidOperationException("Payment receipt conflicts with the confirmed period.");
             return new(wallet.LagoonCoins, 0, false);
         }
-        if (!await Receipt(db, user, "payment:" + receipt, new { tier, paidAt, historical }, cancel)) return new(wallet.LagoonCoins, 0, false);
+        object fingerprint = previousTier == 0 ? new { tier, paidAt, historical } : new { tier, paidAt, historical, previousTier };
+        if (!await Receipt(db, user, "payment:" + receipt, fingerprint, cancel)) return new(wallet.LagoonCoins, 0, false);
         db.LagoonEconomyRecords.Add(new LagoonEconomyRecord { Id = "payment:" + receipt, UserId = user,
-            Data = Json(new LagoonPayment(user, name, tier, paidAt, historical, historical ? null : expiresAt)) });
-        var amount = historical ? 0 : LagoonEconomyRules.PaidGift(tier);
+            Data = Json(new LagoonPayment(user, name, tier, paidAt, historical, historical ? null : expiresAt, previousTier)) });
+        var amount = historical ? 0 : LagoonEconomyRules.PaidGift(tier) - (previousTier == 0 ? 0 : LagoonEconomyRules.PaidGift(previousTier));
         Credit(db, wallet, "payment:" + receipt, amount, "paid-subscription:" + LagoonEconomyRules.Name(tier), now, actor);
         await db.SaveChangesAsync(cancel);
         if (!historical) await ApplyPaidPeriod(db, user, now, cancel);

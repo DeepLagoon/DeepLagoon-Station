@@ -299,10 +299,9 @@ public sealed partial class HumanoidProfileEditor
 
     private void PreviewSpeechBarks()
     {
-        if (Profile == null)
+        if (Profile == null || !_entManager.EntitySysManager.TryGetEntitySystem<SpeechBarkSystem>(out var system))
             return;
 
-        var system = _entManager.System<SpeechBarkSystem>();
         var speciesSpeech = GetSpeciesSpeech();
         if (!Profile.SpeechBarks.UseSpeciesSpeech)
             system.Preview(Profile.SpeechBarks, speciesSpeech?.BarkVoice);
@@ -310,7 +309,12 @@ public sealed partial class HumanoidProfileEditor
             system.PreviewSpecies(sound.AskSound, speciesSpeech.AudioParams);
     }
 
-    private void StopSpeechBarkPreview() => _entManager.System<SpeechBarkSystem>().StopPreview();
+    private void StopSpeechBarkPreview()
+    {
+        // The editor can outlive the entity systems while disconnecting or returning to the menu.
+        if (_entManager.EntitySysManager.TryGetEntitySystem<SpeechBarkSystem>(out var system))
+            system.StopPreview();
+    }
 
     private void ResetSpeechBarks()
     {
