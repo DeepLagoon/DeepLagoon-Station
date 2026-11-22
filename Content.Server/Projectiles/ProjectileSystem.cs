@@ -193,7 +193,10 @@ public sealed partial class ProjectileSystem : SharedProjectileSystem
                 continue;
 
             var xform = Transform(uid);
-            var vel = comp.RaycastResetVelocity ?? _physics.GetMapLinearVelocity(uid, body, xform);
+
+            var vel = comp.RaycastResetVelocity
+                ?? _physics.GetMapLinearVelocity(uid, body, xform);
+
             if (_greenZones.IsShipProjectile(uid, comp) &&
                 _greenZones.TryFindBoundary(_transformSystem.GetMapCoordinates(xform), vel * frameTime, out _))
             {

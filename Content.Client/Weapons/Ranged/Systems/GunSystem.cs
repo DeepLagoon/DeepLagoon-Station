@@ -40,6 +40,7 @@ namespace Content.Client.Weapons.Ranged.Systems;
 
 public sealed partial class GunSystem : SharedGunSystem
 {
+    [Dependency] private Robust.Client.GameObjects.TransformSystem _renderTransform = default!;
     [Dependency] private IEyeManager _eyeManager = default!;
     [Dependency] private IInputManager _inputManager = default!;
     [Dependency] private IPlayerManager _player = default!;
@@ -233,8 +234,16 @@ public sealed partial class GunSystem : SharedGunSystem
             return;
         }
 
-        // Define target coordinates relative to gun entity, so that network latency on moving grids doesn't fuck up the target location.
-        var coordinates = TransformSystem.ToCoordinates(entity, mousePos);
+
+        // Convert the cursor position using the rendered transform.
+        // The cursor and rendered shuttle must use the same reference frame.
+        var coordinates = new EntityCoordinates(
+            entity,
+            Vector2.Transform(
+                mousePos.Position,
+                _renderTransform.GetInvRenderWorldMatrix(
+                    (entity, Transform(entity)))));
+
 
         NetEntity? target = null;
         if (_state.CurrentState is GameplayStateBase screen)

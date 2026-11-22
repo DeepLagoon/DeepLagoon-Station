@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Linq;
 using Content.Client.Gameplay;
 using Content.Shared._White.Blink;
@@ -103,10 +104,23 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
         }
 
         EntityCoordinates coordinates;
-
-        if (MapManager.TryFindGridAt(mousePos, out var gridUid, out _))
+        // Convert the render-space mouse position into coordinates relative to
+        // the rendered shuttle, not its predicted/physics world transform.
+        // Use the attacker's grid first: at high shuttle speeds the grid's
+        // physics bounds may no longer be under the rendered cursor.
+        if (Transform(userOverride).GridUid is { } userGrid &&
+            TryComp<TransformComponent>(userGrid, out var userGridXform))
         {
-            coordinates = TransformSystem.ToCoordinates(gridUid, mousePos);
+            coordinates = new EntityCoordinates(userGrid,
+                Vector2.Transform(mousePos.Position,
+                    _transform.GetInvRenderWorldMatrix((userGrid, userGridXform))));
+        }
+        else if (MapManager.TryFindGridAt(mousePos, out var gridUid, out _) &&
+                 TryComp<TransformComponent>(gridUid, out var gridXform))
+        {
+            coordinates = new EntityCoordinates(gridUid,
+                Vector2.Transform(mousePos.Position,
+                    _transform.GetInvRenderWorldMatrix((gridUid, gridXform))));
         }
         else
         {
@@ -181,9 +195,10 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
         if (useDown == BoundKeyState.Down)
         {
             var attackerPos = TransformSystem.GetMapCoordinates(userOverride);
+            var targetPos = TransformSystem.ToMapCoordinates(coordinates);
 
-            if (mousePos.MapId != attackerPos.MapId ||
-                (attackerPos.Position - mousePos.Position).Length() > weapon.Range)
+            if (targetPos.MapId != attackerPos.MapId ||
+                (attackerPos.Position - targetPos.Position).LengthSquared() > weapon.Range * weapon.Range)
             {
                 if (weapon.HeavyOnLightMiss)
                     ClientHeavyAttack(userOverride, coordinates, weaponUid, weapon);
@@ -209,9 +224,6 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
 
             RaisePredictiveEvent(new LightAttackEvent(GetNetEntity(target), GetNetEntity(weaponUid), GetNetCoordinates(coordinates)));
         }
-
-        if (useDown == BoundKeyState.Down)
-            ClientLightAttack(userOverride, mousePos, coordinates, weaponUid, weapon);
     }
 
     protected override bool InRange(EntityUid user, EntityUid target, float range, ICommonSession? session)
@@ -299,8 +311,9 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
     private void ClientLightAttack(EntityUid attacker, MapCoordinates mousePos, EntityCoordinates coordinates, EntityUid weaponUid, MeleeWeaponComponent meleeComponent)
     {
         var attackerPos = TransformSystem.GetMapCoordinates(attacker);
+        var targetPos = TransformSystem.ToMapCoordinates(coordinates);
 
-        if (mousePos.MapId != attackerPos.MapId || (attackerPos.Position - mousePos.Position).Length() > meleeComponent.Range)
+        if (targetPos.MapId != attackerPos.MapId || (attackerPos.Position - targetPos.Position).LengthSquared() > meleeComponent.Range * meleeComponent.Range)
         {
             if (meleeComponent.HeavyOnLightMiss)
                 ClientHeavyAttack(attacker, coordinates, weaponUid, meleeComponent);

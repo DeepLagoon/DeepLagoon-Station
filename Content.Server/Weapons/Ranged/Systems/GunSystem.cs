@@ -239,6 +239,10 @@ public sealed partial class GunSystem : SharedGunSystem
     private void ShootOrThrow(EntityUid uid, Vector2 mapDirection, Vector2 gunVelocity, GunComponent gun, EntityUid gunUid, EntityUid? user,
                               float offset = 0f, EntityCoordinates? fromCoordinates = null) // Mono - add offset and fromCoordinates
     {
+
+        gunVelocity = Physics.GetMapLinearVelocity(gunUid)
+            - Physics.GetMapLinearVelocity(Transform(uid).Coordinates);
+
         if (gun.Target is { } target && !TerminatingOrDeleted(target))
         {
             var targeted = EnsureComp<TargetedProjectileComponent>(uid);

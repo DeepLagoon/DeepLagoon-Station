@@ -220,8 +220,27 @@ public sealed partial class ThrowingSystem : EntitySystem
         // If someone changes how tile friction works at some point, this will have to be adjusted.
         // This doesn't actually compensate for air friction, but it's low enough it shouldn't matter.
         var throwSpeed = compensateFriction ? direction.Length() / (flyTime + 1 / tileFriction) : baseThrowSpeed;
+
         var impulseVector = direction.Normalized() * throwSpeed * physics.Mass;
+
+        // Наследуем мировую скорость бросающего,
+        // учитывая систему координат самого предмета.
+        if (user is { } thrower &&
+            !TerminatingOrDeleted(thrower) &&
+            Transform(thrower).MapID == transform.MapID)
+        {
+            var throwerVelocity = _physics.GetMapLinearVelocity(thrower);
+            var parentVelocity = _physics.GetMapLinearVelocity(transform.Coordinates);
+
+            _physics.SetLinearVelocity(
+                uid,
+                throwerVelocity - parentVelocity,
+                body: physics);
+        }
+
+        // Добавляем скорость собственно броска.
         _physics.ApplyLinearImpulse(uid, impulseVector, body: physics);
+
 
         if (comp.LandTime == null || comp.LandTime <= TimeSpan.Zero)
         {
