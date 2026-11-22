@@ -108,6 +108,7 @@ public sealed partial class ParkingSystem : EntitySystem
             _reviews.Clear();
             _activeShips.Clear();
             _refreshAfter.Clear();
+            _stockParkingHulls.Clear();
             ClearAutoParking();
             _staging = null;
         });
@@ -293,11 +294,6 @@ public sealed partial class ParkingSystem : EntitySystem
         }
         finally { _busy.Remove(user); }
         await Publish(uid, ev.Actor, message);
-    }
-    public int GetCategory(EntityUid grid)
-    {
-        var mapGrid = Comp<MapGridComponent>(grid);
-        return ParkingRules.Category(_map.GetAllTiles(grid, mapGrid).Count(), mapGrid.LocalAABB.Width, mapGrid.LocalAABB.Height);
     }
     private void CheckEmpty(EntityUid grid)
     {

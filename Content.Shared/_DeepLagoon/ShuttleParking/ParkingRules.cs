@@ -20,14 +20,55 @@ public static class ParkingRules
     // Both tile count and dimensions matter: long sparse hulls cannot use a small berth.
     public static int Category(int tiles, float width, float height)
     {
+        ValidateHull(tiles, width, height);
+        var length = Math.Max(width, height);
+        for (var category = 0; category < 4; category++)
+        {
+            var limits = CategoryLimits(category);
+            if (tiles <= limits.Tiles && length <= limits.Length)
+                return category;
+        }
+        return 4;
+    }
+
+    /// <summary>
+    /// A catalog hull fits its shipyard category, even if it exceeds the generic size limits.
+    /// Scale each limit by that stock hull's excess so extensions still require larger berths.
+    /// Removing tiles never lowers a vessel below its catalog category.
+    /// </summary>
+    public static int VesselCategory(int catalogCategory, int tiles, float width, float height,
+        int stockTiles, float stockWidth, float stockHeight)
+    {
+        ValidateHull(tiles, width, height);
+        ValidateHull(stockTiles, stockWidth, stockHeight);
+        var baseline = CategoryLimits(catalogCategory);
+        var tileCapacity = Math.Max(stockTiles, baseline.Tiles);
+        var lengthCapacity = Math.Max(Math.Max(stockWidth, stockHeight), baseline.Length);
+        var length = Math.Max(width, height);
+        for (var category = catalogCategory; category < 4; category++)
+        {
+            var limits = CategoryLimits(category);
+            // Compare products to keep the exact stock boundary free of rounding and integer overflow.
+            if ((long) tiles * baseline.Tiles <= (long) limits.Tiles * tileCapacity
+                && (double) length * baseline.Length <= (double) limits.Length * lengthCapacity)
+                return category;
+        }
+        return 4;
+    }
+
+    private static (int Tiles, int Length) CategoryLimits(int category) => category switch
+    {
+        0 => (200, 24),
+        1 => (450, 32),
+        2 => (1500, 64),
+        3 => (5000, 100),
+        _ => throw new ArgumentOutOfRangeException(nameof(category)),
+    };
+
+    private static void ValidateHull(int tiles, float width, float height)
+    {
         if (tiles <= 0 || !float.IsFinite(width) || !float.IsFinite(height) || width <= 0 || height <= 0)
             throw new ArgumentOutOfRangeException(nameof(tiles));
-        var length = Math.Max(width, height);
-        if (tiles <= 200 && length <= 24) return 0;
-        if (tiles <= 450 && length <= 32) return 1;
-        if (tiles <= 1500 && length <= 64) return 2;
-        if (tiles <= 5000 && length <= 100) return 3;
-        return 4;
     }
     public static int RedemptionPrice(int originalPrice) => originalPrice > 0
         ? checked((int)(((long) originalPrice * 5 + 1) / 2)) : throw new ArgumentOutOfRangeException(nameof(originalPrice));

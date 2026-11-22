@@ -28,6 +28,31 @@ public sealed class ParkingStoreTests
     public void ClassifiesActualHullAndGrowth(int tiles, float width, float height, int expected) =>
         Assert.That(ParkingRules.Category(tiles, width, height), Is.EqualTo(expected));
 
+    [TestCase(1, 700, 24, 48, 700, 24, 48, 1)]
+    [TestCase(1, 700, 48, 24, 700, 24, 48, 1)]
+    [TestCase(1, 100, 10, 10, 700, 24, 48, 1)]
+    [TestCase(1, 701, 24, 48, 700, 24, 48, 2)]
+    [TestCase(1, 700, 24, 49, 700, 24, 48, 2)]
+    [TestCase(1, 700, 24, 97, 700, 24, 48, 3)]
+    [TestCase(1, 700, 24, 151, 700, 24, 48, 4)]
+    [TestCase(0, 200, 24, 10, 100, 10, 10, 0)]
+    [TestCase(0, 201, 24, 10, 100, 10, 10, 1)]
+    [TestCase(2, 6538, 63, 136, 6538, 63, 136, 2)]
+    [TestCase(2, 6539, 63, 136, 6538, 63, 136, 3)]
+    [TestCase(2, 22000, 63, 136, 6538, 63, 136, 4)]
+    public void CatalogCategoryAllowsStockHullAndStillLimitsExtensions(int category, int tiles, float width, float height,
+        int stockTiles, float stockWidth, float stockHeight, int expected) =>
+        Assert.That(ParkingRules.VesselCategory(category, tiles, width, height, stockTiles, stockWidth, stockHeight), Is.EqualTo(expected));
+
+    [Test]
+    public void CatalogCategoryRejectsInvalidHullAndCategory()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => ParkingRules.VesselCategory(1, 0, 24, 48, 700, 24, 48));
+        Assert.Throws<ArgumentOutOfRangeException>(() => ParkingRules.VesselCategory(1, 700, float.NaN, 48, 700, 24, 48));
+        Assert.Throws<ArgumentOutOfRangeException>(() => ParkingRules.VesselCategory(1, 700, 24, 48, 0, 24, 48));
+        Assert.Throws<ArgumentOutOfRangeException>(() => ParkingRules.VesselCategory(4, 700, 24, 48, 700, 24, 48));
+    }
+
     [Test]
     public void PurchasesRetrySameReceiptAndOnlyAdditionalPlacesAreDiscounted()
     {
