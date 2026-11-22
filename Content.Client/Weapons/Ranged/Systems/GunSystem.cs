@@ -40,6 +40,7 @@ namespace Content.Client.Weapons.Ranged.Systems;
 
 public sealed partial class GunSystem : SharedGunSystem
 {
+    [Dependency] private TransformSystem _renderTransform = default!;
     [Dependency] private IEyeManager _eyeManager = default!;
     [Dependency] private IInputManager _inputManager = default!;
     [Dependency] private IPlayerManager _player = default!;
@@ -233,8 +234,28 @@ public sealed partial class GunSystem : SharedGunSystem
             return;
         }
 
-        // Define target coordinates relative to gun entity, so that network latency on moving grids doesn't fuck up the target location.
-        var coordinates = TransformSystem.ToCoordinates(entity, mousePos);
+
+        // On high-speed grids the eye's map position and the interpolated
+        // character transform may be updated on different frames. PixelToMap
+        // uses the eye; take the aim offset in that same frame, then apply it
+        // to the actor's simulation position for the networked shot.
+        var simulatedShooter = TransformSystem.GetMapCoordinates(entity);
+        var renderedShooter = _renderTransform.GetRenderMapCoordinates((entity, Transform(entity)));
+        var eyePosition = _eyeManager.CurrentEye.Position;
+        var aimOrigin = renderedShooter;
+
+        // Only use the camera as an origin while it is following this actor.
+        // Remote cameras and vehicle-mounted viewports should not be redirected.
+        if (eyePosition.MapId == mousePos.MapId &&
+            renderedShooter.MapId == mousePos.MapId &&
+            Vector2.DistanceSquared(eyePosition.Position, renderedShooter.Position) < 36f)
+        {
+            aimOrigin = eyePosition;
+        }
+
+        var coordinates = TransformSystem.ToCoordinates(entity, new MapCoordinates(
+            simulatedShooter.Position + mousePos.Position - aimOrigin.Position,
+            mousePos.MapId));
 
         NetEntity? target = null;
         if (_state.CurrentState is GameplayStateBase screen)

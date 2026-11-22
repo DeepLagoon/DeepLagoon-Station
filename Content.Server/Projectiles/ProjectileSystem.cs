@@ -176,6 +176,17 @@ public sealed partial class ProjectileSystem : SharedProjectileSystem
     }
     // Exodus-OptimizeProjectiles-End
 
+    // On a moving grid the physics body's velocity is relative to the parent grid,
+    // while map velocity additionally includes the shuttle's movement.
+    // Raycasts against objects aboard that same grid must use relative travel.
+    private Vector2 GetProjectileTravelVelocity(ProjectileComponent projectile, PhysicsComponent body, TransformComponent xform)
+    {
+        if (projectile.RaycastResetVelocity is { } preservedMapVelocity)
+            return preservedMapVelocity - _physics.GetMapLinearVelocity(xform.Coordinates);
+
+        return body.LinearVelocity;
+    }
+
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
@@ -193,16 +204,18 @@ public sealed partial class ProjectileSystem : SharedProjectileSystem
                 continue;
 
             var xform = Transform(uid);
-            var vel = comp.RaycastResetVelocity ?? _physics.GetMapLinearVelocity(uid, body, xform);
+            var travelVelocity = GetProjectileTravelVelocity(comp, body, xform);
+            // Green zone / ship boundary checks operate in map space.
+            var mapVelocity = comp.RaycastResetVelocity ?? _physics.GetMapLinearVelocity(uid, body, xform);
             if (_greenZones.IsShipProjectile(uid, comp) &&
-                _greenZones.TryFindBoundary(_transformSystem.GetMapCoordinates(xform), vel * frameTime, out _))
+                _greenZones.TryFindBoundary(_transformSystem.GetMapCoordinates(xform), mapVelocity * frameTime, out _))
             {
                 comp.ProjectileSpent = true;
                 QueueDel(uid);
                 continue;
             }
 
-            var velLen = vel.Length();
+            var velLen = travelVelocity.Length();
             if (!ShouldRaycastProjectile(velLen) && comp.RaycastResetVelocity == null)
                 continue;
 
@@ -222,7 +235,7 @@ public sealed partial class ProjectileSystem : SharedProjectileSystem
         for (var i = 0; i < _projectiles.Count; i++)
         {
             var (uid, comp, body, xform, projFix) = _projectiles[i];
-            var vel = comp.RaycastResetVelocity ?? _physics.GetMapLinearVelocity(uid, body, xform);
+            var vel = GetProjectileTravelVelocity(comp, body, xform);
             var velLen = vel.Length();
             var rayDir = vel / velLen;
             var lastMap = _transformSystem.GetMapCoordinates(xform);
@@ -273,9 +286,9 @@ public sealed partial class ProjectileSystem : SharedProjectileSystem
                 // no valid hit вЂ“ reset velocity if needed
                 if (comp.RaycastResetVelocity is { } resetVel)
                 {
-                    var parentVel = _physics.GetMapLinearVelocity(xform.ParentUid);
-                    var resetTo = resetVel - parentVel;
-                    _physics.SetLinearVelocity(uid, resetTo, body: body);
+                    // Preserve absolute map velocity across grid/map reparenting.
+                    var parentVelocity = _physics.GetMapLinearVelocity(xform.Coordinates);
+                    _physics.SetLinearVelocity(uid, resetVel - parentVelocity, body: body);
                     comp.RaycastResetVelocity = null;
                 }
             }
@@ -310,7 +323,7 @@ public sealed partial class ProjectileSystem : SharedProjectileSystem
                     RaiseLocalEvent(hitEnt, ref otherEv);
                     if (otherEv.Cancelled) continue;
 
-                    // Valid hit вЂ“ apply it
+                    // Valid hit – apply it
                     var lastMap = _transformSystem.GetMapCoordinates(xform);
                     var hitMapCoord = lastMap.Offset(hit.Distance * data.Ray.Direction);
                     var hitPos = _transformSystem.ToCoordinates(hitMapCoord);
@@ -321,8 +334,9 @@ public sealed partial class ProjectileSystem : SharedProjectileSystem
                     // Set velocity for the frame of impact
                     if (comp.RaycastResetVelocity == null)
                     {
-                        var parentVel = _physics.GetMapLinearVelocity(xform.ParentUid);
-                        comp.RaycastResetVelocity = velocity + parentVel;
+                        // Store world/map velocity exactly once: the previous
+                        // implementation added the grid's velocity twice.
+                        comp.RaycastResetVelocity = _physics.GetMapLinearVelocity(uid, body, xform);
                         var curVel = body.LinearVelocity;
                         curVel.Normalize();
                         curVel *= 1f / frameTime;

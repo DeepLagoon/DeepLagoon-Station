@@ -106,22 +106,29 @@ public sealed partial class GunSystem : SharedGunSystem
             }
         }
 
+        // A fire-control gun must shoot from its own muzzle, not from the
+        // operator sitting at a console elsewhere on the grid.
+        var shipGun = !throwItems && HasComp<FireControllableComponent>(gunUid);
+        if (shipGun)
+            fromCoordinates = Transform(gunUid).Coordinates;
+
         var fromMap = TransformSystem.ToMapCoordinates(fromCoordinates);
         var toMap = TransformSystem.ToMapCoordinates(toCoordinates).Position;
         var mapDirection = toMap - fromMap.Position;
         var mapAngle = mapDirection.ToAngle();
 
-        // If applicable, this ensures the projectile is parented to grid on spawn, instead of the map.
-        var fromEnt = MapManager.TryFindGridAt(fromMap, out var gridUid, out var grid)
-            ? _transform.WithEntityId(fromCoordinates, gridUid)
+        // Parent the projectile to the shooter's grid explicitly. This is
+        // independent of TryFindGridAt(), which only succeeds above solid tiles.
+        var shooter = shipGun ? gunUid : user ?? gunUid;
+        var shooterGrid = Transform(shooter).GridUid;
+        var fromEnt = shooterGrid is { } ownerGrid
+            ? _transform.WithEntityId(fromCoordinates, ownerGrid)
             : _transform.ToCoordinates(fromMap);
 
-        // get gun's fromEnt-relative velocity
-        var gunVelocity = Vector2.Zero;
-        gunVelocity = Physics.GetMapLinearVelocity(gunUid) - Physics.GetMapLinearVelocity(fromEnt);
+        // Velocity relative to the selected parent grid, without adding
+        // the shuttle's velocity twice.
+        var gunVelocity = Physics.GetMapLinearVelocity(gunUid) - Physics.GetMapLinearVelocity(fromEnt);
 
-        // I must be high because this was getting tripped even when true.
-        // DebugTools.Assert(direction != Vector2.Zero);
         var shotProjectiles = new List<EntityUid>(ammo.Count);
 
         var offset = -1f; // Mono
@@ -284,6 +291,29 @@ public sealed partial class GunSystem : SharedGunSystem
         }
 
         projectileComp.Damage *= damageModifier.Modifier;
+
+        // Ship-mounted physical guns inherit the ship's velocity when their
+        // projectiles leave the grid. Steer the *relative* muzzle velocity so
+        // that the resulting map velocity follows the cursor bearing.
+        // Hitscan is handled separately above and requires no correction.
+        if (HasComp<FireControllableComponent>(gunUid) &&
+            gun.ProjectileSpeedModified > 0f && mapDirection.LengthSquared() > 0.000001f)
+        {
+            var desired = Vector2.Normalize(mapDirection);
+            var inheritedVelocity = Physics.GetMapLinearVelocity(Transform(uid).Coordinates) + gunVelocity;
+            var lateral = inheritedVelocity - desired * Vector2.Dot(inheritedVelocity, desired);
+            var speed = gun.ProjectileSpeedModified;
+            var lateralSpeedSquared = lateral.LengthSquared();
+
+            // A solution at the current muzzle speed exists only if the
+            // transverse ship speed is smaller than the projectile speed.
+            if (lateralSpeedSquared < speed * speed)
+            {
+                var forward = MathF.Sqrt(speed * speed - lateralSpeedSquared);
+                if (forward + Vector2.Dot(inheritedVelocity, desired) > 0f)
+                    mapDirection = desired * forward - lateral;
+            }
+        }
 
         ShootProjectile(uid,
             mapDirection,
