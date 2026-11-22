@@ -109,10 +109,8 @@ public sealed class WikiDocumentView : BoxContainer
         base.FrameUpdate(args);
         if (_shuttingDown || !_web.Visible) return;
         _loadSeconds += args.DeltaSeconds;
-        if (!WebViewCapabilities.NativeLifecycle && _ensureViewport && !_web.IsLoading && _loadSeconds >= 1)
+        if (_ensureViewport && WebViewLifetime.InitializeViewport(_web))
         {
-            _web.Arrange(UIBox2.FromDimensions(Vector2.Zero, _web.Size + Vector2.One));
-            InvalidateArrange();
             _ensureViewport = false;
         }
         _treeRefresh -= args.DeltaSeconds;
@@ -127,12 +125,19 @@ public sealed class WikiDocumentView : BoxContainer
         _status.Visible = _bookPath == null || _web.IsLoading;
     }
 
+    protected override void EnteredTree()
+    {
+        base.EnteredTree();
+        _ensureViewport = true;
+    }
+
     [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
     protected override void Dispose(bool disposing)
     {
         _web.RemoveBeforeBrowseHandler(BeforeBrowse);
         _web.RemoveResourceRequestHandler(ResourceRequest);
         WebViewLifetime.Close(_web);
+        WebViewLifetime.DetachClosingChildren(this);
         base.Dispose(disposing);
     }
 }

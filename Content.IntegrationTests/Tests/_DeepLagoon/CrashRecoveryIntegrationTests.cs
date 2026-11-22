@@ -268,6 +268,58 @@ public sealed class CrashRecoveryIntegrationTests
     }
 
     [Test]
+    public async Task RegisteredApartmentEscrowAcceptsNewGearBeforeContainerMembershipIsRecorded()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        var map = await pair.CreateTestMap();
+        var scope = "test" + Guid.NewGuid().ToString("N");
+        var user = Guid.NewGuid();
+        var recovery = pair.Server.EntMan.System<CrashRecoverySystem>();
+        await pair.Server.WaitAssertion(() =>
+        {
+            pair.Server.CfgMan.SetCVar(RecoveryCVars.Scope, scope);
+            pair.Server.CfgMan.SetCVar(RecoveryCVars.Enabled, true);
+        });
+        await PoolManager.WaitUntil(pair.Server, () => recovery.Ready, 3600);
+        EntityUid bag = default, disk = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var e = pair.Server.EntMan;
+            var body = e.SpawnEntity("MobHumanDummy", map.GridCoords);
+            recovery.RegisterBody(body, user, 1);
+            var escrow = e.SpawnEntity(null, map.GridCoords);
+            recovery.RegisterEscrow(escrow, body);
+            var containers = e.System<SharedContainerSystem>();
+            var storage = containers.EnsureContainer<Container>(escrow, "apartment-gear");
+            bag = e.SpawnEntity("ClothingBackpack", map.GridCoords);
+            e.GetComponent<RecoveryEscrowComponent>(escrow).ReturnPaths[bag] = ["back"];
+            // The item has not reached recovery discovery yet. Insert must complete without throwing.
+            Assert.That(containers.Insert(bag, storage), Is.True);
+            disk = e.SpawnEntity("ResearchDisk", map.GridCoords);
+            Assert.That(containers.Insert(disk, e.GetComponent<StorageComponent>(bag).Container), Is.True);
+        });
+        RecoveryIncident snapshot = default!;
+        await PoolManager.WaitUntil(pair.Server, async () =>
+        {
+            snapshot = await pair.Server.ResolveDependency<IServerDbManager>().ReadCrashRecovery(scope, recovery.RunIdentity);
+            return snapshot.Assets.Count(a => a.Data.Length > 0) == 2;
+        }, 1200);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var e = pair.Server.EntMan;
+            var bagIdentity = e.GetComponent<RecoveryIdentityComponent>(bag).Identity;
+            var diskIdentity = e.GetComponent<RecoveryIdentityComponent>(disk).Identity;
+            Assert.That(snapshot.Assets.Single(a => a.Identity == bagIdentity).BodyPath, Is.EqualTo(new[] { "back" }));
+            Assert.That(snapshot.Assets.Single(a => a.Identity == diskIdentity).BodyPath,
+                Is.EqualTo(new[] { "back", StorageComponent.ContainerId }));
+            Assert.That(snapshot.Assets.All(a => a.User == user && a.Profile == 1), Is.True);
+        });
+        await recovery.CloseNormally();
+        await recovery.StopWorker();
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task ApartmentEscrowKeepsOfflineCharacterAndOriginalNestedReturnPaths()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });

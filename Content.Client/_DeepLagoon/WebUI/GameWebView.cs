@@ -44,6 +44,8 @@ public sealed class GameWebView : Control
     private bool _healthFailed;
     private bool _recovering;
     private bool _warmSuspended;
+    private bool _viewportPending;
+    private float _viewportScale;
     private bool CanKeepWarm => _suspendWhenHidden && WebViewCapabilities.NativeLifecycle;
     private readonly bool _suspendWhenHidden;
     private readonly bool _captureKeyboard;
@@ -298,6 +300,7 @@ public sealed class GameWebView : Control
             {
                 _view ??= CreateView();
                 AddChild(_view);
+                _viewportPending = true;
                 _presentationCover?.SetPositionLast();
                 if (CanKeepWarm) _view.AlwaysActive = true;
             }
@@ -308,6 +311,12 @@ public sealed class GameWebView : Control
                 UserInterfaceManager.DeferAction(() => { if (!_disposed && !_shuttingDown) Failed?.Invoke(); });
                 return;
             }
+        }
+        if (VisibleInTree && _view?.IsInsideTree == true &&
+            (_viewportPending || _viewportScale != _view.UIScale) && WebViewLifetime.InitializeViewport(_view))
+        {
+            _viewportPending = false;
+            _viewportScale = _view.UIScale;
         }
         if (_warmSuspended && VisibleInTree)
         {
@@ -563,10 +572,11 @@ public sealed class GameWebView : Control
         InvalidatePresentation();
         ReleaseTextInput();
         if (_view == null) return;
-        _view.RemoveBeforeBrowseHandler(BeforeBrowse);
-        _view.RemoveResourceRequestHandler(ResourceRequest);
-        WebViewLifetime.Close(_view);
+        var view = _view;
         _view = null;
+        view.RemoveBeforeBrowseHandler(BeforeBrowse);
+        view.RemoveResourceRequestHandler(ResourceRequest);
+        WebViewLifetime.Close(view);
         _warmSuspended = false;
         _healthWait = _pingWait = 0;
         _healthFailed = _recovering = false;
@@ -583,7 +593,9 @@ public sealed class GameWebView : Control
             _view.RemoveBeforeBrowseHandler(BeforeBrowse);
             _view.RemoveResourceRequestHandler(ResourceRequest);
             WebViewLifetime.Close(_view);
+            _view = null;
         }
+        WebViewLifetime.DetachClosingChildren(this);
         base.Dispose(disposing);
     }
 }

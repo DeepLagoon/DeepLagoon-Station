@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Numerics;
 using Content.Client._DeepLagoon.WebUI;
 using NUnit.Framework;
 using Robust.Client.UserInterface;
 using Robust.Client.WebView;
 using Robust.Shared.IoC;
+using Robust.Shared.Maths;
 using Robust.UnitTesting;
 
 namespace Content.Tests.Client;
@@ -95,12 +97,59 @@ public sealed partial class WebViewLifetimeTest : RobustUnitTest
         WebViewLifetime.Close(view);
         DrainDeferred(ui);
 
-        Assert.That(view.Disposed, Is.True);
+        Assert.That(view.Disposed, Is.EqualTo(!disposeParent), "Disposing a host must detach its already closing browser");
         Assert.That(view.Parent, Is.Null);
         Assert.That(view.IsInsideTree, Is.False);
         Assert.That(registry.Active.Count, Is.EqualTo(baseline));
         Assert.That(_browsers[^1].Closes, Is.EqualTo(1));
         Assert.That(_browsers[^1].Open, Is.False);
+    }
+
+    [Test]
+    public void ReopenedLaidOutViewportResizesStockTextureWithoutMovingTheControl()
+    {
+        var ui = IoCManager.Resolve<IUserInterfaceManager>();
+        var view = new WebViewControl();
+        ui.WindowRoot.AddChild(view);
+        var size = new Vector2(640, 480);
+        var position = new Vector2(20, 30);
+        view.Measure(size);
+        view.Arrange(UIBox2.FromDimensions(position, size));
+        view.Orphan();
+        var browser = _browsers[^1];
+        var textureSize = Vector2i.One;
+        browser.ResizeNative = () => textureSize = view.PixelSize;
+        ui.WindowRoot.AddChild(view);
+        Assert.That(textureSize, Is.EqualTo(Vector2i.One), "Stock StartBrowser does not resize an already laid out control");
+        Assert.That(WebViewLifetime.InitializeViewport(view), Is.True);
+        Assert.That(textureSize, Is.EqualTo(view.PixelSize));
+        Assert.That(view.Size, Is.EqualTo(size));
+        Assert.That(view.Position, Is.EqualTo(position));
+        view.Orphan();
+        Assert.That(WebViewLifetime.InitializeViewport(view), Is.False, "Do not resize a closed browser");
+    }
+
+    [Test]
+    public void DisposingHostAfterAncestorExitKeepsNativeCallbackOwnerAlive()
+    {
+        var ui = IoCManager.Resolve<IUserInterfaceManager>();
+        var registry = IoCManager.Resolve<WebViewLifetimeRegistry>();
+        var host = new ExitHost();
+        ui.WindowRoot.AddChild(host);
+        var view = new WebViewControl();
+        host.View = view;
+        host.AddChild(view);
+        WebViewLifetime.Register(view, () => { });
+        host.Orphan();
+        Assert.That(registry.Closing.Contains(view), Is.True);
+#pragma warning disable CS0618
+        host.Dispose();
+#pragma warning restore CS0618
+        Assert.That(view.Parent, Is.Null);
+        Assert.That(view.Disposed, Is.False, "Native CEF may query its viewport after CloseBrowser returns");
+        Assert.That(_browsers[^1].Closes, Is.EqualTo(1));
+        DrainDeferred(ui);
+        Assert.That(registry.Closing.Contains(view), Is.False);
     }
 
     [Test]
@@ -131,6 +180,13 @@ public sealed partial class WebViewLifetimeTest : RobustUnitTest
             base.ExitedTree();
             if (Close != null) Close(View); else WebViewLifetime.Close(View);
         }
+
+        [Obsolete("Controls should only be removed from UI tree instead of being disposed")]
+        protected override void Dispose(bool disposing)
+        {
+            WebViewLifetime.DetachClosingChildren(this);
+            base.Dispose(disposing);
+        }
     }
 
     public class ManagerProxy : DispatchProxy
@@ -143,12 +199,13 @@ public sealed partial class WebViewLifetimeTest : RobustUnitTest
     {
         public bool Open;
         public int Starts, Closes;
-        public Action StartNative, CloseNative;
+        public Action StartNative, CloseNative, ResizeNative;
         protected override object Invoke(MethodInfo method, object[] args)
         {
             if (method.Name == "get_IsOpen") return Open;
             if (method.Name == "StartBrowser") { Open = true; Starts++; StartNative?.Invoke(); }
             if (method.Name == "CloseBrowser") { Assert.That(Open, Is.True, "A browser must not be closed twice"); Open = false; Closes++; CloseNative?.Invoke(); }
+            if (method.Name == "Resized") ResizeNative?.Invoke();
             return method.ReturnType == typeof(bool) ? false : null;
         }
     }

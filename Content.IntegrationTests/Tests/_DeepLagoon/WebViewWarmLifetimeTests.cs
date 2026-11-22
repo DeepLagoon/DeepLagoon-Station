@@ -12,6 +12,31 @@ public sealed class WebViewWarmLifetimeTests
     private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
 
     [Test]
+    public async Task DisposingDetachedGameHostDoesNotDisposeClosingStockView()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { InLobby = true });
+        await pair.Client.WaitAssertion(() =>
+        {
+            var ui = pair.Client.ResolveDependency<IUserInterfaceManager>();
+            var registry = pair.Client.ResolveDependency<WebViewLifetimeRegistry>();
+            var web = new GameWebView();
+            ui.WindowRoot.AddChild(web);
+            typeof(GameWebView).GetMethod("FrameUpdate", Private)!.Invoke(web, new object[] { new FrameEventArgs(0) });
+            var view = (WebViewControl) typeof(GameWebView).GetField("_view", Private)!.GetValue(web)!;
+            web.Orphan();
+#pragma warning disable CS0618
+            web.Dispose();
+#pragma warning restore CS0618
+            Assert.That(view.Parent, Is.Null);
+            Assert.That(view.IsInsideTree, Is.False);
+            Assert.That(view.Disposed, Is.False, "Stock CEF may still query the detached view until OnBeforeClose");
+            Assert.That(registry.Active.ContainsKey(view), Is.False);
+            Assert.That(registry.Closing.Contains(view), Is.False);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task ShortHidePreservesControlAndReadyStateButExpiryReleasesIt()
     {
         if (!WebViewCapabilities.NativeLifecycle)

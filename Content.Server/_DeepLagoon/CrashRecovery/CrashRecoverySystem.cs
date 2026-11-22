@@ -268,7 +268,12 @@ public sealed partial class CrashRecoverySystem : EntitySystem
                 var root = entity;
                 while (Transform(root).ParentUid != current && Transform(root).ParentUid.IsValid()) root = Transform(root).ParentUid;
                 var prefix = escrow.ReturnPaths.GetValueOrDefault(root);
-                return (escrow.User, escrow.Profile, prefix == null ? path.ToArray() : prefix.Concat(path.Skip(1)).ToArray());
+                if (prefix == null) return (escrow.User, escrow.Profile, path.ToArray());
+                // Parent changes are raised before Insert records container membership, so path can be empty.
+                // Avoid Concat(Skip(1)): .NET 10's list iterator throws while copying that empty suffix.
+                var returnPath = new List<string>(prefix);
+                for (var index = 1; index < path.Count; index++) returnPath.Add(path[index]);
+                return (escrow.User, escrow.Profile, returnPath.ToArray());
             }
             if (_containers.TryGetContainingContainer(current, out var container)) path.Add(container.ID);
             var parent = Transform(current).ParentUid;

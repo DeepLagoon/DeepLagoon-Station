@@ -84,9 +84,7 @@ public sealed partial class LobbyBackground
         {
             _ready = true;
             _mediaView.Modulate = Color.White;
-            // Stock WebView starts with a 1x1 texture. Request a fresh layout after its first frame.
-            _mediaView.Arrange(UIBox2.FromDimensions(Vector2.Zero, Size + Vector2.One));
-            InvalidateArrange();
+            WebViewLifetime.InitializeViewport(_mediaView);
         }
         if (!_ready)
             _loadWait += delta;
@@ -171,6 +169,7 @@ public sealed partial class LobbyBackground
     protected override void Dispose(bool disposing)
     {
         Stop();
+        WebViewLifetime.DetachClosingChildren(this);
         base.Dispose(disposing);
     }
 }
