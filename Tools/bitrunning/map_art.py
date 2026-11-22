@@ -1014,7 +1014,11 @@ class MapArt:
                 original = self.add(path, normal, old_state, variant)
         source_smooth = self.smoothing(source, native, path, state)
         if source_smooth is not None:
-            original, component = source_smooth
+            smooth_style, component = source_smooth
+            # Membership alone must not discard the runtime atlas selected by
+            # doors, storage or other visualizers. Only active smoothing owns it.
+            if component['mode'] != 'NoSprite':
+                original = smooth_style
             overrides.append(component)
         smooth = native.get("IconSmooth")
         if source_smooth is None and smooth and smooth.get("mode") != "NoSprite":

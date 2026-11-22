@@ -1154,7 +1154,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/centcom_7fbd61290078.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/centcom_679243cc152c.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1208,7 +1208,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/wood_99caf0cbde14.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/wood_f53f5ffe8891.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1262,7 +1262,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/silver_86454c9f6d4e.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/silver_576568064f56.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1316,7 +1316,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/vault_33817b5c1b5a.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/vault_7b8faca1b741.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1381,7 +1381,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/survival_ff488af92de6.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/survival_8483f9a6123e.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1437,7 +1437,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/highsec_f119a52957db.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/highsec_72611b28c290.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1491,7 +1491,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/command_22b38f5fd341.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/command_c46867b0e465.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1545,7 +1545,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/glass_c5f301ffabd5.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/glass_120b609c57c2.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1599,7 +1599,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/centcom_7f2bbb15a4c3.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/centcom_593df0f0ac1f.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1653,7 +1653,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/public_1b46acff887d.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/public_79ec8e61a23c.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1707,7 +1707,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/sandstone_39ccdc260f2f.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/sandstone_b56fcbab842b.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1761,7 +1761,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/blastdoor_f85ff26cc233.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/blastdoor_859a0a3ada4b.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1815,7 +1815,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/bananium_cafcf05bd3cf.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/bananium_4bac05220423.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1869,7 +1869,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/maintenance_31cca2450ca3.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/maintenance_2005b54709b5.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1923,7 +1923,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/metal_baa3e985b4ce.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/metal_ae596a3b5195.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -1988,7 +1988,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shuttle_ac927108af4e.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shuttle_74c853b6e778.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -2042,7 +2042,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/engineering_ab8a6251e9fd.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/engineering_6c470bc0692e.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -2096,7 +2096,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/external_dfb028024033.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/external_959e4a18bdeb.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects-external.rsi
@@ -2150,7 +2150,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/freezer_2c3a11b2b061.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/freezer_c3c8dc1c1d8b.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -2204,7 +2204,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/public_1b46acff887d.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/public_c15067ff6b7e.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -2258,7 +2258,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/glass_2b80010513c7.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/glass_dc8a7c71c7fb.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -2323,7 +2323,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/maintenance_6acfa5015b38.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/maintenance_7198fafda347.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -2377,7 +2377,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/medical_77b6cbdea27f.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/medical_bd1a9c35fd5e.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -2431,7 +2431,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/security_0fe735c89932.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/security_9b3c2aebc4e5.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -2485,7 +2485,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/abductor_airlock_585d4f8a5d73.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/abductor_airlock_b2d0c90816cd.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects-exo.rsi
@@ -13938,10 +13938,10 @@
     enabled: false
   - type: Sprite
     layers:
-    - state: door_closed
+    - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/default_ead52e312f16.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/default_7d25706cae32.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -28276,10 +28276,10 @@
     enabled: false
   - type: Sprite
     layers:
-    - state: door_closed
+    - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/default_ead52e312f16.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/default_ad9a07ede1e6.rsi
     - state: closed_unlit
       shader: unshaded
       sprite: Structures/Doors/Airlocks/Effects/airlock-effects.rsi
@@ -28334,7 +28334,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/blast_door_f539ff21a139.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/blast_door_3d9a17530692.rsi
 - type: entity
   id: BitrunMapMachineryDoorPoddoorPreopen
   categories:
@@ -28349,10 +28349,10 @@
     enabled: false
   - type: Sprite
     layers:
-    - state: open
+    - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/blast_door_f539ff21a139.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/blast_door_9e0f91db6c3b.rsi
 - type: entity
   id: BitrunMapItemBodybagSpriteOffsetDefault
   categories:
@@ -35160,10 +35160,10 @@
     enabled: false
   - type: Sprite
     layers:
-    - state: sandstone
+    - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/mineral_doors_4713a9070dd0.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/mineral_doors_e2fc93c1b323.rsi
 - type: entity
   id: BitrunMapStructureMopBucket
   categories:
@@ -37809,7 +37809,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shutters_0070918b5be4.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shutters_bd83e0c14ed0.rsi
     noRot: true
     snapCardinals: false
 - type: entity
@@ -37826,10 +37826,10 @@
     canSmoothWith: []
   - type: Sprite
     layers:
-    - state: open
+    - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shutters_0070918b5be4.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shutters_1a2522d24511.rsi
     noRot: true
     snapCardinals: false
 - type: entity
@@ -37849,7 +37849,7 @@
     - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shutters_window_892e51cfcc37.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/shutters_window_0da24f072eac.rsi
     noRot: true
     snapCardinals: false
 - type: entity
@@ -40870,10 +40870,10 @@
     enabled: false
   - type: Sprite
     layers:
-    - state: wood
+    - state: closed
       map:
       - enum.DoorVisualLayers.Base
-      sprite: _DeepLagoon/Bitrunning/WhiteMoon/mineral_doors_4713a9070dd0.rsi
+      sprite: _DeepLagoon/Bitrunning/WhiteMoon/mineral_doors_b2439064324c.rsi
 - type: entity
   id: BitrunMapItemWrenchSpriteOffsetDefault
   categories:
