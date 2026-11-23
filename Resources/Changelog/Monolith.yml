@@ -25176,4 +25176,11 @@ Entries:
     id: 2863
     time: '2026-11-23T21:17:32.000Z'
     url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/74
-GeneratedThrough: '2026-11-23T21:17:32.000Z'
+  - author: darneya
+    changes:
+      - type: Fix
+        message: Фикс некоторых локалей Лоадаута
+    id: 2864
+    time: '2026-11-23T21:18:29.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/76
+GeneratedThrough: '2026-11-23T21:18:29.000Z'
