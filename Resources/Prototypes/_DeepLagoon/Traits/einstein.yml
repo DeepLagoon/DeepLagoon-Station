@@ -931,9 +931,8 @@
     - description: examine-cybereyes-message
       fontSize: 12
       requireDetailRange: true
-  - !type:TraitRemoveComponent
-    components:
-    - type: EyeDamageOnFlashing
+  - !type:TraitCyberneticOrganReplacement
+    protoId: BasicCyberneticEyes
   name: trait-name-CyberEyes
   description: trait-description-CyberEyes
 - type: trait

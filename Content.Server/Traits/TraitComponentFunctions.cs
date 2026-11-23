@@ -10,6 +10,8 @@ using Content.Shared.Traits;
 using Content.Shared.Traits.Assorted.Components;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization.Manager;
+using Content.Shared.Body.Organ;
+using Content.Shared._Shitmed.Body.Organ;
 
 namespace Content.Server.Traits;
 
@@ -103,7 +105,54 @@ public sealed partial class TraitCyberneticLimbReplacement : TraitFunction
         }
     }
 }
+public sealed partial class TraitCyberneticOrganReplacement : TraitFunction
+{
+    [DataField(required: true)]
+    public EntProtoId ProtoId;
 
+    public override void OnPlayerSpawn(
+        EntityUid uid,
+        IComponentFactory factory,
+        IEntityManager entityManager,
+        ISerializationManager serializationManager)
+    {
+        var bodySystem = entityManager.System<SharedBodySystem>();
+
+        if (!entityManager.TryGetComponent(uid, out BodyComponent? body))
+            return;
+
+        foreach (var (oldOrgan, oldComponent) in
+            bodySystem.GetBodyOrgans(uid, body).ToArray())
+        {
+            if (!entityManager.HasComponent<EyesComponent>(oldOrgan))
+                continue;
+
+            var parentPart = entityManager
+                .GetComponent<TransformComponent>(oldOrgan).ParentUid;
+
+            var slotId = oldComponent.SlotId;
+
+            var newOrgan = entityManager.SpawnEntity(
+                ProtoId,
+                entityManager.GetComponent<TransformComponent>(uid).Coordinates);
+
+            if (!bodySystem.RemoveOrgan(oldOrgan))
+            {
+                entityManager.QueueDeleteEntity(newOrgan);
+                continue;
+            }
+
+            if (!bodySystem.InsertOrgan(parentPart, newOrgan, slotId))
+            {
+                bodySystem.InsertOrgan(parentPart, oldOrgan, slotId);
+                entityManager.QueueDeleteEntity(newOrgan);
+                continue;
+            }
+
+            entityManager.QueueDeleteEntity(oldOrgan);
+        }
+    }
+}
 public sealed partial class TraitAddArmor : TraitFunction
 {
     [DataField] public List<ProtoId<DamageModifierSetPrototype>> DamageModifierSets = new();
