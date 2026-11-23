@@ -43,6 +43,7 @@ using Robust.Shared.Utility; // Frontier
 using System.Numerics;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics;
+using Robust.Shared.Audio;
 
 namespace Content.Server.Lathe
 {
@@ -75,6 +76,12 @@ namespace Content.Server.Lathe
         /// </summary>
         private readonly List<GasMixture> _environments = new();
         private readonly HashSet<ProtoId<LatheRecipePrototype>> _availableRecipes = new();
+        private void OnProducingShutdown(
+    Entity<LatheProducingComponent> ent,
+    ref ComponentShutdown args)
+        {
+            ent.Comp.ProducingAudio = _audio.Stop(ent.Comp.ProducingAudio);
+        }
 
         // Mono - re-check whether we can continue production if current recipe is frozen
         private TimeSpan _checkAccumulator = TimeSpan.FromSeconds(0);
@@ -83,6 +90,7 @@ namespace Content.Server.Lathe
         public override void Initialize()
         {
             base.Initialize();
+            SubscribeLocalEvent<LatheProducingComponent, ComponentShutdown>(OnProducingShutdown);
             SubscribeLocalEvent<LatheComponent, GetMaterialWhitelistEvent>(OnGetWhitelist);
             SubscribeLocalEvent<LatheComponent, MapInitEvent>(OnMapInit);
             SubscribeLocalEvent<LatheComponent, PowerChangedEvent>(OnPowerChanged);
@@ -350,7 +358,16 @@ namespace Content.Server.Lathe
             var ev = new LatheStartPrintingEvent(recipe);
             RaiseLocalEvent(uid, ref ev);
 
-            _audio.PlayPvs(component.ProducingSound, uid);
+            // Play only one looping sound per lathe.
+            if (component.ProducingSound != null &&
+                !Exists(lathe.ProducingAudio))
+            {
+                lathe.ProducingAudio = _audio.PlayPvs(
+                    component.ProducingSound,
+                    uid,
+                    AudioParams.Default.WithLoop(true)
+                )?.Entity;
+            }
             UpdateRunningAppearance(uid, true);
             UpdateUserInterfaceState(uid, component);
 
@@ -489,6 +506,10 @@ namespace Content.Server.Lathe
 
             if (!TryStartProducing(uid, comp))
             {
+                // Stop the production sound when the queue finishes
+                // or when the lathe cannot continue producing.
+                prodComp.ProducingAudio = _audio.Stop(prodComp.ProducingAudio);
+
                 RemCompDeferred(uid, prodComp);
                 UpdateUserInterfaceState(uid, comp);
                 UpdateRunningAppearance(uid, false);
