@@ -1,4 +1,3 @@
-
 using Content.Shared.Weapons.Hitscan.Components;
 using Content.Shared.Weapons.Hitscan.Events;
 using Content.Shared.Weapons.Ranged.Systems;
@@ -30,20 +29,31 @@ public sealed partial class HitscanBasicVisualsSystem : EntitySystem
         if (args.DistanceTried <= 0f)
             return;
 
-        // Переводим начало луча в координаты карты,
-        // независимо от положения и поворота сетки.
-        var mapCoords =
-            _transform.ToMapCoordinates(args.FromCoordinates);
+        // The raycast itself is already correct in map coordinates.
+        // Only the visual effect's reference frame is changed here.
+        var mapCoords = _transform.ToMapCoordinates(args.FromCoordinates);
+        var origin = _transform.ToCoordinates(mapCoords);
+        var shotAngle = args.ShotDirection.ToAngle();
 
-        var origin =
-            _transform.ToCoordinates(mapCoords);
+        // Keep the visual muzzle at the fired position on the moving shuttle.
+        // Sending a map-parented origin here makes the laser lag behind the
+        // shuttle between the server event and its client-side display.
+        // Do not parent it to the actor, since actor movement after firing
+        // must not drag the beam around.
+        if (_transform.GetGrid(args.FromCoordinates) is { } gridUid &&
+            TryComp(gridUid, out TransformComponent? gridXform))
+        {
+            origin = _transform.WithEntityId(args.FromCoordinates, gridUid);
 
-        // Передаём один набор параметров выстрела.
-        // Клиент сам создаст все визуальные слои.
+            // The client creates HitscanEffectRoot with a LOCAL rotation.
+            // A world-space angle on a rotated grid would aim incorrectly.
+            shotAngle -= _transform.GetWorldRotation(gridXform);
+        }
+
         var ev = new SharedGunSystem.HitscanEvent
         {
             Origin = GetNetCoordinates(origin),
-            ShotAngle = args.ShotDirection.ToAngle(),
+            ShotAngle = shotAngle,
             Distance = args.DistanceTried,
 
             MuzzleFlash = hitscan.Comp.MuzzleFlash,
