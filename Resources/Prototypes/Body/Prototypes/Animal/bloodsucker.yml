@@ -1,4 +1,4 @@
-﻿- type: body
+- type: body
   id: Bloodsucker
   name: "bloodsucker"
   root: torso
@@ -11,7 +11,7 @@
         lungs: OrganSpaceAnimalLungs # Immunity to airloss - Mono
         stomach: OrganBloodsuckerStomach
         liver: OrganBloodsuckerLiver
-        heart: OrganBloodsuckerHeart
+        heart: OrganSpaceAnimalHeart
         kidneys: OrganAnimalKidneys
     legs:
       part: LegsAnimal

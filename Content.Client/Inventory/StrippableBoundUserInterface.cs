@@ -227,7 +227,13 @@ namespace Content.Client.Inventory
 
         private void AddInventoryButton(EntityUid invUid, string slotId, InventoryComponent inv)
         {
+
             if (!_inv.TryGetSlotContainer(invUid, slotId, out var container, out var slotDef, inv))
+                return;
+
+            // Не отображаем слоты, намеренно вынесенные за пределы окна.
+            if (slotDef.StrippingWindowPos.X >= 20 ||
+                slotDef.StrippingWindowPos.Y >= 20)
                 return;
 
             var entity = container.ContainedEntity;
