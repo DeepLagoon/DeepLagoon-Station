@@ -23,5 +23,10 @@ public sealed partial class LatheProducingComponent : Component
     /// </summary>
     [ViewVariables(VVAccess.ReadWrite)]
     public EntityUid? Actor;
+
+    /// <summary>
+    /// The single looping sound played while the lathe is producing.
+    /// </summary>
+    public EntityUid? ProducingAudio;
 }
 
