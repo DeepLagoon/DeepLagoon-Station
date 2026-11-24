@@ -25183,4 +25183,11 @@ Entries:
     id: 2864
     time: '2026-11-23T21:18:29.000Z'
     url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/76
-GeneratedThrough: '2026-11-23T21:27:42.000Z'
+  - author: darneya
+    changes:
+      - type: Fix
+        message: Щиты точек интереса больше нельзя открутить.
+    id: 2865
+    time: '2026-11-24T15:55:26.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/84
+GeneratedThrough: '2026-11-24T15:55:26.000Z'
