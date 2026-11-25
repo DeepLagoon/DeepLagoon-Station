@@ -16,6 +16,72 @@
     - 0,0,7,7
 
 - type: entity
+  id: BluespaceRPEDT1
+  parent: BluespaceRPED
+  suffix: components T1
+  components:
+  - type: StorageFill
+    contents:
+    - id: CapacitorStockPart
+      amount: 400
+    - id: MicroManipulatorStockPart
+      amount: 400
+    - id: MatterBinStockPart
+      amount: 400
+
+- type: entity
+  id: BluespaceRPEDT2
+  parent: BluespaceRPED
+  suffix: components T2
+  components:
+  - type: StorageFill
+    contents:
+    - id: AdvancedCapacitorStockPart
+      amount: 400
+    - id: NanoManipulatorStockPart
+      amount: 400
+    - id: AdvancedMatterBinStockPart
+      amount: 400
+
+- type: entity
+  id: BluespaceRPEDT3
+  parent: BluespaceRPED
+  suffix: components T3
+  components:
+  - type: StorageFill
+    contents:
+    - id: SuperCapacitorStockPart
+      amount: 400
+    - id: PicoManipulatorStockPart
+      amount: 400
+    - id: SuperMatterBinStockPart
+      amount: 400
+
+- type: entity
+  id: BluespaceRPEDT4
+  parent: BluespaceRPED
+  suffix: components T4
+  components:
+  - type: StorageFill
+    contents:
+    - id: QuadraticCapacitorStockPart
+      amount: 400
+    - id: FemtoManipulatorStockPart
+      amount: 400
+    - id: BluespaceMatterBinStockPart
+      amount: 400
+
+- type: entity
+  id: BluespaceRPEDPowerCellHyper
+  parent: BluespaceRPED
+  suffix: hyper cell
+  components:
+  - type: StorageFill
+    contents:
+    - id: PowerCellHyper
+      amount: 32
+
+- type: entity
   id: PartExchangeTrail
   name: part exchange trail
   categories: [ HideSpawnMenu ]
