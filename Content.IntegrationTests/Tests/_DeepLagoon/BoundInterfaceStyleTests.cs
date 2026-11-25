@@ -34,6 +34,7 @@ public sealed class BoundInterfaceStyleTests
                 ("VendingMachineDinnerware", typeof(Content.Client.VendingMachines.VendingMachineBoundUserInterface), "VendingMachine", "_menu", "_tguiWindow"),
                 ("Autolathe", typeof(Content.Client.Lathe.UI.LatheBoundUserInterface), "LatheConsole", "_menu", "_tguiWindow"),
                 ("Jukebox", typeof(Content.Client.Audio.Jukebox.JukeboxBoundUserInterface), "Jukebox", "_menu", "_tguiWindow"),
+                ("DLMusicBoombox", typeof(Content.Client._DeepLagoon.Music.MusicBoundUserInterface), "Music", "_menu", "_tgui"),
                 ("SMESBasic", typeof(Content.Client.Power.Battery.BatteryBoundUserInterface), "BatteryStorage", "_menu", "_tguiWindow"),
                 ("PortableGeneratorPacman", typeof(Content.Client.Power.Generator.PortableGeneratorBoundUserInterface), "PortableGenerator", "_window", "_tguiWindow"),
                 ("ComputerResearchAndDevelopment", typeof(Content.Client._DeepLagoon.Research.ResearchConsoleTguiBoundUserInterface), "ResearchConsole", "_classicWindow", "_window"),

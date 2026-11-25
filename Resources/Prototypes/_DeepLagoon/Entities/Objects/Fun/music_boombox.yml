@@ -1,0 +1,40 @@
+- type: entity
+  parent: BaseItem
+  id: DLMusicBoombox
+  name: music boombox
+  description: Streams music from the station library. Shares the neon speaker shell.
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Objects/Fun/portable_jukebox_neon.rsi
+    layers:
+    - state: idle
+      map: [speaker]
+  - type: Item
+    size: Normal
+    sprite: _DeepLagoon/Objects/Fun/portable_jukebox_neon.rsi
+    heldPrefix: idle
+  - type: MusicSpeaker
+  - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.ToggleableVisuals.Enabled:
+        speaker:
+          True: { state: playing }
+          False: { state: idle }
+  - type: ActivatableUI
+    key: enum.MusicUiKey.Key
+    inHandsOnly: true
+  - type: UserInterface
+    interfaces:
+      enum.MusicUiKey.Key:
+        type: MusicBoundUserInterface
+
+- type: entity
+  parent: DLMusicBoombox
+  id: DLMusicBoomboxBlack
+  name: black music boombox
+  components:
+  - type: Sprite
+    sprite: _DeepLagoon/Objects/Fun/portable_jukebox_black.rsi
+  - type: Item
+    sprite: _DeepLagoon/Objects/Fun/portable_jukebox_black.rsi

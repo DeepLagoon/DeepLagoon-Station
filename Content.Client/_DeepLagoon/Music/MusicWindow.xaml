@@ -1,0 +1,32 @@
+<ui:FancyWindow xmlns="https://spacestation14.io"
+                xmlns:ui="clr-namespace:Content.Client.UserInterface.Controls"
+                SetSize="460 520" Title="{Loc 'dl-music-title'}">
+    <BoxContainer Orientation="Vertical" SeparationOverride="4" Margin="4 4">
+        <BoxContainer Orientation="Horizontal" SeparationOverride="6">
+            <LineEdit Name="SearchBar" HorizontalExpand="True" PlaceHolder="{Loc 'dl-music-search'}" />
+            <Button Name="SearchButton" Text="{Loc 'dl-music-search'}" />
+        </BoxContainer>
+
+        <Label Name="StatusLabel" />
+
+        <ItemList Name="Results" SelectMode="Single" VerticalExpand="True" MinSize="0 160" />
+
+        <Label Name="NowPlayingLabel" Text="{Loc 'dl-music-now-playing'}" />
+        <Label Name="CurrentLabel" />
+        <ProgressBar Name="Progress" MinValue="0" MaxValue="1" Value="0" />
+
+        <BoxContainer Orientation="Horizontal" SeparationOverride="4">
+            <Button Name="PlayButton" Text="{Loc 'dl-music-resume'}" />
+            <Button Name="PauseButton" Text="{Loc 'dl-music-pause'}" />
+            <Button Name="StopButton" Text="{Loc 'dl-music-stop'}" />
+            <Button Name="NextButton" Text="{Loc 'dl-music-next'}" />
+        </BoxContainer>
+
+        <BoxContainer Orientation="Horizontal" SeparationOverride="6">
+            <Label Text="{Loc 'dl-music-volume'}" />
+            <Slider Name="VolumeSlider" HorizontalExpand="True" MinValue="0" MaxValue="1" Value="0.75" />
+        </BoxContainer>
+
+        <Label Name="GlobalLabel" />
+    </BoxContainer>
+</ui:FancyWindow>
