@@ -25190,4 +25190,13 @@ Entries:
     id: 2865
     time: '2026-11-24T15:55:26.000Z'
     url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/84
-GeneratedThrough: '2026-11-24T15:55:26.000Z'
+  - author: darneya
+    changes:
+      - type: Add
+        message: >-
+          Добавлены RPED с компонентами внутри. Т1 Т2 Т3 Т4 и батареи гипер-ёмкости. Прежде всего,
+          это инструмент для администрации.
+    id: 2866
+    time: '2026-11-25T09:07:34.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/85
+GeneratedThrough: '2026-11-25T09:07:34.000Z'
