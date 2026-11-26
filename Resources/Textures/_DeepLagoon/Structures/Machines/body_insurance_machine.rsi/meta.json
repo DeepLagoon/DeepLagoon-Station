@@ -8,20 +8,6 @@
     {
       "name": "idle",
       "directions": 1
-    },
-    {
-      "name": "bite",
-      "directions": 1,
-      "delays": [
-        [
-          0.08,
-          0.08,
-          0.06,
-          0.18,
-          0.12,
-          0.12
-        ]
-      ]
     }
   ]
 }

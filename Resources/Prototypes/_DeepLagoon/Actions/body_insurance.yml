@@ -4,7 +4,7 @@
   description: Allows your insured body to be evacuated after death.
   components:
   - type: InstantAction
-    icon: _DeepLagoon/Interface/Actions/body_insurance_return.png
+    icon: _DeepLagoon/Interface/Actions/cancel-escape.png
     checkCanInteract: false
     checkConsciousness: false
     autoPopulate: true

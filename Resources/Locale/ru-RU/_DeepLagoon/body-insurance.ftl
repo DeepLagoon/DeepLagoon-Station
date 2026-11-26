@@ -1,5 +1,5 @@
-ent-BodyInsuranceMachine = автомат страхования тела
-    .desc = Загадочный автомат, способный эвакуировать застрахованное тело.
+ent-BodyInsuranceMachine = страховочная машина
+    .desc = Загадочная машина, предназначенная для вживления страховочного импланта.
 
 body-insurance-window-title = Страхование тела
 body-insurance-purchase = СТРАХОВКА ТЕЛА
@@ -25,13 +25,13 @@ body-insurance-purchase-failed = Не удалось оформить страх
 ent-ActionBodyInsuranceReturn = Возвращение
     .desc = Позволяет эвакуировать ваше тело после смерти. Требуется подождать 10 минут после гибели.
 
-body-insurance-return-ready = Артефакт готов забрать ваше тело.
+body-insurance-return-ready = Машина готова забрать ваше тело.
 
-body-insurance-return-started = Артефакт начал эвакуацию вашего тела.
+body-insurance-return-started = Машина начала эвакуацию вашего тела.
 body-insurance-return-cancelled = Эвакуация тела прервана.
 
 ent-BodyInsuranceRescueBag = эвакуационный мешок для тела
-    .desc = Загадочный мешок, созданный артефактом страхования. Передаёт аварийную сигнатуру для поисково-спасательных служб.
+    .desc = Загадочный мешок, созданный Машиной страхования. Передаёт аварийную сигнатуру для поисково-спасательных служб.
 
 body-insurance-subscription-price = Подписка на раунд: {$price} LC
 body-insurance-subscription-active = Подписка: оплачена

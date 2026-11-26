@@ -555,7 +555,7 @@ public sealed partial class BodyInsuranceSystem : EntitySystem
             MultiplyDelay = false,
 
             BlockDuplicate = true,
-            CancelDuplicate = false,
+            CancelDuplicate = true,
 
             AttemptFrequency = AttemptFrequency.EveryTick
         };
@@ -904,9 +904,6 @@ public sealed partial class BodyInsuranceSystem : EntitySystem
 
             _roundSubscriptions.Add(account);
             completed = true;
-
-            // Анимация укуса автомата.
-            PlayMachineBite(machine.Owner);
 
             // Начисление госпиталю после успешной покупки.
             if (TryComp<BodyInsuranceComponent>(user, out var insurance))

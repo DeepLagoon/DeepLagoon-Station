@@ -9,10 +9,9 @@
     noRot: true
   - type: Sprite
     sprite: _DeepLagoon/Structures/Machines/body_insurance_machine.rsi
-    scale: 0.8, 0.8
+    scale: 0.5, 0.5
     layers:
     - state: idle
-      map: ["base"]
   - type: Appearance
   - type: Drain
     autoDrain: true
@@ -24,12 +23,6 @@
     solutions:
       drainBuffer:
         maxVol: 1000
-  - type: GenericVisualizer
-    visuals:
-      enum.BodyInsuranceMachineVisuals.Biting:
-        base:
-          True: { state: bite }
-          False: { state: idle } 
   - type: BodyInsuranceMachine
     basePrice: 100000
     purchasePriceMultiplier: 1.25
@@ -39,8 +32,8 @@
     syntheticDamageFraction: 0.15
     biteBleeding: 1.5
 
-    returnDelay: 5 #600
-    returnDuration: 5 #30
+    returnDelay: 600 #600
+    returnDuration: 30 #30
     playerBlockingRadius: 30 #30
 
     minReturnDistance: 1000
