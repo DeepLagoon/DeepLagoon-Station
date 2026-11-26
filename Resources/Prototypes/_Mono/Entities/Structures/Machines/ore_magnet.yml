@@ -1,4 +1,4 @@
-﻿- type: entity
+- type: entity
   parent: [BaseMachinePowered, ConstructibleMachine]
   id: MachineOreMagnet
   name: ore magnet
@@ -8,6 +8,7 @@
     magnetEnabled: false
     magnetCanBeEnabled: false
     range: 30
+  - type: OreSiloClient
   - type: Sprite
     sprite: Structures/Machines/salvage.rsi
     layers:
