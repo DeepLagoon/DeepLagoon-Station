@@ -413,6 +413,24 @@ public sealed partial class HumanoidAppearanceSystem : SharedHumanoidAppearanceS
                 if (markingPrototype.SpriteLayersBefore.TryGetValue(rsi.RsiState, out var before)
                     && sprite.LayerMapTryGet(before, out var beforeLayer))
                     insertionLayer = beforeLayer;
+                // Render reptilian tails behind the legs.
+                if (species.ID == "Reptilian" &&
+                    markingPrototype.BodyPart == HumanoidVisualLayers.Tail &&
+                    sprite.LayerMapTryGet(HumanoidVisualLayers.RLeg, out var legLayer))
+                {
+                    insertionLayer = legLayer;
+                }
+
+                // Keep the front tail layer above legs and feet.
+                if (markingPrototype.BodyPart == HumanoidVisualLayers.Tail &&
+                    !markingPrototype.SpriteLayersBefore.ContainsKey(rsi.RsiState))
+                {
+                    if (sprite.LayerMapTryGet(HumanoidVisualLayers.LFoot, out var leftFoot))
+                        insertionLayer = Math.Max(insertionLayer, leftFoot + 1);
+
+                    if (sprite.LayerMapTryGet(HumanoidVisualLayers.RFoot, out var rightFoot))
+                        insertionLayer = Math.Max(insertionLayer, rightFoot + 1);
+                }
                 var layer = sprite.AddLayer(markingSprite, insertionLayer);
                 sprite.LayerMapSet(layerId, layer);
                 sprite.LayerSetSprite(layerId, selectedSprite);

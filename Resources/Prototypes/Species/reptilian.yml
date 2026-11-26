@@ -1,5 +1,6 @@
 - type: species
   id: Reptilian
+  plantigradeSprites: MobReptilianPlantigradeSprites
   name: species-name-reptilian
   roundStart: true
   prototype: MobReptilian
