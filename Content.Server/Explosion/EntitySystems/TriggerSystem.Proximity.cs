@@ -126,12 +126,15 @@ public sealed partial class TriggerSystem
         var curTime = _timing.CurTime;
 
         var query = EntityQueryEnumerator<TriggerOnProximityComponent>();
+
         while (query.MoveNext(out var uid, out var trigger))
         {
-            if (curTime >= trigger.NextVisualUpdate)
+            if (trigger.NextVisualUpdate is { } nextVisualUpdate &&
+                curTime >= nextVisualUpdate)
             {
-                // Update the visual state once the animation is done.
-                trigger.NextVisualUpdate = TimeSpan.MaxValue;
+                // Визуальное обновление завершено.
+                trigger.NextVisualUpdate = null;
+
                 SetProximityAppearance(uid, trigger);
             }
 
@@ -139,10 +142,8 @@ public sealed partial class TriggerSystem
                 continue;
 
             if (curTime < trigger.NextTrigger)
-                // The trigger's on cooldown.
                 continue;
 
-            // Check for anything colliding and moving fast enough.
             foreach (var (collidingUid, colliding) in trigger.Colliding)
             {
                 if (Deleted(collidingUid))
@@ -151,7 +152,6 @@ public sealed partial class TriggerSystem
                 if (colliding.LinearVelocity.Length() < trigger.TriggerSpeed)
                     continue;
 
-                // Trigger!
                 Activate(uid, collidingUid, trigger);
                 break;
             }

@@ -1,0 +1,6 @@
+- type: entity
+  id: BodyInsuranceDestination
+  parent: MarkerBase
+  name: body insurance destination
+  components:
+  - type: BodyInsuranceDestination

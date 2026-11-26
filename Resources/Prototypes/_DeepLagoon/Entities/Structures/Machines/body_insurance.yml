@@ -1,0 +1,61 @@
+- type: entity
+  id: BodyInsuranceMachine
+  parent: BaseMachineIndestructible
+  name: body insurance machine
+  description: A mysterious machine capable of retrieving insured bodies.
+  components:
+  - type: Transform
+    anchored: true
+    noRot: true
+  - type: Sprite
+    sprite: _DeepLagoon/Structures/Machines/body_insurance_machine.rsi
+    scale: 0.8, 0.8
+    layers:
+    - state: idle
+      map: ["base"]
+  - type: Appearance
+  - type: Drain
+    autoDrain: true
+    range: 3
+    unitsPerSecond: 15
+    unitsDestroyedPerSecond: 15
+  - type: BodyInsuranceSilentDrain
+  - type: SolutionContainerManager
+    solutions:
+      drainBuffer:
+        maxVol: 1000
+  - type: GenericVisualizer
+    visuals:
+      enum.BodyInsuranceMachineVisuals.Biting:
+        base:
+          True: { state: bite }
+          False: { state: idle } 
+  - type: BodyInsuranceMachine
+    basePrice: 100000
+    purchasePriceMultiplier: 1.25
+    subscriptionCost: 15
+
+    bloodCostFraction: 0.15
+    syntheticDamageFraction: 0.15
+    biteBleeding: 1.5
+
+    returnDelay: 5 #600
+    returnDuration: 5 #30
+    playerBlockingRadius: 30 #30
+
+    minReturnDistance: 1000
+    maxReturnDistance: 3000
+
+    returnBluntDamage: 5
+    returnPiercingDamage: 5
+    returnSlashDamage: 5
+
+    expeditionRescueDamage: 200
+  - type: ActivatableUI
+    key: enum.BodyInsuranceUiKey.Key
+    singleUser: true
+    blockSpectators: true
+  - type: UserInterface
+    interfaces:
+      enum.BodyInsuranceUiKey.Key:
+        type: BodyInsuranceBoundUserInterface

@@ -17,6 +17,7 @@ using Robust.Shared.Map.Components;
 using Robust.Shared.Player;
 using Robust.Shared.Utility;
 using Content.Shared.Coordinates;
+using Content.Server._DeepLagoon.BodyInsurance;
 
 namespace Content.Server.Salvage;
 
@@ -26,6 +27,7 @@ public sealed partial class SalvageSystem
      * Handles actively running a salvage expedition.
      */
 
+    [Dependency] private BodyInsuranceSystem _bodyInsurance = default!;
     [Dependency] private MobStateSystem _mobState = default!;
     [Dependency] private GameTicker _gameTicker = default!;
     private void InitializeRunner()
@@ -35,7 +37,93 @@ public sealed partial class SalvageSystem
         SubscribeLocalEvent<FTLCompletedEvent>(OnFTLCompleted);
         SubscribeLocalEvent<ConsoleFTLAttemptEvent>(OnConsoleFTLAttempt);
     }
+    public void RescueInsuredBodiesBeforeDeparture(
+        EntityUid expeditionMap,
+        EntityUid shuttle)
+    {
+        if (!TryComp<SalvageExpeditionComponent>(
+                expeditionMap, out var expedition))
+            return;
 
+        if (TerminatingOrDeleted(shuttle))
+            return;
+
+        // Проверяем, что шаттл относится к экспедиции.
+        if (!expedition.ReturnLocations.ContainsKey(shuttle) &&
+            _station.GetOwningStation(shuttle, Transform(shuttle))
+                != expedition.Station)
+            return;
+
+        Log.Info(
+            $"BodyInsurance: Checking expedition {expeditionMap}, " +
+            $"shuttle {shuttle}.");
+
+        var bodies = new List<EntityUid>();
+
+        var query = AllEntityQuery<
+            BodyInsuranceComponent,
+            TransformComponent>();
+
+        while (query.MoveNext(
+                   out var body, out var insurance, out var xform))
+        {
+            if (xform.MapUid != expeditionMap)
+                continue;
+
+            if (!insurance.Insured)
+                continue;
+
+            // Уже находится на спасательном шаттле.
+            if (xform.GridUid == shuttle)
+                continue;
+
+            bodies.Add(body);
+        }
+
+        Log.Info(
+            $"BodyInsurance: Found {bodies.Count} insured bodies.");
+
+        if (bodies.Count == 0)
+            return;
+
+        EntityCoordinates? destination = null;
+
+        var consoles = AllEntityQuery<
+            ShuttleConsoleComponent,
+            TransformComponent>();
+
+        while (consoles.MoveNext(
+                   out var console, out _, out var xform))
+        {
+            if (xform.GridUid != shuttle)
+                continue;
+
+            if (xform.ParentUid != shuttle)
+                continue;
+
+            destination = xform.Coordinates;
+            break;
+        }
+
+        if (destination is not { } coordinates)
+        {
+            Log.Warning(
+                $"BodyInsurance: No rescue destination on {shuttle}.");
+
+            return;
+        }
+
+        foreach (var body in bodies)
+        {
+            var rescued = _bodyInsurance.TryExpeditionRescue(
+                body,
+                shuttle,
+                coordinates);
+
+            Log.Info(
+                $"BodyInsurance: Rescue result for {body}: {rescued}");
+        }
+    }
     private void OnConsoleFTLAttempt(ref ConsoleFTLAttemptEvent ev)
     {
         if (!TryComp(ev.Uid, out TransformComponent? xform) ||
@@ -273,7 +361,29 @@ public sealed partial class SalvageSystem
 
             if (remaining < TimeSpan.Zero && !pendingDeparture)
             {
-                EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(uid);
+                // Резервная эвакуация на уже улетевший шаттл.
+                foreach (var shuttleUid in comp.ReturnLocations.Keys)
+                {
+                    if (TerminatingOrDeleted(shuttleUid))
+                        continue;
+
+                    if (!TryComp<ShuttleComponent>(shuttleUid, out _))
+                        continue;
+
+                    var shuttleXform = Transform(shuttleUid);
+
+                    if (shuttleXform.MapUid is not { } shuttleMap)
+                        continue;
+
+                    if (shuttleMap == uid)
+                        continue;
+
+                    RescueInsuredBodiesBeforeDeparture(uid, shuttleUid);
+                }
+
+                EntityManager.System<
+                    Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>()
+                    .Queue(uid);
             }
         }
 

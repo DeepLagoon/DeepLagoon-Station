@@ -1,0 +1,14 @@
+- type: entity
+  id: ActionBodyInsuranceReturn
+  name: Return
+  description: Allows your insured body to be evacuated after death.
+  components:
+  - type: InstantAction
+    icon: _DeepLagoon/Interface/Actions/body_insurance_return.png
+    checkCanInteract: false
+    checkConsciousness: false
+    autoPopulate: true
+    temporary: true
+    raiseOnUser: true
+    priority: 10
+    event: !type:BodyInsuranceReturnEvent

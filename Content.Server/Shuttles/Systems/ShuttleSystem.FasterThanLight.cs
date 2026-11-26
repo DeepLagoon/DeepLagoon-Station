@@ -32,6 +32,7 @@ using Content.Shared._Mono.Ships;
 using Content.Shared._Crescent.SpaceBiomes;
 using Robust.Shared.Prototypes;
 using Content.Server.Explosion.EntitySystems;
+using Content.Server.Salvage;
 
 namespace Content.Server.Shuttles.Systems;
 
@@ -1646,6 +1647,15 @@ public sealed partial class ShuttleSystem
         // Setting the entity to map directly may run grid traversal (at least at time of writing this).
         var oldMapUid = xform.MapUid;
         var oldGridMatrix = _transform.GetWorldMatrix(xform);
+        // DeepLagoon: эвакуация застрахованных тел
+        // до перемещения шаттла в БСС.
+        if (fromMapUid is { } expeditionMap &&
+            _transform.GetMap(comp.TargetCoordinates) != expeditionMap)
+        {
+            EntityManager.System<SalvageSystem>()
+                .RescueInsuredBodiesBeforeDeparture(
+                    expeditionMap, uid);
+        }
         // Move main shuttle to FTL and set its rotation to zero
         _transform.SetCoordinates(entity.Owner, ftlStart);
         _transform.SetWorldRotation(entity.Owner, Angle.Zero);
