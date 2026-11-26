@@ -87,6 +87,7 @@
   placement:
     mode: SnapgridCenter
   components:
+    - type: ThrusterExhaustImmune
     - type: SubFloorHide
       visibleLayers:
       - enum.SubfloorLayers.FirstLayer

@@ -5,6 +5,7 @@
   placement:
     mode: SnapgridCenter
   components:
+  - type: ThrusterExhaustImmune
   - type: WallMount
     arc: 360
   - type: Clickable

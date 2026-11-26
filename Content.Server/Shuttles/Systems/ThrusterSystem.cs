@@ -7,15 +7,12 @@ using Content.Shared.Damage;
 using Content.Shared.Examine;
 using Content.Shared.Interaction;
 using Content.Shared.Maps;
-using Content.Shared.Physics;
 using Content.Shared.Shuttles.Components;
+using Content.Shared.SubFloor;
 using Content.Shared.Temperature;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Physics.Collision.Shapes;
-using Robust.Shared.Physics.Components;
-using Robust.Shared.Physics.Events;
-using Robust.Shared.Physics.Systems;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
 using Content.Shared.Localizations;
@@ -30,7 +27,8 @@ public sealed partial class ThrusterSystem : EntitySystem
     [Dependency] private IGameTiming _timing = default!;
     private SharedMapSystem _mapSystem => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
     [Dependency] private AmbientSoundSystem _ambient = default!;
-    [Dependency] private FixtureSystem _fixtureSystem = default!;
+    [Dependency] private EntityLookupSystem _lookup = default!;
+    [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private DamageableSystem _damageable = default!;
     [Dependency] private SharedPointLightSystem _light = default!;
     [Dependency] private SharedAppearanceSystem _appearance = default!;
@@ -39,7 +37,8 @@ public sealed partial class ThrusterSystem : EntitySystem
     // Essentially whenever thruster enables we update the shuttle's available impulses which are used for movement.
     // This is done for each direction available.
 
-    public const string BurnFixture = "thruster-burn";
+    private readonly HashSet<EntityUid> _burnTargets = new();
+    private EntityUid? _activeExhaustOrigin;
 
     public override void Initialize()
     {
@@ -52,8 +51,7 @@ public sealed partial class ThrusterSystem : EntitySystem
         SubscribeLocalEvent<ThrusterComponent, AnchorStateChangedEvent>(OnAnchorChange);
         SubscribeLocalEvent<ThrusterComponent, MoveEvent>(OnRotate);
         SubscribeLocalEvent<ThrusterComponent, IsHotEvent>(OnIsHotEvent);
-        SubscribeLocalEvent<ThrusterComponent, StartCollideEvent>(OnStartCollide);
-        SubscribeLocalEvent<ThrusterComponent, EndCollideEvent>(OnEndCollide);
+        SubscribeLocalEvent<ThrusterExhaustImmuneComponent, BeforeDamageChangedEvent>(OnExhaustImmuneDamaged);
 
         SubscribeLocalEvent<ThrusterComponent, ExaminedEvent>(OnThrusterExamine);
 
@@ -109,6 +107,9 @@ public sealed partial class ThrusterSystem : EntitySystem
                     ("direction", nozzleLocalization));
 
                 args.PushMarkup(nozzleDir);
+
+                if (!component.RequireSpace)
+                    return;
 
                 var exposed = NozzleExposed(xform);
 
@@ -346,15 +347,6 @@ public sealed partial class ThrusterSystem : EntitySystem
                 DebugTools.Assert(!shuttleComponent.LinearThrusters[direction].Contains(uid));
                 shuttleComponent.LinearThrusters[direction].Add(uid);
 
-                // Don't just add / remove the fixture whenever the thruster fires because perf
-                if (TryComp(uid, out PhysicsComponent? physicsComponent) &&
-                    component.BurnPoly.Count > 0)
-                {
-                    var shape = new PolygonShape();
-                    shape.Set(component.BurnPoly);
-                    _fixtureSystem.TryCreateFixture(uid, shape, BurnFixture, hard: false, collisionLayer: (int)CollisionGroup.FullTileMask, body: physicsComponent);
-                }
-
                 break;
             case ThrusterType.Angular:
                 shuttleComponent.AngularThrust += component.Thrust;
@@ -464,12 +456,6 @@ public sealed partial class ThrusterSystem : EntitySystem
 
         _ambient.SetAmbience(uid, false);
 
-        if (TryComp(uid, out PhysicsComponent? physicsComponent))
-        {
-            _fixtureSystem.DestroyFixture(uid, BurnFixture, body: physicsComponent);
-        }
-
-        component.Colliding.Clear();
         RefreshCenter(uid, shuttleComponent);
     }
 
@@ -508,44 +494,65 @@ public sealed partial class ThrusterSystem : EntitySystem
 
     #region Burning
 
+    private void OnExhaustImmuneDamaged(EntityUid uid, ThrusterExhaustImmuneComponent component, ref BeforeDamageChangedEvent args)
+    {
+        // A support wall can forward exhaust damage to attached armor/decorations.
+        // Reject that forwarded hit too, while preserving ordinary and explosion damage.
+        if (_activeExhaustOrigin != null && args.Origin == _activeExhaustOrigin &&
+            args.OriginFlag != DamageableSystem.DamageOriginFlag.Explosion)
+            args.Cancelled = true;
+    }
+
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
 
-        var query = EntityQueryEnumerator<ThrusterComponent>();
+        var query = EntityQueryEnumerator<ThrusterComponent, TransformComponent>();
         var curTime = _timing.CurTime;
 
-        while (query.MoveNext(out var comp))
+        while (query.MoveNext(out var uid, out var comp, out var xform))
         {
             if (comp.NextFire > curTime)
                 continue;
 
             comp.NextFire += comp.FireCooldown;
 
-            if (!comp.Firing || comp.Colliding.Count == 0 || comp.Damage == null)
+            if (!comp.IsOn || !comp.Firing || comp.Type != ThrusterType.Linear ||
+                comp.BurnPoly.Count < 3 || comp.Damage == null)
                 continue;
 
-            foreach (var uid in comp.Colliding.ToArray())
+            // Static structures on the same grid never generate physics contacts with
+            // a static thruster. Query the exhaust itself, including other grids.
+            var shape = new PolygonShape();
+            shape.Set(comp.BurnPoly);
+            var (position, rotation) = _transform.GetWorldPositionRotation(xform);
+            _burnTargets.Clear();
+            _lookup.GetEntitiesIntersecting(xform.MapID, shape,
+                new Robust.Shared.Physics.Transform(position, rotation), _burnTargets,
+                LookupFlags.Dynamic | LookupFlags.Static | LookupFlags.Sundries);
+
+            foreach (var target in _burnTargets)
             {
-                _damageable.TryChangeDamage(uid, comp.Damage);
+                if (target == uid || Deleted(target) || HasComp<ThrusterExhaustImmuneComponent>(target))
+                    continue;
+
+                // Pipes and cables are below the exhaust plane, including beneath
+                // grating. Partially exposed machinery (e.g. vents) can still burn.
+                if (TryComp<SubFloorHideComponent>(target, out var subfloor) && subfloor.BlockInteractions)
+                    continue;
+
+                var previousOrigin = _activeExhaustOrigin;
+                _activeExhaustOrigin = uid;
+                try
+                {
+                    _damageable.TryChangeDamage(target, comp.Damage, origin: uid);
+                }
+                finally
+                {
+                    _activeExhaustOrigin = previousOrigin;
+                }
             }
         }
-    }
-
-    private void OnStartCollide(EntityUid uid, ThrusterComponent component, ref StartCollideEvent args)
-    {
-        if (args.OurFixtureId != BurnFixture)
-            return;
-
-        component.Colliding.Add(args.OtherEntity);
-    }
-
-    private void OnEndCollide(EntityUid uid, ThrusterComponent component, ref EndCollideEvent args)
-    {
-        if (args.OurFixtureId != BurnFixture)
-            return;
-
-        component.Colliding.Remove(args.OtherEntity);
     }
 
     /// <summary>

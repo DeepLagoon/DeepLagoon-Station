@@ -9,6 +9,7 @@
     snap:
     - Window
   components:
+  - type: ThrusterExhaustImmune
   - type: MeleeSound
     soundGroups:
       Brute:

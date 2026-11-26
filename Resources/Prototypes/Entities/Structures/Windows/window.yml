@@ -8,6 +8,7 @@
     snap:
     - Window
   components:
+  - type: ThrusterExhaustImmune
   - type: RangedDamageSound # WOLFGATE - material bullet impacts
     soundGroups:
       Brute:
@@ -164,6 +165,7 @@
     snap:
     - Window
   components:
+  - type: ThrusterExhaustImmune
   - type: RangedDamageSound # WOLFGATE - material bullet impacts
     soundGroups:
       Brute:

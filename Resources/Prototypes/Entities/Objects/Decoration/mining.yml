@@ -3,6 +3,7 @@
   name: wooden sign
   description: He's pointing somewhere.
   components:
+  - type: ThrusterExhaustImmune
   - type: Clickable
   - type: InteractionOutline
   - type: Sprite

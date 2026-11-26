@@ -5,6 +5,7 @@
   suffix: Always Powered
   parent: BaseStructure
   components:
+  - type: ThrusterExhaustImmune
   - type: Sprite
     sprite: Structures/Lighting/LightPosts/small_light_post.rsi
     snapCardinals: true

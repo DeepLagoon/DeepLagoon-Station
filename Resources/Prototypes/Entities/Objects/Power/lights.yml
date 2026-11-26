@@ -3,6 +3,7 @@
   id: BaseLightbulb
   abstract: true
   components:
+  - type: ThrusterExhaustImmune
   - type: MeleeSound
     soundGroups:
       Brute:

@@ -29,7 +29,7 @@
   - type: Thruster
     baseThrust: 800
     thrust: 800 # Match the local T1 capacitor rating; upgrades use ThrusterSystem.
-    burnShape: ["-0.3,0.5","0.7,2.2","1.7,2.2","2.3,0.5"]
+    burnShape: ["-0.3,0.5","0.2,3.2","1.8,3.2","2.3,0.5"]
     damage:
       types:
         Heat: 120

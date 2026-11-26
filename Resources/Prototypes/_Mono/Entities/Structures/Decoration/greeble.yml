@@ -4,6 +4,7 @@
   placement:
     mode: SnapgridCenter
   components:
+  - type: ThrusterExhaustImmune
   - type: Transform
     anchored: true
   - type: Clickable
