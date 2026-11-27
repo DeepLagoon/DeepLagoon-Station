@@ -1,0 +1,6 @@
+- type: soundCollection
+  id: ReptilianPurr
+  files:
+  - /Audio/_DeepLagoon/Voice/Reptilian/urr1.ogg
+  - /Audio/_DeepLagoon/Voice/Reptilian/urr2.ogg
+  - /Audio/_DeepLagoon/Voice/Reptilian/urr3.ogg

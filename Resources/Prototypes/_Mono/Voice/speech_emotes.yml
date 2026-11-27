@@ -13,3 +13,24 @@
   chatTriggers:
     - snicker
     - snickers
+
+- type: emote
+  id: ReptilianPurr
+  name: chat-emote-name-reptilian-purr
+  category: Vocal
+  available: true
+  icon: _Impstation/Interface/Emotes/hiss.png
+  whitelist:
+    tags:
+    - ReptilianEmotes
+  blacklist:
+    components:
+    - BorgChassis
+  chatMessages:
+  - chat-emote-msg-reptilian-purr
+  chatTriggers:
+  - purr
+  - purrs
+  - purring
+  - урчит
+  - урчать
