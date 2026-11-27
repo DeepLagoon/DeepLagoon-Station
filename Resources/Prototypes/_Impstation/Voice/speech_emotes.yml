@@ -48,6 +48,8 @@
   name: chat-emote-name-reptilian-hiss
   category: Vocal
   icon: _Impstation/Interface/Emotes/hiss.png
+  sound:
+    collection: ReptilianHiss
   whitelist:
     tags:
       - ReptilianEmotes
