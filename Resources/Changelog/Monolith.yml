@@ -25199,4 +25199,25 @@ Entries:
     id: 2866
     time: '2026-11-25T09:07:34.000Z'
     url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/85
-GeneratedThrough: '2026-11-26T20:59:45.000Z'
+  - author: DDLis
+    changes:
+      - type: Fix
+        message: Баллоны теперь сохраняют выставленное давление на вдох
+    id: 2867
+    time: '2026-11-27T01:03:03.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/88
+  - author: DDLis
+    changes:
+      - type: Add
+        message: Магнит руды подключается теперь к silo
+    id: 2868
+    time: '2026-11-27T01:03:38.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/87
+  - author: DDLis
+    changes:
+      - type: Add
+        message: Добавлено страхование тела
+    id: 2869
+    time: '2026-11-27T01:04:33.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/89
+GeneratedThrough: '2026-11-27T01:04:33.000Z'
