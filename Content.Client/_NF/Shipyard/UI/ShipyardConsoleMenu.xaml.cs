@@ -109,6 +109,7 @@ public sealed partial class ShipyardConsoleMenu : FancyWindow
     /// <summary>
     ///     Populates the list of products that will actually be shown, using the current filters.
     /// </summary>
+    public Dictionary<string, int> Prices = new();
     public void PopulateProducts(List<string> availablePrototypes, List<string> unavailablePrototypes, bool free, bool canPurchase)
     {
         Vessels.RemoveAllChildren();
@@ -160,7 +161,7 @@ public sealed partial class ShipyardConsoleMenu : FancyWindow
             else if (prototype != null && !prototype.Purchasable) // Mono
                 priceText = Loc.GetString("shipyard-console-menu-listing-voucher");
             else
-                priceText = BankSystemExtensions.ToSpesoString(prototype!.Price);
+                priceText = BankSystemExtensions.ToSpesoString(Prices.GetValueOrDefault(prototype!.ID, prototype.Price));
 
             var vesselEntry = new VesselRow
             {
@@ -310,6 +311,7 @@ public sealed partial class ShipyardConsoleMenu : FancyWindow
 
         ShipAppraisalLabel.Text = $"{BankSystemExtensions.ToSpesoString(shipPrice)} ({state.SellRate * 100.0f:F1}%)";
         SellShipButton.Disabled = state.ShipDeedTitle == null;
+        SellShipButton.ToolTip = state.Prices.Count > 0 ? Loc.GetString("dl-economy-capital-resale-info") : null;
         UnassignDeedButton.Disabled = state.ShipDeedTitle == null;
 
         // Show/hide and enable/disable rename controls based on whether there's a ship deed

@@ -393,6 +393,9 @@ export const CharacterEditor = () => {
         })}
       </div>
       <ColorEditor label="Цвет глаз" value={data.eyeColor} onChange={change('eye-color')} />
+      <label className="CharacterEditor__legShape"><input type="checkbox" checked={!!data.customBloodColor}
+        onChange={event => change('blood-color-enabled')(event.target.checked)} /> Свой цвет крови</label>
+      {data.customBloodColor && <ColorEditor label="Цвет крови" value={data.bloodColor} onChange={change('blood-color')} />}
     </>}
     {data.mode === 'jobs' && <DraftInput label="Поиск" value={search} onCommit={setSearch} />}
     {data.mode === 'jobs' && <>

@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
   <Import Project="RobustToolbox/Directory.Packages.props" />
   <ItemGroup>
     <!--
@@ -9,6 +9,7 @@
     <PackageVersion Include="CsvHelper" Version="33.0.1" />
     <PackageVersion Include="Discord.Net" Version="3.16.0" />
     <PackageVersion Include="ImGui.NET" Version="1.87.3" />
+    <PackageVersion Include="NLayer" Version="3.0.1" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -53,7 +53,7 @@ public sealed partial class CrashRecoverySystem
         catch (Exception error)
         {
             // Some components require a live entity. Their normal capture retains the regular backoff.
-            Log.Debug($"Recovery prototype warmup skipped {component.GetType().Name}: {error.GetType().Name}");
+            Log.Debug($"Recovery prototype warmup skipped {component.GetType().Name}: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(error)}");
         }
     }
 

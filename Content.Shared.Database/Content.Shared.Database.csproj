@@ -5,5 +5,5 @@
 
   <Import Project="../MSBuild/Content.props" />
 
-  <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
+  <Import Project="$(DeepLagoonEngineRoot)\MSBuild\Robust.Properties.targets" />
 </Project>

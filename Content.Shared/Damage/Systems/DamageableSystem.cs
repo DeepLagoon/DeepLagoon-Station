@@ -170,10 +170,12 @@ namespace Content.Shared.Damage
         }
 
         // Mono: damage origin flags for if we can't or don't want to discern by UID
+        // Mono: damage origin flags
         public enum DamageOriginFlag
         {
-            Explosion, // flag set by ExplosionSystem.Processing
-            Barotrauma // flag set by BarotraumaSystem
+            Explosion,
+            Barotrauma,
+            BodyInsurance
         }
 
         /// <summary>
@@ -214,6 +216,8 @@ namespace Content.Shared.Damage
 
             if (before.Cancelled)
                 return null;
+
+            damage = before.ReplacementDamage ?? damage;
 
             // Shitmed Change Start
             var partDamage = new TryChangePartDamageEvent(damage, origin, targetPart, ignoreResistances, canSever ?? true, canEvade ?? false, partMultiplier ?? 1.00f, OriginFlag: originFlag,
@@ -481,6 +485,12 @@ namespace Content.Shared.Damage
         EntityUid? Tool = null) : IInventoryRelayEvent // Mono: early shield interception
     {
         public SlotFlags TargetSlots => ~SlotFlags.POCKET;
+
+        /// <summary>
+        /// Optional damage remaining after interception. This avoids mutating the caller's
+        /// reusable projectile, melee or explosion damage specifier.
+        /// </summary>
+        public DamageSpecifier? ReplacementDamage;
     }
 
     /// <summary>

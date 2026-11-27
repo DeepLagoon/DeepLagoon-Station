@@ -38,6 +38,7 @@ namespace Content.Client.IoC
             collection.Register<Content.Client._DeepLagoon.WebUI.TguiSpriteImages>();
             collection.Register<Content.Client._DeepLagoon.WebUI.WikiRoutingConfiguration>();
             collection.Register<Content.Client._Exodus.Decals.IDecalPlacementManager, Content.Client._Exodus.Decals.DecalPlacementManager>();
+            collection.Register<Content.Client._DeepLagoon.Music.MusicNetManager>();
 
             collection.Register<IParallaxManager, ParallaxManager>();
             collection.Register<GeneratedParallaxCache>();

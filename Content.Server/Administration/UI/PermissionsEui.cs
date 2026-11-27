@@ -180,7 +180,7 @@ namespace Content.Server.Administration.UI
                 return;
             }
 
-            await _db.RemoveAdminRankAsync(rr.Id);
+            await _db.RemoveAdminRankAsync(rr.Id, actorName: Player.Name);
 
             _adminManager.ReloadAdminsWithRank(rr.Id);
         }
@@ -211,7 +211,7 @@ namespace Content.Server.Administration.UI
             rank.Name = ur.Name;
             rank.ShortName = ur.ShortName; // Mono
 
-            await _db.UpdateAdminRankAsync(rank);
+            await _db.UpdateAdminRankAsync(rank, actorName: Player.Name);
 
             var flagText = string.Join(' ', AdminFlagsHelper.FlagsToNames(ur.Flags).Select(f => $"+{f}"));
             _sawmill.Info($"{Player} updated admin rank {rank.Name}/{flagText}.");
@@ -236,7 +236,7 @@ namespace Content.Server.Administration.UI
                 Flags = GenRankFlagList(ar.Flags)
             };
 
-            await _db.AddAdminRankAsync(rank);
+            await _db.AddAdminRankAsync(rank, actorName: Player.Name);
 
             var flagText = string.Join(' ', AdminFlagsHelper.FlagsToNames(ar.Flags).Select(f => $"+{f}"));
             _sawmill.Info($"{Player} added admin rank {rank.Name}/{flagText}.");
@@ -257,7 +257,7 @@ namespace Content.Server.Administration.UI
                 return;
             }
 
-            await _db.RemoveAdminAsync(ra.UserId);
+            await _db.RemoveAdminAsync(ra.UserId, actorName: Player.Name);
 
             var record = await _db.GetPlayerRecordByUserId(ra.UserId);
             _sawmill.Info($"{Player} removed admin {record?.LastSeenUserName ?? ra.UserId.ToString()}");
@@ -297,7 +297,7 @@ namespace Content.Server.Administration.UI
             admin.Flags = GenAdminFlagList(ua.PosFlags, ua.NegFlags);
             admin.Suspended = ua.Suspended;
 
-            await _db.UpdateAdminAsync(admin);
+            await _db.UpdateAdminAsync(admin, actorName: Player.Name);
 
             var playerRecord = await _db.GetPlayerRecordByUserId(ua.UserId);
             var name = playerRecord?.LastSeenUserName ?? ua.UserId.ToString();
@@ -376,7 +376,7 @@ namespace Content.Server.Administration.UI
                 Suspended = ca.Suspended,
             };
 
-            await _db.AddAdminAsync(admin);
+            await _db.AddAdminAsync(admin, actorName: Player.Name);
 
             var title = ca.Title ?? "<no title>";
             var flags = AdminFlagsHelper.PosNegFlagsText(ca.PosFlags, ca.NegFlags);

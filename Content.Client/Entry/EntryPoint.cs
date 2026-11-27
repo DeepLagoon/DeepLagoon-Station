@@ -1,4 +1,4 @@
-﻿using Content.Client.Administration.Managers;
+using Content.Client.Administration.Managers;
 using Content.Client.Changelog;
 using Content.Client.Chat.Managers;
 using Content.Client.DebugMon;
@@ -70,6 +70,7 @@ namespace Content.Client.Entry
         [Dependency] private IVoteManager _voteManager = default!;
         [Dependency] private DocumentParsingManager _documentParsingManager = default!;
         [Dependency] private GhostKickManager _ghostKick = default!;
+        [Dependency] private Content.Client._DeepLagoon.Music.MusicNetManager _musicNet = default!;
         [Dependency] private ExtendedDisconnectInformationManager _extendedDisconnectInformation = default!;
         [Dependency] private JobRequirementsManager _jobRequirements = default!;
         [Dependency] private ContentLocalizationManager _contentLoc = default!;
@@ -98,6 +99,7 @@ namespace Content.Client.Entry
             IoCManager.InjectDependencies(this);
 
             _contentLoc.Initialize();
+            InitializeRadarTelemetryNetworking();
             _componentFactory.DoAutoRegistrations();
             _componentFactory.IgnoreMissingComponents();
 
@@ -144,6 +146,7 @@ namespace Content.Client.Entry
             _changelogManager.Initialize();
             _viewportManager.Initialize();
             _ghostKick.Initialize();
+            _musicNet.Initialize();
             _extendedDisconnectInformation.Initialize();
             _jobRequirements.Initialize();
             _playbackMan.Initialize();

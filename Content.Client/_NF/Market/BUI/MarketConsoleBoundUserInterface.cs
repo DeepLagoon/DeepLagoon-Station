@@ -1,15 +1,12 @@
-﻿using Content.Client._NF.Market.UI;
 using Content.Shared._NF.Market.BUI;
-using Content.Shared._NF.Market.Events;
 using JetBrains.Annotations;
-using static Robust.Client.UserInterface.Controls.BaseButton;
 
 namespace Content.Client._NF.Market.BUI;
 
 [UsedImplicitly]
 public sealed class MarketConsoleBoundUserInterface : BoundUserInterface
 {
-    private MarketMenu? _menu;
+    private Content.Client._DeepLagoon.Economy.TradeWindow? _menu;
 
     [ViewVariables]
     public long BankBalance { get; private set; }
@@ -20,17 +17,8 @@ public sealed class MarketConsoleBoundUserInterface : BoundUserInterface
     {
         base.Open();
 
-        _menu = new MarketMenu();
-        //_menu.OnClose += Close;
-        _menu.OnAddToCart1 += args => AddToCart(args, 1);
-        _menu.OnAddToCart5 += args => AddToCart(args, 5);
-        _menu.OnAddToCart10 += args => AddToCart(args, 10);
-        _menu.OnAddToCart30 += args => AddToCart(args, 30);
-        _menu.OnAddToCartAll += args => AddToCart(args, int.MaxValue);
-        _menu.OnReturn += Return;
-        _menu.OnPurchaseCart += PurchaseCrate;
-
-        _menu.OpenCentered();
+        _menu = EntMan.System<Content.Client._DeepLagoon.Economy.PlayerTradeClientSystem>().Open(Owner, SendMessage);
+        _menu.OnClose += Close;
     }
 
     protected override void UpdateState(BoundUserInterfaceState state)
@@ -45,32 +33,7 @@ public sealed class MarketConsoleBoundUserInterface : BoundUserInterface
 
         BankBalance = uiState.Balance;
 
-        _menu?.SetUiEnabled(uiState.Enabled);
-        _menu?.UpdateState(uiState);
-    }
-
-    private void AddToCart(ButtonEventArgs args, int amount)
-    {
-        if (args.Button.Parent?.Parent?.Parent?.Parent is not MarketProductRow product)
-            return;
-        var addToCartMessage = new MarketConsoleCartMessage(amount, product.Prototype.ID);
-
-        SendMessage(addToCartMessage);
-    }
-
-    private void Return(ButtonEventArgs args)
-    {
-        if (args.Button.Parent?.Parent?.Parent is not MarketCartProductRow product)
-            return;
-        var purchaseMessage = new MarketConsoleCartMessage(0, product.Prototype.ID, true);
-
-        SendMessage(purchaseMessage);
-    }
-
-    private void PurchaseCrate(ButtonEventArgs args)
-    {
-        SendMessage(new MarketPurchaseMessage());
-        Close();
+        _menu.UpdateLocalMarket(uiState);
     }
 
     protected override void Dispose(bool disposing)
@@ -78,6 +41,7 @@ public sealed class MarketConsoleBoundUserInterface : BoundUserInterface
         base.Dispose(disposing);
         if (!disposing)
             return;
+        EntMan.System<Content.Client._DeepLagoon.Economy.PlayerTradeClientSystem>().Close(Owner);
         _menu?.Dispose();
     }
 }

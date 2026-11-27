@@ -21,8 +21,25 @@ public sealed partial class TriggerSystem
         SubscribeLocalEvent<TriggerOnProximityComponent, EndCollideEvent>(OnProximityEndCollide);
         SubscribeLocalEvent<TriggerOnProximityComponent, MapInitEvent>(OnMapInit);
         SubscribeLocalEvent<TriggerOnProximityComponent, ComponentShutdown>(OnProximityShutdown);
+        SubscribeLocalEvent<TriggerOnProximityComponent, EntityUnpausedEvent>(OnProximityUnpaused);
         // Shouldn't need re-anchoring.
         SubscribeLocalEvent<TriggerOnProximityComponent, AnchorStateChangedEvent>(OnProximityAnchor);
+    }
+
+    private void OnProximityUnpaused(Entity<TriggerOnProximityComponent> ent, ref EntityUnpausedEvent args)
+    {
+        // MaxValue means no visual update is pending. Frozen maps must not overflow this sentinel.
+        ent.Comp.NextTrigger = ShiftProximityDeadline(ent.Comp.NextTrigger, args.PausedTime);
+        ent.Comp.NextVisualUpdate = ShiftProximityDeadline(ent.Comp.NextVisualUpdate, args.PausedTime);
+    }
+
+    private static TimeSpan ShiftProximityDeadline(TimeSpan deadline, TimeSpan paused)
+    {
+        if (paused.Ticks > 0 && deadline.Ticks > long.MaxValue - paused.Ticks)
+            return TimeSpan.MaxValue;
+        if (paused.Ticks < 0 && deadline.Ticks < long.MinValue - paused.Ticks)
+            return TimeSpan.MinValue;
+        return deadline + paused;
     }
 
     private void OnProximityAnchor(EntityUid uid, TriggerOnProximityComponent component, ref AnchorStateChangedEvent args)
@@ -126,12 +143,14 @@ public sealed partial class TriggerSystem
         var curTime = _timing.CurTime;
 
         var query = EntityQueryEnumerator<TriggerOnProximityComponent>();
+
         while (query.MoveNext(out var uid, out var trigger))
         {
             if (curTime >= trigger.NextVisualUpdate)
             {
-                // Update the visual state once the animation is done.
+                // Визуальное обновление завершено.
                 trigger.NextVisualUpdate = TimeSpan.MaxValue;
+
                 SetProximityAppearance(uid, trigger);
             }
 
@@ -139,10 +158,8 @@ public sealed partial class TriggerSystem
                 continue;
 
             if (curTime < trigger.NextTrigger)
-                // The trigger's on cooldown.
                 continue;
 
-            // Check for anything colliding and moving fast enough.
             foreach (var (collidingUid, colliding) in trigger.Colliding)
             {
                 if (Deleted(collidingUid))
@@ -151,7 +168,6 @@ public sealed partial class TriggerSystem
                 if (colliding.LinearVelocity.Length() < trigger.TriggerSpeed)
                     continue;
 
-                // Trigger!
                 Activate(uid, collidingUid, trigger);
                 break;
             }

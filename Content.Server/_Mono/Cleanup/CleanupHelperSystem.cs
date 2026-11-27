@@ -35,6 +35,10 @@ public sealed partial class CleanupHelperSystem : EntitySystem
     /// </summary>
     public bool HasNearbyPlayers(EntityCoordinates coord, float radius)
     {
+        // A zero protection radius disables the proximity check. The lookup API requires
+        // a strictly positive radius; an invalid/unbounded one must not permit deletion.
+        if (!float.IsFinite(radius)) return true;
+        if (radius <= 0) return false;
         var minds = _lookup.GetEntitiesInRange<MindContainerComponent>(coord, radius);
 
         foreach (var (uid, comp) in minds)

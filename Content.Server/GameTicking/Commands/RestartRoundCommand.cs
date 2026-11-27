@@ -24,7 +24,7 @@ namespace Content.Server.GameTicking.Commands
                 return;
             }
 
-            _e.System<RoundEndSystem>().EndRound();
+            _e.System<RoundEndSystem>().EndRound(forced: true);
         }
     }
 

@@ -4,6 +4,8 @@ using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.CustomControls;
 using Robust.Client.UserInterface.XAML;
 using Robust.Shared.Utility;
+using Content.Shared.SprayPainter;
+using Content.Shared.SprayPainter.Components;
 
 namespace Content.Client.SprayPainter.UI;
 
@@ -15,11 +17,14 @@ public sealed partial class SprayPainterWindow : DefaultWindow
 
     public Action<ItemList.ItemListSelectedEventArgs>? OnSpritePicked;
     public Action<ItemList.ItemListSelectedEventArgs>? OnColorPicked;
+    public Action<Color>? OnCustomColorPicked;
+    public Action? OnDecalPicker;
     public Dictionary<string, int> ItemColorIndex = new();
 
     private Dictionary<string, Color> currentPalette = new();
     private const string colorLocKeyPrefix = "pipe-painter-color-";
     private List<SprayPainterEntry> CurrentEntries = new List<SprayPainterEntry>();
+    private bool _updating;
 
     private readonly SpriteSpecifier _colorEntryIconTexture = new SpriteSpecifier.Rsi(
         new ResPath("Structures/Piping/Atmospherics/pipe.rsi"),
@@ -30,6 +35,12 @@ public sealed partial class SprayPainterWindow : DefaultWindow
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
         _spriteSystem = _sysMan.GetEntitySystem<SpriteSystem>();
+        CustomColor.OnColorChanged += color =>
+        {
+            if (!_updating)
+                OnCustomColorPicked?.Invoke(color);
+        };
+        DecalPickerButton.OnPressed += _ => OnDecalPicker?.Invoke();
     }
 
     private static string GetColorLocString(string? colorKey)
@@ -49,8 +60,19 @@ public sealed partial class SprayPainterWindow : DefaultWindow
         return (string?) ColorList[index].Metadata;
     }
 
-    public void Populate(List<SprayPainterEntry> entries, int selectedStyle, string? selectedColorKey, Dictionary<string, Color> palette)
+    public void Populate(List<SprayPainterEntry> entries, SprayPainterComponent component)
     {
+        _updating = true;
+        var selectedStyle = component.Index;
+        var selectedColorKey = component.Mode == SprayPainterMode.Pipes ? component.PickedColor : null;
+        var palette = component.ColorPalette;
+        ModeLabel.Text = Loc.GetString("spray-painter-mode-changed", ("mode", Loc.GetString(SharedSprayPainterSystem.ModeLocKey(component.Mode))));
+        StylePanel.Visible = component.Mode == SprayPainterMode.Airlocks;
+        PalettePanel.Visible = component.Mode != SprayPainterMode.Decals;
+        DecalPickerButton.Visible = component.Mode == SprayPainterMode.Decals;
+        DecalChoice.Visible = component.Mode == SprayPainterMode.Decals;
+        DecalChoice.Text = component.DecalId;
+        CustomColor.Color = component.SelectedColor;
         // Only clear if the entries change. Otherwise the list would "jump" after selecting an item
         if (!CurrentEntries.Equals(entries))
         {
@@ -81,16 +103,17 @@ public sealed partial class SprayPainterWindow : DefaultWindow
 
         // Disable event so we don't send a new event for pre-selectedStyle entry and end up in a loop
 
-        if (selectedColorKey != null)
+        if (selectedColorKey != null && ItemColorIndex.TryGetValue(selectedColorKey, out var index))
         {
-            var index = ItemColorIndex[selectedColorKey];
             ColorList.OnItemSelected -= OnColorPicked;
             ColorList[index].Selected = true;
             ColorList.OnItemSelected += OnColorPicked;
         }
 
         SpriteList.OnItemSelected -= OnSpritePicked;
-        SpriteList[selectedStyle].Selected = true;
+        if (selectedStyle >= 0 && selectedStyle < SpriteList.Count)
+            SpriteList[selectedStyle].Selected = true;
         SpriteList.OnItemSelected += OnSpritePicked;
+        _updating = false;
     }
 }

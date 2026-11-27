@@ -68,7 +68,7 @@ public sealed class PsionicsMoodTests
     }
 
     [Test]
-    public async Task RoundstartRequiresLatentPsychicButReagentsDoNot()
+    public async Task RoundstartAndReagentsRequirePsionicTraits()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true });
         var map = await pair.CreateTestMap();
@@ -109,7 +109,12 @@ public sealed class PsionicsMoodTests
             var oil = prototypes.Index<ReagentPrototype>("LotophagoiOil");
             var effect = oil.Metabolisms!["Narcotic"].Effects.OfType<ChemRerollPsionic>().Single();
             effect.Effect(new EntityEffectReagentArgs(other, entities, null, null, 20, oil, null, 1));
-            Assert.That(otherPsionic.ActivePowers, Is.Not.Empty);
+            Assert.That(otherPsionic.ActivePowers, Is.Empty, "A baseline Psionic component is not a character trait");
+            Assert.That(otherPsionic.CanReroll, Is.True, "Rejected chemistry must not spend potential");
+            Assert.That(otherPsionic.Potentia, Is.EqualTo(otherPsionic.NextPowerCost));
+            entities.System<TraitSystem>().ApplyTraits(other, "Sheriff", profile);
+            effect.Effect(new EntityEffectReagentArgs(other, entities, null, null, 20, oil, null, 1));
+            Assert.That(otherPsionic.ActivePowers, Is.Not.Empty, "A character with the trait can still awaken chemically");
             Assert.That(otherPsionic.CanReroll, Is.False);
             var familiar = entities.SpawnEntity("MobBatRemilia", map.GridCoords);
             Assert.That(entities.GetComponent<PsionicComponent>(familiar).ActivePowers, Is.Not.Empty, "Innate powers must remain available");

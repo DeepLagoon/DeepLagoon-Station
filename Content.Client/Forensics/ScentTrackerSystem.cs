@@ -18,11 +18,15 @@ public sealed class ScentTrackerSystem : SharedScentTrackerSystem
     {
         base.Update(frameTime);
 
+        // Client-only visual effects must not be searched/spawned again for replayed ticks.
+        if (!_timing.IsFirstTimePredicted
+            || !TryComp<ScentTrackerComponent>(_playerManager.LocalEntity, out var tracker)
+            || tracker.Scent == string.Empty)
+            return;
+
         var query = AllEntityQuery<ScentTrailComponent>();
         while (query.MoveNext(out var uid, out var comp))
-            if (TryComp<ScentTrackerComponent>(_playerManager.LocalEntity, out var scentcomp)
-                && scentcomp.Scent != string.Empty
-                && scentcomp.Scent == comp.Scent
+            if (tracker.Scent == comp.Scent
                 && _timing.CurTime > comp.TargetTime)
             {
                 comp.TargetTime = _timing.CurTime + TimeSpan.FromSeconds(1.0f);

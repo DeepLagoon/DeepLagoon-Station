@@ -11,7 +11,7 @@ namespace Content.Server.Ame.Components;
 /// Connects to adjacent entities with this component or <see cref="AmeShieldComponent"/> to make an AME.
 /// </summary>
 [Access(typeof(AmeControllerSystem), typeof(AmeNodeGroup))]
-[RegisterComponent]
+[RegisterComponent, AutoGenerateComponentPause]
 public sealed partial class AmeControllerComponent : SharedAmeControllerComponent
 {
     /// <summary>
@@ -60,13 +60,13 @@ public sealed partial class AmeControllerComponent : SharedAmeControllerComponen
     /// <summary>
     /// The last time this could have injected fuel into the AME.
     /// </summary>
-    [DataField("lastUpdate")]
+    [DataField("lastUpdate", customTypeSerializer: typeof(TimeOffsetSerializer)), AutoPausedField]
     public TimeSpan LastUpdate = default!;
 
     /// <summary>
     /// The next time this will try to inject fuel into the AME.
     /// </summary>
-    [DataField("nextUpdate")]
+    [DataField("nextUpdate", customTypeSerializer: typeof(TimeOffsetSerializer)), AutoPausedField]
     public TimeSpan NextUpdate = default!;
 
     /// <summary>

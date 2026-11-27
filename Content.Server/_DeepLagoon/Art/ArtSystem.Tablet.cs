@@ -187,7 +187,7 @@ public sealed partial class ArtSystem
         { await context.RespondErrorAsync(HttpStatusCode.BadRequest); }
         catch (Exception e) when (e is not OutOfMemoryException)
         {
-            Log.Error($"Art tablet request failed: {e.GetType().Name}");
+            Log.Error($"Art tablet request failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             await context.RespondErrorAsync(HttpStatusCode.ServiceUnavailable);
         }
         finally { _tabletHttpSlots.Release(); }

@@ -1,0 +1,15 @@
+- type: entity
+  parent: NFBasePDACartridge
+  id: DLNotificationsCartridge
+  name: notifications cartridge
+  components:
+  - type: Sprite
+    sprite: _NF/Objects/Devices/cartridge.rsi
+    state: cart-ledger
+  - type: UIFragment
+    ui: !type:CharacterNotificationsUi
+  - type: Cartridge
+    programName: dl-notifications-program-name
+    icon: { sprite: _NF/Interface/icons.rsi, state: ledger }
+    readonly: true
+  - type: CharacterNotificationsCartridge

@@ -156,20 +156,6 @@
       - MMCUplink
 
 - type: listing
-  id: MMCLaserDrillFlatpack
-  productEntity: LaserDrillFlatpack
-  cost:
-    MMCIndustrialCredit: 150
-  categories:
-  - UplinkMmcEngineeringFlatpacks
-  - UplinkMmcFlatpacks
-  conditions:
-  - !type:StoreWhitelistCondition
-    whitelist:
-      tags:
-      - MMCUplink
-
-- type: listing
   id: MMCOreMagnetFlatpack
   productEntity: OreMagnetFlatpack
   cost:

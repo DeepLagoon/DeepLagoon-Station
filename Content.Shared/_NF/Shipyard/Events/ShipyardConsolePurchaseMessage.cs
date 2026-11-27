@@ -8,10 +8,12 @@ namespace Content.Shared._NF.Shipyard.Events;
 [Serializable, NetSerializable]
 public sealed class ShipyardConsolePurchaseMessage : BoundUserInterfaceMessage
 {
+    public int ExpectedPrice;
     public string Vessel; //vessel prototype ID
 
-    public ShipyardConsolePurchaseMessage(string vessel)
+    public ShipyardConsolePurchaseMessage(string vessel, int expectedPrice = -1)
     {
         Vessel = vessel;
+        ExpectedPrice = expectedPrice;
     }
 }

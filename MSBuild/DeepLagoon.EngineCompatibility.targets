@@ -1,6 +1,8 @@
 <Project>
   <PropertyGroup>
+    <_DeepLagoonPinnedEngineRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../RobustToolbox'))</_DeepLagoonPinnedEngineRoot>
     <_DeepLagoonStockCheck Condition="'$(DeepLagoonStockValidation)' == 'true'">--allow-stock</_DeepLagoonStockCheck>
+    <_DeepLagoonDevelopmentEngineOptions Condition="'$(DeepLagoonDevelopmentEngine)' == 'true'">--development-engine &quot;$(DeepLagoonEngineRoot)&quot;</_DeepLagoonDevelopmentEngineOptions>
   </PropertyGroup>
   <!-- Editor terminals can retain PATH from before Python was installed.
        Resolve standard Windows installations without a user- or version-specific path.
@@ -22,7 +24,11 @@
        No engine sources or compile items are replaced by this target. -->
   <Target Name="DeepLagoonCheckEngineCompatibility" BeforeTargets="PrepareForBuild" DependsOnTargets="DeepLagoonResolvePython"
           Condition="'$(MSBuildProjectName)' == 'Content.Client' or '$(MSBuildProjectName)' == 'Content.Server' or '$(MSBuildProjectName)' == 'Content.Packaging'">
-    <Exec Command="&quot;$(DeepLagoonPython)&quot; &quot;$(MSBuildThisFileDirectory)../Tools/check_engine_compatibility.py&quot; $(_DeepLagoonStockCheck)"
+    <Error Condition="'$(DeepLagoonDevelopmentEngine)' == 'true' and ('$(FullRelease)' == 'True' or '$(DeepLagoonStockValidation)' == 'true')"
+           Code="DLE0002" Text="The local development engine cannot produce FullRelease or stock validation builds." />
+    <Error Condition="'$(DeepLagoonDevelopmentEngine)' != 'true' and '$(DeepLagoonEngineRoot)' != '$(_DeepLagoonPinnedEngineRoot)'"
+           Code="DLE0002" Text="An external engine requires explicit DeepLagoonDevelopmentEngine=true; release builds must use the reviewed Station submodule." />
+    <Exec Command="&quot;$(DeepLagoonPython)&quot; &quot;$(MSBuildThisFileDirectory)../Tools/check_engine_compatibility.py&quot; $(_DeepLagoonStockCheck) $(_DeepLagoonDevelopmentEngineOptions)"
           ConsoleToMSBuild="true" IgnoreExitCode="true" IgnoreStandardErrorWarningFormat="true">
       <Output TaskParameter="ExitCode" PropertyName="_DeepLagoonCompatibilityExitCode" />
       <Output TaskParameter="ConsoleOutput" ItemName="_DeepLagoonCompatibilityOutput" />

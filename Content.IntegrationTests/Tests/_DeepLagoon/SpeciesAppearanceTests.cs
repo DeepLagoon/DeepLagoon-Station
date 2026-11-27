@@ -1,3 +1,4 @@
+#nullable enable annotations
 using System.Linq;
 using System.Text.Json;
 using Content.Client._Mono.Company;

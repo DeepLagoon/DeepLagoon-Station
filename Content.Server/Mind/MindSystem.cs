@@ -249,6 +249,9 @@ public sealed partial class MindSystem : SharedMindSystem
             RemoveVisitingEntity(mindId, mind);
         }
 
+        if (entity != null)
+            EntityManager.System<Content.Server._NF.Bank.BankSystem>().MindBodyChanged(mindId, entity.Value);
+
         // Player is CURRENTLY connected.
         if (mind.UserId != null && _players.TryGetSessionById(mind.UserId.Value, out var userSession)
                                 && !alreadyAttached && mind.VisitingEntity == null)

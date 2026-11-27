@@ -34,6 +34,8 @@ public sealed class SalvageExpeditionHostilitySystem : EntitySystem
             return;
 
         EnsureComp<NpcForcedHostilityComponent>(ent).Group = map;
+        // Bodyless defenders (e.g. turrets) may not participate in the mob exit cleanup.
+        EntityManager.System<ExpeditionSalvageSystem>().ProtectDefender(ent);
 
         if (!TryComp<NFSalvageMobRestrictionsComponent>(ent, out var restrictions))
             return;

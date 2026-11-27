@@ -66,6 +66,12 @@
             Deputy: [ -1, -1 ] # Mono
             TsfEngineer: [ 2, 2 ]
             TsfBorg: [ 2, 2 ]
+            # DeepLagoon start
+            TsfMantis: [ 1, 1 ]
+            # DeepLagoon end
+            # DeepLagoon start
+            NFDetective: [ 1, 1 ]
+            # DeepLagoon end
           tags:
           - HeadOfPersonnel
           - HeadOfSecurity

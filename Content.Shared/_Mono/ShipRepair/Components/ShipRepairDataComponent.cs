@@ -8,6 +8,8 @@ namespace Content.Shared._Mono.ShipRepair.Components;
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
 public sealed partial class ShipRepairDataComponent : Component
 {
+    public override bool SessionSpecific => true;
+
     /// <summary>
     /// N to use for the NxN chunks.
     /// </summary>
@@ -22,6 +24,12 @@ public sealed partial class ShipRepairDataComponent : Component
     /// </summary>
     [DataField, AutoNetworkedField]
     public List<EntProtoId> EntityPalette = new();
+
+    // Serialized with the shuttle; UTC survives parking, round changes and process restarts.
+    [DataField] public long SnapshotReadyAt;
+    [DataField] public Guid SnapshotVersion;
+    // Process-local reservation; interrupted durable orders are compensated by the server's ledger.
+    public bool ShipyardLocked;
 }
 
 [DataDefinition, Serializable, NetSerializable]
@@ -66,4 +74,8 @@ public sealed partial class ShipRepairEntitySpecifier
     /// </summary>
     [DataField]
     public NetEntity? OriginalEntity;
+
+    [DataField] public Guid ParkingOriginalIdentity;
+    [DataField] public string? ParkingBaseline;
+    [DataField] public int PaidCapital;
 }

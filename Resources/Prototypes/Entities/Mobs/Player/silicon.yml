@@ -418,6 +418,7 @@
   - type: Anchorable
     flags:
     - Anchorable
+    - Unanchorable
   - type: Rotatable
   #- type: WarpPoint # Mono - comment out
   #  blacklist:
@@ -504,6 +505,7 @@
   - type: Anchorable
     flags:
     - Anchorable
+    - Unanchorable
   - type: Rotatable
   #- type: WarpPoint # Mono - comment out
   #  blacklist:

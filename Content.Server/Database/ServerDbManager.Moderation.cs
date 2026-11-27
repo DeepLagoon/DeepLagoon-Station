@@ -42,13 +42,15 @@ public sealed partial class ServerDbManager
         {
             var ban = await GetServerBanAsync(id);
             return ban == null ? null : new ModerationEvent(type, id, "", ban.UserId, null, ban.Reason,
-                ban.Severity, false, ban.ExpirationTime, ban.RoundId, null, DateTimeOffset.UtcNow);
+                ban.Severity, (await GetServerBanAsNoteAsync(id))?.Deleted ?? true,
+                ban.ExpirationTime, ban.RoundId, null, DateTimeOffset.UtcNow);
         }
         if (type == NoteType.RoleBan)
         {
             var ban = await GetServerRoleBanAsync(id);
             return ban == null ? null : new ModerationEvent(type, id, "", ban.UserId, null, ban.Reason,
-                ban.Severity, false, ban.ExpirationTime, ban.RoundId, new[] { ban.Role }, DateTimeOffset.UtcNow);
+                ban.Severity, (await GetServerRoleBanAsNoteAsync(id))?.Deleted ?? true,
+                ban.ExpirationTime, ban.RoundId, new[] { ban.Role }, DateTimeOffset.UtcNow);
         }
         IAdminRemarksRecord? record = type switch
         {
@@ -86,12 +88,13 @@ public sealed partial class ServerDbManager
         await write();
         if (ModerationChanged == null)
             return;
-        var after = action == "Изменено" ? await TryReadModeration(type, id) : before;
+        var after = action is "Изменено" or "Скрыто из заметок" ? await TryReadModeration(type, id) : before;
         if (after != null)
             PublishModeration(after with
             {
                 Action = action, Actor = actor, Time = DateTimeOffset.UtcNow,
-                PreviousMessage = action == "Изменено" && before?.Message != after.Message ? before?.Message : null
+                PreviousMessage = action == "Изменено" && before?.Message != after.Message ? before?.Message : null,
+                PreviousSecret = before?.Secret ?? true
             });
     }
 }

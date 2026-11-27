@@ -48,7 +48,8 @@ public sealed partial class ShuttleMapControl
             }
         }
         var system = starSystem.StarSystem;
-        SpaceNavigationDraw.Body(handle, Font, system.Star.Position, system.Star.Name,
+        if (starSystem.Definition?.NavigationOnly != true)
+            SpaceNavigationDraw.Body(handle, Font, system.Star.Position, system.Star.Name,
             Star.MAP_PIXEL_SIZE * system.Star.Radius, system.Star.Color, worldToView, PixelSize, Offset, UIScale, false);
         foreach (var planet in system.Planets)
             SpaceNavigationDraw.Body(handle, Font, planet.Position, planet.Name, Planet.MAP_PIXEL_SIZE * planet.Radius,

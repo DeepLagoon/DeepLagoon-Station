@@ -1137,6 +1137,11 @@ namespace Content.Server.Database.Migrations.Sqlite
                         .HasColumnType("TEXT")
                         .HasColumnName("custom_species_name");
 
+                    b.Property<string>("BloodColor")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("blood_color");
+
                     b.Property<string>("SpeechBarkSettingsJson")
                         .IsRequired()
                         .HasColumnType("TEXT")

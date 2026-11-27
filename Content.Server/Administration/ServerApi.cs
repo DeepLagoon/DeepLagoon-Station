@@ -380,7 +380,7 @@ public sealed partial class ServerApi : IPostInjectInit
                 return;
             }
 
-            roundEndSystem.EndRound();
+            roundEndSystem.EndRound(forced: true);
             _sawmill.Info($"Forced round end by {FormatLogActor(actor)}");
             await RespondOk(context);
         });

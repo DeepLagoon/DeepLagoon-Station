@@ -1,0 +1,12 @@
+ent-ExpeditionUpgradeKit = expedition upgrade kit
+    .desc = Contains a packed expedition console and a one-use expedition authorization disk.
+ent-ExpeditionConsoleFlatpack = expedition console flatpack
+    .desc = A flatpack for constructing an expedition console.
+ent-ExpeditionUpgradeDisk = expedition authorization disk
+    .desc = Use on a shuttle control console to authorize expeditions for that shuttle. Consumed only after a successful upgrade.
+expedition-upgrade-denied = You do not have access to this control console.
+expedition-upgrade-no-shuttle = The console must be installed on a shuttle.
+expedition-upgrade-already = Expeditions are already enabled for this shuttle. The disk was kept.
+expedition-upgrade-busy = Finish the current expedition first. The disk was kept.
+expedition-upgrade-installed = Expedition authorization installed on the shuttle.
+expedition-upgrade-lc-insufficient = Not enough Lagoon Coin. The kit costs 30 LC.

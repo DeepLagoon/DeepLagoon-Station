@@ -244,7 +244,7 @@ public sealed partial class ArtSystem : EntitySystem
             }
             catch (Exception e)
             {
-                Log.Error($"Art archive failed: {e.GetType().Name}");
+                Log.Error($"Art archive failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
                 if (round == _round && Exists(uid) && c.Revision == savedRevision) Publish(uid, c, "dl-art-db-failed", 1);
                 return;
             }
@@ -254,7 +254,7 @@ public sealed partial class ArtSystem : EntitySystem
         catch (Exception e) when (e is not OutOfMemoryException)
         {
             _uploads.Remove(uid); _previewUploads.Remove(uid);
-            Log.Warning($"Rejected artwork from {ev.Actor}: {e.GetType().Name}");
+            Log.Warning($"Rejected artwork from {ev.Actor}: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             if (Exists(uid)) Publish(uid, c, "dl-art-invalid", -1);
         }
         finally { _baking.Remove(uid); }
@@ -422,7 +422,7 @@ public sealed partial class ArtSystem : EntitySystem
             if (!_containers.Insert(canvas, Slot(uid))) { QueueDel(canvas); return; }
             SetPreview(uid, work.Preview);
         }
-        catch (Exception e) { Log.Error($"Art gallery load failed: {e.GetType().Name}"); }
+        catch (Exception e) { Log.Error($"Art gallery load failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}"); }
         finally { if (Exists(uid)) c.Busy = false; }
     }
 }

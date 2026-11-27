@@ -153,10 +153,10 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
             return;
 
         var userId = actor.PlayerSession.UserId;
-        if (!_prefsManager.TryGetCachedPreferences(userId, out var prefs))
+        if (!_bankSystem.TryGetCharacter(actor.PlayerSession, out _, out _, out var characterIndex))
             return;
 
-        var characterIndex = prefs.SelectedCharacterIndex;
+
 
         // Get all boxes owned by this character from database
         var ownedBoxes = await _dbManager.GetPlayerSafetyDepositBoxes(userId.UserId, characterIndex);
@@ -257,7 +257,7 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
         var userId = actor.PlayerSession.UserId;
 
         // Create the box in the database
-        if (!_prefsManager.TryGetCachedPreferences(userId, out var prefs) || !_playerManager.TryGetSessionByEntity(player, out var session) || prefs.SelectedCharacter is not HumanoidCharacterProfile profile)
+        if (!_playerManager.TryGetSessionByEntity(player, out var session) || !_bankSystem.TryGetCharacter(session, out var prefs, out var profile, out var bankSlot))
         {
             ConsolePopup(player, "Error: Could not load character data.");
             PlayDenySound(uid, component);
@@ -296,7 +296,7 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
 
         _bankSystem.SetConfirmedBankBalance(player, newBalance.Value);
 
-        var characterIndex = prefs.SelectedCharacterIndex;
+        var characterIndex = bankSlot;
         var characterName = MetaData(player).EntityName;
 
         PurchaseBoxAsync(uid, component, player, userId.UserId, characterIndex, characterName, prototypeId, cost, recoveryPayment);
@@ -383,14 +383,14 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
 
         // Verify ownership
         var userId = actor.PlayerSession.UserId;
-        if (!_prefsManager.TryGetCachedPreferences(userId, out var prefs))
+        if (!_bankSystem.TryGetCharacter(actor.PlayerSession, out _, out _, out var characterIndex))
         {
             ConsolePopup(player, "Error: Could not load character data.");
             PlayDenySound(uid, component);
             return;
         }
 
-        var characterIndex = prefs.SelectedCharacterIndex;
+
         if (boxComp.OwnerId != userId.UserId || boxComp.CharacterIndex != characterIndex)
         {
             ConsolePopup(player, "This box does not belong to you.");
@@ -486,10 +486,10 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
             return;
 
         var userId = actor.PlayerSession.UserId;
-        if (!_prefsManager.TryGetCachedPreferences(userId, out var prefs))
+        if (!_bankSystem.TryGetCharacter(actor.PlayerSession, out _, out _, out var characterIndex))
             return;
 
-        var characterIndex = prefs.SelectedCharacterIndex;
+
 
         WithdrawBoxAsync(uid, component, player, userId.UserId, characterIndex, args.BoxId);
     }
@@ -503,10 +503,10 @@ public sealed partial class SafetyDepositBoxSystem : EntitySystem
             return;
 
         var userId = actor.PlayerSession.UserId;
-        if (!_prefsManager.TryGetCachedPreferences(userId, out var prefs))
+        if (!_bankSystem.TryGetCharacter(actor.PlayerSession, out _, out _, out var characterIndex))
             return;
 
-        var characterIndex = prefs.SelectedCharacterIndex;
+
 
         ReclaimBoxAsync(uid, component, player, userId.UserId, characterIndex, args.BoxId);
     }

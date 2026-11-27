@@ -961,12 +961,12 @@ namespace Content.Shared.Chemistry.Components
                 if (first)
                 {
                     first = false;
-                    mixColor = proto.SubstanceColor;
+                    mixColor = BloodColorData.GetColor(reagent, proto.SubstanceColor);
                     continue;
                 }
 
                 var interpolateValue = quantity.Float() / runningTotalQuantity.Float();
-                mixColor = Color.InterpolateBetween(mixColor, proto.SubstanceColor, interpolateValue);
+                mixColor = Color.InterpolateBetween(mixColor, BloodColorData.GetColor(reagent, proto.SubstanceColor), interpolateValue);
             }
             return mixColor;
         }
@@ -1004,12 +1004,12 @@ namespace Content.Shared.Chemistry.Components
                 if (first)
                 {
                     first = false;
-                    mixColor = proto.SubstanceColor;
+                    mixColor = BloodColorData.GetColor(reagent, proto.SubstanceColor);
                     continue;
                 }
 
                 var interpolateValue = quantity.Float() / runningTotalQuantity.Float();
-                mixColor = Color.InterpolateBetween(mixColor, proto.SubstanceColor, interpolateValue);
+                mixColor = Color.InterpolateBetween(mixColor, BloodColorData.GetColor(reagent, proto.SubstanceColor), interpolateValue);
             }
             return mixColor;
         }

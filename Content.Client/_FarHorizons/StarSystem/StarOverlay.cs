@@ -28,6 +28,7 @@ public sealed class StarOverlay : Overlay
     protected override bool BeforeDraw(in OverlayDrawArgs args)
     {
         if (!_entMan.TryGetComponent<StarSystemMapComponent>(args.MapUid, out var starSystem) ||
+            starSystem.Definition?.NavigationOnly == true ||
             starSystem.StarSystem == null)
         {
             _star = null;

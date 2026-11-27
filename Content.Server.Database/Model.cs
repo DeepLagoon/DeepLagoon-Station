@@ -465,6 +465,7 @@ namespace Content.Server.Database
         public string FlavorText { get; set; } = null!;
         public string OocNotes { get; set; } = string.Empty;
         public string HeadshotId { get; set; } = string.Empty;
+        public string BloodColor { get; set; } = string.Empty;
         public string TattoosJson { get; set; } = "[]";
         public string BodyFeaturesJson { get; set; } = "[]";
         public bool PlantigradeLegs { get; set; }

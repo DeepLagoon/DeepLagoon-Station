@@ -18,7 +18,19 @@ internal sealed record WhitelistReview(
     [JsonPropertyName("related_accounts")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public WhitelistAccount[]? Accounts { get; init; }
+
+    // Lightweight per-account provenance is always present, including grant responses.
+    // The bot must not infer a strong match for B from a hardware match for A.
+    [JsonPropertyName("related_matches")]
+    public WhitelistMatch[] Matches { get; init; } = [];
 }
+
+internal sealed record WhitelistMatch(
+    [property: JsonPropertyName("uid")] Guid Uid,
+    [property: JsonPropertyName("ip_match")] bool AddressMatch,
+    [property: JsonPropertyName("hwid_match")] bool HardwareMatch,
+    [property: JsonPropertyName("discord_history")] bool DiscordHistory,
+    [property: JsonPropertyName("whitelisted")] bool Whitelisted);
 
 internal sealed record WhitelistAccount(
     [property: JsonPropertyName("uid")] Guid Uid,
@@ -79,6 +91,8 @@ public sealed partial class AccountOperations
             ), historical_lookup AS (
                 SELECT user_id FROM (SELECT user_id FROM hardware_users ORDER BY user_id LIMIT 100) hw
                 UNION SELECT user_id FROM hardware_users WHERE user_id IN ({{linked}})
+                UNION SELECT user_id FROM (SELECT hw.user_id FROM hardware_users hw
+                    JOIN whitelist w ON w.user_id=hw.user_id ORDER BY hw.user_id LIMIT 1) whitelisted_hw
             )
             SELECT EXISTS (SELECT 1 FROM target),
                    EXISTS (SELECT 1 FROM hardware_users),
@@ -110,7 +124,17 @@ public sealed partial class AccountOperations
             } while (await rows.ReadAsync(cancel));
         }
         var related = relatedDiscordUsers.Concat(matches.Keys).Distinct().ToArray();
-        findings = findings with { RelatedUsers = related };
+        var whitelisted = await db.Whitelist.Where(entry => related.Contains(entry.UserId))
+            .Select(entry => entry.UserId).ToHashSetAsync(cancel);
+        findings = findings with
+        {
+            RelatedUsers = related,
+            Matches = related.Select(id =>
+            {
+                var (address, hardware) = matches.GetValueOrDefault(id);
+                return new WhitelistMatch(id, address, hardware, relatedDiscordUsers.Contains(id), whitelisted.Contains(id));
+            }).ToArray()
+        };
         if (!includeAccounts)
             return findings;
         var history = relatedDiscordUsers.ToHashSet();

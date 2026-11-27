@@ -327,7 +327,13 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
                 throw new InvalidOperationException("Expedition shuttle is unavailable, anchored or docked.");
 
             MassAdjustFTLExpedStartup(ship, out var massStartupTime);
-            _shuttle.FTLToCoordinates(ship, shuttle, new EntityCoordinates(mapUid, coords), 0f, massStartupTime, HyperSpaceTime);
+            if (_entManager.HasComponent<Content.Server._DeepLagoon.Voyages.SectorExpeditionShipComponent>(ship))
+                _entManager.EventBus.RaiseLocalEvent(ship, new Content.Server._DeepLagoon.Voyages.SectorPlanetGeneratedEvent(ship, mapUid, _missionParams.Index));
+            var landing = new EntityCoordinates(mapUid, coords);
+            var sectorLanding = _entManager.HasComponent<Content.Server._DeepLagoon.Voyages.SectorExpeditionShipComponent>(ship);
+            if (sectorLanding) landing = _entManager.System<Content.Server._DeepLagoon.Voyages.SectorExpeditionSystem>().PrepareSectorLanding(ship, mapUid, coords);
+            _shuttle.FTLToCoordinates(ship, shuttle, landing, 0f, massStartupTime, HyperSpaceTime, safeExpeditionReturn: sectorLanding);
+            _entManager.System<Content.Server._DeepLagoon.Voyages.SectorExpeditionSystem>().ConfigurePlanetFlight(ship);
         }
 
         List<Vector2i> reservedTiles = new();

@@ -16,6 +16,7 @@ public abstract class PathRequest
 
     public Task<PathResult> Task => Tcs.Task;
     public readonly TaskCompletionSource<PathResult> Tcs;
+    public readonly CancellationToken CancellationToken;
 
     public List<PathPoly> Polys = new();
 
@@ -44,7 +45,11 @@ public abstract class PathRequest
         Flags = flags;
         CollisionLayer = layer;
         CollisionMask = mask;
-        Tcs = new TaskCompletionSource<PathResult>(cancelToken);
+        // The object-state overload does not subscribe to cancellation.
+        // Poll the token on the simulation/worker thread, without registrations
+        // retaining completed requests or running ECS continuations on a caller's thread.
+        CancellationToken = cancelToken;
+        Tcs = new TaskCompletionSource<PathResult>();
     }
 }
 

@@ -1,68 +1,54 @@
-﻿<controls:FancyWindow xmlns="https://spacestation14.io"
-                           xmlns:gfx="clr-namespace:Robust.Client.Graphics;assembly=Robust.Client"
-                           xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
-                           SetSize="600 600"
-                           MinSize="600 600">
-    <BoxContainer Orientation="Vertical" Margin="5 0 5 0">
-        <BoxContainer Orientation="Horizontal">
-            <Label Text="{Loc 'cargo-console-menu-account-name-label'}"
-                   StyleClasses="LabelKeyText" />
-            <Label Name="AccountNameLabel"
-                   Text="{Loc 'cargo-console-menu-account-name-none-text'}" />
-        </BoxContainer>
-        <BoxContainer Orientation="Horizontal">
-            <Label Text="{Loc 'cargo-console-menu-points-label'}"
-                   StyleClasses="LabelKeyText" />
-            <Label Name="PointsLabel"
-                   Text="-" /> <!-- Frontier: "$0"<"-" -->
-        </BoxContainer>
-        <BoxContainer Orientation="Horizontal">
-            <Label Text="{Loc 'cargo-console-menu-order-capacity-label'}"
-                   StyleClasses="LabelKeyText" />
-            <Label Name="ShuttleCapacityLabel"
-                   Text="0/20" />
-        </BoxContainer>
-        <BoxContainer Orientation="Horizontal">
-            <OptionButton Name="Categories"
-                          Prefix="{Loc 'cargo-console-menu-categories-label'}"
-                          HorizontalExpand="True" />
-            <LineEdit Name="SearchBar"
-                      PlaceHolder="{Loc 'cargo-console-menu-search-bar-placeholder'}"
-                      HorizontalExpand="True" />
-        </BoxContainer>
-        <ScrollContainer HorizontalExpand="True"
-                         VerticalExpand="True"
-                         SizeFlagsStretchRatio="6">
-            <BoxContainer Name="Products"
-                          Orientation="Vertical"
-                          HorizontalExpand="True"
-                          VerticalExpand="True">
-                <!-- Products get added here by code -->
+<controls:FancyWindow xmlns="https://spacestation14.io"
+                      xmlns:gfx="clr-namespace:Robust.Client.Graphics;assembly=Robust.Client"
+                      xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
+                      xmlns:cargo="clr-namespace:Content.Client.Cargo.UI"
+                      SetSize="1040 720" MinSize="740 560">
+    <BoxContainer Orientation="Vertical" SeparationOverride="10" Margin="8">
+        <PanelContainer>
+            <PanelContainer.PanelOverride><gfx:StyleBoxFlat BackgroundColor="#172A33" /></PanelContainer.PanelOverride>
+            <BoxContainer Orientation="Horizontal" SeparationOverride="16" Margin="12 8">
+                <BoxContainer Orientation="Vertical" HorizontalExpand="True" SeparationOverride="3">
+                    <Label Text="{Loc 'dl-cargo-catalog-title'}" StyleClasses="LabelHeading" />
+                    <Label Name="AccountNameLabel" Text="{Loc 'cargo-console-menu-account-name-none-text'}" ClipText="True" />
+                </BoxContainer>
+                <BoxContainer Orientation="Vertical" SeparationOverride="3">
+                    <Label Text="{Loc 'dl-cargo-catalog-balance'}" />
+                    <Label Name="PointsLabel" Text="—" StyleClasses="LabelKeyText" />
+                </BoxContainer>
+                <BoxContainer Orientation="Vertical" SeparationOverride="3">
+                    <Label Text="{Loc 'dl-cargo-catalog-capacity'}" />
+                    <Label Name="ShuttleCapacityLabel" Text="0/20" />
+                </BoxContainer>
+                <Button Name="VoyageMapButton" Text="Карта рейсов" VerticalAlignment="Center" />
             </BoxContainer>
-        </ScrollContainer>
-        <PanelContainer VerticalExpand="True"
-                        SizeFlagsStretchRatio="6">
-            <PanelContainer.PanelOverride>
-                <gfx:StyleBoxFlat BackgroundColor="#000000" />
-            </PanelContainer.PanelOverride>
-            <ScrollContainer VerticalExpand="True">
-                <BoxContainer Orientation="Vertical">
-                    <Label Text="{Loc 'cargo-console-menu-requests-label'}" />
-                    <BoxContainer Name="Requests"
-                                  Orientation="Vertical"
-                                  VerticalExpand="True">
-                        <!-- Requests are added here by code -->
+        </PanelContainer>
+        <TabContainer Name="CatalogueTabs" HorizontalExpand="True" VerticalExpand="True">
+            <BoxContainer Orientation="Vertical" SeparationOverride="10" Margin="6">
+                <BoxContainer Orientation="Horizontal" SeparationOverride="10">
+                    <Button Name="BackToCategories" Text="{Loc 'dl-cargo-catalog-back'}" Visible="False" />
+                    <Label Name="CatalogueHeading" Text="{Loc 'dl-cargo-catalog-categories'}" HorizontalExpand="True" ClipText="True" StyleClasses="LabelHeading" />
+                </BoxContainer>
+                <BoxContainer Orientation="Horizontal" SeparationOverride="6">
+                    <LineEdit Name="SearchBar" PlaceHolder="{Loc 'dl-cargo-catalog-search-all'}" HorizontalExpand="True" />
+                    <Button Name="ClearSearch" Text="×" ToolTip="{Loc 'dl-cargo-catalog-clear'}" />
+                </BoxContainer>
+                <ScrollContainer Name="CatalogueScroll" HorizontalExpand="True" VerticalExpand="True" HScrollEnabled="False">
+                    <BoxContainer Orientation="Vertical" HorizontalExpand="True">
+                        <cargo:CargoCatalogueGrid Name="CategoryCards" CardWidth="240" HorizontalExpand="True" />
+                        <cargo:CargoCatalogueGrid Name="Products" CardWidth="280" HorizontalExpand="True" Visible="False" />
+                        <Label Name="NoProducts" Text="{Loc 'dl-cargo-catalog-empty'}" Visible="False" Margin="12" />
                     </BoxContainer>
-                    <Label Text="{Loc 'cargo-console-menu-orders-label'}" />
-                    <BoxContainer Name="Orders"
-                                  Orientation="Vertical"
-                                  StyleClasses="transparentItemList"
-                                  VerticalExpand="True">
-                        <!-- Orders are added here by code -->
-                    </BoxContainer>
+                </ScrollContainer>
+            </BoxContainer>
+            <ScrollContainer HScrollEnabled="False" HorizontalExpand="True" VerticalExpand="True" Margin="8">
+                <BoxContainer Orientation="Vertical" SeparationOverride="8" HorizontalExpand="True">
+                    <Label Name="NoOrders" Text="{Loc 'dl-cargo-catalog-no-orders'}" Visible="True" />
+                    <Label Text="{Loc 'cargo-console-menu-requests-label'}" StyleClasses="LabelHeading" />
+                    <BoxContainer Name="Requests" Orientation="Vertical" HorizontalExpand="True" SeparationOverride="6" />
+                    <Label Text="{Loc 'cargo-console-menu-orders-label'}" StyleClasses="LabelHeading" />
+                    <BoxContainer Name="Orders" Orientation="Vertical" HorizontalExpand="True" SeparationOverride="6" />
                 </BoxContainer>
             </ScrollContainer>
-        </PanelContainer>
-        <TextureButton VerticalExpand="True" />
+        </TabContainer>
     </BoxContainer>
 </controls:FancyWindow>

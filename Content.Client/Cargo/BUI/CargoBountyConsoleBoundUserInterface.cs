@@ -1,3 +1,4 @@
+using Content.Client._DeepLagoon.Voyages;
 using Content.Client.Cargo.UI;
 using Content.Shared.Cargo.Components;
 using JetBrains.Annotations;
@@ -20,6 +21,7 @@ public sealed class CargoBountyConsoleBoundUserInterface : BoundUserInterface
         base.Open();
 
         _menu = this.CreateWindow<CargoBountyMenu>();
+        _menu.OnVoyageMapPressed += () => EntMan.System<VoyagePrototypeUiSystem>().Open(Owner);
 
         _menu.OnLabelButtonPressed += id =>
         {

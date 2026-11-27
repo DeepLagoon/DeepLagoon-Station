@@ -1,7 +1,7 @@
 using Content.Server.Administration.Logs;
 using Content.Server.Administration.Managers;
 using Content.Server.Chat.Managers;
-using Content.Server.Chat.Systems;
+using Content.Server.Psionics;
 using Content.Shared.Abilities.Psionics;
 using Content.Shared.Psionics.Passives;
 using Content.Shared.Bed.Sleep;
@@ -29,7 +29,6 @@ public sealed partial class TelepathicChatSystem : EntitySystem
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private IAdminLogManager _adminLogger = default!;
     [Dependency] private GlimmerSystem _glimmerSystem = default!;
-    [Dependency] private ChatSystem _chatSystem = default!;
 
     public override void Initialize()
     {
@@ -52,36 +51,43 @@ public sealed partial class TelepathicChatSystem : EntitySystem
     private IEnumerable<INetChannel> GetAdminClients()
     {
         return _adminManager.ActiveAdmins
+            .Where(p => p.AttachedEntity is { } entity && CanReceiveTelepathy(entity))
             .Select(p => p.Channel);
     }
 
     private List<INetChannel> GetDreamers(IEnumerable<INetChannel> removeList)
     {
-        var filteredList = new List<INetChannel>();
-        var filtered = Filter.Empty()
+        var excluded = removeList.ToHashSet();
+        return Filter.Empty()
             .AddWhereAttachedEntity(entity =>
-                HasComp<PsionicComponent>(entity) && !HasComp<TelepathyComponent>(entity)
-                || HasComp<SleepingComponent>(entity)
-                || HasComp<SeeingRainbowsComponent>(entity) && !HasComp<PsionicsDisabledComponent>(entity) && !HasComp<PsionicInsulationComponent>(entity))
+                CanReceiveTelepathy(entity)
+                && (!HasComp<TelepathyComponent>(entity)
+                    || HasComp<SleepingComponent>(entity)
+                    || HasComp<SeeingRainbowsComponent>(entity)))
             .Recipients
-            .Select(p => p.Channel);
+            .Select(p => p.Channel)
+            .Where(channel => !excluded.Contains(channel))
+            .ToList();
+    }
 
-        if (filtered.ToList() != null)
-            filteredList = filtered.ToList();
-
-        foreach (var entity in removeList)
-            filteredList.Remove(entity);
-
-        return filteredList;
+    /// <summary>
+    /// All delivery paths, including dreams and administrative monitoring, require actual
+    /// psionic potential. Ordinary humanoids carry an empty Psionic component by default.
+    /// </summary>
+    public bool CanReceiveTelepathy(EntityUid entity)
+    {
+        return TryComp<PsionicComponent>(entity, out var psionic)
+            && (psionic.ActivePowers.Count > 0 || HasComp<LatentPsychicComponent>(entity))
+            && !HasComp<PsionicsDisabledComponent>(entity)
+            && !HasComp<PsionicInsulationComponent>(entity)
+            && (!TryComp<MobStateComponent>(entity, out var mobstate) || mobstate.CurrentState == MobState.Alive);
     }
 
     private bool IsEligibleForTelepathy(EntityUid entity)
     {
-        return HasComp<TelepathyComponent>(entity)
-            && !HasComp<PsionicsDisabledComponent>(entity)
-            && !HasComp<PsionicInsulationComponent>(entity)
-            && !HasComp<SleepingComponent>(entity)
-            && (!TryComp<MobStateComponent>(entity, out var mobstate) || mobstate.CurrentState == MobState.Alive);
+        return CanReceiveTelepathy(entity)
+            && HasComp<TelepathyComponent>(entity)
+            && !HasComp<SleepingComponent>(entity);
     }
 
     public void SendTelepathicChat(EntityUid source, string message, bool hideChat)
@@ -90,7 +96,7 @@ public sealed partial class TelepathicChatSystem : EntitySystem
             return;
 
         var clients = GetPsionicChatClients();
-        var admins = GetAdminClients();
+        var admins = GetAdminClients().ToHashSet();
         string messageWrap;
         string adminMessageWrap;
 
@@ -102,7 +108,7 @@ public sealed partial class TelepathicChatSystem : EntitySystem
 
         _adminLogger.Add(LogType.Chat, LogImpact.Low, $"Telepathic chat from {ToPrettyString(source):Player}: {message}");
 
-        _chatManager.ChatMessageToMany(ChatChannel.Telepathic, message, messageWrap, source, hideChat, true, clients.normal.ToList(), Color.PaleVioletRed);
+        _chatManager.ChatMessageToMany(ChatChannel.Telepathic, message, messageWrap, source, hideChat, true, clients.normal.Where(channel => !admins.Contains(channel)).ToList(), Color.PaleVioletRed);
 
         _chatManager.ChatMessageToMany(ChatChannel.Telepathic, message, adminMessageWrap, source, hideChat, true, admins, Color.PaleVioletRed);
 
@@ -114,7 +120,7 @@ public sealed partial class TelepathicChatSystem : EntitySystem
             psychogMessageWrap = Loc.GetString("chat-manager-send-telepathic-chat-wrap-message-psychognomy",
                 ("source", descriptor.ToUpper()), ("message", message));
 
-            _chatManager.ChatMessageToMany(ChatChannel.Telepathic, message, psychogMessageWrap, source, hideChat, true, clients.psychog.ToList(), Color.PaleVioletRed);
+            _chatManager.ChatMessageToMany(ChatChannel.Telepathic, message, psychogMessageWrap, source, hideChat, true, clients.psychog.Where(channel => !admins.Contains(channel)).ToList(), Color.PaleVioletRed);
         }
 
         if (_random.Prob(0.1f))
@@ -124,11 +130,10 @@ public sealed partial class TelepathicChatSystem : EntitySystem
         {
             float obfuscation = 0.25f + (float) _glimmerSystem.GlimmerOutput / 2000;
             var obfuscated = ObfuscateMessageReadability(message, obfuscation);
-            _chatManager.ChatMessageToMany(ChatChannel.Telepathic, obfuscated, messageWrap, source, hideChat, false, GetDreamers(clients.normal.Concat(clients.psychog)), Color.PaleVioletRed);
+            _chatManager.ChatMessageToMany(ChatChannel.Telepathic, obfuscated, messageWrap, source, hideChat, false, GetDreamers(clients.normal.Concat(clients.psychog).Concat(admins)), Color.PaleVioletRed);
         }
 
-        foreach (var repeater in EntityQuery<TelepathicRepeaterComponent>())
-            _chatSystem.TrySendInGameICMessage(repeater.Owner, message, InGameICChatType.Speak, false);
+        // Repeating the message as ordinary speech would disclose it to non-psionic bystanders.
     }
 
     private string ObfuscateMessageReadability(string message, float chance)

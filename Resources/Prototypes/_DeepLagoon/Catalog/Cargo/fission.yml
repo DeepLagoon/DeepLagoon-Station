@@ -1,0 +1,19 @@
+- type: cargoProduct
+  id: NuclearReactorSmallFlatpackPurchase
+  icon:
+    sprite: _FarHorizons/Structures/Power/Generation/FissionGenerator/cargo_icons.rsi
+    state: reactor
+  product: NuclearReactorSmallFlatpack
+  cost: 750000
+  category: cargoproduct-category-name-engineering
+  group: market
+
+- type: cargoProduct
+  id: TurbineSmallFlatpackPurchase
+  icon:
+    sprite: _FarHorizons/Structures/Power/Generation/FissionGenerator/cargo_icons.rsi
+    state: turbine
+  product: TurbineSmallFlatpack
+  cost: 250000
+  category: cargoproduct-category-name-engineering
+  group: market

@@ -154,8 +154,9 @@
   id: DatafarmCrypto
   parent: [BaseDataFarm, ConstructibleMachine]
   name: data farm (Crypto)
-  description: A power-hungry server dedicated towards scraping data from... somewhere. This one generates valuable but random cryptocurrency at a rate of one every 10 minutes.
+  description: A power-hungry cryptocurrency miner. Swipe an ID card to link your character's crypto wallet; mined coins are credited directly to it.
   components:
+  - type: CryptoFarm
   - type: Sprite
     sprite: _Mono/Structures/Machines/neapolitan_server.rsi
     layers:

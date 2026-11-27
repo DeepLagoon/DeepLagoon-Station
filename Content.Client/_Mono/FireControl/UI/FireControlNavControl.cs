@@ -88,7 +88,7 @@ public class FireControlNavControl : ShuttleNavControl
         var worldToView = worldToShuttle * shuttleToView;
         Matrix3x2.Invert(worldToView, out var viewToWorld);
 
-        var blips = _blips.GetCurrentBlips();
+        var blips = _blips.GetCurrentBlips(_consoleEntity);
         _blipColors.Clear();
         foreach (var blip in blips)
             _blipColors[blip.NetUid] = blip.Config.Color;

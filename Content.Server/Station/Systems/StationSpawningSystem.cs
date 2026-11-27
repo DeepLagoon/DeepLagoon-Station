@@ -190,6 +190,7 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
                 return null;
             EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>()
                 .PreparePlayerSpawn(jobEntity, session, profile);
+            EntityManager.System<Content.Server._NF.Bank.BankSystem>().PreparePlayerSpawn(jobEntity, session, profile);
             if (profile != null)
             {
                 EntityManager.System<Content.Shared.Chat.TypingIndicator.SharedTypingIndicatorSystem>()
@@ -235,6 +236,7 @@ public sealed partial class StationSpawningSystem : SharedStationSpawningSystem
         // Bank payments below replace the cached profile. Bind the original slot first.
         EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>()
             .PreparePlayerSpawn(entity.Value, session, profile);
+        EntityManager.System<Content.Server._NF.Bank.BankSystem>().PreparePlayerSpawn(entity.Value, session, profile);
 
         if (_randomizeCharacters)
         {

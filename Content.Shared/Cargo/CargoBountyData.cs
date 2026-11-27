@@ -10,6 +10,9 @@ namespace Content.Shared.Cargo;
 [DataDefinition, NetSerializable, Serializable]
 public readonly partial record struct CargoBountyData
 {
+    [DataField] public Guid Instance { get; init; } = Guid.NewGuid();
+    [DataField] public int FundedReward { get; init; } = -1;
+    [DataField] public Content.Shared._NF.Bank.Components.SectorBankAccount FoodAccount { get; init; }
     /// <summary>
     /// A unique id used to identify the bounty
     /// </summary>

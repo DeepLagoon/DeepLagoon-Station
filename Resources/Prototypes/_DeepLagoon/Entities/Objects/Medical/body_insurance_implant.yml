@@ -1,0 +1,10 @@
+- type: entity
+  parent: BaseSubdermalImplant
+  id: BodyInsuranceImplant
+  name: страховой имплант
+  description: Загадочный подкожный имплант неизвестного происхождения. При установке заключает договор страхования тела. После возвращения тела бесследно растворяется.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: SubdermalImplant
+    permanent: false
+  - type: BodyInsuranceImplant

@@ -61,6 +61,8 @@ class EngineCompatibilityTests(unittest.TestCase):
                                 "</Version></PropertyGroup></Project>")
         self.save_contract()
         self.dirty = ""
+        self.untracked = ""
+        self.dependency_dirty = ""
         self.changed = ["Robust.Shared/Physics/Systems/FixtureSystem.cs"]
         self.mock = patch.object(gate, "_git", self.git)
         self.mock.start()
@@ -75,6 +77,10 @@ class EngineCompatibilityTests(unittest.TestCase):
         if args[0] == "diff":
             self.assertIn("refs/tags/v" + self.contract["official_engine_version"], args)
             return "\n".join(self.changed)
+        if args[0] == "ls-files":
+            return self.untracked
+        if args[0] == "submodule":
+            return self.dependency_dirty
         self.fail(f"Unexpected Git request (commit pins must not be used): {args}")
 
     def test_metadata_depends_only_on_release_version(self):
@@ -98,6 +104,42 @@ class EngineCompatibilityTests(unittest.TestCase):
                 self.dirty = state
                 with self.assertRaisesRegex(gate.CompatibilityError, "uncommitted"):
                     gate.check(self.root)
+
+    def test_explicit_development_source_checks_local_diagnostics(self):
+        self.dirty = " M Robust.Server/BaseServer.cs"
+        self.changed = ["Robust.Server/BaseServer.cs"]
+        self.untracked = "Robust.Server/Diagnostics/ServerMemoryDiagnostics.cs"
+        self.assertEqual(self.contract["official_engine_version"],
+                         gate.check(self.root, development_engine=self.engine)["engine_version"])
+
+    def test_development_source_rejects_protected_tracked_or_untracked_files(self):
+        for tracked in (True, False):
+            with self.subTest(tracked=tracked):
+                self.changed = ["Robust.Client/Entry.cs"] if tracked else []
+                self.untracked = "" if tracked else "Robust.Client/Entry.cs"
+                with self.assertRaisesRegex(gate.CompatibilityError, "Unreviewed"):
+                    gate.check(self.root, development_engine=self.engine)
+
+    def test_development_source_rejects_dirty_dependencies(self):
+        self.dependency_dirty = " M NetSerializer.cs"
+        with self.assertRaisesRegex(gate.CompatibilityError, "dependencies must remain clean"):
+            gate.check(self.root, development_engine=self.engine)
+
+    def test_development_source_cannot_be_stock_validation(self):
+        with self.assertRaisesRegex(gate.CompatibilityError, "cannot be stock"):
+            gate.check(self.root, allow_stock=True, development_engine=self.engine)
+
+    def test_development_source_still_requires_official_version(self):
+        self.version.write_text("<Project><PropertyGroup><Version>0.0.0</Version></PropertyGroup></Project>")
+        with self.assertRaisesRegex(gate.CompatibilityError, "Engine version"):
+            gate.check(self.root, development_engine=self.engine)
+
+    def test_development_source_cannot_emit_release_metadata(self):
+        output = self.root / "must-not-exist.json"
+        with patch.object(gate.sys, "argv", ["check", "--development-engine", str(self.engine),
+                                            "--metadata-output", str(output)]):
+            self.assertEqual(1, gate.main())
+        self.assertFalse(output.exists())
 
     def test_reviewed_flight_safety_implementation_paths_are_accepted(self):
         self.changed = [

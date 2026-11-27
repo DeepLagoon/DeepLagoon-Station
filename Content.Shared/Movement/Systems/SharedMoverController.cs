@@ -252,6 +252,19 @@ public abstract partial class SharedMoverController : VirtualController
             return;
         }
 
+        // Keep relative-frame/rotation maintenance above, but do not prepare gravity,
+        // tile friction and a velocity job for a stationary sleeping server mover.
+        if (ShouldSkipSleepingMovement(entity, physicsComponent, relaySource))
+        {
+            UsedMobMovement[uid] = true;
+            // Zero velocity has no carried grid frame. Do not rotate a future external
+            // impulse by all the grid rotation accumulated while this body slept.
+            SetGridVelocityRotation(entity, null);
+            UpdateSpeedBoostStamina(entity, frameTime, Vector2.Zero);
+            if (CaptureMoverBranches) MoverBranches.SleepingIdle++;
+            return;
+        }
+
         // If the body is in air but isn't weightless then it can't move
         // TODO: MAKE ISWEIGHTLESS EVENT BASED (done lol)
         var weightless = _gravity.IsWeightless(uid);
@@ -385,6 +398,9 @@ public abstract partial class SharedMoverController : VirtualController
     }
 
     protected virtual bool QueueMobMovement(MobMovementStep step) => false;
+
+    protected virtual bool ShouldSkipSleepingMovement(Entity<InputMoverComponent> entity,
+        PhysicsComponent body, EntityUid? relaySource) => false;
 
     private void SetGridVelocityRotation(Entity<InputMoverComponent> entity, Angle? rotation)
     {

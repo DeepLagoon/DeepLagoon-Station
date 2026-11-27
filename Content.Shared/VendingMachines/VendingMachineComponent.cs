@@ -251,6 +251,9 @@ namespace Content.Shared.VendingMachines
         /// <summary>Authoritative current purchase price, including this machine's demand.</summary>
         [DataField]
         public int? Price;
+        /// <summary>Currency of the authoritative item price; other vendor goods remain priced in spesos.</summary>
+        [DataField]
+        public string Currency = "spesso";
         public VendingMachineInventoryEntry() { }
         public VendingMachineInventoryEntry(InventoryType type, string id, uint amount)
         {

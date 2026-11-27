@@ -60,7 +60,7 @@ public sealed class SectorSystem : EntitySystem
 
     private void OnSystemAssigned(ref StarSystemAssignedEvent args)
     {
-        if (!Enabled || HasComp<SpaceEnvironmentComponent>(args.Map)) return;
+        if (!Enabled || HasComp<SpaceEnvironmentComponent>(args.Map) || HasComp<Content.Server._DeepLagoon.Voyages.SectorExpeditionMapComponent>(args.Map)) return;
         var prototype = _prototypes.Index<StarSystemPrototype>(args.System);
         var profile = _prototypes.Index<SectorProfilePrototype>("DeepLagoonFrontier");
         var id = "fixed/" + args.System;

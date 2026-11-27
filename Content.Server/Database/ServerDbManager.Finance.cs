@@ -11,7 +11,8 @@ public sealed record FinanceQueueId(Guid UserId, string OperationId);
 public sealed record FinanceNotice(
     FinanceQueueId Id, DateTime CreatedAt, string Kind, long Amount, long Balance, string User,
     string? Character = null, string? Recipient = null, string? RecipientCharacter = null,
-    long? RecipientBalance = null, SpawnedCashSource[]? Origins = null, string? Reason = null);
+    long? RecipientBalance = null, SpawnedCashSource[]? Origins = null, string? Reason = null, ExchangeAudit? Crypto = null,
+    AdminBankAudit? AdminBank = null);
 
 public partial interface IServerDbManager
 {
@@ -55,12 +56,24 @@ public abstract partial class ServerDbBase
         var users = rows.Select(row => row.UserId)
             .Concat(rows.Where(row => row.RecipientId.HasValue).Select(row => row.RecipientId!.Value));
         var names = await FinanceNames(db, users, cancel);
+        var auditKeys = rows.Select(row => ExchangeOperations.AuditPrefix + row.TransactionId.ToString("N")).ToArray();
+        var crypto = await db.LagoonEconomyRecords.AsNoTracking().Where(row => auditKeys.Contains(row.Id))
+            .ToDictionaryAsync(row => row.Id, row => row.Data, cancel);
+        var adminKeys = rows.Where(row => row.Kind == AdminBankOperations.Kind)
+            .Select(row => AdminBankOperations.AuditPrefix + row.TransactionId.ToString("N")).ToArray();
+        var admin = adminKeys.Length == 0 ? new Dictionary<string, string>() :
+            await db.LagoonEconomyRecords.AsNoTracking().Where(row => adminKeys.Contains(row.Id))
+                .ToDictionaryAsync(row => row.Id, row => row.Data, cancel);
         return rows.Select(row => new FinanceNotice(
             new FinanceQueueId(row.UserId, row.TransactionId.ToString("N")), UtcFinanceTime(row.CreatedAt),
             row.Kind, row.Amount, row.Balance, names.GetValueOrDefault(row.UserId) ?? row.UserId.ToString(),
             row.Character, row.RecipientId is { } recipient ? names.GetValueOrDefault(recipient) ?? recipient.ToString() : null,
             row.RecipientCharacter, row.RecipientBalance,
-            row.OriginJson == null ? null : JsonSerializer.Deserialize<SpawnedCashSource[]>(row.OriginJson))).ToArray();
+            row.OriginJson == null ? null : JsonSerializer.Deserialize<SpawnedCashSource[]>(row.OriginJson),
+            Crypto: crypto.TryGetValue(ExchangeOperations.AuditPrefix + row.TransactionId.ToString("N"), out var details)
+                ? JsonSerializer.Deserialize<ExchangeAudit>(details) : null,
+            AdminBank: admin.TryGetValue(AdminBankOperations.AuditPrefix + row.TransactionId.ToString("N"), out var adjustment)
+                ? AdminBankOperations.ReadAudit(adjustment) : null)).ToArray();
     }
 
     internal async Task AcknowledgeFinanceQueue(string topic, FinanceQueueId[] ids, CancellationToken cancel)

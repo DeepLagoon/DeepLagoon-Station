@@ -19,8 +19,11 @@ namespace Content.Server.NPC.Pathfinding;
 public sealed partial class PathfindingSystem
 {
     private static readonly TimeSpan UpdateCooldown = TimeSpan.FromSeconds(0.45);
-    private const int BiomeNavChunksPerTick = 8;
-    private static readonly TimeSpan BiomeNavTimePerTick = TimeSpan.FromMilliseconds(2);
+    private const int NavChunksPerTick = 8;
+    private const int NavChunksPerGrid = 4;
+    private static readonly TimeSpan NavTimePerTick = TimeSpan.FromMilliseconds(2);
+    private readonly Queue<EntityUid> _dirtyNavGrids = new();
+    private readonly HashSet<EntityUid> _queuedNavGrids = new();
 
     // What relevant collision groups we track for pathfinding.
     // Stuff like chairs have collision but aren't relevant for mobs.
@@ -89,20 +92,40 @@ public sealed partial class PathfindingSystem
         var updateCount = 0;
 #endif
         _stopwatch.Restart();
-        var biomeChunksRemaining = BiomeNavChunksPerTick;
+        var chunksRemaining = NavChunksPerTick;
 
         // We defer chunk updates because rebuilding a navmesh is hella costly
         // Still run even when paused.
         var query = AllEntityQuery<GridPathfindingComponent>();
-
-        while (query.MoveNext(out var uid, out var comp))
+        var pendingChunks = 0;
+        while (query.MoveNext(out var dirtyUid, out var dirtyComp))
         {
+            if (dirtyComp.DirtyChunks.Count == 0)
+                continue;
+            QueueDirtyGrid(dirtyUid);
+            pendingChunks += dirtyComp.DirtyChunks.Count;
+        }
+        EntityManager.DiagnosticWorkTiming?.Invoke("npc.pathfinding.pending_chunks", 0, pendingChunks);
+
+        // Keep the waiting order across ticks. Rebuilding an index into a filtered
+        // list can starve a persistent grid whenever earlier grids become clean
+        // and dirty again. New or returning grids join the tail instead.
+        var waiting = _dirtyNavGrids.Count;
+        for (var visited = 0; visited < waiting; visited++)
+        {
+            if (chunksRemaining == 0 ||
+                chunksRemaining < NavChunksPerTick && _stopwatch.Elapsed >= NavTimePerTick)
+                break;
+            var uid = _dirtyNavGrids.Dequeue();
+            _queuedNavGrids.Remove(uid);
+            if (TerminatingOrDeleted(uid) || !TryComp<GridPathfindingComponent>(uid, out var comp)
+                || comp.DirtyChunks.Count == 0 || !_gridQuery.TryGetComponent(uid, out var mapGridComp))
+                continue;
             var pathfinding = new Entity<GridPathfindingComponent>(uid, comp);
             // TODO: Dump all this shit and just do it live it's probably fast enough.
-            if (comp.DirtyChunks.Count == 0 ||
-                curTime < comp.NextUpdate ||
-                !_gridQuery.TryGetComponent(uid, out var mapGridComp))
+            if (curTime < comp.NextUpdate)
             {
+                QueueDirtyGrid(uid);
                 continue;
             }
 
@@ -110,16 +133,8 @@ public sealed partial class PathfindingSystem
             dirtyPortals.Clear();
 
             var biome = TryComp<BiomeComponent>(uid, out var terrain) && terrain.Enabled;
-            var count = comp.DirtyChunks.Count;
-            if (biome)
-            {
-                if (biomeChunksRemaining == 0 ||
-                    biomeChunksRemaining < BiomeNavChunksPerTick && _stopwatch.Elapsed >= BiomeNavTimePerTick)
-                    continue;
-
-                count = Math.Min(count, biomeChunksRemaining);
-                biomeChunksRemaining -= count;
-            }
+            var count = Math.Min(comp.DirtyChunks.Count, Math.Min(NavChunksPerGrid, chunksRemaining));
+            chunksRemaining -= count;
 
             var origins = comp.DirtyChunks.Take(count).ToArray();
             var dirt = new List<GridPathfindingChunk>(count);
@@ -130,8 +145,12 @@ public sealed partial class PathfindingSystem
             }
 
             comp.DirtyChunks.ExceptWith(origins);
+            if (comp.DirtyChunks.Count > 0)
+                QueueDirtyGrid(uid);
             if (dirt.Count == 0)
                 continue;
+
+            EntityManager.DiagnosticWorkTiming?.Invoke("npc.pathfinding.mesh_chunks", 0, dirt.Count);
 
             // We force clear portals in a single-threaded context to be safe
             // as they may not be thread-safe to touch.
@@ -232,6 +251,12 @@ public sealed partial class PathfindingSystem
             }
 
         }
+    }
+
+    private void QueueDirtyGrid(EntityUid uid)
+    {
+        if (_queuedNavGrids.Add(uid))
+            _dirtyNavGrids.Enqueue(uid);
     }
 
     private bool DropEmptyBiomeNavChunk(EntityUid uid, MapGridComponent grid, GridPathfindingComponent pathfinding,
@@ -370,8 +395,7 @@ public sealed partial class PathfindingSystem
 
         var currentTime = _timing.CurTime;
 
-        if (comp.NextUpdate < currentTime && !MetaData(gridUid).EntityPaused &&
-            (comp.DirtyChunks.Count == 0 || !HasComp<BiomeComponent>(gridUid)))
+        if (comp.DirtyChunks.Count == 0 && comp.NextUpdate < currentTime && !MetaData(gridUid).EntityPaused)
             comp.NextUpdate = currentTime + UpdateCooldown;
 
         var chunks = comp.DirtyChunks;
@@ -386,7 +410,7 @@ public sealed partial class PathfindingSystem
 
         var currentTime = _timing.CurTime;
 
-        if (comp.NextUpdate < currentTime && (comp.DirtyChunks.Count == 0 || !HasComp<BiomeComponent>(gridUid)))
+        if (comp.DirtyChunks.Count == 0 && comp.NextUpdate < currentTime && !MetaData(gridUid).EntityPaused)
             comp.NextUpdate = currentTime + UpdateCooldown;
 
         var chunks = comp.DirtyChunks;

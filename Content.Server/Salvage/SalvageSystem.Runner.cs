@@ -17,6 +17,7 @@ using Robust.Shared.Map.Components;
 using Robust.Shared.Player;
 using Robust.Shared.Utility;
 using Content.Shared.Coordinates;
+using Content.Server._DeepLagoon.BodyInsurance;
 
 namespace Content.Server.Salvage;
 
@@ -26,6 +27,7 @@ public sealed partial class SalvageSystem
      * Handles actively running a salvage expedition.
      */
 
+    [Dependency] private BodyInsuranceSystem _bodyInsurance = default!;
     [Dependency] private MobStateSystem _mobState = default!;
     [Dependency] private GameTicker _gameTicker = default!;
     private void InitializeRunner()
@@ -35,7 +37,95 @@ public sealed partial class SalvageSystem
         SubscribeLocalEvent<FTLCompletedEvent>(OnFTLCompleted);
         SubscribeLocalEvent<ConsoleFTLAttemptEvent>(OnConsoleFTLAttempt);
     }
+    public void RescueInsuredBodiesBeforeDeparture(
+        EntityUid expeditionMap,
+        EntityUid shuttle)
+    {
+        if (!TryComp<SalvageExpeditionComponent>(
+                expeditionMap, out var expedition))
+            return;
 
+        if (TerminatingOrDeleted(shuttle))
+            return;
+
+        // Проверяем, что шаттл относится к экспедиции.
+        if (!expedition.ReturnLocations.ContainsKey(shuttle) &&
+            _station.GetOwningStation(shuttle, Transform(shuttle))
+                != expedition.Station)
+            return;
+
+        Log.Info(
+            $"BodyInsurance: Checking expedition {expeditionMap}, " +
+            $"shuttle {shuttle}.");
+
+        var bodies = new List<EntityUid>();
+
+        var query = AllEntityQuery<
+            BodyInsuranceComponent,
+            TransformComponent>();
+
+        while (query.MoveNext(
+                   out var body, out var insurance, out var xform))
+        {
+            if (xform.MapUid != expeditionMap)
+                continue;
+
+            if (!insurance.Insured || !_mobState.IsDead(body) ||
+                !EntityManager.System<Content.Server._DeepLagoon.Voyages.SectorExpeditionSystem>()
+                    .CanInsuredBodyReturnWith(body, shuttle, expeditionMap))
+                continue;
+
+            // Уже находится на спасательном шаттле.
+            if (xform.GridUid == shuttle)
+                continue;
+
+            bodies.Add(body);
+        }
+
+        Log.Info(
+            $"BodyInsurance: Found {bodies.Count} insured bodies.");
+
+        if (bodies.Count == 0)
+            return;
+
+        EntityCoordinates? destination = null;
+
+        var consoles = AllEntityQuery<
+            ShuttleConsoleComponent,
+            TransformComponent>();
+
+        while (consoles.MoveNext(
+                   out var console, out _, out var xform))
+        {
+            if (xform.GridUid != shuttle)
+                continue;
+
+            if (xform.ParentUid != shuttle)
+                continue;
+
+            destination = xform.Coordinates;
+            break;
+        }
+
+        if (destination is not { } coordinates)
+        {
+            Log.Warning(
+                $"BodyInsurance: No rescue destination on {shuttle}.");
+
+            return;
+        }
+
+        foreach (var body in bodies)
+        {
+            var rescued = _bodyInsurance.TryExpeditionRescue(
+                body,
+                shuttle,
+                coordinates);
+
+            Log.Info(
+                $"BodyInsurance: Rescue result for {body}: {rescued}");
+        }
+    }
     private void OnConsoleFTLAttempt(ref ConsoleFTLAttemptEvent ev)
     {
         if (!TryComp(ev.Uid, out TransformComponent? xform) ||
@@ -130,8 +220,6 @@ public sealed partial class SalvageSystem
         if (component.Stage != ExpeditionStage.Added)
             return;
 
-        Announce(args.MapUid, Loc.GetString("salvage-expedition-announcement-countdown-minutes", ("duration", (component.EndTime - _timing.CurTime).Minutes)));
-
         var directionLocalization = ContentLocalizationManager.FormatDirection(component.DungeonLocation.GetDir()).ToLower();
 
         if (component.DungeonLocation != Vector2.Zero)
@@ -180,8 +268,11 @@ public sealed partial class SalvageSystem
                 return;
         }
 
+        // A second sector crew can already have reserved a landing while still in hyperspace.
+        if (EntityManager.System<Content.Server._DeepLagoon.Voyages.SectorExpeditionSystem>().HasPendingSectorLanding(ev.FromMapUid!.Value)) return;
         // Last shuttle has left so finish the mission.
-        EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(ev.FromMapUid.Value);
+        if (!RetainSectorSurface(ev.FromMapUid.Value, expedition))
+            EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(ev.FromMapUid.Value);
     }
 
     // Runs the expedition
@@ -202,6 +293,25 @@ public sealed partial class SalvageSystem
 
             if (metadata.EntityPaused)
                 continue;
+
+            // Active expeditions have no deadline. Timed evacuation starts only on an explicit finish request.
+            if (comp.Stage is ExpeditionStage.Added or ExpeditionStage.Running)
+            {
+                // Destroyed hulls never raise a departure event; do not retain their empty planet forever.
+                if (comp.Stage == ExpeditionStage.Running && comp.ReturnLocations.Count > 0 &&
+                    !EntityManager.System<Content.Server._DeepLagoon.Voyages.SectorExpeditionSystem>().HasPendingSectorLanding(uid))
+                {
+                    var occupied = false;
+                    foreach (var ship in comp.ReturnLocations.Keys)
+                    {
+                        if (TerminatingOrDeleted(ship)) continue;
+                        if (Transform(ship).MapUid == uid || TryComp<FTLComponent>(ship, out var inbound) && _transform.GetMap(inbound.TargetCoordinates) == uid)
+                        { occupied = true; break; }
+                    }
+                    if (!occupied && !RetainSectorSurface(uid, comp)) EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(uid);
+                }
+                continue;
+            }
 
             var remaining = comp.EndTime - _timing.CurTime;
             var pendingDeparture = false;
@@ -273,7 +383,29 @@ public sealed partial class SalvageSystem
 
             if (remaining < TimeSpan.Zero && !pendingDeparture)
             {
-                EntityManager.System<Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>().Queue(uid);
+                // Резервная эвакуация на уже улетевший шаттл.
+                foreach (var shuttleUid in comp.ReturnLocations.Keys)
+                {
+                    if (TerminatingOrDeleted(shuttleUid))
+                        continue;
+
+                    if (!TryComp<ShuttleComponent>(shuttleUid, out _))
+                        continue;
+
+                    var shuttleXform = Transform(shuttleUid);
+
+                    if (shuttleXform.MapUid is not { } shuttleMap)
+                        continue;
+
+                    if (shuttleMap == uid)
+                        continue;
+
+                    RescueInsuredBodiesBeforeDeparture(uid, shuttleUid);
+                }
+
+                EntityManager.System<
+                    Content.Server._DeepLagoon.Performance.StagedMapDeletionSystem>()
+                    .Queue(uid);
             }
         }
 

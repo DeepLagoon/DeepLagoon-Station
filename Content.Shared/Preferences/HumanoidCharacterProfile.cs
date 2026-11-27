@@ -85,6 +85,12 @@ namespace Content.Shared.Preferences
 
         [DataField] public string OocNotes { get; set; } = string.Empty;
         [DataField] public string HeadshotId { get; set; } = string.Empty;
+        /// <summary>Empty keeps the species' normal reagent color; a value overrides only this character's blood.</summary>
+        [DataField] public string BloodColor { get; set; } = string.Empty;
+        public HumanoidCharacterProfile WithBloodColor(string value) => new(this) { BloodColor = NormalizeBloodColor(value) };
+        private static string NormalizeBloodColor(string? value) =>
+            value is { Length: 7 } && value[0] == '#' && Color.TryFromHex(value, out var color)
+                ? color.WithAlpha(1f).ToHexNoAlpha() : string.Empty;
         public HumanoidCharacterProfile WithHeadshotId(string value) => new(this) { HeadshotId = value };
         public HumanoidCharacterProfile WithOocNotes(string value) => new(this) { OocNotes = value };
 
@@ -239,6 +245,7 @@ namespace Content.Shared.Preferences
             CopyInteractionPanelPreferences(other);
             OocNotes = other.OocNotes;
             HeadshotId = other.HeadshotId;
+            BloodColor = other.BloodColor;
             CustomSpeciesName = other.CustomSpeciesName;
             SpeechBarks = other.SpeechBarks.Sanitize();
         }
@@ -267,6 +274,7 @@ namespace Content.Shared.Preferences
             CopyInteractionPanelPreferences(other);
             OocNotes = other.OocNotes;
             HeadshotId = other.HeadshotId;
+            BloodColor = other.BloodColor;
             CustomSpeciesName = other.CustomSpeciesName;
             SpeechBarks = other.SpeechBarks.Sanitize();
         }
@@ -558,6 +566,7 @@ namespace Content.Shared.Preferences
             if (!_antagPreferences.SequenceEqual(other._antagPreferences)) return false;
             if (!_traitPreferences.SequenceEqual(other._traitPreferences)) return false;
             if (FlavorText != other.FlavorText || OocNotes != other.OocNotes || HeadshotId != other.HeadshotId) return false;
+            if (BloodColor != other.BloodColor) return false;
             if (!Appearance.MemberwiseEquals(other.Appearance)) return false;
 
             // Compare loadouts
@@ -665,6 +674,7 @@ namespace Content.Shared.Preferences
             var flavortext = FlavorText[..Math.Min(FlavorText.Length, MaxDescLength)];
             OocNotes = OocNotes[..Math.Min(OocNotes.Length, MaxDescLength)];
             CustomSpeciesName = NormalizeCustomSpeciesName(CustomSpeciesName);
+            BloodColor = NormalizeBloodColor(BloodColor);
 
             // Frontier
             //make sure theres no funny bank stuff going on
@@ -824,6 +834,7 @@ namespace Content.Shared.Preferences
             hashCode.Add(FlavorText);
             hashCode.Add(OocNotes);
             hashCode.Add(HeadshotId);
+            hashCode.Add(BloodColor);
             hashCode.Add(Species);
             hashCode.Add(CustomSpeciesName);
             hashCode.Add(Age);

@@ -1,3 +1,4 @@
+#nullable enable annotations
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ using Content.Server.Database;
 using Content.Server.Decals;
 using Content.Server.DeviceLinking.Systems;
 using Content.Server.Lathe;
+using Content.Server.Materials;
 using Content.Server.Power.Components;
 using Content.Server.Power.Generator;
 using Content.Server.Research.Systems;
@@ -26,6 +28,7 @@ using Content.Shared.Atmos;
 using Content.Shared._Mono.Traits.Physical;
 using Content.Shared.Clothing.Components;
 using Content.Shared.Lathe;
+using Content.Shared.Materials;
 using Content.Shared.Paper;
 using Content.Shared.Preferences;
 using Content.Shared.Power.Generator;
@@ -469,10 +472,17 @@ public sealed class ShuttleParkingTests
             Assert.That(entities.GetComponent<HardpointComponent>(mount).anchoring, Is.EqualTo(weapon));
             Assert.That(entities.GetComponent<ResearchClientComponent>(researchConsole).Server, Is.EqualTo(research));
             Assert.That(entities.GetComponent<MachineComponent>(generator).BoardContainer.ContainedEntities, Has.Count.EqualTo(1));
-            Assert.That(entities.GetComponent<PowerSupplierComponent>(generator).MaxSupply, Is.EqualTo(supply).Within(0.01f));
+            Assert.That(entities.GetComponent<Content.Server._NF.Power.Components.UpgradePowerSupplierComponent>(generator).ActualScalar, Is.EqualTo(1).Within(0.01f),
+                "Long-term storage returns installed upgrades to stock parts.");
             Assert.That(links.GetLinks(source, generator), Has.Count.EqualTo(1));
             Assert.That(links.GetLinks(source, outside), Is.Empty);
             Assert.That(links.GetLinks(source, otherOutside), Is.Empty);
+            Assert.That(entities.GetComponent<FuelGeneratorComponent>(generator).On, Is.True,
+                "The stored switch state must survive while the restored ship is paused.");
+            Assert.That(entities.GetComponent<MaterialStorageComponent>(generator).Storage, Is.Empty,
+                "Solid fuel is material storage and is sold by the long-term parking policy.");
+            var fuel = entities.GetComponent<SolidFuelGeneratorAdapterComponent>(generator).FuelMaterial;
+            Assert.That(entities.System<MaterialStorageSystem>().TryChangeMaterialAmount(generator, fuel, 2000, localOnly: true), Is.True);
             transforms.SetCoordinates(restored, new EntityCoordinates(maps.GetMap(destination), Vector2.Zero));
         });
 
@@ -482,6 +492,8 @@ public sealed class ShuttleParkingTests
             Assert.That(entities.GetComponent<FireControlServerComponent>(gunnery).Controlled, Does.Contain(weapon));
             Assert.That(entities.GetComponent<ShipShieldEmitterComponent>(emitter).Shield, Is.Not.Null);
             Assert.That(entities.GetComponent<FuelGeneratorComponent>(generator).On, Is.True);
+            Assert.That(entities.GetComponent<PowerSupplierComponent>(generator).MaxSupply, Is.GreaterThan(0),
+                "Refuelling the restored generator must resume actual power production.");
             entities.System<DeviceLinkSystem>().InvokePort(source, "Off");
         });
         await pair.RunTicksSync(3);
@@ -552,6 +564,8 @@ public sealed class ShuttleParkingTests
     public async Task ParkingRoundTrip(bool saveToStorage, bool failFirstWrites)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, Connected = true });
+        Func<bool> recallCompleted = null!;
+        Func<Task> finish = null!;
         await pair.Server.WaitAssertion(() =>
         {
             var entities = pair.Server.EntMan; var maps = entities.System<SharedMapSystem>();
@@ -645,140 +659,141 @@ public sealed class ShuttleParkingTests
             Assert.That(containers.Insert(card,entities.GetComponent<ParkingConsoleComponent>(console).Card.ContainerSlot!),Is.True);
             entities.GetComponent<Content.Server.Power.Components.ApcPowerReceiverComponent>(console).Powered=true;
             Assert.That(typeof(ParkingSystem).GetMethod("GetContext",BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(parking,[console,actor]),Is.Not.Null,"Fixture must authenticate an inserted ID and active character");
+            ParkingOriginTests.BindFixtureOrigin(entities, actor, ship.Owner);
             entities.EventBus.RaiseLocalEvent(console,new Content.Shared._DeepLagoon.ShuttleParking.ParkingAction("recall",dock:entities.GetNetEntity(first))
                 { Actor=actor,UiKey=Content.Shared._DeepLagoon.ShuttleParking.ParkingUiKey.Key });
-            Assert.That(entities.GetComponent<ParkingShuttleComponent>(ship.Owner).Parked,Is.False);
-            Assert.That(entities.GetComponent<TransformComponent>(ship.Owner).MapID,Is.EqualTo(id));
-            Assert.That(entities.GetComponent<MetaDataComponent>(bag).EntityPaused,Is.False);
-            Assert.That(entities.GetComponent<StationMemberComponent>(ship.Owner).Station,Is.EqualTo(ownerStation));
-            Assert.That(entities.GetComponent<DockingComponent>(first).DockedWith,Is.EqualTo(second));
-            Assert.That(transforms.GetWorldPosition(ship.Owner), Is.EqualTo(transforms.GetWorldPosition(stationGrid.Owner) + compatible.ShipOrigin!.Value));
-            Assert.That(transforms.GetWorldRotation(ship.Owner).Reduced(), Is.EqualTo(compatible.ShipAngle));
-            if (saveToStorage)
+            var pendingOwners = (HashSet<Guid>)typeof(ParkingSystem).GetField("_busy", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(parking)!;
+            recallCompleted = () => !entities.GetComponent<ParkingShuttleComponent>(ship.Owner).Parked && !pendingOwners.Contains(session.UserId.UserId);
+            finish = async () =>
             {
-                var failureLevel = pair.ServerLogHandler.FailureLevel;
-                try
+                await pair.Server.WaitAssertion(() =>
                 {
-                    pair.ServerLogHandler.FailureLevel = LogLevel.Fatal;
-                    SaveRecalledShuttle(entities, parking, ship.Owner, console, actor, first, session.UserId.UserId, suit, lathe, failFirstWrites);
-                }
-                finally
+                    Assert.That(entities.GetComponent<ParkingShuttleComponent>(ship.Owner).Parked,Is.False);
+                    Assert.That(entities.GetComponent<TransformComponent>(ship.Owner).MapID,Is.EqualTo(id));
+                    Assert.That(entities.GetComponent<MetaDataComponent>(bag).EntityPaused,Is.False);
+                    Assert.That(entities.GetComponent<StationMemberComponent>(ship.Owner).Station,Is.EqualTo(ownerStation));
+                    Assert.That(entities.GetComponent<DockingComponent>(first).DockedWith,Is.EqualTo(second));
+                    Assert.That(transforms.GetWorldPosition(ship.Owner), Is.EqualTo(transforms.GetWorldPosition(stationGrid.Owner) + compatible.ShipOrigin!.Value));
+                    Assert.That(transforms.GetWorldRotation(ship.Owner).Reduced(), Is.EqualTo(compatible.ShipAngle));
+
+                });
+                if (saveToStorage)
                 {
-                    pair.ServerLogHandler.FailureLevel = failureLevel;
+                    var failureLevel = pair.ServerLogHandler.FailureLevel;
+                    try
+                    {
+                        pair.ServerLogHandler.FailureLevel = LogLevel.Fatal;
+                        await SaveRecalledShuttle(pair, entities, parking, ship.Owner, console, actor, first, session.UserId.UserId, suit, lathe, failFirstWrites);
+                    }
+                    finally { pair.ServerLogHandler.FailureLevel = failureLevel; }
+                    await pair.Server.WaitPost(() => pair.Server.PlayerMan.SetAttachedEntity(session, null));
+                    return;
                 }
-                pair.Server.PlayerMan.SetAttachedEntity(session, null);
-                return;
-            }
+                await pair.Server.WaitAssertion(() =>
+                {
+                    pair.Server.PlayerMan.SetAttachedEntity(session,null);
 
-            pair.Server.PlayerMan.SetAttachedEntity(session,null);
+                    var database = pair.Server.ResolveDependency<IServerDbManager>();
+                    var tasks = pair.Server.ResolveDependency<ITaskManager>();
+                    var owner = new NetUserId(Guid.NewGuid());
+                    var setup = database.InitPrefsAsync(owner, new HumanoidCharacterProfile().WithBankBalance(2000), default);
+                    tasks.BlockWaitOnTask(setup);
+                    var initial = ((HumanoidCharacterProfile) setup.GetAwaiter().GetResult().SelectedCharacter).BankBalance;
+                    parking.RegisterPurchasedShip(ship.Owner, owner.UserId, 1, "", "Капитан");
+                    parking.Park(console, ship.Owner, 0);
+                    var appraisal = entities.System<ShipyardSystem>().AppraiseParkedShuttle(ship.Owner);
+                    Assert.That(appraisal, Is.Positive);
 
-            var database = pair.Server.ResolveDependency<IServerDbManager>();
-            var tasks = pair.Server.ResolveDependency<ITaskManager>();
-            var owner = new NetUserId(Guid.NewGuid());
-            var setup = database.InitPrefsAsync(owner, new HumanoidCharacterProfile().WithBankBalance(2000), default);
-            tasks.BlockWaitOnTask(setup);
-            var initial = ((HumanoidCharacterProfile) setup.GetAwaiter().GetResult().SelectedCharacter).BankBalance;
-            parking.RegisterPurchasedShip(ship.Owner, owner.UserId, 1, "", "Капитан");
-            parking.Park(console, ship.Owner, 0);
-            var appraisal = entities.System<ShipyardSystem>().AppraiseParkedShuttle(ship.Owner);
-            Assert.That(appraisal, Is.Positive);
+                    parking.SellParkedShuttles();
+                    parking.SellParkedShuttles();
+                    Assert.That(entities.EntityExists(ship.Owner), Is.False);
+                    Assert.That(entities.HasComponent<ShuttleDeedComponent>(card), Is.False);
+                    var saved = database.GetPlayerPreferencesAsync(owner, default);
+                    tasks.BlockWaitOnTask(saved);
+                    var balance = ((HumanoidCharacterProfile) saved.GetAwaiter().GetResult()!.SelectedCharacter).BankBalance;
+                    Assert.That(balance, Is.EqualTo(initial + appraisal));
 
-            parking.SellParkedShuttles();
-            parking.SellParkedShuttles();
-            Assert.That(entities.EntityExists(ship.Owner), Is.False);
-            Assert.That(entities.HasComponent<ShuttleDeedComponent>(card), Is.False);
-            var saved = database.GetPlayerPreferencesAsync(owner, default);
-            tasks.BlockWaitOnTask(saved);
-            var balance = ((HumanoidCharacterProfile) saved.GetAwaiter().GetResult()!.SelectedCharacter).BankBalance;
-            Assert.That(balance, Is.EqualTo(initial + appraisal));
+                });
+            };
         });
+        await PoolManager.WaitUntil(pair.Server, recallCompleted, 600);
+        await finish();
         await pair.CleanReturnAsync();
     }
 
-    private static void SaveRecalledShuttle(IEntityManager entities, ParkingSystem parking, EntityUid ship, EntityUid console,
+    private static async Task SaveRecalledShuttle(Content.IntegrationTests.Pair.TestPair pair, IEntityManager entities, ParkingSystem parking, EntityUid ship, EntityUid console,
         EntityUid actor, EntityUid dock, Guid owner, EntityUid suit, EntityUid lathe, bool failFirstWrites)
     {
-        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-        const int category = 2;
-        const int excludedCount = 543;
-        Assert.That(parking.GetCategory(ship), Is.EqualTo(category));
-        var store = (ParkingStore) typeof(ParkingSystem).GetField("_store", flags)!.GetValue(parking)!;
-        store.GrantPurchase(owner, store.BeginPurchase(owner, Guid.NewGuid(), category));
-        var slot = store.Slots(owner).Single();
-
-        for (var i = 0; i < excludedCount; i++)
-            entities.SpawnEntity("Claymore", new EntityCoordinates(ship, new Vector2(1.5f, 0.5f)));
-
-        var containers = entities.System<SharedContainerSystem>();
-        var hood = containers.GetContainer(suit, ToggleableClothingComponent.DefaultClothingContainerId).ContainedEntities.Single();
-        entities.AddComponent<GridEditorBrokenExportComponent>(hood);
-        var migrated = entities.SpawnEntity("ChairWood", new EntityCoordinates(ship, new Vector2(1.5f)));
-        var lathePosition = entities.GetComponent<TransformComponent>(lathe).LocalPosition;
-        var latheComponent = entities.GetComponent<LatheComponent>(lathe);
-        latheComponent.Paused = true;
-        var prototypes = entities.EntitySysManager.DependencyCollection.Resolve<IPrototypeManager>();
-        var crowbar = prototypes.Index(new ProtoId<LatheRecipePrototype>("CrowbarGreen"));
-        var screwdriver = prototypes.Index(new ProtoId<LatheRecipePrototype>("Screwdriver"));
-        var lathes = entities.System<LatheSystem>();
-        Assert.That(lathes.TryAddToQueue(lathe, crowbar, 5, latheComponent, actor, canDebt: true), Is.True);
-        Assert.That(lathes.TryAddToQueue(lathe, screwdriver, 3, latheComponent, actor, canDebt: true), Is.True);
-        latheComponent.Queue[0].ItemsPrinted = 2;
-        var cargo = entities.EntityQuery<TransformComponent>(true).Where(xform => xform.GridUid == ship && xform.Owner != ship)
-            .ToDictionary(xform => xform.Owner, xform => xform.ParentUid);
-        var mob = entities.SpawnEntity("MobHuman", new EntityCoordinates(ship, new Vector2(1.5f)));
-        var inventoryItem = entities.SpawnEntity("Claymore", new EntityCoordinates(ship, new Vector2(1.5f)));
-        Assert.That(containers.Insert(inventoryItem, containers.EnsureContainer<Container>(mob, "test-equipment")), Is.True);
-        Assert.That(parking.ExcludedEntities(ship), Has.Count.EqualTo(excludedCount));
-        entities.EventBus.RaiseLocalEvent(console, new ParkingAction("preview", slot.Id) { Actor = actor, UiKey = ParkingUiKey.Key });
-        var reviews = (IDictionary) typeof(ParkingSystem).GetField("_reviews", flags)!.GetValue(parking)!;
-        var review = reviews[owner];
-        Assert.That(review, Is.Not.Null);
-        var token = (Guid) review!.GetType().GetProperty("Token")!.GetValue(review)!;
-        var preview = (List<string>) typeof(ParkingSystem).GetMethod("ExclusionPreview", flags)!.Invoke(parking, [ship])!;
-        Assert.That(preview.Single(), Does.Contain($"× {excludedCount} (конфискация)"));
-        Assert.That(entities.GetComponent<TransformComponent>(mob).GridUid, Is.EqualTo(ship));
-
-        var sound = new SoundPathSpecifier("/Audio/_Goobstation/Ambience/ambilathe1.ogg");
-        var audio = entities.System<SharedAudioSystem>().PlayPvs(sound, ship);
-        Assert.That(audio, Is.Not.Null);
-        Assert.That(entities.GetComponent<TransformComponent>(audio!.Value.Entity).GridUid, Is.EqualTo(ship));
-        Assert.That(parking.ExcludedEntities(ship), Does.Not.Contain(audio.Value.Entity));
-
-        var migration = entities.System<ParkingMigrationTestSystem>();
-        var consoleGrid = entities.GetComponent<TransformComponent>(console).GridUid;
-        EntityUid[] ReturnedItems() => entities.EntityQuery<MetaDataComponent, TransformComponent>(true)
-            .Where(entry => entry.Item2.GridUid == consoleGrid && entry.Item1.EntityPrototype?.ID is "ClothingHeadHatHoodRad" or "ChairWood")
-            .Select(entry => entry.Item1.Owner).ToArray();
-
-        void SubmitSave()
+        Func<Task> run = null!;
+        await pair.Server.WaitAssertion(() =>
         {
-            try
-            {
-                migration.DeletedPrototype = "ChairWood";
-                migration.LoadsBeforeDeletion = 1;
-                entities.EventBus.RaiseLocalEvent(console, new ParkingAction("save", slot.Id, token: token) { Actor = actor, UiKey = ParkingUiKey.Key });
-            }
-            finally
-            {
-                migration.DeletedPrototype = null;
-                migration.LoadsBeforeDeletion = 0;
-            }
-        }
+            const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
+            const int category = 2;
+            const int excludedCount = 543;
+            Assert.That(parking.GetCategory(ship), Is.EqualTo(category));
+            var store = (ParkingStore) typeof(ParkingSystem).GetField("_store", flags)!.GetValue(parking)!;
+            store.GrantPurchase(owner, store.BeginPurchase(owner, Guid.NewGuid(), category));
+            var slot = store.Slots(owner).Single();
 
-        if (failFirstWrites)
-        {
-            var db = (SqliteConnection) typeof(ParkingStore).GetField("_db", flags)!.GetValue(store)!;
-            var rejectedWrites = 0;
-            db.CreateFunction("note_rejected_parking_write", () => ++rejectedWrites);
-            using var fault = db.CreateCommand();
-            fault.CommandText = """
-                CREATE TEMP TRIGGER reject_parking_slot_write AFTER UPDATE OF ship ON parking_slots
-                WHEN NEW.phase = 'saving' BEGIN
-                    SELECT note_rejected_parking_write();
-                    SELECT RAISE(ABORT, 'parking test slot write failure');
-                END;
-                """;
-            fault.ExecuteNonQuery();
+            for (var i = 0; i < excludedCount; i++)
+                entities.SpawnEntity("Claymore", new EntityCoordinates(ship, new Vector2(1.5f, 0.5f)));
+
+            var containers = entities.System<SharedContainerSystem>();
+            var hood = containers.GetContainer(suit, ToggleableClothingComponent.DefaultClothingContainerId).ContainedEntities.Single();
+            entities.AddComponent<GridEditorBrokenExportComponent>(hood);
+            var migrated = entities.SpawnEntity("ChairWood", new EntityCoordinates(ship, new Vector2(1.5f)));
+            var lathePosition = entities.GetComponent<TransformComponent>(lathe).LocalPosition;
+            var latheComponent = entities.GetComponent<LatheComponent>(lathe);
+            latheComponent.Paused = true;
+            var prototypes = entities.EntitySysManager.DependencyCollection.Resolve<IPrototypeManager>();
+            var crowbar = prototypes.Index(new ProtoId<LatheRecipePrototype>("CrowbarGreen"));
+            var screwdriver = prototypes.Index(new ProtoId<LatheRecipePrototype>("Screwdriver"));
+            var lathes = entities.System<LatheSystem>();
+            Assert.That(lathes.TryAddToQueue(lathe, crowbar, 5, latheComponent, actor, canDebt: true), Is.True);
+            Assert.That(lathes.TryAddToQueue(lathe, screwdriver, 3, latheComponent, actor, canDebt: true), Is.True);
+            latheComponent.Queue[0].ItemsPrinted = 2;
+            var cargo = entities.EntityQuery<TransformComponent>(true).Where(xform => xform.GridUid == ship && xform.Owner != ship)
+                .ToDictionary(xform => xform.Owner, xform => xform.ParentUid);
+            var mob = entities.SpawnEntity("MobHuman", new EntityCoordinates(ship, new Vector2(1.5f)));
+            var inventoryItem = entities.SpawnEntity("Claymore", new EntityCoordinates(ship, new Vector2(1.5f)));
+            Assert.That(containers.Insert(inventoryItem, containers.EnsureContainer<Container>(mob, "test-equipment")), Is.True);
+            Assert.That(parking.ExcludedEntities(ship), Has.Count.EqualTo(excludedCount));
+            entities.EventBus.RaiseLocalEvent(console, new ParkingAction("preview", slot.Id) { Actor = actor, UiKey = ParkingUiKey.Key });
+            var reviews = (IDictionary) typeof(ParkingSystem).GetField("_reviews", flags)!.GetValue(parking)!;
+            var review = reviews[owner];
+            Assert.That(review, Is.Not.Null);
+            var token = (Guid) review!.GetType().GetProperty("Token")!.GetValue(review)!;
+            var preview = (List<string>) typeof(ParkingSystem).GetMethod("ExclusionPreview", flags)!.Invoke(parking, [ship])!;
+            Assert.That(preview.Count(line => line.Contains($"× {excludedCount} (конфискация)")), Is.EqualTo(1));
+            Assert.That(entities.GetComponent<TransformComponent>(mob).GridUid, Is.EqualTo(ship));
+
+            var sound = new SoundPathSpecifier("/Audio/_Goobstation/Ambience/ambilathe1.ogg");
+            var audio = entities.System<SharedAudioSystem>().PlayPvs(sound, ship);
+            Assert.That(audio, Is.Not.Null);
+            Assert.That(entities.GetComponent<TransformComponent>(audio!.Value.Entity).GridUid, Is.EqualTo(ship));
+            Assert.That(parking.ExcludedEntities(ship), Does.Not.Contain(audio.Value.Entity));
+
+            var migration = entities.System<ParkingMigrationTestSystem>();
+            var consoleGrid = entities.GetComponent<TransformComponent>(console).GridUid;
+            EntityUid[] ReturnedItems() => entities.EntityQuery<MetaDataComponent, TransformComponent>(true)
+                .Where(entry => entry.Item2.GridUid == consoleGrid && entry.Item1.EntityPrototype?.ID is "ClothingHeadHatHoodRad" or "ChairWood")
+                .Select(entry => entry.Item1.Owner).ToArray();
+
+
+            var saveField = typeof(ParkingSystem).GetField("_saveWork", flags)!;
+            var busy = (HashSet<Guid>)typeof(ParkingSystem).GetField("_busy", flags)!.GetValue(parking)!;
+            var timing = entities.EntitySysManager.DependencyCollection.Resolve<IGameTiming>();
+            var failures = typeof(ParkingSystem).GetField("_saveFailures", flags)!;
+            var failuresBefore = (long)failures.GetValue(parking)!;
+            var payoutsBeforeSave = store.PendingPayouts();
+            SqliteCommand? fault = null;
+            if (failFirstWrites)
+            {
+                var db = (SqliteConnection)typeof(ParkingStore).GetField("_db", flags)!.GetValue(store)!;
+                fault = db.CreateCommand();
+                fault.CommandText = "CREATE TRIGGER reject_parking_slot_write AFTER UPDATE OF ship ON parking_slots WHEN NEW.phase='saving' BEGIN SELECT RAISE(ABORT, 'parking test slot write failure'); END";
+                fault.ExecuteNonQuery();
+            }
 
             void AssertCargoAboard()
             {
@@ -789,101 +804,156 @@ public sealed class ShuttleParkingTests
                 Assert.That(entities.HasComponent<AttachedClothingComponent>(hood), Is.True);
             }
 
-            var payoutsBeforeSave = store.PendingPayouts();
-            try
+            async Task WaitOperation() => await PoolManager.WaitUntil(pair.Server,
+                () => !busy.Contains(owner) && saveField.GetValue(parking) == null, pair.SecondsToTicks(60));
+
+            async Task SubmitSave()
             {
-                for (var attempt = 1; attempt <= 2; attempt++)
+                await pair.Server.WaitAssertion(() =>
                 {
-                    SubmitSave();
-                    Assert.That(rejectedWrites, Is.EqualTo(attempt), "Each save must reach the SQLite slot update");
-                    Assert.That(store.Slot(owner, slot.Id), Is.EqualTo(slot));
-                    Assert.That(store.PendingPayouts(), Is.EquivalentTo(payoutsBeforeSave));
-                    Assert.That(entities.GetComponent<ParkingShuttleComponent>(ship).Parked, Is.True);
-                    AssertCargoAboard();
+                    migration.DeletedPrototype = "ChairWood";
+                    migration.LoadsBeforeDeletion = 1;
+                    entities.EventBus.RaiseLocalEvent(console, new ParkingAction("save", slot.Id, token: token) { Actor = actor, UiKey = ParkingUiKey.Key });
+                });
+                try
+                {
+                    await WaitOperation();
+                    await pair.Server.WaitAssertion(() => Assert.That(saveField.GetValue(parking), Is.Null, "The save worker did not settle."));
+                }
+                finally
+                {
+                    await pair.Server.WaitPost(() => { migration.DeletedPrototype = null; migration.LoadsBeforeDeletion = 0; });
+                }
+            }
+
+            run = async () =>
+            {
+                if (failFirstWrites)
+                {
+                    try
+                    {
+                        for (var attempt = 1; attempt <= 2; attempt++)
+                        {
+                            await SubmitSave();
+                            await pair.Server.WaitAssertion(() =>
+                            {
+                                Assert.That((long)failures.GetValue(parking)!, Is.EqualTo(failuresBefore + attempt), "Each rejected write must fail without mutating cargo.");
+                                Assert.That(store.Slot(owner, slot.Id), Is.EqualTo(slot));
+                                Assert.That(store.PendingPayouts(), Is.EquivalentTo(payoutsBeforeSave));
+                                Assert.That(entities.GetComponent<ParkingShuttleComponent>(ship).Parked, Is.True);
+                                AssertCargoAboard();
+                            });
+                        }
+                        await pair.Server.WaitAssertion(() => entities.EventBus.RaiseLocalEvent(console,
+                            new ParkingAction("recall", dock: entities.GetNetEntity(dock)) { Actor = actor, UiKey = ParkingUiKey.Key }));
+                        await WaitOperation();
+                        await pair.Server.WaitAssertion(() =>
+                        {
+                            Assert.That(entities.GetComponent<ParkingShuttleComponent>(ship).Parked, Is.False);
+                            Assert.That(entities.GetComponent<DockingComponent>(dock).DockedWith, Is.Not.Null);
+                            Assert.That(entities.GetComponent<MetaDataComponent>(ship).EntityPaused, Is.False);
+                            AssertCargoAboard();
+                        });
+                    }
+                    finally
+                    {
+                        await pair.Server.WaitPost(() => { fault!.CommandText = "DROP TRIGGER reject_parking_slot_write"; fault.ExecuteNonQuery(); fault.Dispose(); });
+                    }
                 }
 
-                entities.EventBus.RaiseLocalEvent(console, new ParkingAction("recall", dock: entities.GetNetEntity(dock))
-                    { Actor = actor, UiKey = ParkingUiKey.Key });
-                Assert.That(entities.GetComponent<ParkingShuttleComponent>(ship).Parked, Is.False);
-                Assert.That(entities.GetComponent<DockingComponent>(dock).DockedWith, Is.Not.Null);
-                Assert.That(entities.GetComponent<MetaDataComponent>(ship).EntityPaused, Is.False);
-                AssertCargoAboard();
-            }
-            finally
-            {
-                fault.CommandText = "DROP TRIGGER reject_parking_slot_write;";
-                fault.ExecuteNonQuery();
-            }
-        }
+                var savedAfter = TimeSpan.Zero;
+                ParkingSlot saved = null!;
+                await pair.Server.WaitPost(() => savedAfter = timing.RealTime);
+                await SubmitSave();
+                await pair.Server.WaitAssertion(() =>
+                {
+                    saved = store.Slot(owner, slot.Id);
+                    Assert.That(saved.Phase, Is.EqualTo("stored"));
+                    Assert.That(saved.Ship?.Category, Is.EqualTo(category));
+                    Assert.That(saved.Ship!.SavedShift, Is.Not.EqualTo(Guid.Empty));
+                    Assert.That(saved.Ship.FreeReturnAt, Is.InRange(savedAfter + ParkingRules.FreeReturnDelay, timing.RealTime + ParkingRules.FreeReturnDelay));
+                    Assert.That(entities.EntityExists(ship), Is.False);
+                    Assert.That(entities.GetComponent<TransformComponent>(mob).GridUid, Is.EqualTo(entities.GetComponent<TransformComponent>(dock).GridUid));
+                    Assert.That(entities.GetComponent<TransformComponent>(inventoryItem).ParentUid, Is.EqualTo(mob));
+                    Assert.That(entities.GetComponent<TransformComponent>(hood).GridUid, Is.EqualTo(consoleGrid));
+                    Assert.That(entities.GetComponent<TransformComponent>(migrated).GridUid, Is.EqualTo(consoleGrid));
+                    Assert.That(entities.HasComponent<AttachedClothingComponent>(hood), Is.False);
+                    Assert.That(entities.IsQueuedForDeletion(hood), Is.False);
 
-        var timing = entities.EntitySysManager.DependencyCollection.Resolve<IGameTiming>();
-        var savedAfter = timing.RealTime;
-        SubmitSave();
-        var saved = store.Slot(owner, slot.Id);
-        Assert.That(saved.Phase, Is.EqualTo("stored"));
-        Assert.That(saved.Ship?.Category, Is.EqualTo(category));
-        Assert.That(saved.Ship!.SavedShift, Is.Not.EqualTo(Guid.Empty));
-        Assert.That(saved.Ship.FreeReturnAt, Is.InRange(savedAfter + ParkingRules.FreeReturnDelay, timing.RealTime + ParkingRules.FreeReturnDelay));
-        Assert.That(entities.EntityExists(ship), Is.False);
-        Assert.That(entities.GetComponent<TransformComponent>(mob).GridUid, Is.EqualTo(entities.GetComponent<TransformComponent>(dock).GridUid));
-        Assert.That(entities.GetComponent<TransformComponent>(inventoryItem).ParentUid, Is.EqualTo(mob));
-        Assert.That(entities.GetComponent<TransformComponent>(hood).GridUid, Is.EqualTo(consoleGrid));
-        Assert.That(entities.GetComponent<TransformComponent>(migrated).GridUid, Is.EqualTo(consoleGrid));
-        Assert.That(entities.HasComponent<AttachedClothingComponent>(hood), Is.False);
-        Assert.That(entities.IsQueuedForDeletion(hood), Is.False);
-        if (failFirstWrites)
-        {
-            var payoutsAfterSave = store.PendingPayouts();
-            SubmitSave();
-            Assert.That(store.Slot(owner, slot.Id), Is.EqualTo(saved));
-            Assert.That(store.PendingPayouts(), Is.EquivalentTo(payoutsAfterSave));
-            Assert.That(ReturnedItems(), Is.EquivalentTo(new[] { hood, migrated }));
-        }
-        var restored = parking.LoadSnapshot(saved.Ship!.Grid);
-        Assert.That(parking.GetCategory(restored), Is.EqualTo(category));
-        Assert.That(parking.ExcludedEntities(restored), Is.Empty);
-        Assert.That(entities.EntityQuery<AudioComponent, TransformComponent>(true)
-            .Any(entry => entry.Item2.GridUid == restored), Is.False);
-        var restoredPrototypes = entities.EntityQuery<MetaDataComponent, TransformComponent>(true)
-            .Where(entry => entry.Item2.GridUid == restored).Select(entry => entry.Item1.EntityPrototype?.ID).ToHashSet();
-        Assert.That(restoredPrototypes, Does.Contain("ClothingOuterSuitRad"));
-        Assert.That(restoredPrototypes, Does.Not.Contain("ClothingHeadHatHoodRad").And.Not.Contain("ChairWood"));
-        entities.DeleteEntity(restored);
+                });
+                if (failFirstWrites)
+                {
+                    List<ParkingPayout> payoutsAfterSave = null!;
+                    await pair.Server.WaitPost(() => payoutsAfterSave = store.PendingPayouts());
+                    await SubmitSave();
+                    await pair.Server.WaitAssertion(() =>
+                    {
+                        Assert.That(store.Slot(owner, slot.Id), Is.EqualTo(saved));
+                        Assert.That(store.PendingPayouts(), Is.EquivalentTo(payoutsAfterSave));
+                        Assert.That(ReturnedItems(), Is.EquivalentTo(new[] { hood, migrated }));
+                    });
+                }
+                await pair.Server.WaitAssertion(() =>
+                {
+                    var restored = parking.LoadSnapshot(saved.Ship!.Grid);
+                    Assert.That(parking.GetCategory(restored), Is.EqualTo(category));
+                    Assert.That(parking.ExcludedEntities(restored), Is.Empty);
+                    Assert.That(entities.EntityQuery<AudioComponent, TransformComponent>(true)
+                        .Any(entry => entry.Item2.GridUid == restored), Is.False);
+                    var restoredPrototypes = entities.EntityQuery<MetaDataComponent, TransformComponent>(true)
+                        .Where(entry => entry.Item2.GridUid == restored).Select(entry => entry.Item1.EntityPrototype?.ID).ToHashSet();
+                    Assert.That(restoredPrototypes, Does.Contain("ClothingOuterSuitRad"));
+                    Assert.That(restoredPrototypes, Does.Not.Contain("ClothingHeadHatHoodRad").And.Not.Contain("ChairWood"));
+                    entities.DeleteEntity(restored);
 
-        entities.AddComponent<IronmanComponent>(actor);
-        entities.EventBus.RaiseLocalEvent(console, new ParkingAction("redeem", slot.Id, dock: entities.GetNetEntity(dock))
-            { Actor = actor, UiKey = ParkingUiKey.Key });
-        Assert.That(store.Slot(owner, slot.Id), Is.EqualTo(saved), "Early return must leave the slot untouched");
 
-        // Move only the stored deadline to exercise the real console return without waiting five minutes.
-        var connection = (SqliteConnection) typeof(ParkingStore).GetField("_db", flags)!.GetValue(store)!;
-        using var deadline = connection.CreateCommand();
-        deadline.CommandText = "UPDATE parking_slots SET ship=$ship WHERE id=$id AND owner=$owner";
-        deadline.Parameters.AddWithValue("$ship", JsonSerializer.Serialize(saved.Ship with { FreeReturnAt = timing.RealTime }));
-        deadline.Parameters.AddWithValue("$id", slot.Id.ToString());
-        deadline.Parameters.AddWithValue("$owner", owner.ToString());
-        Assert.That(deadline.ExecuteNonQuery(), Is.EqualTo(1));
+                    entities.AddComponent<IronmanComponent>(actor);
+                    entities.EventBus.RaiseLocalEvent(console, new ParkingAction("redeem", slot.Id, dock: entities.GetNetEntity(dock))
+                        { Actor = actor, UiKey = ParkingUiKey.Key });
+                });
+                await WaitOperation();
+                await pair.Server.WaitAssertion(() =>
+                {
+                    Assert.That(store.Slot(owner, slot.Id), Is.EqualTo(saved), "Early return must leave the slot untouched");
+                    // Move only the stored deadline to exercise the real console return without waiting five minutes.
+                    var connection = (SqliteConnection) typeof(ParkingStore).GetField("_db", flags)!.GetValue(store)!;
+                    using var deadline = connection.CreateCommand();
+                    deadline.CommandText = "UPDATE parking_slots SET ship=$ship WHERE id=$id AND owner=$owner";
+                    deadline.Parameters.AddWithValue("$ship", JsonSerializer.Serialize(saved.Ship with { FreeReturnAt = timing.RealTime }));
+                    deadline.Parameters.AddWithValue("$id", slot.Id.ToString());
+                    deadline.Parameters.AddWithValue("$owner", owner.ToString());
+                    Assert.That(deadline.ExecuteNonQuery(), Is.EqualTo(1));
 
-        entities.EventBus.RaiseLocalEvent(console, new ParkingAction("redeem", slot.Id, dock: entities.GetNetEntity(dock))
-            { Actor = actor, UiKey = ParkingUiKey.Key });
-        Assert.That(store.Slot(owner, slot.Id).Phase, Is.EqualTo("empty"));
-        var card = entities.GetComponent<ParkingConsoleComponent>(console).Card.Item!.Value;
-        var delivered = entities.GetComponent<ShuttleDeedComponent>(card).ShuttleUid!.Value;
-        Assert.That(entities.GetComponent<MetaDataComponent>(delivered).EntityPaused, Is.False);
-        Assert.That(entities.GetComponent<DockingComponent>(dock).DockedWith, Is.Not.Null);
-        Assert.That(ReturnedItems(), Is.EquivalentTo(new[] { hood, migrated }));
 
-        Assert.That(entities.EntityExists(lathe), Is.False);
-        var (returnedLathe, transform) = entities.EntityQuery<LatheComponent, TransformComponent>(true)
-            .Single(entry => entry.Item2.GridUid == delivered);
-        Assert.That(entities.GetComponent<MetaDataComponent>(returnedLathe.Owner).EntityPrototype?.ID, Is.EqualTo("Autolathe"));
-        Assert.That(transform.Coordinates, Is.EqualTo(new EntityCoordinates(delivered, lathePosition)));
-        Assert.That(returnedLathe.Paused, Is.True);
-        Assert.That(returnedLathe.Queue.Select(batch => (batch.Recipe, batch.ItemsPrinted, batch.ItemsRequested)),
-            Is.EqualTo(new[] { (crowbar, 2, 5), (screwdriver, 0, 3) }));
-        Assert.That(returnedLathe.Queue.Select(batch => batch.Actor), Is.All.Null);
-        Assert.That(lathes.TryAddToQueue(returnedLathe.Owner, crowbar, 1, returnedLathe, actor, canDebt: true), Is.True);
-        Assert.That(returnedLathe.Queue.Select(batch => batch.Index), Is.Unique);
+                    entities.EventBus.RaiseLocalEvent(console, new ParkingAction("redeem", slot.Id, dock: entities.GetNetEntity(dock))
+                        { Actor = actor, UiKey = ParkingUiKey.Key });
+                });
+                await WaitOperation();
+                await pair.Server.WaitAssertion(() =>
+                {
+                    Assert.That(store.Slot(owner, slot.Id).Phase, Is.EqualTo("empty"));
+                    var card = entities.GetComponent<ParkingConsoleComponent>(console).Card.Item!.Value;
+                    var delivered = entities.GetComponent<ShuttleDeedComponent>(card).ShuttleUid!.Value;
+                    Assert.That(entities.GetComponent<MetaDataComponent>(delivered).EntityPaused, Is.False);
+                    Assert.That(entities.GetComponent<DockingComponent>(dock).DockedWith, Is.Not.Null);
+                    Assert.That(ReturnedItems(), Is.EquivalentTo(new[] { hood, migrated }));
+
+                    Assert.That(entities.EntityExists(lathe), Is.False);
+                    var (returnedLathe, transform) = entities.EntityQuery<LatheComponent, TransformComponent>(true)
+                        .Single(entry => entry.Item2.GridUid == delivered);
+                    Assert.That(entities.GetComponent<MetaDataComponent>(returnedLathe.Owner).EntityPrototype?.ID, Is.EqualTo("Autolathe"));
+                    Assert.That(transform.Coordinates, Is.EqualTo(new EntityCoordinates(delivered, lathePosition)));
+                    Assert.That(returnedLathe.Paused, Is.True);
+                    Assert.That(returnedLathe.Queue.Select(batch => (batch.Recipe, batch.ItemsPrinted, batch.ItemsRequested)),
+                        Is.EqualTo(new[] { (crowbar, 2, 5), (screwdriver, 0, 3) }));
+                    Assert.That(returnedLathe.Queue.Select(batch => batch.Actor), Is.All.Null);
+                    Assert.That(lathes.TryAddToQueue(returnedLathe.Owner, crowbar, 1, returnedLathe, actor, canDebt: true), Is.True);
+                    Assert.That(returnedLathe.Queue.Select(batch => batch.Index), Is.Unique);
+
+                });
+            };
+        });
+        await run();
     }
 
     [Test]

@@ -1,3 +1,7 @@
+using System.Numerics;
+using Robust.Client.Graphics;
+using Robust.Client.UserInterface;
+using Content.Client._DeepLagoon.Voyages;
 using Content.Client._DeepLagoon.Search; // DeepLagoon: fuzzy search
 using System.Linq;
 using Content.Client.UserInterface.Controls;
@@ -26,7 +30,8 @@ namespace Content.Client.Cargo.UI
         public event Action<ButtonEventArgs>? OnOrderApproved;
         public event Action<ButtonEventArgs>? OnOrderCanceled;
 
-        private readonly List<string> _categoryStrings = new();
+        private readonly Dictionary<string, CargoProductRow> _productCards = new();
+        private string _categoryKey = "", _productKey = "";
         private string? _category;
 
         public CargoConsoleMenu(EntityUid owner, IEntityManager entMan, IPrototypeManager protoManager, SpriteSystem spriteSystem)
@@ -37,28 +42,18 @@ namespace Content.Client.Cargo.UI
             _spriteSystem = spriteSystem;
             _owner = owner;
 
+            VoyageMapButton.OnPressed += _ => IoCManager.Resolve<IEntityManager>().System<VoyagePrototypeUiSystem>().Open(_owner);
+
             Title = Loc.GetString("cargo-console-menu-title");
 
             SearchBar.OnTextChanged += OnSearchBarTextChanged;
-            Categories.OnItemSelected += OnCategoryItemSelected;
+            CatalogueTabs.SetTabTitle(0, Loc.GetString("dl-cargo-catalog-tab"));
+            CatalogueTabs.SetTabTitle(1, Loc.GetString("dl-cargo-catalog-orders-tab"));
+            BackToCategories.OnPressed += _ => { _category = null; SearchBar.Text = ""; PopulateProducts(); };
+            ClearSearch.OnPressed += _ => { SearchBar.Text = ""; PopulateProducts(); };
         }
 
-        private void OnCategoryItemSelected(OptionButton.ItemSelectedEventArgs args)
-        {
-            SetCategoryText(args.Id);
-            PopulateProducts();
-        }
-
-        private void OnSearchBarTextChanged(LineEdit.LineEditEventArgs args)
-        {
-            PopulateProducts();
-        }
-
-        private void SetCategoryText(int id)
-        {
-            _category = id == 0 ? null : _categoryStrings[id];
-            Categories.SelectId(id);
-        }
+        private void OnSearchBarTextChanged(LineEdit.LineEditEventArgs args) => PopulateProducts();
 
         public IEnumerable<CargoProductPrototype> ProductPrototypes
         {
@@ -79,64 +74,77 @@ namespace Content.Client.Cargo.UI
         /// <summary>
         ///     Populates the list of products that will actually be shown, using the current filters.
         /// </summary>
+        public Dictionary<string, int> Prices = new();
         public void PopulateProducts()
         {
-            Products.RemoveAllChildren();
-            var products = ProductPrototypes.ToList();
-            products.Sort((x, y) =>
-                string.Compare(x.Name, y.Name, StringComparison.CurrentCultureIgnoreCase));
-
-            var search = SearchBar.Text.Trim().ToLowerInvariant();
-            foreach (var prototype in FuzzySearch.Rank(products, search, product => product.Name, product => product.Description)) // DeepLagoon: fuzzy search
+            PopulateCategories();
+            var search = SearchBar.Text.Trim();
+            var home = _category == null && search.Length == 0;
+            CategoryCards.Visible = home; Products.Visible = !home;
+            BackToCategories.Visible = !home;
+            CatalogueHeading.Text = _category != null ? Loc.GetString(_category) : Loc.GetString(home ? "dl-cargo-catalog-categories" : "dl-cargo-catalog-results");
+            SearchBar.PlaceHolder = Loc.GetString(_category == null ? "dl-cargo-catalog-search-all" : "dl-cargo-catalog-search-category");
+            ClearSearch.Disabled = search.Length == 0;
+            if (home) { NoProducts.Visible = !CategoryCards.Children.Any(); return; }
+            var available = ProductPrototypes.Where(p => _category == null || p.Category == _category)
+                .OrderBy(p => p.Name, StringComparer.CurrentCultureIgnoreCase).ToArray();
+            var products = FuzzySearch.Rank(available, search, p => p.Name, p => p.Description).ToArray();
+            var key = _category + "\n" + search + "\n" + string.Join("|", products.Select(p => p.ID));
+            if (key != _productKey)
             {
-                // if no search or category
-                // else if search
-                // else if category and not search
-                if (search.Length == 0 && _category == null ||
-                    search.Length != 0 || // DeepLagoon: fuzzy search, matching is done by FuzzySearch.Rank above
-                    search.Length == 0 && _category != null && Loc.GetString(prototype.Category).Equals(_category))
+                _productKey = key; Products.DisposeAllChildren(); _productCards.Clear();
+                foreach (var prototype in products)
                 {
-                    var button = new CargoProductRow
+                    var card = new CargoProductRow
                     {
                         Product = prototype,
                         ProductName = { Text = prototype.Name },
-                        MainButton = { ToolTip = prototype.Description },
-                        PointCost = { Text = BankSystemExtensions.ToSpesoString(prototype.Cost) }, // Frontier: 
+                        MainButton = { ToolTip = prototype.Name + "\n" + prototype.Description },
                         Icon = { Texture = _spriteSystem.Frame0(prototype.Icon) },
                     };
-                    button.MainButton.OnPressed += args =>
-                    {
-                        OnItemSelected?.Invoke(args);
-                    };
-                    Products.AddChild(button);
+                    card.MainButton.OnPressed += args => OnItemSelected?.Invoke(args);
+                    _productCards.Add(prototype.ID, card); Products.AddChild(card);
                 }
+                CatalogueScroll.VScrollTarget = 0;
             }
+            foreach (var prototype in products)
+                _productCards[prototype.ID].PointCost.Text = BankSystemExtensions.ToSpesoString(Prices.GetValueOrDefault(prototype.ID, prototype.Cost));
+            NoProducts.Visible = products.Length == 0;
         }
 
-        /// <summary>
-        ///     Populates the list of products that will actually be shown, using the current filters.
-        /// </summary>
         public void PopulateCategories()
         {
-            _categoryStrings.Clear();
-            Categories.Clear();
-
-            foreach (var prototype in ProductPrototypes)
+            var products = ProductPrototypes.OrderBy(p => p.ID, StringComparer.Ordinal).ToArray();
+            var key = string.Join("|", products.Select(p => p.ID));
+            if (key == _categoryKey) return;
+            _categoryKey = key; CategoryCards.DisposeAllChildren();
+            var groups = products.GroupBy(p => p.Category).OrderBy(g => Loc.GetString(g.Key), StringComparer.CurrentCultureIgnoreCase).ToArray();
+            if (_category != null && groups.All(g => g.Key != _category)) { _category = null; _productKey = ""; }
+            foreach (var group in groups)
             {
-                if (!_categoryStrings.Contains(Loc.GetString(prototype.Category)))
+                var button = new Button { Name = "CargoCategory", MinWidth = 240, MinHeight = 140, HorizontalExpand = true };
+                var content = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical,
+                    HorizontalExpand = true, SeparationOverride = 8, Margin = new Thickness(12), MouseFilter = MouseFilterMode.Ignore };
+                var previews = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Horizontal,
+                    SeparationOverride = 12, MinHeight = 48, MouseFilter = MouseFilterMode.Ignore };
+                var examples = group.GroupBy(p => p.Product.Id).Select(g => g.First()).ToArray();
+                var count = Math.Min(3, examples.Length);
+                for (var i = 0; i < count; i++)
                 {
-                    _categoryStrings.Add(Loc.GetString(prototype.Category));
+                    var example = examples[count == 1 ? 0 : i * (examples.Length - 1) / (count - 1)];
+                    previews.AddChild(new TextureRect { Texture = _spriteSystem.Frame0(example.Icon), SetSize = new Vector2(48),
+                        Stretch = TextureRect.StretchMode.KeepAspectCentered, MouseFilter = MouseFilterMode.Ignore });
                 }
-            }
-
-            _categoryStrings.Sort();
-
-            // Add "All" category at the top of the list
-            _categoryStrings.Insert(0, Loc.GetString("cargo-console-menu-populate-categories-all-text"));
-
-            foreach (var str in _categoryStrings)
-            {
-                Categories.AddItem(str);
+                content.AddChild(previews);
+                var label = new RichTextLabel { Text = Loc.GetString(group.Key), HorizontalExpand = true, RectClipContent = true,
+                    SetHeight = 42, MaxHeight = 42, MouseFilter = MouseFilterMode.Ignore };
+                content.AddChild(label);
+                content.AddChild(new Label { Text = Loc.GetString("dl-cargo-catalog-category-count", ("count", group.Count())),
+                    FontColorOverride = Color.FromHex("#A9BEC9"), MouseFilter = MouseFilterMode.Ignore });
+                button.AddChild(content);
+                var category = group.Key;
+                button.OnPressed += _ => { _category = category; SearchBar.Text = ""; PopulateProducts(); CatalogueScroll.VScrollTarget = 0; };
+                CategoryCards.AddChild(button);
             }
         }
 
@@ -148,7 +156,8 @@ namespace Content.Client.Cargo.UI
             Orders.DisposeAllChildren();
             Requests.DisposeAllChildren();
 
-            foreach (var order in orders)
+            var entries = orders.ToArray(); NoOrders.Visible = entries.Length == 0;
+            foreach (var order in entries)
             {
                 var product = _protoManager.Index<EntityPrototype>(order.ProductId);
                 var productName = product.Name;

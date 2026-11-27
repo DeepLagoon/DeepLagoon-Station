@@ -157,17 +157,15 @@ public sealed partial class ParkingSystem
 
     private NetUserId? GetAutoParkingOwner(EntityUid grid)
     {
-        if (TerminatingOrDeleted(grid))
+        if (TerminatingOrDeleted(grid) || IsVoucherPurchasedShuttle(grid))
             return null;
 
-        if (TryComp<ParkingShuttleComponent>(grid, out var ship))
-            return !ship.Parked && _activeShips.GetValueOrDefault(ship.Identity) == grid ? new NetUserId(ship.OwnerAccount) : null;
+        // Automatic parking must never hide a legacy ship whose original character/faction cannot
+        // pass the recall guard. Ownership or the currently inserted card cannot supply that proof.
+        if (!TryComp<ParkingShuttleComponent>(grid, out var ship) || ship.OwnerAccount == Guid.Empty ||
+            ship.ParkingProfile <= 0 || string.IsNullOrEmpty(ship.OriginFaction)) return null;
 
-        if (TryComp<ShipOwnershipComponent>(grid, out var ownership) && ownership.OwnerUserId != default
-            && TryComp<VesselComponent>(grid, out var vessel) && _prototypes.HasIndex(vessel.VesselId))
-            return ownership.OwnerUserId;
-
-        return null;
+        return !ship.Parked && _activeShips.GetValueOrDefault(ship.Identity) == grid ? new NetUserId(ship.OwnerAccount) : null;
     }
 
     private bool CollectOfflineOccupants(EntityUid grid, List<EntityUid> occupants)

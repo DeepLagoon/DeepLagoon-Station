@@ -134,6 +134,8 @@ public sealed class AutomaticShuttleParkingTests
             var minds = entities.System<MindSystem>();
             minds.TransferTo(minds.GetOrCreateMind(owner.UserId).Owner, body);
             entities.System<ParkingSystem>().RegisterPurchasedShip(ship, owner.UserId.UserId, 1, "", "Captain");
+            Assert.That(entities.System<Content.Server._NF.Bank.BankSystem>().TryGetCharacter(owner, out _, out _, out _), Is.True);
+            ParkingOriginTests.BindFixtureOrigin(entities, body, ship);
             parking = entities.GetComponent<ParkingShuttleComponent>(ship);
             card = entities.SpawnEntity("PassengerIDCard", arrival);
             entities.GetComponent<IdCardComponent>(card).FullName = entities.GetComponent<MetaDataComponent>(body).EntityName;
@@ -243,6 +245,10 @@ public sealed class AutomaticShuttleParkingTests
             entities.GetComponent<ApcPowerReceiverComponent>(console).Powered = true;
             entities.EventBus.RaiseLocalEvent(console, new ParkingAction("recall", dock: entities.GetNetEntity(dock))
                 { Actor = body, UiKey = ParkingUiKey.Key });
+        });
+        await PoolManager.WaitUntil(server, () => !parking.Parked, 600);
+        await server.WaitAssertion(() =>
+        {
             Assert.That(parking.Parked, Is.False);
             Assert.That(entities.GetComponent<DockingComponent>(dock).DockedWith, Is.EqualTo(shipDock));
         });

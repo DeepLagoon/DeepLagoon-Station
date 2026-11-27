@@ -83,6 +83,7 @@ namespace Content.Server.IoC
 
             IoCManager.Register<DiscordLink>();
             IoCManager.Register<DiscordChatLink>();
+            IoCManager.Register<Content.Server._DeepLagoon.Music.MusicApi>();
         }
     }
 }

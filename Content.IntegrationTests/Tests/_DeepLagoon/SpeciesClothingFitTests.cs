@@ -30,6 +30,7 @@ public sealed class SpeciesClothingFitTests
             {
                 Assert.That(prototypes.Index<EntityPrototype>(id).TryComp<InventoryComponent>(out var protoInventory, entities.ComponentFactory), Is.True);
                 if (species == "Human") continue;
+#pragma warning disable RA0002 // Read-only validation of prototype displacement dictionaries, not live inventory mutation.
                 foreach (var slot in new[] { "underweartop", "underwearbottom" })
                 {
                     Assert.That(protoInventory!.Displacements.ContainsKey(slot), Is.True, id + "/" + slot);
@@ -39,6 +40,7 @@ public sealed class SpeciesClothingFitTests
                 Assert.That(protoInventory!.Displacements.ContainsKey("bodyFeatures"), Is.True, id + "/bodyFeatures");
                 Assert.That(protoInventory.Displacements["bodyFeatures"].SizeMaps[32].RsiPath.ToString(),
                     Does.Contain("BodyCustomization/species_displacement.rsi"), "Anatomy uses a volume-preserving map, not a garment cut-out.");
+#pragma warning restore RA0002
             }
             var uid = entities.SpawnEntity("Mob" + species + "Dummy", MapCoordinates.Nullspace);
             var top = entities.SpawnEntity("ClothingUnderTopBraGrey", MapCoordinates.Nullspace);

@@ -287,12 +287,15 @@ namespace Content.Server.Explosion.EntitySystems
                     case MobState.Critical:
                     {
                         var message = mobstate.PreviousState == MobState.Dead ? reviveMessage : critMessage;
-                        _radioSystem.SendRadioMessage(uid, message, radioChannel, uid, null, language);
+                        var kind = mobstate.PreviousState == MobState.Dead ? component.ReviveMessage : component.CritMessage;
+                        if (ShouldSendRattleAlert(implanted.ImplantedEntity.Value, component, kind))
+                            _radioSystem.SendRadioMessage(uid, message, radioChannel, uid, null, language);
                         break;
                     }
                     case MobState.Dead:
                     {
-                        _radioSystem.SendRadioMessage(uid, deathMessage, radioChannel, uid, null, language);
+                        if (ShouldSendRattleAlert(implanted.ImplantedEntity.Value, component, component.DeathMessage))
+                            _radioSystem.SendRadioMessage(uid, deathMessage, radioChannel, uid, null, language);
                         break;
                     }
                 }

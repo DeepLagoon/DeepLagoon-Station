@@ -293,6 +293,9 @@ namespace Content.Server.VendingMachines
                 return false;
             }
 
+            // LC goods are issued only after their separate authoritative account debit.
+            if (TryGetLagoonCoinPrice(uid, entry.ID, out _)) return false;
+
             if (entry.Amount <= 0)
             {
                 Popup.PopupEntity(Loc.GetString("vending-machine-component-try-eject-out-of-stock"), uid);
@@ -337,10 +340,23 @@ namespace Content.Server.VendingMachines
         /// <param name="component"></param>
         public void AuthorizedVend(EntityUid uid, EntityUid sender, InventoryType type, string itemId, VendingMachineComponent component)
         {
+            if (TryGetLagoonCoinPrice(uid, itemId, out var coinPrice))
+            {
+                VendForLagoonCoins(uid, sender, type, itemId, coinPrice, component);
+                return;
+            }
+            if (_lagoonVendBusy.Contains(uid)) return;
             if (!_prototypeManager.TryIndex<EntityPrototype>(itemId, out var proto))
                 return;
 
             var totalPrice = GetPurchasePrice(uid, proto, component);
+            if (EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>().Enabled &&
+                (type == InventoryType.Contraband ? component.ContrabandInventory : type == InventoryType.Emagged ? component.EmaggedInventory : component.Inventory).GetValueOrDefault(itemId) is { } displayed && displayed.Price != totalPrice)
+            {
+                RefreshPrices(uid, component);
+                Deny(uid, component);
+                return;
+            }
             if (totalPrice > 0 && !_crashRecovery.CanProtectBuyer(sender))
             {
                 Deny(uid, component);
@@ -367,10 +383,26 @@ namespace Content.Server.VendingMachines
                     var recoveryPayment = _crashRecovery.BeginPurchase(sender, totalPrice);
                     // Keep rejected requests from overwriting the price of an item already being dispensed.
                     component.LastPurchasePrice = totalPrice;
-                    var paidFully = _cash.TryCashPayment(uid, totalPrice, out var _, true);
+                    var paidFully = totalPrice == 0 || _cash.TryCashPayment(uid, totalPrice, out _, true);
 
                     if (totalPrice > cashSlotBalance && !HasComp<IronmanComponent>(sender))
                         paidFully = _bankSystem.TryBankWithdraw(sender, totalPrice - cashSlotBalance, recoveryPayment);
+
+                    if (!paidFully)
+                    {
+                        // An asynchronous market payment can temporarily lock the bank. Do not dispense for free.
+                        component.Ejecting = false;
+                        component.NextItemToEject = null;
+                        component.EjectAccumulator = 0;
+                        component.LastPurchasePrice = 0;
+                        if (GetEntry(uid, itemId, type, component) is { } entry && entry.Amount != uint.MaxValue) entry.Amount++;
+                        var refund = Math.Clamp(cashSlotBalance - _cash.GetCashBalance(uid), 0, totalPrice);
+                        if (refund > 0) EntityManager.System<Content.Server.Stack.StackSystem>().Spawn(refund,
+                            _prototypeManager.Index<Content.Shared.Stacks.StackPrototype>("Credit"), Transform(uid).Coordinates);
+                        Deny(uid, component);
+                        Dirty(uid, component);
+                        return;
+                    }
 
                     if (paidFully)
                     {
@@ -380,6 +412,7 @@ namespace Content.Server.VendingMachines
                             var purchases = component.Purchases.GetValueOrDefault(itemId);
                             component.Purchases[itemId] = purchases < int.MaxValue ? purchases + 1 : purchases;
                             component.TotalPurchases++;
+                            EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>().Purchased("vendor:" + itemId);
                             RefreshPrices(uid, component);
                         }
 
@@ -403,6 +436,7 @@ namespace Content.Server.VendingMachines
         /// <summary>Uses the same authoritative price for payment and both vending catalogues.</summary>
         public int GetPurchasePrice(EntityUid uid, EntityPrototype proto, VendingMachineComponent component)
         {
+            if (TryGetLagoonCoinPrice(uid, proto.ID, out var coinPrice)) return coinPrice;
             if (!component.RequiresCash)
                 return 0;
 
@@ -423,6 +457,9 @@ namespace Content.Server.VendingMachines
             if (priceVend > 0.0)
                 price = priceVend;
 
+            var economy = EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>();
+            if (economy.Enabled) return (int)economy.Quote("vendor:" + proto.ID, (long)Math.Truncate(price), proto);
+
             // Linear growth from the base: +2% per purchase of this product, +0.5% for every other purchase.
             var demand = 1.0 + component.TotalPurchases * 0.005
                 + component.Purchases.GetValueOrDefault(proto.ID) * 0.015;
@@ -439,10 +476,12 @@ namespace Content.Server.VendingMachines
                     continue;
 
                 var price = GetPurchasePrice(uid, proto, component);
-                if (entry.Price == price)
+                var currency = TryGetLagoonCoinPrice(uid, entry.ID, out _) ? "LC" : "spesso";
+                if (entry.Price == price && entry.Currency == currency)
                     continue;
 
                 entry.Price = price;
+                entry.Currency = currency;
                 changed = true;
             }
 
@@ -511,6 +550,7 @@ namespace Content.Server.VendingMachines
             }
 
             var availableItems = GetAvailableInventory(uid, vendComponent);
+            availableItems.RemoveAll(entry => TryGetLagoonCoinPrice(uid, entry.ID, out _));
             if (availableItems.Count <= 0)
                 return;
             var item = _random.Pick(availableItems);
@@ -612,13 +652,17 @@ namespace Content.Server.VendingMachines
             return component.Inventory.GetValueOrDefault(entryId);
         }
 
+        private TimeSpan _nextEconomyPriceRefresh;
         public override void Update(float frameTime)
         {
             base.Update(frameTime);
 
+            var refreshPrices = EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>().Enabled && _timing.CurTime >= _nextEconomyPriceRefresh;
+            if (refreshPrices) _nextEconomyPriceRefresh = _timing.CurTime + TimeSpan.FromMinutes(1);
             var query = EntityQueryEnumerator<VendingMachineComponent>();
             while (query.MoveNext(out var uid, out var comp))
             {
+                if (refreshPrices) RefreshPrices(uid, comp);
                 if (comp.Ejecting)
                 {
                     comp.EjectAccumulator += frameTime;

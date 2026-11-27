@@ -13,6 +13,7 @@ public sealed partial class MobCleanupSystem : BaseCleanupSystem<HTNComponent>
 {
     [Dependency] private CleanupHelperSystem _cleanup = default!;
     [Dependency] private IConfigurationManager _cfg = default!;
+    [Dependency] private Content.Server._DeepLagoon.Cleanup.AgeCleanupSystem _ageCleanup = default!;
 
     private float _maxDistance;
     private float _maxGridDistance;
@@ -33,6 +34,8 @@ public sealed partial class MobCleanupSystem : BaseCleanupSystem<HTNComponent>
 
     protected override bool ShouldEntityCleanup(EntityUid uid)
     {
+        if (_ageCleanup.IsSpaceDebris(uid))
+            return _ageCleanup.IsDue(uid);
         var xform = Transform(uid);
 
         return xform.GridUid == null

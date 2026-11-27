@@ -58,7 +58,7 @@ public sealed partial class CrashRecoverySystem
             }
             Fence().WaitAsync(TimeSpan.FromSeconds(15)).GetAwaiter().GetResult();
         }
-        catch (Exception error) { Log.Error($"Normal-signal recovery fence failed: {error.GetType().Name}"); }
+        catch (Exception error) { Log.Error($"Normal-signal recovery fence failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(error)}"); }
     }
 
     private void OnConsoleCommand(IConsoleShell shell, string name, string command, string[] args)
@@ -95,7 +95,7 @@ public sealed partial class CrashRecoverySystem
         }
         catch (Exception e)
         {
-            Log.Error($"Recovery shutdown fence failed: {e.GetType().Name}");
+            Log.Error($"Recovery shutdown fence failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             await context.RespondErrorAsync(HttpStatusCode.ServiceUnavailable);
         }
         return true;

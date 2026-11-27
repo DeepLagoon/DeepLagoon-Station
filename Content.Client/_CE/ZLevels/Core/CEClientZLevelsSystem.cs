@@ -88,8 +88,11 @@ internal sealed partial class CEClientZLevelsPreAnimSystem : EntitySystem
         while (query.MoveNext(out var uid, out var zPhys, out var sprite))
         {
             var localPosition = zPhys.LocalPosition;
-            _sprite.SetOffset((uid, sprite), zPhys.SpriteOffsetDefault);
-            _sprite.SetDrawDepth((uid, sprite), localPosition > 0 ? (int)Shared.DrawDepth.DrawDepth.OverMobs : zPhys.DrawDepthDefault);
+            if (sprite.Offset != zPhys.SpriteOffsetDefault)
+                _sprite.SetOffset((uid, sprite), zPhys.SpriteOffsetDefault);
+            var depth = localPosition > 0 ? (int)Shared.DrawDepth.DrawDepth.OverMobs : zPhys.DrawDepthDefault;
+            if (sprite.DrawDepth != depth)
+                _sprite.SetDrawDepth((uid, sprite), depth);
         }
 
         // Set parent-synced status effect offsets to the parent's current Z value each frame — prevents accumulation.
@@ -102,7 +105,8 @@ internal sealed partial class CEClientZLevelsPreAnimSystem : EntitySystem
             if (!_zPhysQuery.TryComp(parent, out var parentZPhys))
                 continue;
             var zOffset = new Vector2(0, parentZPhys.LocalPosition * CESharedZLevelsSystem.ZLevelOffset);
-            _sprite.SetOffset((uid, sprite), zOffset);
+            if (sprite.Offset != zOffset)
+                _sprite.SetOffset((uid, sprite), zOffset);
         }
     }
 }
@@ -134,13 +138,19 @@ internal sealed partial class CEClientZLevelsPostAnimSystem : EntitySystem
         var query = EntityQueryEnumerator<CEZPhysicsComponent, SpriteComponent, TransformComponent>();
         while (query.MoveNext(out var uid, out var zPhys, out var sprite, out var xform))
         {
+            // PreAnim has already removed the previous Z contribution, including on landing.
+            // A zero vector needs neither a render-world rotation nor a matrix rebuild.
+            if (zPhys.LocalPosition == 0f)
+                continue;
             var rawZ = new Vector2(0, zPhys.LocalPosition * CESharedZLevelsSystem.ZLevelOffset);
             Vector2 zOffset;
             if (sprite.NoRotation)
                 zOffset = rawZ;
             else
                 zOffset = new Angle(-_xform.GetRenderWorldRotation((uid, xform))).RotateVec(rawZ);
-            _sprite.SetOffset((uid, sprite), sprite.Offset + zOffset);
+            var offset = sprite.Offset + zOffset;
+            if (sprite.Offset != offset)
+                _sprite.SetOffset((uid, sprite), offset);
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using Content.IntegrationTests.Pair;
 using Content.Server.NPC.Pathfinding;
 using Content.Server.Parallax;
 using Content.Server.Salvage.Expeditions;
@@ -25,6 +26,11 @@ public sealed class BiomeStreamingTests
     private static readonly ProtoId<BiomeTemplatePrototype> EmptyBiome = "DLTestStreamingGround";
     private static readonly ProtoId<BiomeTemplatePrototype> RockBiome = "DLTestStreamingRocks";
     private const string Marker = "DLTestStreamingMarker";
+
+    // Cancellation fixture injects the loader's reservation before stepping its private iterator.
+    // Keep that test-only mutation outside the production component's restricted write API.
+    private static HashSet<Vector2i> LoadedChunksForFixture(BiomeComponent biome) =>
+        (HashSet<Vector2i>) typeof(BiomeComponent).GetField(nameof(BiomeComponent.LoadedChunks))!.GetValue(biome)!;
 
     [TestPrototypes]
     private const string Prototypes = """
@@ -69,6 +75,7 @@ public sealed class BiomeStreamingTests
         var peakLoaded = 0;
         var totalLoaded = 0;
         var peakNavigation = 0;
+        var finalPosition = Vector2.Zero;
 
         await pair.Server.WaitAssertion(() =>
         {
@@ -84,6 +91,7 @@ public sealed class BiomeStreamingTests
         for (var tick = 0; tick < 140; tick++)
         {
             var position = new Vector2(tick * 2.56f + (tick >= 60 ? 256f : 0f), tick * 1.92f);
+            finalPosition = position;
             await pair.Server.WaitPost(() => entities.System<SharedTransformSystem>()
                 .SetCoordinates(ghost, new EntityCoordinates(map, position)));
             await pair.RunTicksSync(1);
@@ -102,16 +110,24 @@ public sealed class BiomeStreamingTests
             });
         }
 
+        // The observer can outrun a time-budgeted cave generator. Once it stops,
+        // its actual current window must catch up; total throughput while flying
+        // is not a correctness target and must not force synchronous bulk spawns.
+        var finalChunk = SharedMapSystem.GetChunkIndices(finalPosition.Floored(), 8) * 8;
+        await WaitForStreaming(pair, () => biome.LoadedChunks.Any(chunk => chunk == finalChunk) &&
+            !entities.System<SharedMapSystem>().GetTileRef(map, grid, finalPosition.Floored()).Tile.IsEmpty,
+            "The stopped observer's current terrain must load, even after jumping past the old backlog.");
         await pair.Server.WaitAssertion(() =>
         {
-            Assert.That(totalLoaded, Is.GreaterThan(100));
+            Assert.That(totalLoaded, Is.GreaterThan(0));
             Assert.That(peakNavigation, Is.GreaterThan(0));
             Assert.That(peakLoaded, Is.LessThanOrEqualTo(170), $"Streamed {totalLoaded} chunks, loaded {biome.LoadedChunks.Count} now.");
             Assert.That(entities.System<SharedMapSystem>().GetTileRef(map, grid, Vector2i.Zero).Tile.IsEmpty, Is.True);
             pair.Server.PlayerMan.SetAttachedEntity(pair.Player!, null);
         });
 
-        await pair.RunTicksSync(150);
+        await WaitForStreaming(pair, () => biome.LoadedChunks.Count == 0 && navigation.Chunks.Count == 0,
+            "All observer terrain must unload after detaching, including partially processed chunks.");
         await pair.Server.WaitAssertion(() =>
         {
             Assert.That(biome.LoadedChunks, Is.Empty);
@@ -126,6 +142,105 @@ public sealed class BiomeStreamingTests
             entities.DeleteEntity(map);
         });
         TestContext.Out.WriteLine($"Streamed {totalLoaded} chunks over 140 moving ticks, peak resident {peakLoaded}.");
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task RockChunkCreationCanYieldBetweenIndividualEntities()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = false, Destructive = true });
+        var entities = pair.Server.EntMan;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var (map, grid, biome, _) = SpawnPlanet(entities, pair.Server.ProtoMan.Index(RockBiome));
+            biome.Enabled = false; // Drive just the cooperative operation, without observer scheduling.
+            var biomes = entities.System<BiomeSystem>();
+            var maps = entities.System<SharedMapSystem>();
+            var definitions = pair.Server.ResolveDependency<ITileDefinitionManager>();
+            var tile = new Tile(definitions["FloorAsteroidSandPlanet"].TileId);
+            for (var x = 0; x < 8; x++) for (var y = 0; y < 8; y++) maps.SetTile(map, grid, new Vector2i(x, y), tile);
+            var method = typeof(BiomeSystem).GetMethod("LoadEntities", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var steps = (IEnumerable<bool>)method.Invoke(biomes, [biome, map, grid, Vector2i.Zero, biome.Seed])!;
+            using var enumerator = steps.GetEnumerator();
+            var previous = 0;
+            var yielded = 0;
+            while (enumerator.MoveNext())
+            {
+                var count = biome.LoadedEntities.GetValueOrDefault(Vector2i.Zero)?.Count ?? 0;
+                Assert.That(count - previous, Is.InRange(0, 1), "A scheduler step must never spawn an entire rock chunk.");
+                previous = count;
+                yielded++;
+            }
+            Assert.That(yielded, Is.EqualTo(64));
+            Assert.That(biome.LoadedEntities[Vector2i.Zero], Has.Count.EqualTo(64));
+            entities.DeleteEntity(map);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task InterruptedChunksResumeWithoutRerollsDuplicatesOrFalseTerrainEdits()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = false, Destructive = true });
+        var entities = pair.Server.EntMan;
+        await pair.Server.WaitAssertion(() =>
+        {
+            var (map, grid, biome, _) = SpawnPlanet(entities, pair.Server.ProtoMan.Index(RockBiome));
+            var biomes = entities.System<BiomeSystem>();
+            const BindingFlags hidden = BindingFlags.Instance | BindingFlags.NonPublic;
+            var type = typeof(BiomeSystem);
+            var request = Activator.CreateInstance(type.GetNestedType("ChunkRequest", BindingFlags.NonPublic)!, map, biome, grid, Vector2i.Zero)!;
+            var workType = type.GetNestedType("ChunkWork", BindingFlags.NonPublic)!;
+            IEnumerator<bool> Load() => ((IEnumerable<bool>)type.GetMethod("LoadChunkSteps", hidden)!.Invoke(biomes, [request, false])!).GetEnumerator();
+            IEnumerator<bool> Unload() => ((IEnumerable<bool>)type.GetMethod("UnloadChunkSteps", hidden)!.Invoke(biomes, [request])!).GetEnumerator();
+            void Interrupt(string field, IEnumerator<bool> steps)
+            {
+                type.GetField(field, hidden)!.SetValue(biomes, Activator.CreateInstance(workType, request, steps));
+                var shutdown = new ComponentShutdown();
+                entities.EventBus.RaiseComponentEvent(map, biome, ref shutdown);
+                Assert.That(type.GetField(field, hidden)!.GetValue(biomes), Is.Null);
+                Assert.That(biome.LoadedChunks, Does.Not.Contain(Vector2i.Zero), "A partial reservation must be requeued after shutdown.");
+            }
+            void Finish(IEnumerator<bool> steps)
+            {
+                using (steps) while (steps.MoveNext()) { }
+            }
+
+            LoadedChunksForFixture(biome).Add(Vector2i.Zero);
+            var loading = Load();
+            while (!biome.LoadedEntities.Any(chunk => chunk.Key == Vector2i.Zero && chunk.Value.Count >= 8))
+                Assert.That(loading.MoveNext(), Is.True);
+            var original = biome.LoadedEntities[Vector2i.Zero].Single(p => p.Value == Vector2i.Zero).Key;
+            var prototype = entities.GetComponent<MetaDataComponent>(original).EntityPrototype!.ID;
+            var renamed = biome.LoadedEntities[Vector2i.Zero].Single(p => p.Value == new Vector2i(0, 1)).Key;
+            entities.System<MetaDataSystem>().SetEntityName(renamed, "changed during streaming");
+            var mined = new Vector2i(0, 2);
+            entities.DeleteEntity(biome.LoadedEntities[Vector2i.Zero].Single(p => p.Value == mined).Key);
+            Interrupt("_loadingChunk", loading);
+            LoadedChunksForFixture(biome).Add(Vector2i.Zero);
+            Finish(Load());
+            Assert.That(biome.LoadedEntities[Vector2i.Zero], Has.Count.EqualTo(63));
+            Assert.That(biome.LoadedEntities[Vector2i.Zero].Values.Distinct().Count(), Is.EqualTo(63));
+            Assert.That(biome.LoadedEntities[Vector2i.Zero].Values, Does.Not.Contain(mined));
+
+            var unloading = Unload();
+            while (entities.EntityExists(original))
+                Assert.That(unloading.MoveNext(), Is.True);
+            Interrupt("_unloadingChunk", unloading);
+            LoadedChunksForFixture(biome).Add(Vector2i.Zero);
+            Finish(Load());
+            var restored = biome.LoadedEntities[Vector2i.Zero];
+            Assert.That(restored, Has.Count.EqualTo(63));
+            Assert.That(restored.Values.Distinct().Count(), Is.EqualTo(63));
+            var replacement = restored.Single(p => p.Value == Vector2i.Zero).Key;
+            Assert.That(entities.GetComponent<MetaDataComponent>(replacement).EntityPrototype!.ID, Is.EqualTo(prototype));
+            Assert.That(entities.GetComponent<MetaDataComponent>(renamed).EntityName, Is.EqualTo("changed during streaming"));
+            Finish(Unload());
+            Assert.That(entities.System<SharedMapSystem>().GetTileRef(map, grid, Vector2i.Zero).Tile.IsEmpty, Is.True,
+                "Cancelling an unload must not mark untouched generated floors as authored terrain.");
+            Assert.That(entities.EntityExists(renamed), Is.True);
+            entities.DeleteEntity(map);
+        });
         await pair.CleanReturnAsync();
     }
 
@@ -157,7 +272,8 @@ public sealed class BiomeStreamingTests
             pair.Server.PlayerMan.SetAttachedEntity(pair.Player!, ghost);
         });
 
-        await pair.RunTicksSync(4);
+        await WaitForStreaming(pair, () => biome.LoadedEntities.Any(chunk => chunk.Key == Vector2i.Zero &&
+            chunk.Value.Values.Contains(renamed)), "The edited rock must finish streaming before the interaction.");
         await pair.Server.WaitAssertion(() =>
         {
             var generated = biome.LoadedEntities[Vector2i.Zero];
@@ -171,7 +287,7 @@ public sealed class BiomeStreamingTests
             pair.Server.PlayerMan.SetAttachedEntity(pair.Player!, null);
         });
 
-        await pair.RunTicksSync(40);
+        await WaitForStreaming(pair, () => biome.LoadedChunks.Count == 0, "Edited terrain must finish unloading.");
         await pair.Server.WaitAssertion(() =>
         {
             Assert.That(biome.LoadedChunks, Is.Empty);
@@ -184,7 +300,8 @@ public sealed class BiomeStreamingTests
             pair.Server.PlayerMan.SetAttachedEntity(pair.Player!, ghost);
         });
 
-        await pair.RunTicksSync(18);
+        await WaitForStreaming(pair, () => biome.LoadedEntities.Any(chunk => chunk.Key == Vector2i.Zero &&
+            chunk.Value.Values.Contains(untouched)), "Unmodified terrain must return after re-entering its window.");
         await pair.Server.WaitAssertion(() =>
         {
             var generated = biome.LoadedEntities[Vector2i.Zero];
@@ -298,5 +415,17 @@ public sealed class BiomeStreamingTests
         maps.InitializeMap(mapId);
         var ghost = entities.SpawnEntity("AdminObserver", new EntityCoordinates(map, new Vector2(0.5f, 0.5f)));
         return (map, grid, biome, ghost);
+    }
+
+    private static async Task WaitForStreaming(TestPair pair, Func<bool> ready, string message)
+    {
+        for (var tick = 0; tick < 600; tick++)
+        {
+            var complete = false;
+            await pair.Server.WaitAssertion(() => complete = ready());
+            if (complete) return;
+            await pair.RunTicksSync(1);
+        }
+        Assert.Fail(message);
     }
 }

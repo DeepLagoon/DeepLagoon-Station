@@ -16,21 +16,36 @@ public sealed partial class EmitSoundSystem : SharedEmitSoundSystem
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
+        var diagnostic = EntityManager.DiagnosticWorkTiming;
+        var started = diagnostic != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0;
+        long playTime = 0;
+        var checkedTimers = 0;
+        var dueSounds = 0;
         var query = EntityQueryEnumerator<SpamEmitSoundComponent>();
 
         while (query.MoveNext(out var uid, out var soundSpammer))
         {
+            checkedTimers++;
             if (!soundSpammer.Enabled)
                 continue;
 
             if (_timing.CurTime >= soundSpammer.NextSound)
             {
+                var playStarted = diagnostic != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0;
                 if (soundSpammer.PopUp != null)
                     Popup.PopupEntity(Loc.GetString(soundSpammer.PopUp), uid);
                 TryEmitSound(uid, soundSpammer, predict: false);
 
                 SpamEmitSoundReset((uid, soundSpammer));
+                dueSounds++;
+                if (diagnostic != null)
+                    playTime += System.Diagnostics.Stopwatch.GetTimestamp() - playStarted;
             }
+        }
+        if (diagnostic != null)
+        {
+            diagnostic("sound.emit.play", playTime, dueSounds);
+            diagnostic("sound.emit.scan", System.Diagnostics.Stopwatch.GetTimestamp() - started - playTime, checkedTimers);
         }
     }
 

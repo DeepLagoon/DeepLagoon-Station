@@ -144,10 +144,7 @@ public abstract partial class SharedSalvageSystem : EntitySystem
         exactDuration = MathF.Round(exactDuration / 15f) * 15f;
         var duration = TimeSpan.FromSeconds(exactDuration);
 
-        if (!time.Hidden && time.Description != string.Empty)
-        {
-            mods.Add(Loc.GetString(time.Description));
-        }
+        // Keep seeded generation stable; the former time modifier no longer describes a mission deadline.
 
         var rewards = GetRewards(difficulty, rand);
         return new SalvageMission(seed, difficulty, dungeon.ID, faction.ID, config, biome.ID, weather.ID, air.ID, temp.Temperature, light.Color, duration, rewards, mods);

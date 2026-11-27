@@ -170,6 +170,8 @@ public sealed partial class ContrabandTurnInSystem : SharedContrabandTurnInSyste
 
     private bool CanSell(EntityUid uid, TransformComponent xform)
     {
+        if (HasComp<Content.Server.Salvage.ExpeditionSalvageComponent>(uid))
+            return false;
         if (_mobQuery.HasComponent(uid))
         {
             if (_mobQuery.GetComponent(uid).CurrentState == MobState.Dead) // Allow selling alive prisoners

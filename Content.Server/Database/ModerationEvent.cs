@@ -11,7 +11,8 @@ public sealed record ModerationEvent(
     NoteType Type, int Id, string Action,
     [property: JsonConverter(typeof(ModerationUserIdConverter))] NetUserId? Player, Guid? Actor,
     string Message, NoteSeverity? Severity, bool Secret, DateTimeOffset? Expires,
-    int? Round, string[]? Roles, DateTimeOffset Time, string? PreviousMessage = null);
+    int? Round, string[]? Roles, DateTimeOffset Time, string? PreviousMessage = null,
+    bool PreviousSecret = true);
 
 public sealed class ModerationUserIdConverter : JsonConverter<NetUserId>
 {

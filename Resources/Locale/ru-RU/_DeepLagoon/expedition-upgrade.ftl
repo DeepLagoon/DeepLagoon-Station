@@ -1,0 +1,12 @@
+ent-ExpeditionUpgradeKit = набор экспедиционного улучшения
+    .desc = Содержит упакованную консоль экспедиций и одноразовый диск экспедиционного допуска.
+ent-ExpeditionConsoleFlatpack = упакованная консоль экспедиций
+    .desc = Упаковка для сборки консоли экспедиций.
+ent-ExpeditionUpgradeDisk = диск экспедиционного допуска
+    .desc = Примените к консоли управления шаттлом, чтобы разрешить ему экспедиции. Расходуется только после успешного улучшения.
+expedition-upgrade-denied = Нет доступа к этой консоли управления.
+expedition-upgrade-no-shuttle = Консоль должна находиться на шаттле.
+expedition-upgrade-already = Экспедиции на этом шаттле уже разрешены. Диск сохранён.
+expedition-upgrade-busy = Дождитесь завершения текущей экспедиции. Диск сохранён.
+expedition-upgrade-installed = Экспедиционный допуск установлен на шаттл.
+expedition-upgrade-lc-insufficient = Недостаточно Lagoon Coin. Набор стоит 30 LC.

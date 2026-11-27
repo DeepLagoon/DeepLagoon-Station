@@ -652,11 +652,23 @@ public sealed partial class ThrusterSystem : EntitySystem
             DisableThruster(uid, component);
 
         var thrustRating = args.PartRatings[component.MachinePartThrust];
-
-        component.Thrust = component.BaseThrust * MathF.Pow(component.PartRatingThrustMultiplier, thrustRating - 1);
+        var efficiency = EntityManager.System<Content.Server._DeepLagoon.Economy.EquipmentMaintenanceSystem>().Efficiency(uid);
+        component.Thrust = component.BaseThrust * MathF.Pow(component.PartRatingThrustMultiplier, thrustRating - 1)
+            * efficiency;
+        if (TryComp<Content.Server._DeepLagoon.Economy.EquipmentMaintenanceComponent>(uid, out var maintenance))
+            maintenance.AppliedThrustFactor = efficiency;
 
         if (component.Enabled && CanEnable(uid, component))
             EnableThruster(uid, component);
+    }
+
+    public void ApplyMaintenance(EntityUid uid, float previous, float current)
+    {
+        if (!TryComp<ThrusterComponent>(uid, out var component)) return;
+        var wasOn = component.IsOn;
+        if (wasOn) DisableThruster(uid, component);
+        component.Thrust *= current / Math.Clamp(previous, .8f, 1);
+        if (wasOn && component.Enabled && CanEnable(uid, component)) EnableThruster(uid, component);
     }
 
     private static void AdjustLinearThrust(ShuttleComponent shuttle, int direction, ThrusterComponent thruster, float sign)

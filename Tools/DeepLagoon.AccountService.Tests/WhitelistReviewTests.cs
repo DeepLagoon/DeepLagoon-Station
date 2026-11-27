@@ -23,6 +23,10 @@ public sealed partial class AccountServiceTests
         Assert.That(result.GetProperty("active_ban").GetBoolean(), Is.True);
         Assert.That(result.GetProperty("ip_match").GetBoolean(), Is.False);
         Assert.That(result.TryGetProperty("related_accounts", out _), Is.False);
+        var provenance = result.GetProperty("related_matches")[0];
+        Assert.That(provenance.GetProperty("uid").GetGuid(), Is.EqualTo(_other));
+        Assert.That(provenance.GetProperty("hwid_match").GetBoolean(), Is.True);
+        Assert.That(provenance.GetProperty("whitelisted").GetBoolean(), Is.False);
         Assert.That(result.ToString(), Does.Not.Contain("192.0.2.").And.Not.Contain("Private ban reason"));
         Assert.That(await db.Whitelist.AnyAsync(w => w.UserId == _user), Is.False);
         var withAccounts = await Call("whitelist_check", new { discord_id = Target, include_accounts = true });
@@ -69,6 +73,7 @@ public sealed partial class AccountServiceTests
         Assert.That(review.GetProperty("related_whitelist").GetBoolean(), Is.False);
         Assert.That(review.GetProperty("related_uids").GetArrayLength(), Is.Zero);
         Assert.That(review.GetProperty("related_accounts").GetArrayLength(), Is.Zero);
+        Assert.That(review.GetProperty("related_matches").GetArrayLength(), Is.Zero);
         var added = await Call("whitelist", new { discord_id = Target });
         Assert.That(added.Status, Is.EqualTo(HttpStatusCode.OK), added.Body.ToString());
         Assert.That(await db.Whitelist.AnyAsync(w => w.UserId == _user), Is.True);
@@ -94,6 +99,7 @@ public sealed partial class AccountServiceTests
             UserId = addressOnly, UserName = "SameAddress", Address = applicant.Address,
             Time = applicant.Time.AddDays(-1), ServerId = applicant.ServerId,
         });
+        db.Whitelist.Add(new Whitelist { UserId = _other });
         await db.SaveChangesAsync();
         var report = await Call("whitelist_check", new { discord_id = Target, include_accounts = true });
         Assert.That(report.Status, Is.EqualTo(HttpStatusCode.OK), report.Body.ToString());
@@ -102,8 +108,14 @@ public sealed partial class AccountServiceTests
         Assert.That(accounts.ContainsKey(addressOnly), Is.False);
         Assert.That(report.Body.GetProperty("review").GetProperty("related_uids").EnumerateArray()
             .Any(row => row.GetGuid() == addressOnly), Is.False);
+        Assert.That(report.Body.GetProperty("review").GetProperty("related_matches").EnumerateArray()
+            .Any(row => row.GetProperty("uid").GetGuid() == addressOnly), Is.False);
         Assert.That(accounts[_other].GetProperty("ip_match").GetBoolean(), Is.False);
         Assert.That(accounts[_other].GetProperty("hwid_match").GetBoolean(), Is.True);
+        var evidence = report.Body.GetProperty("review").GetProperty("related_matches").EnumerateArray()
+            .Single(row => row.GetProperty("uid").GetGuid() == _other);
+        Assert.That(evidence.GetProperty("hwid_match").GetBoolean(), Is.True);
+        Assert.That(evidence.GetProperty("whitelisted").GetBoolean(), Is.True);
 
         var other = await db.ConnectionLog.SingleAsync(c => c.UserId == _other);
         other.Address = applicant.Address;

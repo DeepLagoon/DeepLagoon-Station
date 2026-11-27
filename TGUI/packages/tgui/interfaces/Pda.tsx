@@ -94,7 +94,7 @@ export const Pda = () => {
           <button type="button" className="Pda__close" aria-label={t('close')} onClick={() => act('close')}><Icon aria-hidden="true" name="times" /></button>
         </header>
         <div className="Pda__display">
-          <header className="Pda__screenHead">
+          {view !== 3 && <header className="Pda__screenHead">
             <div><div className="Pda__eyebrow">{view === 0 ? 'PERSONAL DECK' : 'ROBUST / OS'}</div><h1>{title}</h1></div>
             {view === 4 ? (
               <div className="PdaMessenger__headerActions">
@@ -111,7 +111,7 @@ export const Pda = () => {
                 <strong>{data.time || '00:00:00'}</strong><span>{t('time')}</span>
               </button>
             )}
-          </header>
+          </header>}
           {view === 3 && !!data.programTitle ? (
             <div className="Pda__programArea" ref={aperture} aria-label={data.programTitle} />
           ) : view === 4 ? (

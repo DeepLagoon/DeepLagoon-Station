@@ -1,0 +1,66 @@
+- type: entity
+  parent: BaseStructure
+  id: DLShower
+  name: shower
+  description: A steel shower with a simple on-off valve.
+  components:
+  - type: Transform
+    anchored: true
+    noRot: false
+  - type: Sprite
+    sprite: _DeepLagoon/Structures/shower.rsi
+    drawdepth: OverMobs
+    layers:
+    - state: shower
+      map: ["enum.ShowerVisualLayers.Base"]
+    - state: water
+      visible: false
+      map: ["enum.ShowerVisualLayers.Water"]
+    - state: mist
+      visible: false
+      map: ["enum.ShowerVisualLayers.Mist"]
+  - type: Icon
+    sprite: _DeepLagoon/Structures/shower.rsi
+    state: shower
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.25,-0.25,0.25,0.25"
+        hard: false
+        density: 100
+  - type: Anchorable
+  - type: Rotatable
+  - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.ShowerVisuals.Water:
+        enum.ShowerVisualLayers.Water:
+          True: { visible: true }
+          False: { visible: false }
+      enum.ShowerVisuals.Mist:
+        enum.ShowerVisualLayers.Mist:
+          True: { visible: true }
+          False: { visible: false }
+  - type: Shower
+  - type: Construction
+    graph: DLShower
+    node: shower
+  - type: Damageable
+    damageContainer: StructuralInorganic
+    damageModifierSet: StructuralMetallic
+  - type: Destructible
+    thresholds:
+    - trigger: !type:DamageTrigger
+        damage: 200
+      behaviors:
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          SheetSteel1:
+            min: 5
+            max: 5
+      - !type:DoActsBehavior
+        acts: ["Destruction"]

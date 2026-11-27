@@ -335,6 +335,7 @@ public sealed partial class ShuttleConsoleSystem
         if (grid is { } uid)
             _dirtyHullGrids.Add(uid);
         _ui.ServerSendUiMessage(ent.Owner, ShuttleConsoleUiKey.Key, new ShuttleHullStateMessage(GetHullState(grid)), args.Actor);
+        SendRepairSnapshotState(ent.Owner, args.Actor, grid);
     }
 
     private void RemoveHullViewer(EntityUid console, EntityUid actor)

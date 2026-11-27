@@ -1,4 +1,6 @@
 salvage-expedition-status = Экспедиция · { $time } · Цели: { $completed }/{ $total }
+salvage-expedition-status-unlimited = Экспедиция · без ограничения времени · Цели: { $completed }/{ $total }
+salvage-expedition-duration-unlimited = Не ограничена
 salvage-expedition-reward-expected-cash = Награда за успешный вылет: { $amount } спесо
 salvage-expedition-reward-expected-outpost = Награда за успешный вылет: { $amount } ТК
 salvage-expedition-reward-disabled = Выплаты спесо за экспедиции отключены.

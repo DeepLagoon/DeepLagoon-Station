@@ -26,7 +26,7 @@ public sealed partial class ApartmentSystem
         }
         catch (Exception e)
         {
-            Log.Warning($"Apartment preview failed for {template.ID}: {e.GetType().Name}");
+            Log.Warning($"Apartment preview failed for {template.ID}: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             RaiseNetworkEvent(new ApartmentShopPreview(ev.Token, template.ID, null, "Не удалось загрузить предпросмотр. Повторите запрос."), session);
         }
     }

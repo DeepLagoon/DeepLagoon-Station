@@ -324,6 +324,19 @@ public sealed partial class MoverController : SharedMoverController
         if (_brainQuery.HasComp(step.Uid)) MoverBranches.Brains++;
     }
 
+    protected override bool ShouldSkipSleepingMovement(Entity<InputMoverComponent> entity,
+        PhysicsComponent body, EntityUid? relaySource)
+    {
+        var mover = entity.Comp;
+        return !body.Awake && body.LinearVelocity == Vector2.Zero && body.AngularVelocity == 0f
+               && relaySource == null && mover.HeldMoveButtons == MoveButtons.None
+               && mover.WishDir == Vector2.Zero && !mover.SpeedBoostActive
+               && (Timing.CurTick > mover.LastInputTick
+                   || mover.CurTickWalkMovement == Vector2.Zero
+                   && mover.CurTickSprintMovement == Vector2.Zero
+                   && mover.CurTickSpeedBoostTime == 0f);
+    }
+
     // Mono: make ShuttleInput
     public ShuttleInput GetPilotVelocityInput(PilotComponent component)
     {

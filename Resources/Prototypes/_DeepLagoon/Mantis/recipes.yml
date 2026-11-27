@@ -1,0 +1,81 @@
+- type: entity
+  parent: BaseComputerCircuitboard
+  id: PsiSpectrometerComputerCircuitboard
+  name: noospheric spectrometer computer board
+  description: A computer printed circuit board for a noospheric spectrometer console.
+  components:
+  - type: Sprite
+    state: cpu_science
+  - type: ComputerBoard
+    prototype: PsiSpectrometerConsole
+
+- type: latheRecipe
+  parent: BaseCircuitboardRecipe
+  id: PsiSpectrometerComputerCircuitboard
+  result: PsiSpectrometerComputerCircuitboard
+  materials:
+    Steel: 500
+    Glass: 250
+
+- type: latheRecipe
+  id: PsiSpectrometer
+  result: PsiSpectrometer
+  completetime: 6
+  materials:
+    Steel: 800
+    Glass: 500
+    Plastic: 300
+    Silver: 200
+
+- type: latheRecipe
+  id: AntiPsychicKnife
+  result: AntiPsychicKnife
+  completetime: 5
+  materials:
+    Steel: 500
+    Silver: 300
+    Plasteel: 200
+
+- type: latheRecipe
+  id: InsulativeShield
+  result: InsulativeShield
+  completetime: 8
+  materials:
+    Steel: 1000
+    Plasteel: 600
+    Plastic: 300
+    Plasma: 400
+
+- type: latheRecipe
+  id: InsulativeShieldLight
+  result: InsulativeShieldLight
+  completetime: 6
+  materials:
+    Steel: 700
+    Plasteel: 300
+    Plastic: 200
+    Plasma: 200
+
+- type: latheRecipe
+  id: VeilbreakerGauntlet
+  result: VeilbreakerGauntlet
+  completetime: 9
+  materials:
+    Steel: 1200
+    Plasteel: 800
+    Silver: 500
+    Plasma: 600
+
+- type: latheRecipePack
+  id: PsiSpectrometerEquipment
+  recipes:
+  - PsiSpectrometer
+  - AntiPsychicKnife
+  - InsulativeShield
+  - InsulativeShieldLight
+  - VeilbreakerGauntlet
+
+- type: latheRecipePack
+  id: PsiSpectrometerBoards
+  recipes:
+  - PsiSpectrometerComputerCircuitboard

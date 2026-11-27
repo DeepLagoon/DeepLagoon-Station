@@ -1,0 +1,43 @@
+ent-PsiSpectrometer = ноосферный спектрометр
+    .desc = Ручной массив, вслушивающийся в ноосферу и сообщающий о том, кто откликнулся. Требует батарею.
+ent-PsiSpectrometerConsole = консоль ноосферного спектрометра
+    .desc = Стационарный спектрометр, подключённый к сети питания. Регистрирует все сигнатуры в пределах аванпоста и окружающего пространства.
+ent-PsiSpectrometerConsoleHunter = консоль ноосферного спектрометра
+    .desc = Стационарный спектрометр, подключённый к сети питания. Регистрирует все сигнатуры в пределах аванпоста и окружающего пространства.
+
+psi-spectrometer-title = Ноосферный спектрометр
+psi-spectrometer-scan = Сканировать
+psi-spectrometer-hunter = Режим «Охотник»
+psi-spectrometer-map = Контакты на карте
+psi-spectrometer-ready = Готов к сканированию
+psi-spectrometer-recharging = Перезарядка
+psi-spectrometer-empty = Ноосфера спокойна. Сигнатур не обнаружено.
+psi-spectrometer-found = Обнаружено сигнатур: { $count }.
+psi-spectrometer-unpowered = Нет питания. Спектрометр молчит.
+psi-spectrometer-no-charge = Батарея разряжена. Вставьте новую.
+psi-spectrometer-glimmer = Глиммер: { $value }
+psi-spectrometer-range = Радиус: { $range }
+psi-spectrometer-glimmer-label = Глиммер
+psi-spectrometer-range-label = Радиус
+psi-spectrometer-column-signature = Сигнатура
+psi-spectrometer-column-sector = Сектор
+psi-spectrometer-column-subject = Субъект
+psi-spectrometer-column-intensity = Интенсивность
+psi-spectrometer-line = { $type } | { $sector } | { $name } | { $intensity }%
+psi-spectrometer-unknown = неопознанное эхо
+psi-spectrometer-hunter-on = Вы усиливаете чувствительность. Ноосфера замечает вас.
+psi-spectrometer-hunter-off = Вы возвращаете чувствительность к норме.
+
+psi-spectrometer-type-sapient = Разум
+psi-spectrometer-type-kinetic = Кинетика
+psi-spectrometer-type-anomalous = Аномалия
+
+psi-spectrometer-sector-self = здесь
+psi-spectrometer-sector-north = север
+psi-spectrometer-sector-northeast = северо-восток
+psi-spectrometer-sector-east = восток
+psi-spectrometer-sector-southeast = юго-восток
+psi-spectrometer-sector-south = юг
+psi-spectrometer-sector-southwest = юго-запад
+psi-spectrometer-sector-west = запад
+psi-spectrometer-sector-northwest = северо-запад

@@ -24,6 +24,7 @@ public sealed class SerialPersistenceQueue : IDisposable
     private int _disposed;
     [ThreadStatic] private static SerialPersistenceQueue? _executing;
     public bool IsExecuting => ReferenceEquals(_executing, this);
+    public int PendingCount => _work.Reader.Count;
 
     public SerialPersistenceQueue() => _worker = Task.Run(async () =>
     {

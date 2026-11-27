@@ -27,7 +27,7 @@ public sealed partial class ApartmentSystem
         }
         catch (Exception e)
         {
-            Log.Warning($"Apartment grant validation failed: template={template.ID} error={e.GetType().Name}");
+            Log.Warning($"Apartment grant validation failed: template={template.ID} error={Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             return ("apartment_invalid_map", false);
         }
         await Store.BeginPurchaseAsync(owner.UserId, template.ID, 0);

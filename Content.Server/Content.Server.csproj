@@ -9,6 +9,18 @@
     <ServerGarbageCollection>true</ServerGarbageCollection>
   </PropertyGroup>
   <Import Project="../MSBuild/Content.props" />
+  <PropertyGroup Condition="Exists('$(DeepLagoonEngineRoot)/Robust.Shared/EntitySerialization/EntitySerializer.Incremental.cs')">
+    <DefineConstants>$(DefineConstants);DEEPLAGOON_ENGINE_INCREMENTAL_SNAPSHOTS</DefineConstants>
+  </PropertyGroup>
+  <!-- The memory snapshot bridge is optional: the pinned engine predates this API.
+       Enable it automatically when the reviewed engine source provides both types. -->
+  <PropertyGroup Condition="Exists('$(DeepLagoonEngineRoot)/Robust.Server/Diagnostics/ServerMemoryDiagnostics.cs') and Exists('$(DeepLagoonEngineRoot)/Robust.Server/Diagnostics/MemoryDiagnosticCounters.cs')">
+    <DefineConstants>$(DefineConstants);DEEPLAGOON_ENGINE_MEMORY_DIAGNOSTICS</DefineConstants>
+  </PropertyGroup>
+  <Target Name="DeepLagoonReportMemoryDiagnosticsCapability" BeforeTargets="CoreCompile"
+          Condition="!Exists('$(DeepLagoonEngineRoot)/Robust.Server/Diagnostics/ServerMemoryDiagnostics.cs') or !Exists('$(DeepLagoonEngineRoot)/Robust.Server/Diagnostics/MemoryDiagnosticCounters.cs')">
+    <Message Importance="High" Text="Optional engine memory snapshot bridge unavailable in the pinned engine; content counters and the performance monitor remain available." />
+  </Target>
   <!-- CI's stock-client build uses the official engine without the server-only notification APIs.
        Production builds use the pinned server fork and include these systems. -->
   <PropertyGroup Condition="'$(DeepLagoonStockValidation)' == 'true'">
@@ -24,6 +36,8 @@
     <PackageReference Include="JetBrains.Annotations" PrivateAssets="All" />
     <PackageReference Include="prometheus-net" />
     <PackageReference Include="Microsoft.Extensions.ObjectPool" />
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="NLayer" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Content.Packaging\Content.Packaging.csproj" />
@@ -31,10 +45,10 @@
     <ProjectReference Include="..\Content.Shared.Database\Content.Shared.Database.csproj" />
     <ProjectReference Include="..\Content.Shared\Content.Shared.csproj" />
   </ItemGroup>
-  <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
+  <Import Project="$(DeepLagoonEngineRoot)\MSBuild\Robust.Properties.targets" />
 
-  <Import Project="..\RobustToolbox\Imports\Lidgren.props" />
-  <Import Project="..\RobustToolbox\Imports\Server.props" />
-  <Import Project="..\RobustToolbox\Imports\Shared.props" />
-  <Import Project="..\RobustToolbox\Imports\Packaging.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Lidgren.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Server.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Shared.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Packaging.props" />
 </Project>

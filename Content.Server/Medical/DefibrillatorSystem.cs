@@ -24,6 +24,7 @@ using Content.Shared.Timing;
 using Content.Shared.Toggleable;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Player;
+using Content.Server._DeepLagoon.BodyInsurance;
 
 namespace Content.Server.Medical;
 
@@ -180,6 +181,8 @@ public sealed partial class DefibrillatorSystem : EntitySystem
         if (!TryComp<MobStateComponent>(target, out var mob) ||
             !TryComp<MobThresholdsComponent>(target, out var thresholds))
             return;
+        // Запоминаем состояние пациента до реанимации.
+        var wasDead = _mobState.IsDead(target, mob);
 
         _audio.PlayPvs(component.ZapSound, uid);
         _electrocution.TryDoElectrocution(target, null, component.ZapDamage, component.WritheDuration, true, ignoreInsulation: true);
@@ -239,6 +242,15 @@ public sealed partial class DefibrillatorSystem : EntitySystem
         // if we don't have enough power left for another shot, turn it off
         if (!_powerCell.HasActivatableCharge(uid))
             _toggle.TryDeactivate(uid);
+
+        // Награждаем только за успешное возвращение к жизни.
+        if (wasDead &&
+            !dead &&
+            !_mobState.IsDead(target))
+        {
+            EntityManager.System<BodyInsuranceSystem>()
+                .RewardBodyRevival(target, user);
+        }
 
         // TODO clean up this clown show above
         var ev = new TargetDefibrillatedEvent(user, (uid, component));

@@ -33,6 +33,9 @@ public sealed partial class DungeonJob
         // Gather existing nodes
         foreach (var tile in allTiles)
         {
+            await SuspendDungeon();
+            if (!ValidateResume())
+                return;
             var anchored = _maps.GetAnchoredEntities(_gridUid, _grid, tile);
 
             while (anchored.MoveNext(out var anc))
@@ -71,10 +74,16 @@ public sealed partial class DungeonJob
 
         while (remaining.Count > 0)
         {
+            await SuspendDungeon();
+            if (!ValidateResume())
+                return;
             if (frontier.Count == 0)
             {
                 var newStart = remaining.First();
                 frontier.Enqueue(newStart, 0f);
+                // A disconnected room starts a new search tree with its own root cost.
+                costSoFar[newStart] = 0f;
+                cameFrom.Remove(newStart);
                 lastDirection[newStart] = Direction.Invalid;
             }
 
@@ -139,6 +148,9 @@ public sealed partial class DungeonJob
 
         foreach (var tile in cableTiles)
         {
+            await SuspendDungeon();
+            if (!ValidateResume())
+                return;
             if (reservedTiles.Contains(tile))
                 continue;
 

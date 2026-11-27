@@ -10,6 +10,9 @@ namespace Content.Shared._Mono.ShipRepair;
 [ByRefEvent]
 public record struct ShipRepairStoreQueryEvent(bool Repairable = true);
 
+[ByRefEvent]
+public record struct ShipRepairSnapshotCreatedEvent;
+
 /// <summary>
 /// Raised to check on the original of an entity we're trying to reinstate, if such an original still exists.
 /// </summary>

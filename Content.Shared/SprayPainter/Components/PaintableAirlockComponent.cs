@@ -5,9 +5,12 @@ using Robust.Shared.Prototypes;
 
 namespace Content.Shared.SprayPainter.Components;
 
-[RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
+[RegisterComponent, NetworkedComponent, AutoGenerateComponentState(raiseAfterAutoHandleState: true)]
 public sealed partial class PaintableAirlockComponent : Component
 {
+    [DataField, AutoNetworkedField]
+    public Color PaintColor = Color.White;
+
     /// <summary>
     /// Group of styles this airlock can be painted with, e.g. glass, standard or external.
     /// </summary>

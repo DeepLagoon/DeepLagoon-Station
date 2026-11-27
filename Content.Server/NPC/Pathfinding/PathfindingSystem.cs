@@ -97,6 +97,8 @@ namespace Content.Server.NPC.Pathfinding
         {
             base.Shutdown();
             _subscribedSessions.Clear();
+            _dirtyNavGrids.Clear();
+            _queuedNavGrids.Clear();
             _playerManager.PlayerStatusChanged -= OnPlayerChange;
             _transform.OnGlobalMoveEvent -= OnMoveEvent;
         }
@@ -109,22 +111,32 @@ namespace Content.Server.NPC.Pathfinding
                 MaxDegreeOfParallelism = _parallel.ParallelProcessCount,
             };
 
+            var diagnostic = EntityManager.DiagnosticWorkTiming;
+            var phaseStart = diagnostic != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0;
             UpdateGrid(options);
+            if (diagnostic != null)
+                diagnostic("npc.pathfinding.rebuild", System.Diagnostics.Stopwatch.GetTimestamp() - phaseStart, 0);
+            phaseStart = diagnostic != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0;
             _stopwatch.Restart();
+            diagnostic?.Invoke("npc.pathfinding.pending_requests", 0, _pathRequests.Count);
             var amount = Math.Min(PathTickLimit, _pathRequests.Count);
             var results = ArrayPool<PathResult>.Shared.Rent(amount);
 
 
             Parallel.For(0, amount, options, i =>
             {
+                var request = _pathRequests[i];
+                if (request.CancellationToken.IsCancellationRequested)
+                {
+                    results[i] = PathResult.NoPath;
+                    return;
+                }
                 // If we're over the limit (either time-sliced or hard cap).
                 if (_stopwatch.Elapsed >= PathTime)
                 {
                     results[i] = PathResult.Continuing;
                     return;
                 }
-
-                var request = _pathRequests[i];
 
                 try
                 {
@@ -147,40 +159,67 @@ namespace Content.Server.NPC.Pathfinding
                 }
             });
 
-            var offset = 0;
-
-            // then, single-threaded cleanup.
-            for (var i = 0; i < amount; i++)
+            if (diagnostic != null)
+                diagnostic("npc.pathfinding.search", System.Diagnostics.Stopwatch.GetTimestamp() - phaseStart, amount);
+            phaseStart = diagnostic != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0;
+            int completed;
+            try
             {
-                var resultIndex = i + offset;
-                var path = _pathRequests[resultIndex];
-                var result = results[i];
+                completed = CompletePathRequests(results, amount);
+            }
+            finally
+            {
+                ArrayPool<PathResult>.Shared.Return(results);
+            }
+            if (diagnostic != null)
+                diagnostic("npc.pathfinding.complete", System.Diagnostics.Stopwatch.GetTimestamp() - phaseStart, completed);
+        }
 
-                if (path.Task.Exception != null)
+        private int CompletePathRequests(PathResult[] results, int amount)
+        {
+            // Compact once, preserving FIFO. RemoveAt for every completion used to
+            // shift the entire waiting tail up to 256 times per tick.
+            var completed = ArrayPool<(PathRequest Request, PathResult Result)>.Shared.Rent(amount);
+            var completedCount = 0;
+            var continuing = 0;
+            try
+            {
+                for (var i = 0; i < amount; i++)
                 {
-                    throw path.Task.Exception;
-                }
-
-                switch (result)
-                {
-                    case PathResult.Continuing:
-                        break;
-                    case PathResult.PartialPath:
-                    case PathResult.Path:
-                    case PathResult.NoPath:
-                        SendDebug(path);
-                        // Don't use RemoveSwap because we still want to try and process them in order.
-                        _pathRequests.RemoveAt(resultIndex);
-                        offset--;
-                        path.Tcs.SetResult(result);
-                        SendRoute(path);
-                        break;
-                    default:
+                    var path = _pathRequests[i];
+                    if (path.Task.Exception is { } exception)
+                        throw exception;
+                    var result = path.CancellationToken.IsCancellationRequested ? PathResult.NoPath : results[i];
+                    if (result == PathResult.Continuing)
+                        _pathRequests[continuing++] = path;
+                    else if (result is PathResult.PartialPath or PathResult.Path or PathResult.NoPath)
+                        completed[completedCount++] = (path, result);
+                    else
                         throw new NotImplementedException();
                 }
-            }
+                if (continuing < amount)
+                    _pathRequests.RemoveRange(continuing, amount - continuing);
 
-            ArrayPool<PathResult>.Shared.Return(results);
+                // Complete only after compaction: synchronous ECS continuations can
+                // enqueue another request, which must remain outside this batch.
+                for (var i = 0; i < completedCount; i++)
+                {
+                    var (path, result) = completed[i];
+                    if (path.CancellationToken.IsCancellationRequested)
+                    {
+                        path.Polys.Clear();
+                        result = PathResult.NoPath;
+                    }
+                    SendDebug(path);
+                    path.Tcs.TrySetResult(result);
+                    SendRoute(path);
+                }
+                return completedCount;
+            }
+            finally
+            {
+                ArrayPool<(PathRequest Request, PathResult Result)>.Shared.Return(completed, clearArray: true);
+            }
         }
 
         /// <summary>

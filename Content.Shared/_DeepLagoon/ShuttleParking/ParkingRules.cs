@@ -103,6 +103,10 @@ public sealed class ParkingUpdate : BoundUserInterfaceMessage
     public List<ParkingPlace> Places = [];
     public List<ParkingDock> Docks = [];
     public ParkingRecallMap? RecallMap;
+    public ParkingRepairView? Repair;
+    public bool RepairEnabled;
+    public bool RecoveredParking;
+    public string ParkingSnapshot = "";
 }
 
 [Serializable, NetSerializable]

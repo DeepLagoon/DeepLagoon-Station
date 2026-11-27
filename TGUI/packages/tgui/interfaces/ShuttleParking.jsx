@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useBackend } from '../backend';
 import { EmbeddedSelect } from '../components/EmbeddedSelect';
+import { ShuttleParkingRepair } from './ShuttleParkingRepair';
 import './ShuttleParking.scss';
 
 const portLabels = {
@@ -182,6 +183,7 @@ export const ShuttleParking = () => {
   const arrival = docks.some(d => d.id === dock) ? dock : (docks[0]?.id || '');
   const recallPort = data.recallMap?.ports.find((port) => port.id === recallDock);
   useEffect(() => setChecked(false), [data.reviewToken]);
+  useEffect(() => { if (!data.repairEnabled && tab === 'repair') setTab('parking'); }, [data.repairEnabled, tab]);
   const dockControl = <label className="ShuttleParking__field">Шлюз для возврата
     <EmbeddedSelect value={arrival} disabled={!usable} onChange={event => setDock(event.target.value)} aria-label="Шлюз для возврата">
       {docks.length === 0 && <option value="">Нет свободного совместимого шлюза</option>}
@@ -191,18 +193,20 @@ export const ShuttleParking = () => {
     <div className="ShuttleParking__identity"><div><small>Пользователь · ID-карта</small><div>{data.user || 'Карта не вставлена'}</div></div>
       <button disabled={data.busy} onClick={() => act('id')}>{data.id ? 'Извлечь ID-карту' : 'Вставить ID-карту'}</button></div>
     <div className="ShuttleParking__balance">Кредиты: <b>{data.credits || 0} кр.</b><span>Lagoon Coin: <b>{data.coins || '…'} LC</b></span></div>
-    <nav aria-label="Раздел парковки">{[['parking','Парковка'],['storage','Долгосрочное хранение'],['shop','Купить места']].map(([id,name]) =>
+    <nav aria-label="Раздел парковки">{[['parking','Парковка'],['storage','Долгосрочное хранение'],['shop','Купить места'],...(data.repairEnabled ? [['repair','Ремонт шаттла']] : [])].map(([id,name]) =>
       <button key={id} aria-pressed={tab === id} onClick={() => setTab(id)}>{name}</button>)}</nav>
+    {data.repairEnabled && tab === 'repair' && <ShuttleParkingRepair repair={data.repair} usable={usable} />}
     {tab === 'parking' && <>
       <section><small>Собственный шаттл</small><h2>{data.shipName || 'Нет шаттла на ID-карте'}</h2>
         <div className="ShuttleParking__details"><div><small>Категория</small><b>{data.hasShip ? data.category : '—'}</b></div>
           <div><small>Владелец</small><span>{data.owner || '—'}</span></div><div><small>Состояние</small><span>{data.hasShip ? (data.parked ? 'На парковке · заморожен' : 'В секторе') : '—'}</span></div>
           <div><small>Стоимость парковки</small><b>Бесплатно</b></div></div>
-        {data.parked && <RecallMap map={data.recallMap} dock={recallPort?.id || ''} setDock={setRecallDock} disabled={!usable} />}
-        <div className="ShuttleParking__actions"><button className="ShuttleParking__primary" disabled={!usable || !data.hasShip || (data.parked && recallPort?.status !== 'fits')}
-          onClick={() => data.parked ? act('recall', { dock: recallPort.id }) : act('park')}>{data.parked ? 'Вернуть бесплатно' : 'Поставить на парковку'}</button>
-          <button disabled={!usable || !data.hasShip} onClick={() => setTab('storage')}>Сохранить надолго…</button></div>
-      </section><p>Бесплатная парковка действует до конца смены. В конце смены шаттл продадут, а деньги поступят на ваш счёт. Для переноса в новую смену сохраните шаттл в долгосрочное место.</p>
+        {data.parked && data.parkingSnapshot && <div className="ShuttleParking__details"><small>Защита от краша</small><b>{data.parkingSnapshot}</b></div>}
+        {data.parked && (data.recoveredParking ? dockControl : <RecallMap map={data.recallMap} dock={recallPort?.id || ''} setDock={setRecallDock} disabled={!usable} />)}
+        <div className="ShuttleParking__actions"><button className="ShuttleParking__primary" disabled={!usable || !data.hasShip || (data.parked && (data.recoveredParking ? !arrival : recallPort?.status !== 'fits'))}
+          onClick={() => data.parked ? act('recall', { dock: data.recoveredParking ? arrival : recallPort.id }) : act('park')}>{data.parked ? 'Вернуть бесплатно' : 'Поставить на парковку'}</button>
+          <button disabled={!usable || !data.hasShip || data.recoveredParking} onClick={() => setTab('storage')}>Сохранить надолго…</button></div>
+      </section>{!data.recoveredParking && <p>Бесплатная парковка действует до конца смены. В конце смены шаттл продадут, а деньги поступят на ваш счёт. Для переноса в новую смену сохраните шаттл в долгосрочное место.</p>}
     </>}
     {tab === 'storage' && <><p>{data.description}</p>{dockControl}
       {places.length === 0 && <p>У вас пока нет мест долгосрочного хранения.</p>}

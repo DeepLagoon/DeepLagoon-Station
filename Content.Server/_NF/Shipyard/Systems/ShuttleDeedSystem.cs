@@ -21,7 +21,7 @@ public sealed partial class ShuttleDeedSystem : EntitySystem
 
     public bool HasOwner(Entity<VesselComponent?> vessel)
     {
-        return !TryComp<ShuttleDeedComponent>(vessel, out var deed) || deed.DeedHolder == null;
+        return TryComp<ShuttleDeedComponent>(vessel, out var deed) && deed.DeedHolder != null;
     }
 
     private void OnExamined(Entity<ShuttleDeedComponent> ent, ref ExaminedEvent args)

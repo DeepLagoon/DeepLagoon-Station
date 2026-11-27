@@ -25,6 +25,7 @@ public sealed record RecoveryBoot(RecoveryIncident[] Incidents);
 public sealed record RecoveryClaim(long Balance, RecoveryAsset[] Assets);
 public sealed record RecoveryPayment(string Scope, Guid Run, Guid[] Products, long Total, Guid User, int Profile, long[]? UnitPrices = null);
 public sealed record RecoveryRemoval(string Scope, Guid Run, Guid[] Items);
+public sealed record RecoveryExternal(string Scope, Guid Run, RecoveryAsset[] Assets);
 
 /// <summary>
 /// Uses the existing transactional JSON-record table, with a disjoint namespace. No local files or
@@ -32,6 +33,15 @@ public sealed record RecoveryRemoval(string Scope, Guid Run, Guid[] Items);
 /// </summary>
 public static class CrashRecoveryOperations
 {
+    public static async Task ImportExternal(ServerDbContext db, RecoveryExternal delivery, Guid user, int profile, CancellationToken cancel)
+    {
+        if (delivery.Assets.Length is < 1 or > 512 || delivery.Assets.Any(a => a.User != user || a.Profile != profile ||
+            a.Identity == Guid.Empty || a.Location != RecoveryLocation.Carried || a.Data.Length == 0))
+            throw new InvalidOperationException("invalid_external_delivery");
+        var run = await db.LagoonEconomyRecords.SingleAsync(r => r.Id == RunKey(delivery.Scope, delivery.Run), cancel);
+        if (Read<RecoveryRun>(run).State != "open") throw new InvalidOperationException("recovery_closed");
+        foreach (var asset in delivery.Assets) db.LagoonEconomyRecords.Add(Row(AssetKey(delivery.Scope, delivery.Run, asset.Identity), user, asset));
+    }
     public static string Prefix(string scope)
     {
         if (string.IsNullOrWhiteSpace(scope) || scope.Length > 48 || scope.Any(c => !char.IsAsciiLetterOrDigit(c) && c is not '-' and not '_'))

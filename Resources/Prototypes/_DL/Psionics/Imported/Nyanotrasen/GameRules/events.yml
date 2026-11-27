@@ -128,7 +128,8 @@
   categories: [ HideSpawnMenu ]
   components:
     - type: StationEvent
-      weight: 25 # Guaranteed to happen every once in a while, but with intervals between incidents
+      weight: 0
+      maxOccurrences: 0 # Disabled for automatic schedulers; the active psionic power is separate.
       reoccurrenceDelay: 15
     - type: GlimmerEvent
     - type: NoosphericZapRule

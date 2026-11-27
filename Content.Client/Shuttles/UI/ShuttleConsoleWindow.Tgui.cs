@@ -17,6 +17,9 @@ public sealed partial class ShuttleConsoleWindow
     private ShuttleHullNavMapControl _hullMap = default!;
     private EntityUid? _hullGrid;
     public event Action? ResetHullHistory;
+    public event Action? SaveRepairSnapshot;
+    private ShuttleRepairSnapshotState? _repairSnapshot;
+    public void UpdateRepairSnapshot(ShuttleRepairSnapshotState state) { _repairSnapshot = state; _publishTimer = 0; }
     public event Action<bool>? HullViewChanged;
     private TguiData _hullState = new TguiData().Bool("present", false);
     private Control[] _views = Array.Empty<Control>();
@@ -200,6 +203,7 @@ public sealed partial class ShuttleConsoleWindow
         }
         else if (action == "close") Close();
         else if (action == "resetHullHistory") ResetHullHistory?.Invoke();
+        else if (action == "saveRepairSnapshot") SaveRepairSnapshot?.Invoke();
         else if (action == "nav") NavContainer.TguiAction(args!);
         else if (action == "weapon") CombatPanel.TguiAction(args!);
         else if (action == "map") MapContainer.TguiAction(args!);
@@ -231,7 +235,8 @@ public sealed partial class ShuttleConsoleWindow
         NavContainer.RefreshTelemetry();
         Tgui.SetIncrementalState("ShuttleConsole", new TguiData()
             .Number("mode", _statusMode ? 3 : (int)_mode)
-            .Object("hull", _hullState)
+            .Object("hull", _hullState.Number("snapshotReadyAt", _repairSnapshot?.ReadyAt ?? 0)
+                .Bool("snapshotBusy", _repairSnapshot?.Busy ?? false).String("snapshotMessage", _repairSnapshot?.Message ?? ""))
             .Object("shield", ShieldTguiState())
             .Object("nav", NavContainer.TguiState())
             .Object("weapons", CombatPanel.TguiState())

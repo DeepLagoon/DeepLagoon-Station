@@ -71,6 +71,11 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
     private readonly PriorityQueue<ChunkRequest, (int ObserverPriority, float Distance)> _loadRequests = new();
     private readonly List<(ChunkRequest Request, (int ObserverPriority, float Distance) Priority)> _waitingForMarkers = new();
     private readonly Queue<ChunkRequest> _unloadRequests = new();
+    private ChunkWork? _loadingChunk;
+    private ChunkWork? _unloadingChunk;
+    private readonly HashSet<ChunkRequest> _visibleChunks = new();
+    private readonly HashSet<ChunkRequest> _resumingChunks = new();
+    private sealed record ChunkWork(ChunkRequest Request, IEnumerator<bool> Steps);
     private readonly Dictionary<EntityUid, (BiomeComponent Biome, Vector2i Tile)> _generatedEntityTiles = new();
 
     private const int LoadsPerTick = 4;
@@ -133,6 +138,26 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
 
     private void OnBiomeShutdown(EntityUid uid, BiomeComponent biome, ComponentShutdown args)
     {
+        CancelChunkWork(ref _loadingChunk, biome);
+        CancelChunkWork(ref _unloadingChunk, biome);
+        _markerChunks.Remove(biome);
+        CancelMarkerScan(biome);
+        if (TerminatingOrDeleted(uid))
+            ReleaseBiomeScenery(biome);
+    }
+
+    private void OnBiomeRemoved(EntityUid uid, BiomeComponent biome, ComponentRemove args)
+    {
+        ReleaseBiomeScenery(biome);
+        _markerChunks.Remove(biome);
+        _resumingChunks.RemoveWhere(request => request.Biome == biome);
+        // Shutdown can be followed by Startup; only final removal discards queued work.
+        CancelMarkerScan(biome);
+        RemovePendingMarkerPreloads(biome);
+    }
+
+    private void ReleaseBiomeScenery(BiomeComponent biome)
+    {
         foreach (var entities in biome.LoadedEntities.Values)
         {
             foreach (var ent in entities.Keys)
@@ -142,16 +167,7 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
             }
         }
 
-        _markerChunks.Remove(biome);
         _sceneryDefaults.Remove(biome);
-        CancelMarkerScan(biome);
-    }
-
-    private void OnBiomeRemoved(EntityUid uid, BiomeComponent biome, ComponentRemove args)
-    {
-        // Shutdown can be followed by Startup; only final removal discards queued work.
-        CancelMarkerScan(biome);
-        RemovePendingMarkerPreloads(biome);
     }
 
     private void OnShuttleFlatten(ref ShuttleFlattenEvent ev)
@@ -212,6 +228,7 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
 
     private void RefreshChunkRequests()
     {
+        _visibleChunks.Clear();
         _loadRequests.Clear();
         _unloadRequests.Clear();
         ProcessPlayerChunkRequests();
@@ -230,9 +247,13 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
                 continue;
 
             _retainedChunks.TryGetValue(biome, out var retained);
+            if (retained != null)
+                foreach (var chunk in retained)
+                    _visibleChunks.Add(new ChunkRequest(gridUid, biome, grid, chunk));
             foreach (var chunk in biome.LoadedChunks)
             {
-                if (retained == null || !retained.Contains(chunk))
+                if (_loadingChunk?.Request != new ChunkRequest(gridUid, biome, grid, chunk) &&
+                    (retained == null || !retained.Contains(chunk)))
                     _unloadRequests.Enqueue(new ChunkRequest(gridUid, biome, grid, chunk));
             }
         }
@@ -241,6 +262,16 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
             _tilePool.Return(retained);
 
         _retainedChunks.Clear();
+
+        if (_unloadingChunk is { } unloading && _visibleChunks.Contains(unloading.Request))
+        {
+            // A player returned during an unload. Stop deleting scenery and let
+            // normal loading restore only the unmodified missing terrain.
+            unloading.Steps.Dispose();
+            unloading.Request.Biome.LoadedChunks.Remove(unloading.Request.Chunk);
+            _resumingChunks.Add(unloading.Request);
+            _unloadingChunk = null;
+        }
     }
 
     private void ProcessChunkRequests()
@@ -250,6 +281,8 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
         var ghostLoadsRemaining = _unloadRequests.Count > ObserverUnloadBacklog ? unloaded : LoadsPerTick;
         var start = Stopwatch.GetTimestamp();
         ProcessMarkerScan();
+        if (!ContinueChunkWork(ref _loadingChunk, start, LoadTimePerTick))
+            return;
         var loaded = 0;
         for (var attempt = 0; attempt < 32 && loaded < LoadsPerTick &&
              (attempt == 0 || Stopwatch.GetElapsedTime(start) < LoadTimePerTick) &&
@@ -271,12 +304,12 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
                     continue;
                 }
 
-                LoadChunkMarkers(biome, gridUid, grid, chunk, biome.Seed);
-                if (!alreadyLoaded)
-                {
-                    LoadChunk(biome, gridUid, grid, chunk, biome.Seed);
-                    biome.LoadedChunks.Add(chunk);
-                }
+                _loadingChunk = new ChunkWork(request, LoadChunkSteps(request, alreadyLoaded).GetEnumerator());
+                // Reserve the chunk while its objects are being streamed. Refreshing
+                // observer queues must not schedule it a second time or unload it halfway.
+                biome.LoadedChunks.Add(chunk);
+                if (!ContinueChunkWork(ref _loadingChunk, start, LoadTimePerTick))
+                    break;
 
                 loaded++;
                 if (priority.ObserverPriority != 0)
@@ -293,12 +326,18 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
     {
         var unloaded = 0;
         var start = Stopwatch.GetTimestamp();
+        if (!ContinueChunkWork(ref _unloadingChunk, start, UnloadTimePerTick))
+            return 0;
         for (var i = 0; i < UnloadsPerTick && _unloadRequests.TryDequeue(out var request); i++)
         {
             var (gridUid, biome, grid, chunk) = request;
             if (biome.Enabled && biome.Running && !grid.Deleted && !TerminatingOrDeleted(gridUid))
             {
-                UnloadChunk(biome, gridUid, grid, chunk, biome.Seed, _chunkLoaderTiles);
+                if (!biome.LoadedChunks.Contains(chunk) || _loadingChunk?.Request == request || _visibleChunks.Contains(request))
+                    continue;
+                _unloadingChunk = new ChunkWork(request, UnloadChunkSteps(request).GetEnumerator());
+                if (!ContinueChunkWork(ref _unloadingChunk, start, UnloadTimePerTick))
+                    break;
                 unloaded++;
             }
 
@@ -307,5 +346,41 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
         }
 
         return unloaded;
+    }
+
+    private void CancelChunkWork(ref ChunkWork? work, BiomeComponent biome)
+    {
+        if (work?.Request.Biome != biome)
+            return;
+        // Reservation in LoadedChunks does not mean an incremental chunk finished.
+        // Both a stopped load and an interrupted unload need normal loading to
+        // resume missing terrain after the component becomes active again.
+        var request = work.Request;
+        work.Steps.Dispose();
+        work = null;
+        biome.LoadedChunks.Remove(request.Chunk);
+        if (!TerminatingOrDeleted(request.GridUid))
+            _resumingChunks.Add(request);
+    }
+
+    private bool ContinueChunkWork(ref ChunkWork? work, long start, TimeSpan budget)
+    {
+        if (work is not { } current)
+            return true;
+        var request = current.Request;
+        if (!request.Biome.Running || !request.Biome.Enabled || request.Grid.Deleted || TerminatingOrDeleted(request.GridUid))
+        {
+            CancelChunkWork(ref work, request.Biome);
+            return true;
+        }
+        do
+        {
+            if (current.Steps.MoveNext())
+                continue;
+            current.Steps.Dispose();
+            work = null;
+            return true;
+        } while (Stopwatch.GetElapsedTime(start) < budget);
+        return false;
     }
 }

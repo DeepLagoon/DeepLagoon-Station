@@ -1,0 +1,15 @@
+dl-cargo-catalog-title = СНАБЖЕНИЕ
+dl-cargo-catalog-back = ← Категории
+dl-cargo-catalog-categories = Категории
+dl-cargo-catalog-tab = Каталог
+dl-cargo-catalog-orders-tab = Заказы
+dl-cargo-catalog-search-all = Поиск по всему каталогу
+dl-cargo-catalog-search-category = Поиск в категории
+dl-cargo-catalog-results = Результаты поиска
+dl-cargo-catalog-clear = Очистить поиск
+dl-cargo-catalog-empty = Ничего не найдено
+dl-cargo-catalog-no-orders = Нет активных заказов
+dl-cargo-catalog-category-count = Товаров: { $count }
+dl-cargo-catalog-order = Заказать →
+dl-cargo-catalog-balance = На счёте
+dl-cargo-catalog-capacity = Очередь

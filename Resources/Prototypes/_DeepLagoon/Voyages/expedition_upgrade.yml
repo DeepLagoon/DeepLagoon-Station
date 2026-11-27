@@ -1,0 +1,41 @@
+- type: entity
+  parent: BaseItem
+  id: ExpeditionUpgradeKit
+  name: expedition upgrade kit
+  description: Contains a packed expedition console and a one-use expedition authorization disk.
+  components:
+  - type: Item
+    size: Large
+  - type: Sprite
+    sprite: _NF/Objects/Devices/flatpack.rsi
+    state: engineering_lathe
+  - type: SpawnItemsOnUse
+    items:
+    - id: ExpeditionConsoleFlatpack
+    - id: ExpeditionUpgradeDisk
+  - type: StaticPrice
+    price: 0
+
+- type: entity
+  parent: BaseFlatpack
+  id: ExpeditionConsoleFlatpack
+  name: expedition console flatpack
+  description: A flatpack for constructing an expedition console.
+  components:
+  - type: Flatpack
+    entity: ComputerSalvageExpedition
+  - type: StaticPrice
+    price: 0
+
+- type: entity
+  parent: BaseItem
+  id: ExpeditionUpgradeDisk
+  name: expedition authorization disk
+  description: Use on a shuttle control console to authorize expeditions for that shuttle. Consumed after a successful upgrade.
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/cd.rsi
+    state: icon
+  - type: ExpeditionUpgradeDisk
+  - type: StaticPrice
+    price: 0

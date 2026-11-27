@@ -10,6 +10,7 @@ namespace Content.Shared.Cargo;
 [DataDefinition, NetSerializable, Serializable]
 public readonly partial record struct CargoBountyHistoryData
 {
+    [DataField] public int FundedReward { get; init; } = -1;
     /// <summary>
     /// A unique id used to identify the bounty
     /// </summary>
@@ -43,6 +44,7 @@ public readonly partial record struct CargoBountyHistoryData
     public CargoBountyHistoryData(CargoBountyData bounty, BountyResult result, TimeSpan timestamp, string? actorName)
     {
         Bounty = bounty.Bounty;
+        FundedReward = bounty.FundedReward;
         Result = result;
         Id = bounty.Id;
         ActorName = actorName;

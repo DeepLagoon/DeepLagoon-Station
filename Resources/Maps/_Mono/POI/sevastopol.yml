@@ -17385,7 +17385,7 @@ entities:
       parent: 1
     - type: DeltaPressure
       gridUid: 1
-- proto: ResearchAndDevelopmentServer
+- proto: ResearchAndDevelopmentServerSevastopol
   entities:
   - uid: 327
     components:

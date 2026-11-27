@@ -15,6 +15,7 @@ public sealed class LagoonCoinOutbox : IDisposable
 {
     private readonly SqliteConnection _connection;
     private readonly SerialPersistenceQueue _writer = new();
+    public int PendingWrites => _writer.PendingCount;
     public LagoonCoinOutbox(string path)
     {
         if (path != ":memory:") Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);

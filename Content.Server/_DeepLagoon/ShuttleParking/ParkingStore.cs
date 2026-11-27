@@ -3,31 +3,43 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Content.Shared._DeepLagoon.ShuttleParking;
 using Microsoft.Data.Sqlite;
 
 namespace Content.Server._DeepLagoon.ShuttleParking;
 
 public sealed record StoredShuttle(Guid Identity, string Name, string OwnerName, int Category, int OriginalPrice, string Grid, string Checksum,
-    int Version = 1, Guid SavedShift = default, TimeSpan? FreeReturnAt = null)
+    int Version = 1, Guid SavedShift = default, TimeSpan? FreeReturnAt = null,
+    bool PurchasedWithVoucher = false, string? OriginFaction = null, int OwnerProfile = 0, string? Vessel = null)
 {
     public TimeSpan? FreeReturnDeadline(Guid shift) => shift != Guid.Empty && SavedShift == shift ? FreeReturnAt : null;
 }
 public sealed record ParkingSlot(Guid Id, int Category, StoredShuttle? Ship, string Phase, Guid Redemption, int Character, bool Paid);
 public sealed record ParkingPurchase(Guid Id, int Category, int Cost, bool Completed);
-public sealed record ParkingPayout(Guid Id, Guid Owner, int Character, int Amount);
+public sealed record ParkingPayout(Guid Id, Guid Owner, int Character, int Amount, int ProfileId = 0,
+    Dictionary<string, long>? Costs = null, int Paid = 0);
 
 /// <summary>Snapshots and their state transitions commit together to a durable SQLite journal.</summary>
-public sealed class ParkingStore : IDisposable
+public sealed partial class ParkingStore : IDisposable
 {
     private readonly SqliteConnection _db;
+    private readonly string _connectionString;
     public ParkingStore(string path)
     {
         if (path != ":memory:") Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
 #if USE_SYSTEM_SQLITE
         SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_sqlite3());
 #endif
-        _db = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = path, Pooling = false }.ToString());
+        var connection = new SqliteConnectionStringBuilder { DataSource = path, Pooling = false };
+        if (path == ":memory:")
+        {
+            connection.DataSource = "parking-" + Guid.NewGuid();
+            connection.Mode = SqliteOpenMode.Memory;
+            connection.Cache = SqliteCacheMode.Shared;
+        }
+        _connectionString = connection.ToString();
+        _db = new SqliteConnection(_connectionString);
         _db.Open();
         Execute("PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;");
         Execute("""
@@ -42,12 +54,23 @@ public sealed class ParkingStore : IDisposable
             CREATE TABLE IF NOT EXISTS parking_payouts(
               id TEXT PRIMARY KEY, owner TEXT NOT NULL, character INTEGER NOT NULL, amount INTEGER NOT NULL);
             """);
+        using (var columns = Command("PRAGMA table_info(parking_payouts)"))
+        {
+            using var reader = columns.ExecuteReader();
+            var hasMetadata = false;
+            while (reader.Read()) hasMetadata |= reader.GetString(1) == "metadata";
+            reader.Close();
+            if (!hasMetadata) Execute("ALTER TABLE parking_payouts ADD COLUMN metadata TEXT NOT NULL DEFAULT ''");
+        }
         // World entities from an interrupted process no longer exist. Finish committed saves.
         Execute("UPDATE parking_slots SET phase='stored' WHERE phase='saving'");
+        InitializeFreeParking(path);
+        InitializeStoredOrigins();
     }
     public static string Hash(string grid) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(grid)));
     public bool ContainsRecoveryIdentity(Guid identity)
     {
+        if (ContainsFreeParkingIdentity(identity)) return true;
         using var command = Command("SELECT 1 FROM parking_slots WHERE ship IS NOT NULL AND instr(lower(ship),$identity)>0 LIMIT 1",
             ("$identity", identity.ToString().ToLowerInvariant()));
         return command.ExecuteScalar() != null;
@@ -121,25 +144,31 @@ public sealed class ParkingStore : IDisposable
             if (cmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("Место уже занято.");
             if (payout != null)
                 QueuePayout(payout);
+            Execute("DELETE FROM free_parking_assets WHERE identity=$identity; DELETE FROM free_parking_pending WHERE identity=$identity; DELETE FROM free_parking WHERE identity=$identity",
+                ("$identity", ship.Identity.ToString()));
             Execute("COMMIT");
+            ReserveStoredVessel(ship);
         }
         catch { Execute("ROLLBACK"); throw; }
     }
 
     public void QueuePayout(ParkingPayout payout) =>
-        Execute("INSERT INTO parking_payouts(id,owner,character,amount) VALUES($id,$owner,$character,$amount) ON CONFLICT(id) DO NOTHING",
-            ("$id", payout.Id.ToString()), ("$owner", payout.Owner.ToString()), ("$character", payout.Character), ("$amount", payout.Amount));
+        Execute("INSERT INTO parking_payouts(id,owner,character,amount,metadata) VALUES($id,$owner,$character,$amount,$metadata) ON CONFLICT(id) DO NOTHING",
+            ("$id", payout.Id.ToString()), ("$owner", payout.Owner.ToString()), ("$character", payout.Character), ("$amount", payout.Amount), ("$metadata", JsonSerializer.Serialize(payout)));
 
     public List<ParkingPayout> PendingPayouts()
     {
-        using var cmd = Command("SELECT id,owner,character,amount FROM parking_payouts ORDER BY rowid");
+        using var cmd = Command("SELECT id,owner,character,amount,metadata FROM parking_payouts ORDER BY rowid");
         using var reader = cmd.ExecuteReader();
         var payouts = new List<ParkingPayout>();
         while (reader.Read())
-            payouts.Add(new(Guid.Parse(reader.GetString(0)), Guid.Parse(reader.GetString(1)), reader.GetInt32(2), reader.GetInt32(3)));
+            payouts.Add(reader.GetString(4) is { Length: > 0 } json ? JsonSerializer.Deserialize<ParkingPayout>(json)!
+                : new(Guid.Parse(reader.GetString(0)), Guid.Parse(reader.GetString(1)), reader.GetInt32(2), reader.GetInt32(3)));
         return payouts;
     }
 
+    public void UpdatePayout(ParkingPayout payout) => Execute("UPDATE parking_payouts SET metadata=$metadata WHERE id=$id",
+        ("$metadata", JsonSerializer.Serialize(payout)), ("$id", payout.Id.ToString()));
     public void FinishPayout(Guid id) => Execute("DELETE FROM parking_payouts WHERE id=$id", ("$id", id.ToString()));
     public void FinishSave(Guid owner, Guid slot, TimeSpan? freeReturnAt = null) => Execute("""
         UPDATE parking_slots SET phase='stored',
@@ -172,9 +201,11 @@ public sealed class ParkingStore : IDisposable
     public void MarkPaid(Guid owner, Guid slot) => Execute("UPDATE parking_slots SET paid=1 WHERE owner=$owner AND id=$id AND phase='redeeming'", ("$owner", owner.ToString()), ("$id", slot.ToString()));
     public void CompleteRedeem(Guid owner, Guid slot)
     {
+        var identity = Slot(owner, slot).Ship?.Identity;
         using var cmd = Command("UPDATE parking_slots SET ship=NULL,phase='empty',operation='',character=-1,paid=0 WHERE id=$id AND owner=$owner AND phase='redeeming' AND paid=1",
             ("$owner", owner.ToString()), ("$id", slot.ToString()));
         if (cmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("Выкуп не оплачен.");
+        if (identity is { } released) ReleaseStoredVessel(released);
     }
 
     public void CompleteFreeReturn(Guid owner, Guid slot, StoredShuttle ship, Guid shift, TimeSpan now)
@@ -188,6 +219,7 @@ public sealed class ParkingStore : IDisposable
             """, ("$id", slot.ToString()), ("$owner", owner.ToString()), ("$ship", ship.Identity.ToString()),
             ("$shift", shift.ToString()), ("$checksum", ship.Checksum));
         if (cmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("Сохранение шаттла изменилось.");
+        ReleaseStoredVessel(ship.Identity);
     }
     private SqliteCommand Command(string sql, params (string Key, object Value)[] values)
     {
@@ -196,5 +228,9 @@ public sealed class ParkingStore : IDisposable
         return cmd;
     }
     private void Execute(string sql, params (string Key, object Value)[] values) { using var cmd = Command(sql, values); cmd.ExecuteNonQuery(); }
-    public void Dispose() => _db.Dispose();
+    public void Dispose()
+    {
+        try { _originScan?.GetAwaiter().GetResult(); } catch { /* Startup failure is reported by the parking system. */ }
+        _db.Dispose();
+    }
 }

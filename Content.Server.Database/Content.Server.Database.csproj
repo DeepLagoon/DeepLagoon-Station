@@ -28,5 +28,5 @@
     <ProjectReference Include="..\Content.Shared.Database\Content.Shared.Database.csproj" />
   </ItemGroup>
 
-  <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
+  <Import Project="$(DeepLagoonEngineRoot)\MSBuild\Robust.Properties.targets" />
 </Project>

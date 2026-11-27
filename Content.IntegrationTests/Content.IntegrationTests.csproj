@@ -34,11 +34,11 @@
     </Reference>
   </ItemGroup>
 
-  <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
-  <Import Project="..\RobustToolbox\MSBuild\Robust.CompNetworkGenerator.targets" />
+  <Import Project="$(DeepLagoonEngineRoot)\MSBuild\Robust.Properties.targets" />
+  <Import Project="$(DeepLagoonEngineRoot)\MSBuild\Robust.CompNetworkGenerator.targets" />
 
-  <Import Project="..\RobustToolbox\Imports\Client.props" />
-  <Import Project="..\RobustToolbox\Imports\Server.props" />
-  <Import Project="..\RobustToolbox\Imports\Shared.props" />
-  <Import Project="..\RobustToolbox\Imports\Testing.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Client.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Server.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Shared.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Testing.props" />
 </Project>

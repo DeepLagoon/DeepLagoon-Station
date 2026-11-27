@@ -19,6 +19,7 @@ public sealed partial class GridCleanupSystem : BaseCleanupSystem<MapGridCompone
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private IConfigurationManager _cfg = default!;
     [Dependency] private PricingSystem _pricing = default!;
+    [Dependency] private Content.Server._DeepLagoon.Cleanup.AgeCleanupSystem _ageCleanup = default!;
     private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
 
     private float _maxDistance;
@@ -44,8 +45,12 @@ public sealed partial class GridCleanupSystem : BaseCleanupSystem<MapGridCompone
         Subs.CVar(_cfg, MonoCVars.GridCleanupAggressiveTiles, val => _aggressiveTiles = val, true);
     }
 
-    protected override bool ShouldEntityCleanup(EntityUid uid)
+    protected override bool ShouldEntityCleanup(EntityUid uid) => ShouldCleanupGrid(uid);
+
+    internal bool ShouldCleanupGrid(EntityUid uid)
     {
+        if (TryComp<Content.Server._DeepLagoon.Cleanup.NpcDroneCleanupComponent>(uid, out var drone) && drone.Defeated)
+            return _ageCleanup.IsDue(uid);
         var xform = Transform(uid);
         // if we somehow lost it
         if (!TryComp<MapGridComponent>(uid, out var grid) || !TryComp<PhysicsComponent>(uid, out var body))

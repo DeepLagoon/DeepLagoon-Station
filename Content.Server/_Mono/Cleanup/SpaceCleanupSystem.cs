@@ -27,6 +27,7 @@ public sealed partial class SpaceCleanupSystem : BaseCleanupSystem<PhysicsCompon
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private IConfigurationManager _cfg = default!;
     [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private Content.Server._DeepLagoon.Cleanup.AgeCleanupSystem _ageCleanup = default!;
     private delegate bool TestOverlap(IPhysShape shapeA, int indexA, PhysShapeCircle shapeB, int indexB,
         in Transform transformA, in Transform transformB, bool ignoreShapeSkin);
 
@@ -95,13 +96,14 @@ public sealed partial class SpaceCleanupSystem : BaseCleanupSystem<PhysicsCompon
         }
     }
 
-    protected override bool ShouldEntityCleanup(EntityUid uid)
-    {
-        return ShouldEntityCleanup(uid, 1f);
-    }
+    protected override bool ShouldEntityCleanup(EntityUid uid) => ShouldCleanupSpaceEntity(uid);
+
+    internal bool ShouldCleanupSpaceEntity(EntityUid uid) => ShouldEntityCleanup(uid, 1f);
 
     private bool ShouldEntityCleanup(EntityUid uid, float aggression)
     {
+        if (HasComp<Content.Shared.Body.Organ.OrganComponent>(uid) || _ageCleanup.IsSpaceDebris(uid))
+            return _ageCleanup.IsDue(uid);
         var xform = Transform(uid);
 
         var isStuck = false;

@@ -5,6 +5,7 @@ namespace Content.Shared._NF.Shipyard.BUI;
 [NetSerializable, Serializable]
 public sealed class ShipyardConsoleInterfaceState : BoundUserInterfaceState
 {
+    public Dictionary<string, int> Prices = new();
     public long Balance;
     public int CashBalance = 0; // Mono
     public readonly bool AccessGranted;

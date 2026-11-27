@@ -144,9 +144,16 @@ namespace Content.Server.Cargo.Systems
         #region Interface
 
         private void OnApproveOrderMessage(EntityUid uid, CargoOrderConsoleComponent component, CargoConsoleApproveOrderMessage args)
+            => ApproveOrder(uid, component, args, refreshed: false);
+
+        private void ApproveOrder(EntityUid uid, CargoOrderConsoleComponent component, CargoConsoleApproveOrderMessage args, bool refreshed)
         {
             if (args.Actor is not { Valid: true } player)
                 return;
+
+            var deferred = EntityManager.System<Content.Server._DeepLagoon.Economy.DeferredPurchaseSystem>();
+            var pendingKey = "cargo:" + args.OrderId;
+            if (deferred.IsPending(uid, player, pendingKey)) return;
 
             if (!_accessReaderSystem.IsAllowed(player, uid))
             {
@@ -201,6 +208,25 @@ namespace Content.Server.Cargo.Systems
                 return;
             }
 
+            order.BasePrice ??= order.Price;
+            var currentPrice = CargoPrice(order.ProductId, order.BasePrice.Value);
+            if (order.Price != currentPrice)
+            {
+                order.Price = currentPrice;
+                UpdateOrderState(uid, component, station);
+                if (!refreshed)
+                {
+                    var quantity = order.OrderQuantity;
+                    var product = order.ProductId;
+                    deferred.Enqueue(uid, player, pendingKey, CargoConsoleUiKey.Orders,
+                        () => TryComp<CargoOrderConsoleComponent>(uid, out var current) && current == component &&
+                            _station.GetOwningStation(uid) == station && orderDatabase.Orders.Contains(order) &&
+                            !order.Approved && order.OrderQuantity == quantity && order.ProductId == product,
+                        () => ApproveOrder(uid, component, args, refreshed: true));
+                    ConsolePopup(player, Loc.GetString("dl-economy-price-changed"));
+                    return;
+                }
+            }
             var total = (long) order.Price * order.OrderQuantity;
             if (order.OrderQuantity <= 0 || total < 0 || total > int.MaxValue)
             {
@@ -246,6 +272,7 @@ namespace Content.Server.Cargo.Systems
             // }
             // End Frontier
 
+            EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>().Purchased("cargo:" + order.ProductId, order.OrderQuantity);
             order.Approved = true;
             _audio.PlayPvs(component.ConfirmSound, uid);
 
@@ -449,6 +476,9 @@ namespace Content.Server.Cargo.Systems
                     balance,
                     filteredOrders);
 
+                if (EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>().Enabled)
+                    foreach (var product in _protoMan.EnumeratePrototypes<CargoProductPrototype>())
+                        if (component.AllowedGroups.Contains(product.Group)) state.Prices[product.ID] = CargoPrice(product.Product.Id, product.Cost);
                 _uiSystem.SetUiState(uid, CargoConsoleUiKey.Orders, state);
             }
         }
@@ -464,9 +494,12 @@ namespace Content.Server.Cargo.Systems
             _audio.PlayPvs(_audio.ResolveSound(component.ErrorSound), uid);
         }
 
-        private static CargoOrderData GetOrderData(NetEntity consoleUid, CargoConsoleAddOrderMessage args, CargoProductPrototype cargoProduct, int id)
+        private int CargoPrice(string prototype, int basis)
+            => (int)EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>().Quote("cargo:" + prototype, basis, _protoMan.Index<EntityPrototype>(prototype));
+
+        private CargoOrderData GetOrderData(NetEntity consoleUid, CargoConsoleAddOrderMessage args, CargoProductPrototype cargoProduct, int id)
         {
-            return new CargoOrderData(id, cargoProduct.Product, cargoProduct.Name, cargoProduct.Cost, args.Amount, args.Requester, args.Reason, consoleUid);
+            return new CargoOrderData(id, cargoProduct.Product, cargoProduct.Name, CargoPrice(cargoProduct.Product.Id, cargoProduct.Cost), args.Amount, args.Requester, args.Reason, consoleUid) { BasePrice = cargoProduct.Cost };
         }
 
         public static int GetOutstandingOrderCount(StationCargoOrderDatabaseComponent component)

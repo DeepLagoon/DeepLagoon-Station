@@ -5,6 +5,7 @@ namespace Content.Shared.Cargo.BUI;
 [NetSerializable, Serializable]
 public sealed class CargoConsoleInterfaceState : BoundUserInterfaceState
 {
+    public Dictionary<string, int> Prices = new();
     public string Name;
     public int Count;
     public int Capacity;

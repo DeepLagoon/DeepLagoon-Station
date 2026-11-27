@@ -8,7 +8,7 @@ public sealed partial class PathfindingSystem
 {
     private PathResult UpdateBFSPath(IRobustRandom random, BFSPathRequest request)
     {
-        if (request.Task.IsCanceled)
+        if (request.CancellationToken.IsCancellationRequested || request.Task.IsCanceled)
         {
             return PathResult.NoPath;
         }
@@ -61,6 +61,8 @@ public sealed partial class PathfindingSystem
 
         while (request.Frontier.Count > 0 && count < NodeLimit && count < request.ExpansionLimit)
         {
+            if (request.CancellationToken.IsCancellationRequested)
+                return PathResult.NoPath;
             // Handle whether we need to pause if we've taken too long
             if (count % 20 == 0 && count > 0 && request.Stopwatch.Elapsed > PathTime)
             {

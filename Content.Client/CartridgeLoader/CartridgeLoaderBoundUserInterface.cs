@@ -10,6 +10,7 @@ public abstract class CartridgeLoaderBoundUserInterface : BoundUserInterface
 {
     [ViewVariables]
     private EntityUid? _activeProgram;
+    protected EntityUid? ActiveProgram => _activeProgram;
 
     [ViewVariables]
     private UIFragment? _activeCartridgeUI;
@@ -47,7 +48,7 @@ public abstract class CartridgeLoaderBoundUserInterface : BoundUserInterface
         var control = ui?.GetUIFragmentRoot();
 
         //Prevent the same UI fragment from getting disposed and attached multiple times
-        if (_activeUiFragment?.GetType() == control?.GetType())
+        if (ReferenceEquals(_activeUiFragment, control))
             return;
 
         if (_activeUiFragment is not null)

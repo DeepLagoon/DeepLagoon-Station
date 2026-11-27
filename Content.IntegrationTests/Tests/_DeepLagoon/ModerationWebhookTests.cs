@@ -50,7 +50,16 @@ public sealed class ModerationWebhookTests
         var flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var http = typeof(ModerationWebhookSystem).GetField("_http", flags)!;
         var outbox = typeof(ModerationWebhookSystem).GetField("_outbox", flags)!;
-        var change = new ModerationEvent(NoteType.ServerBan, 7, "Снят", null, null, "restored event",
+        var restoredPlayer = new NetUserId(Guid.NewGuid());
+        var restoredBan = 0;
+        await PoolManager.WaitUntil(server, async () =>
+        {
+            await database.UpdatePlayerRecordAsync(restoredPlayer, "RestoredPlayer", IPAddress.Loopback, null);
+            restoredBan = await database.AddServerBanAsync(new ServerBanDef(null, restoredPlayer, null, null,
+                DateTimeOffset.UtcNow, null, null, TimeSpan.Zero, "restored event", NoteSeverity.High, restoredPlayer, null));
+            return true;
+        });
+        var change = new ModerationEvent(NoteType.ServerBan, restoredBan, "Снят", restoredPlayer, null, "restored event",
             NoteSeverity.High, false, null, null, null, DateTimeOffset.UtcNow);
         var pending = new ModerationWebhookSystem.Pending(change, "Main", ModerationWebhookFormatter.Format(change, "Main", "Player", "Admin"));
         var saved = Path.Combine(directory, "0000000000000000000-restored.json");
@@ -157,7 +166,10 @@ public sealed class ModerationWebhookTests
             var edited = events.Single(e => e.Type == NoteType.Note && e.Action == "Изменено");
             Assert.That(edited.Message, Is.EqualTo("edited note"));
             Assert.That(edited.PreviousMessage, Is.EqualTo("secret note"));
+            Assert.That(edited.PreviousSecret, Is.True);
             Assert.That(edited.Secret, Is.False);
+            Assert.That(JsonSerializer.Serialize(ModerationWebhookFormatter.Format(edited, "Main", "Player", "Admin")),
+                Does.Not.Contain("secret note"));
             Assert.That(edited.Expires, Is.Null);
             Assert.That(events.Single(e => e.Type == NoteType.Note && e.Action == "Удалено").Message, Is.EqualTo("edited note"));
             var count = events.Count;
@@ -174,7 +186,7 @@ public sealed class ModerationWebhookTests
     {
         var text = "@everyone " + string.Concat(Enumerable.Repeat("длинная заметка 😀 ", 550));
         var change = new ModerationEvent(NoteType.Note, 42, "Изменено", new NetUserId(Guid.NewGuid()),
-            Guid.NewGuid(), text, NoteSeverity.High, false, null, 123, null, DateTimeOffset.UtcNow, "old text");
+            Guid.NewGuid(), text, NoteSeverity.High, false, null, 123, null, DateTimeOffset.UtcNow, "old text", PreviousSecret: false);
         var payloads = ModerationWebhookFormatter.Format(change, "Main", "Player", "Admin");
         Assert.That(payloads, Has.Count.GreaterThan(1));
         Assert.That(string.Concat(payloads.Select(p => p.Embeds![0].Description)), Is.EqualTo("**Причина / текст**\n" + text + "\n\n**Предыдущий текст**\nold text"));
@@ -201,6 +213,11 @@ public sealed class ModerationWebhookTests
     [TestCase(NoteType.Note, false, "Изменено", true)]
     [TestCase(NoteType.ServerBan, false, "Снят", true)]
     [TestCase(NoteType.RoleBan, false, "Снят", true)]
+    [TestCase(NoteType.Watchlist, true, "Создано", false)]
+    [TestCase(NoteType.Watchlist, false, "Изменено", false)]
+    [TestCase(NoteType.Message, true, "Создано", false)]
+    [TestCase(NoteType.ServerBan, false, "Скрыто из заметок", false)]
+    [TestCase(NoteType.RoleBan, true, "Изменено", false)]
     public void NotificationPolicy(NoteType type, bool secret, string action, bool expected)
     {
         var change = new ModerationEvent(type, 42, action, null, null, "text",
@@ -208,5 +225,86 @@ public sealed class ModerationWebhookTests
         Assert.That(ModerationWebhookFormatter.ShouldNotify(change), Is.EqualTo(expected));
         Assert.That(ModerationWebhookFormatter.Format(change, "Main", "Player", "Admin").Count > 0,
             Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void HistoricalTextWithoutVisibilityProvenanceIsExcluded()
+    {
+        var change = new ModerationEvent(NoteType.Note, 42, "Изменено", null, null, "visible text",
+            NoteSeverity.High, false, null, null, null, DateTimeOffset.UtcNow, "old private text");
+        var legacy = JsonSerializer.Serialize(change).Replace(",\"PreviousSecret\":true", "");
+        var restored = JsonSerializer.Deserialize<ModerationEvent>(legacy)!;
+        var formatted = JsonSerializer.Serialize(ModerationWebhookFormatter.Format(restored, "Main", "Player", "Admin"));
+        Assert.That(formatted, Does.Contain("visible text"));
+        Assert.That(formatted, Does.Not.Contain("old private text"));
+    }
+
+    [Test]
+    public async Task QueuedNotesUseCurrentVisibilityAndRegenerateLegacyEmbeds()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Destructive = true, InLobby = true });
+        var server = pair.Server;
+        var system = server.ResolveDependency<IEntityManager>().System<ModerationWebhookSystem>();
+        var config = server.ResolveDependency<IConfigurationManager>();
+        var database = server.ResolveDependency<IServerDbManager>();
+        var directory = Path.Combine(Path.GetTempPath(), "moderation-privacy-" + Guid.NewGuid());
+        Directory.CreateDirectory(directory);
+        var handler = new WebhookHandler();
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var player = new NetUserId(Guid.NewGuid());
+        var visible = 0;
+        var hidden = 0;
+        var deleted = 0;
+        await PoolManager.WaitUntil(server, async () =>
+        {
+            await database.UpdatePlayerRecordAsync(player, "PrivacyPlayer", IPAddress.Loopback, null);
+            var now = DateTimeOffset.UtcNow;
+            visible = await database.AddAdminNote(null, player.UserId, TimeSpan.Zero, "public revision",
+                NoteSeverity.High, false, player.UserId, now, null);
+            hidden = await database.AddAdminNote(null, player.UserId, TimeSpan.Zero, "now hidden",
+                NoteSeverity.High, true, player.UserId, now, null);
+            deleted = await database.AddAdminNote(null, player.UserId, TimeSpan.Zero, "now deleted",
+                NoteSeverity.High, false, player.UserId, now, null);
+            await database.DeleteAdminNote(deleted, player.UserId, now);
+            return true;
+        });
+        foreach (var (id, text) in new[] { (visible, "public revision"), (hidden, "hidden leak"), (deleted, "deleted leak") })
+        {
+            var change = new ModerationEvent(NoteType.Note, id, "Изменено", player, player.UserId, text,
+                NoteSeverity.High, false, null, null, null, DateTimeOffset.UtcNow, "legacy private history", PreviousSecret: false);
+            // Deliberately cache old embeds which would expose the previous hidden revision.
+            var pending = new ModerationWebhookSystem.Pending(change, "Main", ModerationWebhookFormatter.Format(change, "Main", "Player", "Admin"));
+            await File.WriteAllTextAsync(Path.Combine(directory, $"{id:D19}.json"), JsonSerializer.Serialize(pending));
+        }
+        try
+        {
+            await server.WaitPost(() =>
+            {
+                var http = typeof(ModerationWebhookSystem).GetField("_http", flags)!;
+                ((HttpClient) http.GetValue(system)!).Dispose();
+                http.SetValue(system, new HttpClient(handler));
+                typeof(ModerationWebhookSystem).GetField("_outbox", flags)!.SetValue(system, directory);
+                config.SetCVar(CCVars.DiscordModerationWebhook, "https://discord.com/api/webhooks/123/" + new string('a', 30));
+            });
+            await PoolManager.WaitUntil(server, async () =>
+            {
+                await Task.Delay(100);
+                return handler.Successes == 1 && !Directory.EnumerateFiles(directory, "*.json").Any();
+            }, maxTicks: 600);
+            Assert.That(handler.Requests, Has.Count.EqualTo(2));
+            foreach (var payload in handler.Requests)
+            {
+                Assert.That(payload, Does.Contain("public revision"));
+                Assert.That(payload, Does.Not.Contain("legacy private history"));
+                Assert.That(payload, Does.Not.Contain("hidden leak"));
+                Assert.That(payload, Does.Not.Contain("deleted leak"));
+            }
+        }
+        finally
+        {
+            await server.WaitPost(() => config.SetCVar(CCVars.DiscordModerationWebhook, ""));
+            Directory.Delete(directory, true);
+        }
+        await pair.CleanReturnAsync();
     }
 }

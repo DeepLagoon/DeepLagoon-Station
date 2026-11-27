@@ -1,0 +1,12 @@
+- type: trait
+  id: ReptilianEmotes
+  name: trait-reptilian-emotes-name
+  description: trait-reptilian-emotes-desc
+  category: Quirks
+  points: 0
+  cost: 0
+  slots: 0
+  functions:
+  - !type:TraitAddTag
+    tags:
+    - ReptilianEmotes

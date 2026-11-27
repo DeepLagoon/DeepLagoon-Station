@@ -26,6 +26,7 @@ using Content.Shared._Mono.Company;
 using Content.Server._Mono.Store; // Mono
 using Content.Server._Mono.Cargo; // Mono
 using Content.Server.Radio.EntitySystems; // Mono
+using Content.Server._DeepLagoon.Procurement;
 
 
 namespace Content.Server.Cargo.Systems;
@@ -41,6 +42,8 @@ public sealed partial class CargoSystem
 
     [Dependency] private RadioSystem _radio = default!; // Mono
     [Dependency] private CurrencyInjectionSystem _currencyInjection = default!;
+    [Dependency] private ProcurementSystem _procurement = default!;
+    private Guid? _procurementPallet;
     private const int DefaultPalletDistance = 8;
 
     private static readonly SoundPathSpecifier ApproveSound = new("/Audio/Effects/Cargo/ping.ogg");
@@ -107,7 +110,8 @@ public sealed partial class CargoSystem
 
         _uiSystem.SetUiState(uid.Owner,
             CargoPalletConsoleUiKey.Sale, // Frontier: uid<uid.Owner
-            new CargoPalletConsoleInterfaceState((int)amount, toSell.Count, true, tradeCrateMultiplier, otherMultiplier));
+            new CargoPalletConsoleInterfaceState((int)amount, toSell.Count, true, tradeCrateMultiplier, otherMultiplier,
+                EconomySaleStatus(uid)));
         // End Monolith
     }
 
@@ -294,16 +298,23 @@ public sealed partial class CargoSystem
 
     #region Station
 
-    private bool SellPallets(Entity<CargoPalletConsoleComponent> consoleUid, EntityUid gridUid, out double amount, out double noMultiplierAmount, out double blackMarketTaxAmount, out double frontierTaxAmount, out double nfsdTaxAmount, out double medicalTaxAmount, out Dictionary<string, FixedPoint2>? currencyInjections, out ProtoId<CompanyPrototype>? injectionCompany) // Frontier: first arg to Entity, add noMultiplierAmount
+    private bool SellPallets(Entity<CargoPalletConsoleComponent> consoleUid, EntityUid gridUid, out double amount, out double noMultiplierAmount, out double blackMarketTaxAmount, out double frontierTaxAmount, out double nfsdTaxAmount, out double medicalTaxAmount, out Dictionary<string, FixedPoint2>? currencyInjections, out ProtoId<CompanyPrototype>? injectionCompany, out ProcurementSale? observation, EntityUid? actor) // Frontier: first arg to Entity, add noMultiplierAmount
     {
-        GetPalletGoods(consoleUid, gridUid, out var toSell, out amount, out noMultiplierAmount, out blackMarketTaxAmount, out frontierTaxAmount, out nfsdTaxAmount, out medicalTaxAmount, out currencyInjections, out injectionCompany); // Frontier: add noMultiplierAmount
+        var quotes = _procurement.Enabled ? new List<ProcurementRoot>() : null;
+        var valuations = quotes == null ? null : new Dictionary<int, ProcurementValuation>();
+        GetPalletGoods(consoleUid, gridUid, out var toSell, out amount, out noMultiplierAmount, out blackMarketTaxAmount, out frontierTaxAmount, out nfsdTaxAmount, out medicalTaxAmount, out currencyInjections, out injectionCompany, quotes, valuations); // Frontier: add noMultiplierAmount
+        observation = null;
 
         Log.Debug($"Cargo sold {toSell.Count} entities for {amount} (plus {noMultiplierAmount} without mods). (Taxes: Black Market: {blackMarketTaxAmount}, CO: {frontierTaxAmount}, TSFMC: {nfsdTaxAmount}, MD: {medicalTaxAmount})"); // Frontier: add section in parentheses
 
         if (toSell.Count == 0)
             return false;
 
-        NotifyEntitiesSold(toSell, gridUid);
+        observation = quotes == null ? null : _procurement.CapturePallet(consoleUid, gridUid, actor, quotes, valuations!, (int)(amount + noMultiplierAmount), consoleUid.Comp.CashType.Id);
+        var previousObservation = _procurementPallet;
+        _procurementPallet = observation?.Id;
+        try { NotifyEntitiesSold(toSell, gridUid); }
+        finally { _procurementPallet = previousObservation; }
 
         // Collect all container entities and their contained entities recursively
         var allEntsToDelete = new HashSet<EntityUid>(toSell);
@@ -420,7 +431,7 @@ public sealed partial class CargoSystem
         }
     }
 
-    private void GetPalletGoods(Entity<CargoPalletConsoleComponent> consoleUid, EntityUid gridUid, out HashSet<EntityUid> toSell, out double amount, out double noMultiplierAmount, out double blackMarketTaxAmount, out double frontierTaxAmount, out double nfsdTaxAmount, out double medicalTaxAmount, out Dictionary<string, FixedPoint2>? currencyInjections, out ProtoId<CompanyPrototype>? injectionCompany) // Frontier: first arg to Entity, add noMultiplierAmount // Mono: add currencyInjections
+    private void GetPalletGoods(Entity<CargoPalletConsoleComponent> consoleUid, EntityUid gridUid, out HashSet<EntityUid> toSell, out double amount, out double noMultiplierAmount, out double blackMarketTaxAmount, out double frontierTaxAmount, out double nfsdTaxAmount, out double medicalTaxAmount, out Dictionary<string, FixedPoint2>? currencyInjections, out ProtoId<CompanyPrototype>? injectionCompany, List<ProcurementRoot>? observations = null, Dictionary<int, ProcurementValuation>? valuations = null) // Frontier: first arg to Entity, add noMultiplierAmount // Mono: add currencyInjections
     {
         amount = 0;
         noMultiplierAmount = 0;
@@ -431,6 +442,8 @@ public sealed partial class CargoSystem
         toSell = new HashSet<EntityUid>();
         currencyInjections = null;
         injectionCompany = null;
+
+        var priceObserver = valuations == null ? null : CreatePriceObserver(valuations);
 
         foreach (var (palletUid, _, _) in GetCargoPallets(consoleUid, gridUid, BuySellType.Sell))
         {
@@ -482,10 +495,12 @@ public sealed partial class CargoSystem
                     multiplier = wildcard.ValueMultiplier;
                 }
 
-                var payout = _pricing.GetPalletPrice(ent, gridUid, ignoresMultiplier ? 1 : multiplier, out var price);
+                var payout = _pricing.GetPalletPrice(ent, gridUid, ignoresMultiplier ? 1 : multiplier, out var price,
+                    observeOwnPrice: priceObserver);
                 if (price == 0)
                     continue;
                 toSell.Add(ent);
+                observations?.Add(new(ent.Id, price, ignoresMultiplier ? price : payout, ProcurementCategory.Unclassified));
 
                 if (ignoresMultiplier)
                     noMultiplierAmount += price;
@@ -523,7 +538,7 @@ public sealed partial class CargoSystem
                 {
                     injectionCompany = injection.Company;
                     if (currencyInjections == null)
-                        currencyInjections = injection.Amount;
+                        currencyInjections = new(injection.Amount);
                     else
                     {
                         foreach (var key in injection.Amount.Keys)
@@ -540,10 +555,21 @@ public sealed partial class CargoSystem
         }
     }
 
-    private bool CanSell(EntityUid uid, TransformComponent xform)
+    private static Action<EntityUid, double, double> CreatePriceObserver(Dictionary<int, ProcurementValuation> valuations)
+        => (entity, basePrice, payout) =>
+        {
+            if (valuations.Count < 4096) valuations.TryAdd(entity.Id, new(basePrice, payout));
+        };
+
+    private bool CanSell(EntityUid uid, TransformComponent xform, HashSet<EntityUid>? bountyEntities = null)
     {
+        // Controlled entities are never cargo, including projections or dummies without MobState.
+        if (HasComp<Robust.Shared.Player.ActorComponent>(uid))
+            return false;
+        if (_procurement.ProtectsCrypto(uid))
+            return false;
         // Frontier: Look for blacklisted items and stop the selling of the container.
-        if (_blacklistQuery.HasComponent(uid))
+        if (_blacklistQuery.HasComponent(uid) || HasComp<Content.Server.Salvage.ExpeditionSalvageComponent>(uid))
             return false;
 
         // Frontier: allow selling dead mobs, Mono: and mecha
@@ -551,16 +577,41 @@ public sealed partial class CargoSystem
             return false;
         // End Frontier
 
-        var complete = IsBountyComplete(uid, out var bountyEntities);
+        if (IsBountyComplete(uid, out var matchedEntities))
+        {
+            if (bountyEntities == null)
+                bountyEntities = matchedEntities;
+            else
+                bountyEntities.UnionWith(matchedEntities);
+        }
 
         // Recursively check for mobs at any point.
         var children = xform.ChildEnumerator;
         while (children.MoveNext(out var child))
         {
-            if (complete && bountyEntities.Contains(child))
+            if (HasComp<Robust.Shared.Player.ActorComponent>(child))
+                return false;
+            if (_procurement.ProtectsCrypto(child))
+                return false;
+            if (HasComp<Content.Server.Salvage.ExpeditionSalvageComponent>(child))
+                return false;
+            if (bountyEntities?.Contains(child) == true)
+            {
+                // A bounty may permit a mob/mech, but never an attached player hidden inside it.
+                var pending = new Stack<EntityUid>();
+                pending.Push(child);
+                var checkedEntities = 0;
+                while (pending.TryPop(out var nested))
+                {
+                    if (++checkedEntities > 4096 || HasComp<Robust.Shared.Player.ActorComponent>(nested) ||
+                        HasComp<Content.Server.Salvage.ExpeditionSalvageComponent>(nested)) return false;
+                    var nestedChildren = Transform(nested).ChildEnumerator;
+                    while (nestedChildren.MoveNext(out var descendant)) pending.Push(descendant);
+                }
                 continue;
+            }
 
-            if (!CanSell(child, _xformQuery.GetComponent(child)))
+            if (!CanSell(child, _xformQuery.GetComponent(child), bountyEntities))
                 return false;
         }
 
@@ -569,6 +620,11 @@ public sealed partial class CargoSystem
 
     private void OnPalletSale(EntityUid uid, CargoPalletConsoleComponent component, CargoPalletSellMessage args)
     {
+        if (EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>().Enabled)
+        {
+            BeginEconomySale(uid, component, args.Actor);
+            return;
+        }
         var xform = Transform(uid);
 
         if (xform.GridUid is not { Valid: true } gridUid)
@@ -578,21 +634,23 @@ public sealed partial class CargoSystem
             return;
         }
 
-        if (!SellPallets((uid, component), gridUid, out var price, out var noMultiplierPrice, out var blackMarketTaxAmount, out var frontierTaxAmount, out var nfsdTaxAmount, out var medicalTaxAmount, out var currencyInjections, out var injectionCompany)) // Frontier: convert first arg to Entity, add noMultiplierPrice
+        if (!SellPallets((uid, component), gridUid, out var price, out var noMultiplierPrice, out var blackMarketTaxAmount, out var frontierTaxAmount, out var nfsdTaxAmount, out var medicalTaxAmount, out var currencyInjections, out var injectionCompany, out var observation, args.Actor)) // Frontier: convert first arg to Entity, add noMultiplierPrice
             return;
 
         price += noMultiplierPrice;
 
         // End Frontier: market modifiers & immune objects
         // Mono Begin
-        if (blackMarketTaxAmount > 0)
-            _bank.TrySectorDeposit(SectorBankAccount.BlackMarket, checked((long)blackMarketTaxAmount), LedgerEntryType.BlackMarketSales);
-        if (frontierTaxAmount > 0)
-            _bank.TrySectorDeposit(SectorBankAccount.Frontier, checked((long)frontierTaxAmount), LedgerEntryType.ColonialOutpostSales);
-        if (nfsdTaxAmount > 0)
-            _bank.TrySectorDeposit(SectorBankAccount.Nfsd, checked((long)nfsdTaxAmount), LedgerEntryType.TSFMCSales);
-        if (medicalTaxAmount > 0)
-            _bank.TrySectorDeposit(SectorBankAccount.Medical, checked((long)medicalTaxAmount), LedgerEntryType.MedicalSales);
+        DepositTax(SectorBankAccount.BlackMarket, blackMarketTaxAmount, LedgerEntryType.BlackMarketSales);
+        DepositTax(SectorBankAccount.Frontier, frontierTaxAmount, LedgerEntryType.ColonialOutpostSales);
+        DepositTax(SectorBankAccount.Nfsd, nfsdTaxAmount, LedgerEntryType.TSFMCSales);
+        DepositTax(SectorBankAccount.Medical, medicalTaxAmount, LedgerEntryType.MedicalSales);
+
+        void DepositTax(SectorBankAccount account, double value, LedgerEntryType reason)
+        {
+            if (value > 0 && _bank.TrySectorDeposit(account, checked((long)value), reason))
+                observation?.FactionAccruals.Add(account.ToString(), checked((long)value));
+        }
         if (blackMarketTaxAmount < 0)
         {
             blackMarketTaxAmount = -blackMarketTaxAmount;
@@ -620,6 +678,7 @@ public sealed partial class CargoSystem
         // Mono End
         var stackPrototype = _protoMan.Index<StackPrototype>(component.CashType);
         _stack.Spawn((int)price, stackPrototype, xform.Coordinates);
+        _procurement.CommitPallet(observation);
         _audio.PlayPvs(ApproveSound, uid);
         UpdatePalletConsoleInterface((uid, component)); // Frontier: EntityUid<Entity
     }

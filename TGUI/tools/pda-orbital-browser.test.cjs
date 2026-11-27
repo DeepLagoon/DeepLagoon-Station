@@ -27,7 +27,8 @@ const programs = [
 ];
 const initial = { ready: true, view: 0, time: '01:23:45', owner: 'Владелец устройства', idOwner: 'Мария Орлова',
   job: 'Инженер', company: 'Nanotrasen', companyColor: '#91b6b4', station: 'Станция Тестовая', alert: 'Зелёный',
-  alertColor: '#67ab70', instructions: 'Угроза отсутствует. Соблюдайте стандартные процедуры.', war: '',
+  alertColor: '#67ab70', instructions: 'Угроза отсутствует. Соблюдайте стандартные процедуры.',
+  war: 'ВОЙНЫ ФРАКЦИЙ: [color=cornflowerblue]НЕТ ОБЪЯВЛЕННЫХ[/color] &lt;b&gt;МИР&lt;/b&gt;',
   balance: '1 234', ship: 'Исследователь', date: '31/10/2566', address: 'ABCD', programTitle: '',
   hasId: true, hasPen: true, hasPai: true, flashlight: false, canPlayMusic: true, hasUplink: false, programs };
 (async () => {
@@ -74,6 +75,8 @@ const initial = { ready: true, view: 0, time: '01:23:45', owner: 'Владеле
     assert(await page.getByRole('button', { name: 'Фонарик', exact: true }).isDisabled());
     await publish(initial);
     await page.getByText('Мария Орлова', { exact: true }).waitFor();
+    await page.getByText('ВОЙНЫ ФРАКЦИЙ: НЕТ ОБЪЯВЛЕННЫХ МИР', { exact: true }).waitFor();
+    assert(!/\[\/?color|&lt;b&gt;|<b>/.test(await page.locator('.Pda').innerText()));
     assert.equal(await page.locator('.Pda__appLaunch').count(), 4, 'Home shows the actual first four cartridges');
     await action(page.getByRole('button', { name: 'Сообщения', exact: true }), 'messenger');
     assert(!/DeepLagoon\s*\/\s*Локальная сеть|86%|Алексей Волков/i.test(await page.locator('.Pda').innerText()));

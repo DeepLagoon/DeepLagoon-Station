@@ -264,13 +264,13 @@ namespace Content.Server.RoundEnd
             }
         }
 
-        public void EndRound(TimeSpan? countdownTime = null)
+        public void EndRound(TimeSpan? countdownTime = null, bool forced = false)
         {
             if (_gameTicker.RunLevel != GameRunLevel.InRound) return;
             LastCountdownStart = null;
             ExpectedCountdownEnd = null;
             RaiseLocalEvent(RoundEndSystemChangedEvent.Default);
-            _gameTicker.EndRound();
+            _gameTicker.EndRound(forced: forced);
             _countdownTokenSource?.Cancel();
             _countdownTokenSource = new();
 

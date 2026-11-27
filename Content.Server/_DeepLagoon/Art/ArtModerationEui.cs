@@ -114,7 +114,7 @@ public sealed class ArtModerationEui : BaseEui
         }
         catch (Exception e)
         {
-            _logs.GetSawmill("admin.art").Error($"Artwork moderation failed: {e.GetType().Name}");
+            _logs.GetSawmill("admin.art").Error($"Artwork moderation failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             _state.Status = "dl-art-moderation-error";
         }
         finally

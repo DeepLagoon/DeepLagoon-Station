@@ -8,6 +8,10 @@ namespace Content.Shared.Implants.Components;
 [RegisterComponent, NetworkedComponent]
 public sealed partial class RattleComponent : Component
 {
+    /// <summary>Repeated alerts of the same type for one patient are suppressed within this interval.</summary>
+    [DataField]
+    public TimeSpan RepeatDelay = TimeSpan.FromSeconds(30);
+
     // The radio channel the message will be sent to
     [DataField]
     public ProtoId<RadioChannelPrototype> RadioChannel = "Syndicate";

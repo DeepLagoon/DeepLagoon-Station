@@ -1,0 +1,82 @@
+- type: entity
+  parent: IDCardStandard
+  id: MantisIDCard
+  name: mantis ID card
+  components:
+  - type: PresetIdCard
+    job: Mantis
+  - type: Sprite
+    sprite: _DV/Objects/Misc/id_cards.rsi
+    layers:
+    - state: nyanomantis
+  - type: Clothing
+    sprite: _DV/Objects/Misc/id_cards.rsi
+
+- type: entity
+  parent: IDCardStandard
+  id: TsfMantisIDCard
+  name: TSF mantis ID card
+  components:
+  - type: PresetIdCard
+    job: TsfMantis
+  - type: Sprite
+    sprite: _DV/Objects/Misc/id_cards.rsi
+    layers:
+    - state: nyanomantis
+      color: "#047abd"
+  - type: Clothing
+    sprite: _DV/Objects/Misc/id_cards.rsi
+
+- type: entity
+  parent: BasePDA
+  id: MantisPDA
+  name: mantis PDA
+  description: Issued to the outpost registrar. Smells faintly of old paper.
+  components:
+  - type: Pda
+    id: MantisIDCard
+  - type: CartridgeLoader
+    uiKey: enum.PdaUiKey.Key
+    preinstalled:
+    - CrewManifestCartridge
+    - NotekeeperCartridge
+    - NewsReaderCartridge
+    - AstroNavCartridge
+    - PsiRegistryCartridge
+    - GlimmerMonitorCartridge
+  - type: Appearance
+    appearanceDataInit:
+      enum.PdaVisuals.PdaType:
+        !type:String
+        pda-mantis
+  - type: PdaBorderColor
+    borderColor: "#1f8c28"
+  - type: Icon
+    state: pda-mantis
+
+- type: entity
+  parent: BasePDA
+  id: TsfMantisPDA
+  name: TSF mantis PDA
+  description: Issued to the TSFMC psionic investigator. Built to survive a boarding action.
+  components:
+  - type: Pda
+    id: TsfMantisIDCard
+  - type: CartridgeLoader
+    uiKey: enum.PdaUiKey.Key
+    preinstalled:
+    - CrewManifestCartridge
+    - NotekeeperCartridge
+    - NewsReaderCartridge
+    - AstroNavCartridge
+    - PsiRegistryCartridge
+    - GlimmerMonitorCartridge
+  - type: Appearance
+    appearanceDataInit:
+      enum.PdaVisuals.PdaType:
+        !type:String
+        pda-mantis
+  - type: PdaBorderColor
+    borderColor: "#047abd"
+  - type: Icon
+    state: pda-mantis

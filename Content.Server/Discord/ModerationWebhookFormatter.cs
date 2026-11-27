@@ -8,7 +8,8 @@ namespace Content.Server.Discord;
 public static class ModerationWebhookFormatter
 {
     public static bool ShouldNotify(ModerationEvent change)
-        => change.Type != NoteType.Note || (!change.Secret && change.Action != "Удалено");
+        => !change.Secret && change.Type != NoteType.Watchlist &&
+           change.Action is not ("Удалено" or "Скрыто из заметок");
 
     public static List<WebhookPayload> Format(ModerationEvent change, string server, string player, string actor)
     {
@@ -24,7 +25,7 @@ public static class ModerationWebhookFormatter
             _ => change.Type.ToString()
         };
         var text = new StringBuilder("**Причина / текст**\n").Append(change.Message);
-        if (change.PreviousMessage != null)
+        if (change.PreviousMessage != null && !change.PreviousSecret)
             text.Append("\n\n**Предыдущий текст**\n").Append(change.PreviousMessage);
         var fields = new List<WebhookEmbedField>
         {

@@ -8,7 +8,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Content.Server.Database;
+using Content.Shared.Administration.Notes;
 using Content.Shared.CCVar;
+using Content.Shared.Database;
 using Robust.Shared.Configuration;
 using Robust.Shared.ContentPack;
 using Robust.Shared.Network;
@@ -30,7 +32,8 @@ public sealed partial class ModerationWebhookSystem : EntitySystem
     private string? _outbox;
     private Task? _worker;
 
-    public sealed record Pending(ModerationEvent Change, string Server, List<WebhookPayload>? Payloads = null, int Next = 0);
+    public sealed record Pending(ModerationEvent Change, string Server, List<WebhookPayload>? Payloads = null,
+        int Next = 0, int PrivacyVersion = 0);
 
     public override void Initialize()
     {
@@ -66,7 +69,7 @@ public sealed partial class ModerationWebhookSystem : EntitySystem
             else
                 Directory.CreateDirectory(_outbox, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
             var path = Path.Combine(_outbox, $"{DateTime.UtcNow.Ticks:D19}-{Guid.NewGuid():N}.json");
-            Save(path, new Pending(change, _server));
+            Save(path, new Pending(change, _server, PrivacyVersion: 1));
         }
         catch (Exception e)
         {
@@ -129,6 +132,32 @@ public sealed partial class ModerationWebhookSystem : EntitySystem
                         {
                             File.Delete(path);
                             continue;
+                        }
+                        // A record can become private while Discord is unavailable. Check current
+                        // visibility before every part, not just the historical event snapshot.
+                        IAdminRemarksRecord? current = pending.Change.Type switch
+                        {
+                            NoteType.Note => await _database.GetAdminNote(pending.Change.Id),
+                            NoteType.ServerBan => await _database.GetServerBanAsNoteAsync(pending.Change.Id),
+                            NoteType.RoleBan => await _database.GetServerRoleBanAsNoteAsync(pending.Change.Id),
+                            NoteType.Message => await _database.GetAdminMessage(pending.Change.Id),
+                            _ => null
+                        };
+                        if (current == null || current.Deleted || current is AdminNoteRecord { Secret: true })
+                        {
+                            File.Delete(path);
+                            continue;
+                        }
+                        if (pending.Change.Type == NoteType.Note)
+                        {
+                            if (pending.PrivacyVersion < 1)
+                            {
+                                // Legacy cached embeds can contain a previous private revision. Their
+                                // visibility was not recorded; regenerate without that historical text.
+                                pending = pending with { Change = pending.Change with { PreviousMessage = null },
+                                    Payloads = null, Next = 0, PrivacyVersion = 1 };
+                                Save(path, pending);
+                            }
                         }
                         if (pending.Payloads == null)
                         {

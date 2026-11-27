@@ -2,12 +2,17 @@
                MinSize="500 300"
                SetSize="500 500"
                Title="{Loc 'spray-painter-window-title'}">
-    <BoxContainer Orientation="Horizontal"
+    <BoxContainer Orientation="Vertical">
+        <Label Name="ModeLabel" />
+        <Label Text="{Loc 'spray-painter-mode-hint'}" />
+        <Button Name="DecalPickerButton" Visible="False" Text="{Loc 'spray-painter-decal-settings'}" />
+        <Label Name="DecalChoice" Visible="False" />
+        <BoxContainer Orientation="Horizontal"
                   HorizontalExpand="True"
                   VerticalExpand="True"
                   SeparationOverride="4"
                   MinWidth="450">
-        <BoxContainer Orientation="Vertical"
+        <BoxContainer Name="StylePanel" Orientation="Vertical"
                       HorizontalExpand="True"
                       VerticalExpand="True"
                       SeparationOverride="4"
@@ -19,7 +24,7 @@
                       SizeFlagsStretchRatio="8"
                       VerticalExpand="True"/>
         </BoxContainer>
-        <BoxContainer Orientation="Vertical"
+        <BoxContainer Name="PalettePanel" Orientation="Vertical"
                       HorizontalExpand="True"
                       VerticalExpand="True"
                       SeparationOverride="4"
@@ -30,5 +35,8 @@
                       SizeFlagsStretchRatio="8"
                       VerticalExpand="True"/>
         </BoxContainer>
+        </BoxContainer>
+        <Label Text="{Loc 'spray-painter-custom-color'}" />
+        <ColorSelectorSliders Name="CustomColor" IsAlphaVisible="True" />
     </BoxContainer>
 </DefaultWindow>

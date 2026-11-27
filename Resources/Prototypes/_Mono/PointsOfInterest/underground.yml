@@ -3,7 +3,7 @@
 # Discord: supergdpwyl
 - type: pointOfInterest
   id: Underground
-  parent: [BasePOI, BaseRepairablePOI]
+  parent: [BaseMobilePOI, BaseRepairablePOI]
   name: 'Underground Black Market'
   minimumDistance: 18000
   maximumDistance: 25000

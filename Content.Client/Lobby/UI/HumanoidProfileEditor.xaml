@@ -132,6 +132,10 @@
                                 <Label Text="{Loc 'humanoid-profile-editor-eyes-label'}" />
                                 <humanoid:EyeColorPicker Name="EyeColorPicker" />
                             </BoxContainer>
+                            <BoxContainer Margin="10" Orientation="Vertical">
+                                <CheckBox Name="CustomBloodColor" Text="{Loc 'humanoid-profile-editor-custom-blood-color'}" />
+                                <humanoid:EyeColorPicker Name="BloodColorPicker" Visible="False" />
+                            </BoxContainer>
                         </BoxContainer>
                     </ScrollContainer>
                 </BoxContainer>

@@ -41,7 +41,7 @@ public sealed partial class DiscordLinkSystem
         }
         catch (Exception e)
         {
-            Log.Error($"Account merge failed: {e.GetType().Name}");
+            Log.Error($"Account merge failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             return new ApiResult(HttpStatusCode.ServiceUnavailable, new { error = "merge_pending" });
         }
     }
@@ -49,7 +49,7 @@ public sealed partial class DiscordLinkSystem
     private async Task ObserveMerge(string key, Task<DiscordLinkStore.Link> job)
     {
         try { await job; }
-        catch (Exception e) { Log.Warning($"Account merge job retained for retry: {e.GetType().Name}"); }
+        catch (Exception e) { Log.Warning($"Account merge job retained for retry: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}"); }
         finally { _mergeJobs.Remove(key); }
     }
 }

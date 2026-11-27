@@ -4,6 +4,9 @@
   - /Audio/Nyanotrasen/Voice/Felinid/cat_scream1.ogg
   - /Audio/Nyanotrasen/Voice/Felinid/cat_scream2.ogg
   - /Audio/Nyanotrasen/Voice/Felinid/cat_scream3.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/catscream1.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/catscream2.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/catscream3.ogg
 
 - type: soundCollection
   id: FelinidHisses
@@ -17,6 +20,12 @@
   - /Audio/Nyanotrasen/Voice/Felinid/cat_meow1.ogg
   - /Audio/Nyanotrasen/Voice/Felinid/cat_meow2.ogg
   - /Audio/Nyanotrasen/Voice/Felinid/cat_meow3.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/meow7_1.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/meow7_2.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/meow7_3.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/meow7_4.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/meow7_5.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/meow8.ogg
 
 - type: soundCollection
   id: FelinidMews
@@ -33,3 +42,11 @@
   id: FelinidPurrs
   files:
   - /Audio/Nyanotrasen/Voice/Felinid/cat_purr1.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/cat_purr1.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/cat_purr2.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/cat_purr3.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/cat_purr4.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/purr.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/purr1.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/purr2.ogg
+  - /Audio/_DeepLagoon/Voice/Tajaran/purr3.ogg

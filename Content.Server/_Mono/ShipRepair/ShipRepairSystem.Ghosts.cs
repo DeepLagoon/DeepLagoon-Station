@@ -19,6 +19,7 @@ public sealed partial class ShipRepairSystem
 
     private void OnEquip(EntityUid user)
     {
+        _nextRepairInterestUpdate = TimeSpan.Zero;
         var comp = EnsureComp<RepairDataEyeComponent>(user);
         comp.Count++;
 
@@ -30,6 +31,7 @@ public sealed partial class ShipRepairSystem
 
     private void OnUnequip(EntityUid user)
     {
+        _nextRepairInterestUpdate = TimeSpan.Zero;
         if (!TryComp(user, out RepairDataEyeComponent? comp))
             return;
 

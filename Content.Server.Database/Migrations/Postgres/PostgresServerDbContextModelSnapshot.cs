@@ -1185,6 +1185,11 @@ namespace Content.Server.Database.Migrations.Postgres
                         .HasColumnType("text")
                         .HasColumnName("custom_species_name");
 
+                    b.Property<string>("BloodColor")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("blood_color");
+
                     b.Property<string>("SpeechBarkSettingsJson")
                         .IsRequired()
                         .HasColumnType("text")

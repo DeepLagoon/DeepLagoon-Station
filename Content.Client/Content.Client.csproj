@@ -14,17 +14,17 @@
     <PackageReference Include="Robust.Shared.AuthLib" />
   </ItemGroup>
 
-  <Import Project="..\RobustToolbox\Imports\Lidgren.props" />
-  <Import Project="..\RobustToolbox\Imports\Client.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Lidgren.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Client.props" />
   <!-- A full release must compile against the exact signed module selected by the official launcher. -->
-  <Import Project="..\RobustToolbox\Imports\WebView.props" Condition="'$(WebViewSignedReference)' == ''" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\WebView.props" Condition="'$(WebViewSignedReference)' == ''" />
   <ItemGroup Condition="'$(WebViewSignedReference)' != ''">
     <Reference Include="Robust.Client.WebView">
       <HintPath>$(WebViewSignedReference)</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-  <Import Project="..\RobustToolbox\Imports\Shared.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Shared.props" />
 
   <!-- The SDK's deps.json inputs do not track changes between source and signed references. -->
   <Target Name="TrackWebViewDependencyInputs" BeforeTargets="GenerateBuildDependencyFile"
@@ -55,11 +55,11 @@
   <ItemGroup>
     <Folder Include="_Mono\Research\UI\" />
   </ItemGroup>
-  <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
-  <Import Project="..\RobustToolbox\MSBuild\XamlIL.targets" />
+  <Import Project="$(DeepLagoonEngineRoot)\MSBuild\Robust.Properties.targets" />
+  <Import Project="$(DeepLagoonEngineRoot)\MSBuild\XamlIL.targets" />
   <!-- Executable ProjectReferences copy DLLs, but CEF also needs its subprocess apphost. -->
   <Target Name="CopyWebViewSubprocess" AfterTargets="Build" Condition="'$(FullRelease)' != 'True' and '$(WebViewSignedReference)' == ''">
-    <MSBuild Projects="..\RobustToolbox\Robust.Client.WebView\Robust.Client.WebView.csproj"
+    <MSBuild Projects="$(DeepLagoonEngineRoot)\Robust.Client.WebView\Robust.Client.WebView.csproj"
              Targets="GetTargetPath" Properties="Configuration=$(Configuration)">
       <Output TaskParameter="TargetOutputs" ItemName="_WebViewTargetPath" />
     </MSBuild>

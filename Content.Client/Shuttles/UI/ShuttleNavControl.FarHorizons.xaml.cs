@@ -31,7 +31,8 @@ public partial class ShuttleNavControl
                 EntManager.System<SpaceEnvironmentOverlaySystem>().RadarFills(mapUid!.Value, environment.Definition), _spaceFillVertices,
                 _spaceWeatherTiming.CurTime.TotalSeconds);
         var system = starSystem.StarSystem;
-        SpaceNavigationDraw.Body(handle, Font, system.Star.Position, system.Star.Name,
+        if (starSystem.Definition?.NavigationOnly != true)
+            SpaceNavigationDraw.Body(handle, Font, system.Star.Position, system.Star.Name,
             Star.NAV_PIXEL_SIZE * system.Star.Radius, system.Star.Color, worldToView, PixelSize, origin, UIScale, true);
         foreach (var planet in system.Planets)
             SpaceNavigationDraw.Body(handle, Font, planet.Position, planet.Name, Planet.NAV_PIXEL_SIZE * planet.Radius,

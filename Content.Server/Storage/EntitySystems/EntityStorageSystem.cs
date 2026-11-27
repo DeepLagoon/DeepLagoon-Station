@@ -18,6 +18,7 @@ using Robust.Server.GameObjects;
 using Robust.Shared.Containers;
 using Robust.Shared.GameStates;
 using Robust.Shared.Map;
+using Content.Server._DeepLagoon.BodyInsurance;
 
 namespace Content.Server.Storage.EntitySystems;
 
@@ -58,6 +59,44 @@ public sealed partial class EntityStorageSystem : SharedEntityStorageSystem
         SubscribeLocalEvent<InsideEntityStorageComponent, EntGotRemovedFromContainerMessage>(OnRemoved);
     }
 
+    public override bool TryOpenStorage(
+    EntityUid user,
+    EntityUid target,
+    bool silent = false)
+    {
+        EntityUid? rescuedBody = null;
+
+        // Проверяем, что внутри находится оригинальное
+        // застрахованное тело, а мешок ещё закрыт.
+        if (TryComp<BodyInsuranceRescueBagComponent>(
+                target, out var rescueBag) &&
+            rescueBag.Body is { } body &&
+            Exists(body) &&
+            !IsOpen(target) &&
+            Transform(body).ParentUid == target)
+        {
+            rescuedBody = body;
+        }
+
+        // Выполняем стандартное открытие контейнера.
+        var opened = base.TryOpenStorage(
+            user, target, silent);
+
+        if (!opened)
+            return false;
+
+        // Выплачиваем награду только после открытия.
+        if (rescuedBody is { } patient &&
+            Exists(patient) &&
+            IsOpen(target) &&
+            Transform(patient).ParentUid != target)
+        {
+            EntityManager.System<BodyInsuranceSystem>()
+                .RewardBodyDiscovery(patient, user);
+        }
+
+        return true;
+    }
     private void OnMapInit(EntityUid uid, EntityStorageComponent component, MapInitEvent args)
     {
         if (!component.Open && component.Air.TotalMoles == 0)

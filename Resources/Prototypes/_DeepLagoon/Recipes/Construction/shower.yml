@@ -1,0 +1,45 @@
+- type: construction
+  id: DLShower
+  name: construction-recipe-DLShower-name
+  description: construction-recipe-DLShower-description
+  graph: DLShower
+  startNode: start
+  targetNode: shower
+  category: construction-category-furniture
+  icon:
+    sprite: _DeepLagoon/Structures/shower.rsi
+    state: shower
+  objectType: Structure
+  placementMode: SnapgridCenter
+  canRotate: true
+  conditions:
+  - !type:TileNotBlocked
+
+- type: constructionGraph
+  id: DLShower
+  start: start
+  graph:
+  - node: start
+    edges:
+    - to: shower
+      completed:
+      - !type:SnapToGrid {}
+      steps:
+      - material: Steel
+        amount: 10
+        doAfter: 2
+  - node: shower
+    entity: DLShower
+    edges:
+    - to: start
+      conditions:
+      - !type:EntityAnchored
+        anchored: false
+      steps:
+      - tool: Welding
+        doAfter: 2
+      completed:
+      - !type:SpawnPrototype
+        prototype: SheetSteel1
+        amount: 10
+      - !type:DeleteEntity {}

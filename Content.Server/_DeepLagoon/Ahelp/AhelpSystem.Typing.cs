@@ -45,7 +45,7 @@ public sealed partial class AhelpSystem
                 return;
             SetTyping(ticket, actor, session.Name, request.Staff, discord: false, active: true);
         }
-        catch (Exception ex) { Log.Debug($"Ahelp typing update failed: {ex.GetType().Name}"); }
+        catch (Exception ex) { Log.Debug($"Ahelp typing update failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(ex)}"); }
     }
 
     private void SetTyping(AhelpTicket ticket, Guid actor, string name, bool staff, bool discord, bool active)

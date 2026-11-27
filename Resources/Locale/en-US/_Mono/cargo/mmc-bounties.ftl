@@ -42,4 +42,4 @@ mmc-bounty-name-plasteel = Plasteel Sheets
 mmc-bounty-name-steel = Steel Sheets
 
 mmc-bounty-desc-generic = We require this shipped back for production quality evaluation.
-mmc-bounty-desc-money = Prove you can keep up a profit before we supply you more.
+mmc-bounty-desc-money = Prove you can keep up a profit before we supply you more. Submit exactly the requested amount of cash; surplus cash is not accepted.

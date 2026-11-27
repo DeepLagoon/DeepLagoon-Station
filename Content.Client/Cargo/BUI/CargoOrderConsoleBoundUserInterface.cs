@@ -73,8 +73,8 @@ namespace Content.Client.Cargo.BUI
 
                 description.Clear();
                 description.PushColor(Color.White); // Rich text default color is grey
-                if (row.MainButton.ToolTip != null)
-                    description.AddText(row.MainButton.ToolTip);
+                if (row.Product?.Description is { } productDescription)
+                    description.AddText(productDescription);
 
                 _orderMenu.Description.SetMessage(description);
                 _product = row.Product;
@@ -115,6 +115,7 @@ namespace Content.Client.Cargo.BUI
             if (state is not CargoConsoleInterfaceState cState)
                 return;
 
+            if (_menu != null) _menu.Prices = cState.Prices;
             OrderCapacity = cState.Capacity;
             OrderCount = cState.Count;
             BankBalance = cState.Balance;

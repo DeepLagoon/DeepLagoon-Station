@@ -70,14 +70,14 @@ public static class AccountCurrencyOperations
     }
 
     public static async Task<long> WithdrawBank(ServerDbContext db, Guid user, int slot, long expectedBalance, long amount,
-        CancellationToken cancel = default, RecoveryPayment? recovery = null)
+        CancellationToken cancel = default, RecoveryPayment? recovery = null, int? expectedProfile = null)
     {
         if (amount <= 0 || expectedBalance < amount)
             throw new InvalidOperationException("Insufficient character bank balance.");
         await using var transaction = await db.Database.BeginTransactionAsync(cancel);
         await LockAccount(db, user, cancel);
         var profile = await db.Profile.SingleAsync(p => p.Preference.UserId == user && p.Slot == slot, cancel);
-        if (profile.BankBalance != expectedBalance)
+        if (expectedProfile != null && profile.Id != expectedProfile || profile.BankBalance != expectedBalance)
             throw new InvalidOperationException("Character bank balance changed; retry the payment.");
         profile.BankBalance -= amount;
         var transactionId = BankFinancialOperation.Record(db, user, profile, amount, "bank_withdrawal");
@@ -89,7 +89,7 @@ public static class AccountCurrencyOperations
 
     public static async Task<BankTransfer> TransferBank(ServerDbContext db, Guid sender, int senderSlot,
         long senderBalance, Guid recipient, int recipientSlot, long recipientBalance, long amount,
-        CancellationToken cancel = default)
+        CancellationToken cancel = default, int? expectedSenderProfile = null, int? expectedRecipientProfile = null)
     {
         if (sender == recipient || amount <= 0)
             throw new ArgumentException("A transfer requires two different accounts and a positive amount.");
@@ -99,7 +99,8 @@ public static class AccountCurrencyOperations
         await LockAccount(db, sender.CompareTo(recipient) < 0 ? recipient : sender, cancel);
         var from = await db.Profile.SingleAsync(p => p.Preference.UserId == sender && p.Slot == senderSlot, cancel);
         var to = await db.Profile.SingleAsync(p => p.Preference.UserId == recipient && p.Slot == recipientSlot, cancel);
-        if (from.BankBalance != senderBalance || to.BankBalance != recipientBalance)
+        if (expectedSenderProfile != null && from.Id != expectedSenderProfile || expectedRecipientProfile != null && to.Id != expectedRecipientProfile ||
+            from.BankBalance != senderBalance || to.BankBalance != recipientBalance)
             throw new InvalidOperationException("Character bank balance changed; retry the transfer.");
         if (from.BankBalance < amount || to.BankBalance < 0)
             throw new InvalidOperationException("Insufficient character bank balance.");
@@ -114,14 +115,14 @@ public static class AccountCurrencyOperations
 
     public static async Task<long> DepositBank(ServerDbContext db, Guid user, int profileSlot,
         long expectedBankBalance, long amount, CancellationToken cancel = default,
-        IReadOnlyList<SpawnedCashSource>? origins = null, RecoveryRemoval? recovery = null)
+        IReadOnlyList<SpawnedCashSource>? origins = null, RecoveryRemoval? recovery = null, int? expectedProfile = null)
     {
         if (amount <= 0 || expectedBankBalance < 0)
             throw new ArgumentOutOfRangeException(nameof(amount));
         await using var transaction = await db.Database.BeginTransactionAsync(cancel);
         await LockAccount(db, user, cancel);
         var profile = await db.Profile.SingleAsync(p => p.Preference.UserId == user && p.Slot == profileSlot, cancel);
-        if (profile.BankBalance != expectedBankBalance)
+        if (expectedProfile != null && profile.Id != expectedProfile || profile.BankBalance != expectedBankBalance)
             throw new InvalidOperationException("Character bank balance changed; retry the deposit.");
         profile.BankBalance = checked(profile.BankBalance + amount);
         BankFinancialOperation.Record(db, user, profile, amount, "bank_deposit", origins);

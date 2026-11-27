@@ -5,6 +5,10 @@ using Content.Client._DeepLagoon.WebUI;
 using Content.Client.UserInterface.Controls;
 using Content.Shared._DeepLagoon.ShuttleParking;
 using Content.Shared.Containers.ItemSlots;
+using Content.Shared.Maps;
+using Content.Shared.Tag;
+using Robust.Shared.Prototypes;
+using Robust.Shared.Map;
 using Robust.Client.UserInterface;
 using Timer = Robust.Shared.Timing.Timer;
 
@@ -29,6 +33,8 @@ public sealed class ParkingBoundUserInterface(EntityUid owner, Enum uiKey) : Bou
 {
     private ParkingWindow? _window;
     private CancellationTokenSource? _returnRefresh;
+    private string[] _repairPartIds = [];
+    private string _repairSelectionVersion = "";
     protected override void Open()
     {
         base.Open();
@@ -44,7 +50,9 @@ public sealed class ParkingBoundUserInterface(EntityUid owner, Enum uiKey) : Bou
         if (message is not ParkingUpdate state || _window == null) return;
         var receivedAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var data = new TguiData().Bool("id", state.IdPresent).Bool("hasShip", state.HasShip).Bool("parked", state.Parked).Bool("busy", state.Busy)
-            .String("user", state.User).String("owner", state.OwnerName).String("shipName", state.ShipName).String("category", ParkingRules.CategoryName(state.Category))
+            .Bool("repairEnabled", state.RepairEnabled)
+            .Bool("recoveredParking", state.RecoveredParking).String("parkingSnapshot", state.ParkingSnapshot)
+            .String("user", state.User).String("owner", state.OwnerName).String("shipName", state.ShipName).String("category", state.RecoveredParking && state.Category < 0 ? "—" : ParkingRules.CategoryName(state.Category))
             .Number("shipCategory", state.Category).String("credits", state.Credits.ToString()).String("coins", state.Coins < 0 ? "…" : state.Coins.ToString())
             .String("message", state.Message).String("description", ParkingRules.StorageDescription)
             .String("reviewToken", state.ReviewToken == Guid.Empty ? "" : state.ReviewToken.ToString()).String("reviewSlot", state.ReviewSlot.ToString())
@@ -61,9 +69,17 @@ public sealed class ParkingBoundUserInterface(EntityUid owner, Enum uiKey) : Bou
                 .Number("extra", ParkingRules.SlotPrice(category, true))));
         if (state.RecallMap is { } recall)
             data.Object("recallMap", BuildRecallData(recall));
+        if (state.Repair is { } repair)
+        {
+            _repairPartIds = repair.Parts.Select(p => p.Id).ToArray();
+            _repairSelectionVersion = Guid.NewGuid().ToString();
+            data.Object("repair", BuildRepairData(repair));
+        }
         _window.Panel.SetState("ShuttleParking", data.ToString(), "Парковка шаттлов");
         CancelReturnRefresh();
         var nextReturn = state.Places.Where(place => place.ReturnWaitSeconds > 0).Select(place => place.ReturnWaitSeconds).DefaultIfEmpty().Min();
+        if (state.Repair is { Working: true } working)
+            nextReturn = nextReturn > 0 ? Math.Min(nextReturn, Math.Max(1, working.Remaining)) : Math.Max(1, working.Remaining);
         if (nextReturn > 0)
         {
             _returnRefresh = new CancellationTokenSource();
@@ -136,12 +152,85 @@ public sealed class ParkingBoundUserInterface(EntityUid owner, Enum uiKey) : Bou
     {
         if (action == "close") { Close(); return; }
         if (action == "id") { SendMessage(new ItemSlotButtonPressedEvent("parking-id")); return; }
-        if (!TguiActionData.TryParse(payload, out var data) || data == null) return;
+        if (!TguiActionData.TryParse(payload, out var data, 1048576) || data == null) return;
+        if (action is "repairQuote" or "repairConfirm")
+        {
+            Guid.TryParse(data.String("token"), out var repairToken);
+            var selected = (data.String("selected") ?? "").Split('|', StringSplitOptions.RemoveEmptyEntries);
+            if (data.String("ranges") is { } ranges)
+            {
+                if (data.String("selectionVersion") != _repairSelectionVersion) return;
+                var indices = new HashSet<int>();
+                foreach (var range in ranges.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var bounds = range.Split('-');
+                    if (bounds.Length is < 1 or > 2 || !int.TryParse(bounds[0], out var first)) return;
+                    var last = first;
+                    if (bounds.Length == 2 && !int.TryParse(bounds[1], out last)) return;
+                    if (first < 0 || last < first || last >= _repairPartIds.Length) return;
+                    for (var i = first; i <= last; i++) indices.Add(i);
+                }
+                selected = indices.Select(i => _repairPartIds[i]).ToArray();
+            }
+            else if (data.String("bits") is { } bits)
+            {
+                if (data.String("selectionVersion") != _repairSelectionVersion) return;
+                byte[] bitmap;
+                try { bitmap = Convert.FromBase64String(bits); } catch (Exception) { return; }
+                if (bitmap.Length != (_repairPartIds.Length + 7) / 8) return;
+                selected = _repairPartIds.Where((_, index) => (bitmap[index / 8] & (1 << (index % 8))) != 0).ToArray();
+            }
+            SendMessage(new ParkingRepairAction(action == "repairQuote" ? "quote" : "confirm",
+                selected, repairToken, data.String("coins") == "true"));
+            return;
+        }
         Guid.TryParse(data.String("slot"), out var slot);
         Guid.TryParse(data.String("token"), out var token);
         data.TryInt("category", out var category);
         NetEntity? dock = NetEntity.TryParse(data.String("dock") ?? "", out var parsed) ? parsed : null;
         if (action is "refresh" or "park" or "recall" or "preview" or "save" or "buy" or "redeem" or "cancel")
             SendMessage(new ParkingAction(action, slot, category, token, dock));
+    }
+
+    private TguiData BuildRepairData(ParkingRepairView repair)
+    {
+        var images = TguiSpriteImages.Shared;
+        var tiles = IoCManager.Resolve<ITileDefinitionManager>();
+        var prototypes = IoCManager.Resolve<IPrototypeManager>();
+        var tags = EntMan.System<TagSystem>();
+        var assets = new Dictionary<string, TguiData>();
+        TguiData Visual(string id, string proto, Vector2 position, Angle angle, int tile, byte variant = 0)
+        {
+            var key = proto.Length > 0 ? proto : $"tile:{tile}:{variant}";
+            var result = new TguiData().String("id", id).String("prototype", proto).String("visual", key).Number("x", position.X).Number("y", position.Y)
+                .Number("rotation", (float)angle.Theta).Bool("tile", proto.Length == 0);
+            // Match the status/crew navigation map's wall and door classification. Department
+            // regions and beacons are intentionally absent from the remote repair snapshot.
+            var geometry = proto.Length == 0 ? "floor" : "equipment";
+            if (proto.Length > 0 && prototypes.TryIndex<EntityPrototype>(proto, out var entityDefinition))
+            {
+                if (entityDefinition.TryGetComponent<Content.Shared.Pinpointer.NavMapDoorComponent>(out _)) geometry = "door";
+                else if (entityDefinition.TryGetComponent<TagComponent>(out var tag) && (tags.HasTag(tag, "Wall") || tags.HasTag(tag, "Window"))) geometry = "wall";
+            }
+            result.String("geometry", geometry);
+            if (!assets.ContainsKey(key))
+            {
+                var asset = new TguiData().String("id", key);
+                if (proto.Length > 0) asset.Array("images", images.MapItem(proto));
+                else if (tiles.TryGetDefinition((ushort)tile, out var definition) && definition is ContentTileDefinition { Sprite: { } sprite })
+                    asset.Array("images", new[] { new TguiData().String("url", images.TileFrame(sprite, variant)).String("color", "#ffffff") });
+                assets[key] = asset;
+            }
+            return result;
+        }
+        return new TguiData().String("ship", repair.Ship).Bool("parked", repair.Parked).Bool("working", repair.Working)
+            .String("selectionVersion", _repairSelectionVersion)
+            .Number("remaining", repair.Remaining).String("token", repair.Token == Guid.Empty ? "" : repair.Token.ToString())
+            .String("credits", repair.Credits.ToString()).String("coins", repair.Coins.ToString()).String("materials", repair.Materials.ToString())
+            .Number("seconds", repair.Seconds).String("selected", string.Join('|', repair.Selected))
+            .Array("parts", repair.Parts.Select(part => Visual(part.Id, part.Prototype, part.Position, part.Rotation, part.Tile)
+                .String("name", part.Name).String("kind", part.Kind)))
+            .Array("current", repair.Current.Select(part => Visual("", part.Prototype, part.Position, part.Rotation, part.Tile, part.Variant)))
+            .Array("visuals", assets.Values);
     }
 }

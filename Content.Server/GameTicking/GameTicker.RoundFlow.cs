@@ -515,7 +515,9 @@ namespace Content.Server.GameTicking
             DisallowLateJoin = refresh.DisallowLateJoin;
         }
 
-        public void EndRound(string text = "")
+        public bool RoundEndForced { get; private set; }
+
+        public void EndRound(string text = "", bool forced = false)
         {
             // If this game ticker is a dummy, do nothing!
             if (DummyTicker)
@@ -523,6 +525,7 @@ namespace Content.Server.GameTicking
 
             DebugTools.Assert(RunLevel == GameRunLevel.InRound);
             _sawmill.Info("Ending round!");
+            RoundEndForced = forced;
 
             // Persist the normal-end fence before post-round cleanup can invalidate player property.
             EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>().CloseNormally().GetAwaiter().GetResult();
@@ -687,7 +690,7 @@ namespace Content.Server.GameTicking
 
             _replayRoundPlayerInfo = listOfPlayerInfoFinal;
             _replayRoundText = roundEndText;
-            RaiseLocalEvent(new RoundEndedEvent(RoundId, roundDuration));
+            RaiseLocalEvent(new RoundEndedEvent(RoundId, roundDuration, RoundEndForced));
         }
 
         private async void SendRoundEndDiscordMessage()

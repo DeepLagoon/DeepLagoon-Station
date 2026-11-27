@@ -13,6 +13,8 @@ namespace Content.Server._NF.Market.Components;
 public sealed partial class MarketConsoleComponent : Component
 {
     [DataField]
+    public bool TelepadDelivery;
+    [DataField]
     public int MaxCrateMachineDistance = 8;
 
     public List<MarketLot> CartDataList = [];

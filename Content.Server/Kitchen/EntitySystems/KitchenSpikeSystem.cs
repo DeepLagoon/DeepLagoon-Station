@@ -148,6 +148,7 @@ namespace Content.Server.Kitchen.EntitySystems
 
             // TODO VERY SUS
             component.PrototypesToSpawn = EntitySpawnCollection.GetSpawns(butcherable.SpawnedEntities, _random);
+            EntityManager.System<Content.Server.Salvage.ExpeditionSalvageSystem>().RecordButcherSource(uid, victimUid);
 
             // This feels not okay, but entity is getting deleted on "Spike", for now...
             component.MeatSource1p = Loc.GetString("comp-kitchen-spike-remove-meat", ("victim", victimUid));
@@ -184,6 +185,7 @@ namespace Content.Server.Kitchen.EntitySystems
             var item = _random.PickAndTake(component.PrototypesToSpawn);
 
             var ent = Spawn(item, Transform(uid).Coordinates);
+            EntityManager.System<Content.Server.Salvage.ExpeditionSalvageSystem>().ProtectButcherProduct(uid, ent);
             _metaData.SetEntityName(ent,
                 Loc.GetString("comp-kitchen-spike-meat-name", ("name", Name(ent)), ("victim", component.Victim)));
 

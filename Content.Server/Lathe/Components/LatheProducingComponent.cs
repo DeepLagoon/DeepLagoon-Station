@@ -1,22 +1,28 @@
+using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
+
 namespace Content.Server.Lathe.Components;
 
 /// <summary>
 /// For EntityQuery to keep track of which lathes are producing
 /// </summary>
-[RegisterComponent]
+[RegisterComponent, AutoGenerateComponentPause]
 public sealed partial class LatheProducingComponent : Component
 {
     /// <summary>
     /// The time at which production began
     /// </summary>
-    [ViewVariables(VVAccess.ReadWrite)]
+    [DataField(customTypeSerializer: typeof(TimeOffsetSerializer)), AutoPausedField, ViewVariables(VVAccess.ReadWrite)]
     public TimeSpan StartTime;
 
     /// <summary>
     /// How long it takes to produce the recipe.
     /// </summary>
-    [ViewVariables(VVAccess.ReadWrite)]
+    [DataField, ViewVariables(VVAccess.ReadWrite)]
     public TimeSpan ProductionLength;
+
+    /// <summary>The already-paid recipe, independently of the remaining production queue.</summary>
+    [DataField]
+    public string? Recipe;
 
     /// <summary>
     /// The Entity that queued this recipe - Mono

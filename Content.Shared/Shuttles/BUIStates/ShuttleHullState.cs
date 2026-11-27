@@ -41,6 +41,17 @@ public sealed class ShuttleHullStateMessage(ShuttleHullState? state) : BoundUser
 public sealed class ShuttleHullResetMessage : BoundUserInterfaceMessage;
 
 [Serializable, NetSerializable]
+public sealed class ShuttleRepairSnapshotMessage : BoundUserInterfaceMessage;
+
+[Serializable, NetSerializable]
+public sealed class ShuttleRepairSnapshotState(long readyAt, bool busy, string message = "") : BoundUserInterfaceMessage
+{
+    public readonly long ReadyAt = readyAt;
+    public readonly bool Busy = busy;
+    public readonly string Message = message;
+}
+
+[Serializable, NetSerializable]
 public sealed class ShuttleHullViewMessage(bool active) : BoundUserInterfaceMessage
 {
     public bool Active = active;

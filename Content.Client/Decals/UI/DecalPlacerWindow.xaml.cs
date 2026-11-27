@@ -11,6 +11,7 @@ using Robust.Client.UserInterface.XAML;
 using Robust.Client.Utility;
 using Robust.Shared.Prototypes;
 using static Robust.Client.UserInterface.Controls.BaseButton;
+using Robust.Shared.Map;
 
 namespace Content.Client.Decals.UI;
 
@@ -42,6 +43,34 @@ public sealed partial class DecalPlacerWindow : DefaultWindow
     private int _zIndex;
 
     private bool _auto;
+    private Action<Decal, bool>? _painterSettings;
+    private Action<Decal, EntityCoordinates>? _painterPlacement;
+    private Action<EntityCoordinates>? _painterRemoval;
+    private bool _listening;
+
+    public void ConfigureForPainter(Decal selected, bool snap, Action<Decal, bool> settings,
+        Action<Decal, EntityCoordinates> placement, Action<EntityCoordinates> removal)
+    {
+        _selected = selected.Id;
+        _color = selected.Color ?? Color.White;
+        _useColor = true;
+        _snap = snap;
+        _rotation = (float) selected.Angle.Degrees;
+        _zIndex = selected.ZIndex;
+        _cleanable = true;
+        EnableColor.Pressed = true;
+        EnableSnap.Pressed = snap;
+        EnableCleanable.Pressed = true;
+        EnableCleanable.Disabled = true;
+        ColorPicker.Color = _color;
+        RotationSpinBox.Value = _rotation;
+        ZIndexSpinBox.Value = _zIndex;
+        _painterSettings = settings;
+        _painterPlacement = placement;
+        _painterRemoval = removal;
+        Title = Loc.GetString("spray-painter-decal-settings");
+        UpdateDecalPlacementInfo();
+    }
 
     public DecalPlacerWindow()
     {
@@ -63,8 +92,6 @@ public sealed partial class DecalPlacerWindow : DefaultWindow
 
         // Exodus-Start
         EyedropperButton.OnPressed += _ => _placement.SetEyedropper(!_placement.EyedropperActive);
-        _placement.EyedropperColorPicked += OnEyedropperColorPicked;
-        _placement.DecalCopied += OnDecalCopied; // "O" copy hotkey
 
         // Star toggles the current color in/out of favorites, keep it lit when the color matches.
         FavoriteButton.OnPressed += _ =>
@@ -72,7 +99,6 @@ public sealed partial class DecalPlacerWindow : DefaultWindow
             _placement.Toggle(_color);
             UpdateFavoriteStar();
         };
-        _placement.FavoritesChanged += UpdateFavoriteStar;
         UpdateFavoriteStar();
         // Exodus-End
 
@@ -191,7 +217,7 @@ public sealed partial class DecalPlacerWindow : DefaultWindow
         _zIndex = decal.ZIndex;
         ZIndexSpinBox.Value = _zIndex;
 
-        _cleanable = decal.Cleanable;
+        _cleanable = _painterSettings != null || decal.Cleanable;
         EnableCleanable.Pressed = _cleanable;
 
         UpdateDecalPlacementInfo();
@@ -206,7 +232,9 @@ public sealed partial class DecalPlacerWindow : DefaultWindow
             return;
 
         var color = _useColor ? _color : Color.White;
-        _decalPlacementSystem.UpdateDecalInfo(_selected, color, _rotation, _snap, _zIndex, _cleanable);
+        var cleanable = _painterSettings != null || _cleanable;
+        _decalPlacementSystem.UpdateDecalInfo(_selected, color, _rotation, _snap, _zIndex, cleanable);
+        _painterSettings?.Invoke(new Decal(default, _selected, color, Angle.FromDegrees(_rotation), _zIndex, true), _snap);
     }
 
     private void RefreshList()
@@ -277,7 +305,8 @@ public sealed partial class DecalPlacerWindow : DefaultWindow
             EnableCleanable.Pressed = decal.DefaultCleanable;
             EnableColor.Pressed = decal.DefaultCustomColor;
             EnableSnap.Pressed = decal.DefaultSnap;
-            _cleanable = decal.DefaultCleanable;
+            _cleanable = _painterSettings != null || decal.DefaultCleanable;
+            EnableCleanable.Pressed = _cleanable;
             _useColor = decal.DefaultCustomColor;
             _snap = decal.DefaultSnap;
         }
@@ -285,12 +314,12 @@ public sealed partial class DecalPlacerWindow : DefaultWindow
         RefreshList();
     }
 
-    public void Populate(IEnumerable<DecalPrototype> prototypes)
+    public void Populate(IEnumerable<DecalPrototype> prototypes, bool includeHidden = false)
     {
         _decals = new SortedDictionary<string, Texture>();
         foreach (var decalPrototype in prototypes)
         {
-            if (decalPrototype.ShowMenu)
+            if (includeHidden || decalPrototype.ShowMenu)
                 _decals.Add(decalPrototype.ID, decalPrototype.Sprite.Frame0());
         }
 
@@ -300,13 +329,28 @@ public sealed partial class DecalPlacerWindow : DefaultWindow
     protected override void Opened()
     {
         base.Opened();
-        _decalPlacementSystem.SetActive(true);
+        if (!_listening)
+        {
+            _placement.EyedropperColorPicked += OnEyedropperColorPicked;
+            _placement.DecalCopied += OnDecalCopied;
+            _placement.FavoritesChanged += UpdateFavoriteStar;
+            _listening = true;
+        }
+        if (_painterPlacement != null)
+            _decalPlacementSystem.SetItemPlacement(this, _painterPlacement, _painterRemoval);
+        _decalPlacementSystem.SetActive(true, this);
     }
 
     public override void Close()
     {
         base.Close();
-        _decalPlacementSystem.SetActive(false);
+        _decalPlacementSystem.SetActive(false, this);
+        _decalPlacementSystem.ClearItemPlacement(this);
+        _placement.EyedropperColorPicked -= OnEyedropperColorPicked;
+        _placement.DecalCopied -= OnDecalCopied;
+        _placement.FavoritesChanged -= UpdateFavoriteStar;
+        _listening = false;
+        _picker?.Close();
     }
 
     // Exodus-Start drop subscriptions and owned windows when this instance is destroyed.

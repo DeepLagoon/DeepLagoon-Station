@@ -83,7 +83,14 @@ namespace Content.Client.PDA
                 SendMessage(new PdaLockUplinkMessage());
             };
 
-            _menu.OnProgramItemPressed += ActivateCartridge;
+            _menu.OnProgramItemPressed += uid =>
+            {
+                // Selecting an already running app need not produce another server state update.
+                if (uid == ActiveProgram && _menu.ProgramTitle.Visible)
+                    _menu.ToProgramView(_menu.ProgramTitle.LabelText ?? Loc.GetString("comp-pda-io-program-fallback-title"));
+                else
+                    ActivateCartridge(uid);
+            };
             _menu.OnInstallButtonPressed += InstallCartridge;
             _menu.OnUninstallButtonPressed += UninstallCartridge;
             _menu.ProgramCloseButton.OnPressed += _ => DeactivateActiveCartridge();

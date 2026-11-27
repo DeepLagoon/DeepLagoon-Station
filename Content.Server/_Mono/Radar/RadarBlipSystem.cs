@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Linq;
 using Content.Server._DeepLagoon.SpaceEnvironment;
 using Content.Server._Mono.Projectiles.TargetGuided;
 using Content.Server._Mono.Projectiles.TargetSeeking;
@@ -12,6 +13,7 @@ using Robust.Shared.Player;
 using Robust.Shared.Timing;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics.Systems;
+using Robust.Shared.Network;
 
 namespace Content.Server._Mono.Radar;
 
@@ -23,7 +25,8 @@ public sealed partial class RadarBlipSystem : EntitySystem
     [Dependency] private OrbitalDebrisSystem _debris = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private IPlayerManager _players = default!;
-    private readonly Dictionary<ICommonSession, TimeSpan> _nextRequest = new();
+    [Dependency] private IServerNetManager _net = default!;
+    private readonly Dictionary<(ICommonSession Session, EntityUid Radar), TimeSpan> _nextRequest = new();
     private static readonly BlipConfig DebrisContact = new()
     {
         Bounds = new Box2(-3f, -3f, 3f, 3f),
@@ -43,6 +46,12 @@ public sealed partial class RadarBlipSystem : EntitySystem
     {
         base.Initialize();
         SubscribeNetworkEvent<RequestBlipsEvent>(OnBlipsRequested);
+        _net.RegisterNetMessage<MsgRadarPoll>(message =>
+        {
+            if (_players.TryGetSessionByChannel(message.MsgChannel, out var session))
+                SendReport(message.Radar, session, telemetry: true);
+        });
+        _net.RegisterNetMessage<MsgRadarSnapshot>();
         SubscribeLocalEvent<RadarBlipComponent, ComponentShutdown>(OnBlipShutdown);
         _players.PlayerStatusChanged += OnPlayerStatusChanged;
     }
@@ -56,17 +65,22 @@ public sealed partial class RadarBlipSystem : EntitySystem
 
     private void OnPlayerStatusChanged(object? sender, SessionStatusEventArgs args)
     {
-        if (args.NewStatus != SessionStatus.InGame) _nextRequest.Remove(args.Session);
+        if (args.NewStatus == SessionStatus.InGame) return;
+        foreach (var key in _nextRequest.Keys.Where(k => k.Session == args.Session).ToArray()) _nextRequest.Remove(key);
     }
 
     private void OnBlipsRequested(RequestBlipsEvent ev, EntitySessionEventArgs args)
+        => SendReport(ev.Radar, args.SenderSession, telemetry: false);
+
+    private void SendReport(NetEntity radarEntity, ICommonSession session, bool telemetry)
     {
-        // Discard repeated requests before entity resolution or UI lookup.
-        if (_nextRequest.TryGetValue(args.SenderSession, out var next) && _timing.CurTime < next) return;
-        if (!TryGetEntity(ev.Radar, out var radarUid)
-            || !TryComp<RadarConsoleComponent>(radarUid, out var radar)
-            || args.SenderSession.Status != SessionStatus.InGame
-            || args.SenderSession.AttachedEntity is not { } actor
+        if (!TryGetEntity(radarEntity, out var radarUid) || radarUid is not { } console) return;
+        var requestKey = (session, console);
+        // Reject repeats for this console, without suppressing another authorized open radar.
+        if (_nextRequest.TryGetValue(requestKey, out var next) && _timing.CurTime < next) return;
+        if (!TryComp<RadarConsoleComponent>(radarUid, out var radar)
+            || session.Status != SessionStatus.InGame
+            || session.AttachedEntity is not { } actor
             || !TryComp<UserInterfaceUserComponent>(actor, out var uiUser)
             || !uiUser.OpenInterfaces.TryGetValue(radarUid.Value, out var openKeys)
         )
@@ -80,8 +94,10 @@ public sealed partial class RadarBlipSystem : EntitySystem
             hasOpenUi = true;
             break;
         }
-        if (!hasOpenUi) return;
-        _nextRequest[args.SenderSession] = _timing.CurTime + TimeSpan.FromMilliseconds(250);
+        if (!hasOpenUi || Transform(radarUid.Value).MapUid is not { } reportMap) return;
+        foreach (var key in _nextRequest.Keys.Where(k => k.Session == session && !uiUser.OpenInterfaces.ContainsKey(k.Radar)).ToArray())
+            _nextRequest.Remove(key);
+        _nextRequest[requestKey] = _timing.CurTime + TimeSpan.FromMilliseconds(100);
 
         var sourcesEv = new GetRadarSourcesEvent();
         RaiseLocalEvent(radarUid.Value, ref sourcesEv);
@@ -97,8 +113,10 @@ public sealed partial class RadarBlipSystem : EntitySystem
         AssembleHitscanReport((EntityUid)radarUid, _tempSourcesCache, radar);
 
         // Combine the blips and hitscan lines
-        var giveEv = new GiveBlipsEvent(_tempPaletteCache, _tempBlipsCache, _tempMissileCache, _tempHitscansCache);
-        RaiseNetworkEvent(giveEv, args.SenderSession);
+        var giveEv = new GiveBlipsEvent(_tempPaletteCache, _tempBlipsCache, _tempMissileCache, _tempHitscansCache,
+            GetNetEntity(radarUid.Value), GetNetEntity(reportMap), _timing.CurTime);
+        if (telemetry) _net.ServerSendMessage(new MsgRadarSnapshot { Snapshot = giveEv }, session.Channel);
+        else RaiseNetworkEvent(giveEv, session);
 
         _tempBlipsCache.Clear();
         _tempMissileCache.Clear();
@@ -111,7 +129,7 @@ public sealed partial class RadarBlipSystem : EntitySystem
     private void OnBlipShutdown(EntityUid blipUid, RadarBlipComponent component, ComponentShutdown args)
     {
         var netBlipUid = GetNetEntity(blipUid);
-        var removalEv = new BlipRemovalEvent(netBlipUid);
+        var removalEv = new BlipRemovalEvent(netBlipUid, _timing.CurTime);
         RaiseNetworkEvent(removalEv);
     }
 
@@ -146,25 +164,24 @@ public sealed partial class RadarBlipSystem : EntitySystem
             var blipVelocity = _physics.GetMapLinearVelocity(blipUid, blipPhysics, blipXform);
 
             // due to PVS being a thing, things will break if we try to parent to not the map or a grid
-            var coord = blipXform.Coordinates;
-            if (blipXform.ParentUid != blipXform.MapUid && blipXform.ParentUid != blipGrid)
-                coord = _xform.WithEntityId(coord, blipGrid ?? blipXform.MapUid!.Value);
+            // Position, velocity and heading use the same map frame. A grid's movement must
+            // not be applied twice to a projectile sample between reports.
+            var coord = new EntityCoordinates(blipXform.MapUid!.Value, _xform.GetWorldPosition(blipXform));
 
             var gridCfg = (BlipConfig?)null;
             var rotation = _xform.GetWorldRotation(blipXform);
+            GridBlipAnchor? anchor = null;
 
             // we're parented to either the map or a grid and this is relative velocity so account for grid movement
             if (blipGrid != null)
             {
-                var gridXform = Transform(blipGrid.Value);
-                if (TryComp<PhysicsComponent>(blipGrid.Value, out var gridBody)) // prevent log spam
-                    blipVelocity -= _physics.GetLinearVelocity(blipGrid.Value, coord.Position, gridBody);
-                // it's local-frame velocity so rotate it too
-                blipVelocity = (-gridXform.LocalRotation).RotateVec(blipVelocity);
-                // and also offset the rotation
-                rotation -= gridXform.LocalRotation;
                 // and hijack our shape if we want to
                 gridCfg = blip.GridConfig;
+                if (blipXform.Anchored)
+                {
+                    var local = _xform.ToCoordinates(blipGrid.Value, _xform.ToMapCoordinates(coord));
+                    anchor = new(GetNetCoordinates(local), rotation - _xform.GetWorldRotation(blipGrid.Value));
+                }
             }
 
             var configIdx = GetOrAddConfig(blip.Config);
@@ -176,7 +193,8 @@ public sealed partial class RadarBlipSystem : EntitySystem
                             blipVelocity,
                             rotation,
                             configIdx,
-                            gridConfigIdx));
+                            gridConfigIdx,
+                            anchor));
         }
 
         if (_debris.ActiveCount > 0)

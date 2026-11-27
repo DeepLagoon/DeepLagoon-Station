@@ -40,6 +40,7 @@ public sealed partial class BankSystem : SharedBankSystem
         _log = Logger.GetSawmill("bank");
         InitializeATM();
         InitializeStationATM();
+        InitializeCharacterAccounts();
 
         SubscribeLocalEvent<BankAccountComponent, PreferencesLoadedEvent>(OnPreferencesLoaded); // For late-add bank accounts
         SubscribeLocalEvent<BankAccountComponent, ComponentInit>(OnInit); // For late-add bank accounts
@@ -97,18 +98,14 @@ public sealed partial class BankSystem : SharedBankSystem
             return false;
         }
 
-        if (!_prefsManager.TryGetCachedPreferences(session.UserId, out var prefs))
+        if (!TryGetCharacter(session, out var prefs, out var profile, out _))
         {
             _log.Info($"TryBankWithdraw: {mobUid} has no cached prefs");
             return false;
         }
 
-        if (prefs.SelectedCharacter is not HumanoidCharacterProfile profile)
-        {
-            _log.Info($"TryBankWithdraw: {mobUid} has the wrong prefs type");
-            return false;
-        }
-
+        bank.Balance = profile.BankBalance;
+        Dirty(mobUid, bank);
         if (TryBankWithdraw(session, prefs, profile, amount, out var newBalance, recovery))
         {
             bank.Balance = newBalance.Value;
@@ -155,18 +152,14 @@ public sealed partial class BankSystem : SharedBankSystem
             return false;
         }
 
-        if (!_prefsManager.TryGetCachedPreferences(session.UserId, out var prefs))
+        if (!TryGetCharacter(session, out var prefs, out var profile, out _))
         {
             _log.Info($"TryBankDeposit: {mobUid} has no cached prefs");
             return false;
         }
 
-        if (prefs.SelectedCharacter is not HumanoidCharacterProfile profile)
-        {
-            _log.Info($"TryBankDeposit: {mobUid} has the wrong prefs type");
-            return false;
-        }
-
+        bank.Balance = profile.BankBalance;
+        Dirty(mobUid, bank);
         if (TryBankDeposit(session, prefs, profile, amount, out var newBalance, origins, recovery))
         {
             bank.Balance = newBalance.Value;
@@ -207,7 +200,7 @@ public sealed partial class BankSystem : SharedBankSystem
             return false;
         try
         {
-            var payment = _db.WithdrawBankAsync(session.UserId, index, profile.BankBalance, amount, recovery: recovery);
+            var payment = _db.WithdrawBankAsync(session.UserId, index, profile.BankBalance, amount, recovery: recovery, expectedProfile: ExpectedProfile(session, index));
             _tasks.BlockWaitOnTask(payment);
             var balance = payment.GetAwaiter().GetResult();
             _prefsManager.SetProfile(session.UserId, index, profile.WithBankBalance(balance), persist: false)
@@ -260,7 +253,7 @@ public sealed partial class BankSystem : SharedBankSystem
             return false;
         try
         {
-            var deposit = _db.DepositBankAsync(session.UserId, index, profile.BankBalance, amount, origins: origins, recovery: recovery);
+            var deposit = _db.DepositBankAsync(session.UserId, index, profile.BankBalance, amount, origins: origins, recovery: recovery, expectedProfile: ExpectedProfile(session, index));
             _tasks.BlockWaitOnTask(deposit);
             newBalance = deposit.GetAwaiter().GetResult();
             _prefsManager.SetProfile(session.UserId, index, profile.WithBankBalance(newBalance.Value), persist: false)
@@ -379,16 +372,9 @@ public sealed partial class BankSystem : SharedBankSystem
             return true;
         }
         if (!_playerManager.TryGetSessionByEntity(ent, out var session) ||
-            !_prefsManager.TryGetCachedPreferences(session.UserId, out var prefs))
+            !TryGetCharacter(session, out _, out var profile, out _))
         {
             _log.Info($"{ent} has no cached prefs");
-            balance = 0;
-            return false;
-        }
-
-        if (prefs.SelectedCharacter is not HumanoidCharacterProfile profile)
-        {
-            _log.Info($"{ent} has the wrong prefs type");
             balance = 0;
             return false;
         }
@@ -412,16 +398,9 @@ public sealed partial class BankSystem : SharedBankSystem
             return true;
         }
 
-        if (!_prefsManager.TryGetCachedPreferences(session.UserId, out var prefs))
+        if (!TryGetCharacter(session, out _, out var profile, out _))
         {
             _log.Info($"{session.UserId} has no cached prefs");
-            balance = 0;
-            return false;
-        }
-
-        if (prefs.SelectedCharacter is not HumanoidCharacterProfile profile)
-        {
-            _log.Info($"{session.UserId} has the wrong prefs type");
             balance = 0;
             return false;
         }

@@ -22,6 +22,7 @@ public sealed partial class ShipRepairSystem : SharedShipRepairSystem
 
         InitCommands();
         InitGhosts();
+        InitNetworkInterest();
     }
 
     private void OnShipBought(Entity<ShuttleComponent> ent, ref ShipBoughtEvent ev)
