@@ -1,0 +1,15 @@
+- type: jobIcon
+  parent: JobIcon
+  id: JobIconMantis
+  icon:
+    sprite: /Textures/_DV/Interface/Misc/job_icons.rsi
+    state: nyanoMantis
+  jobName: job-name-mantis
+
+- type: jobIcon
+  parent: JobIcon
+  id: JobIconTsfMantis
+  icon:
+    sprite: /Textures/_DV/Interface/Misc/job_icons.rsi
+    state: nyanoMantis
+  jobName: job-name-tsf-mantis

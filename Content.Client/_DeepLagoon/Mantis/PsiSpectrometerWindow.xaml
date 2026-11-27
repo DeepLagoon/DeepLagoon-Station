@@ -1,0 +1,19 @@
+<controls:FancyWindow xmlns="https://spacestation14.io"
+                      xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
+                      Title="{Loc 'psi-spectrometer-title'}"
+                      MinSize="420 420"
+                      SetSize="460 480">
+    <BoxContainer Orientation="Vertical" SeparationOverride="8" Margin="10">
+        <BoxContainer Orientation="Horizontal" SeparationOverride="6">
+            <Label Name="GlimmerLabel" HorizontalExpand="True" />
+            <Label Name="RangeLabel" />
+        </BoxContainer>
+        <Button Name="ScanButton" Text="{Loc 'psi-spectrometer-scan'}" />
+        <CheckBox Name="HunterCheck" Text="{Loc 'psi-spectrometer-hunter'}" />
+        <CheckBox Name="MapCheck" Text="{Loc 'psi-spectrometer-map'}" />
+        <Label Name="StatusLabel" FontColorOverride="DarkGray" />
+        <ScrollContainer VerticalExpand="True">
+            <BoxContainer Name="Results" Orientation="Vertical" SeparationOverride="4" />
+        </ScrollContainer>
+    </BoxContainer>
+</controls:FancyWindow>

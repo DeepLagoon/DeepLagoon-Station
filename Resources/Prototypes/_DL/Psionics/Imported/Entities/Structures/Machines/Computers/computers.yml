@@ -2,7 +2,7 @@
   parent: BaseComputerAiAccess
   id: ComputerPsionicsRecords
   name: psionics registry computer
-  description: This can be used to check psionics registry records. Authorized research staff and the chaplain can modify them.
+  description: This can be used to check psionics registry records. The Mantis and the Representative can modify them. # DeepLagoon: was research staff and the chaplain
   components:
   - type: PsionicsRecordsConsole
   - type: UserInterface
@@ -31,9 +31,10 @@
     board: PsionicsRecordsComputerCircuitboard
   - type: AccessReader
     access:
-    - [ Chapel ]
-    - [ Research ]
-    - [ ResearchDirector ]
+    # DeepLagoon start
+    - [ Mantis ]
+    - [ HeadOfPersonnel ]
+    # DeepLagoon end
     # - type: GuideHelp
     # guides: # TODO: Add a guide for Psionics Registry
 

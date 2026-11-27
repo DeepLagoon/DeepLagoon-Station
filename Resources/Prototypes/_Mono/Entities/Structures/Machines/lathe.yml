@@ -60,6 +60,10 @@
     - ResearchedExplosives
     - SecurityEquipment
     - SmartGun
+    # DeepLagoon start
+    - PsiSpectrometerEquipment
+    - PsiSpectrometerBoards
+    # DeepLagoon end
   - type: MaterialStorage
     whitelist:
       tags:
@@ -159,6 +163,10 @@
     - ResearchedExplosives
     - SecurityEquipment
     - SmartGun
+    # DeepLagoon start
+    - PsiSpectrometerEquipment
+    - PsiSpectrometerBoards
+    # DeepLagoon end
   - type: MaterialStorage
     whitelist:
       tags:
@@ -220,6 +228,10 @@
     - ResearchedExplosives
     - SecurityEquipment
     - SmartGun
+    # DeepLagoon start
+    - PsiSpectrometerEquipment
+    - PsiSpectrometerBoards
+    # DeepLagoon end
   - type: MaterialStorage
     whitelist:
       tags:
@@ -893,6 +905,10 @@
     - UniversalOrdinance
     - SmartGun #Smart SMG
     - NFMercenaryTechfabDeprecated
+    # DeepLagoon start
+    - PsiSpectrometerEquipment
+    - PsiSpectrometerBoards
+    # DeepLagoon end
     # Mono end
   - type: MaterialStorage
     whitelist:

@@ -23,6 +23,9 @@
   - NFJanitor
   - MailCarrier # nyano
   - SecurityGuard
+  # DeepLagoon start
+  - Mantis
+  # DeepLagoon end
   - DirectorOfCare
   - MdMedic
 

@@ -1,0 +1,17 @@
+- type: technology
+  id: NoosphericResearch
+  name: research-technology-noospheric-research
+  entityIcon: PsiSpectrometer
+  discipline: FactionUniversal
+  tier: 2
+  cost: 30000
+  recipeUnlocks:
+  - PsiSpectrometer
+  - PsiSpectrometerComputerCircuitboard
+  - AntiPsychicKnife
+  - InsulativeShield
+  - InsulativeShieldLight
+  - VeilbreakerGauntlet
+  technologyPrerequisites:
+  - UniversalMaterialResearchT2
+  position: 12, -4

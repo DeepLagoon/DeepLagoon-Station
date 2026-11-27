@@ -46,6 +46,9 @@
             # Mercenary: [ -1, -1 ]
             Borg: [ -1, -1 ]
             StationRepresentative: [ 1, 1 ]
+            # DeepLagoon start
+            Mantis: [ 1, 1 ]
+            # DeepLagoon end
             #StationTrafficController: [ 2, 2 ]
             SecurityGuard: [ 3, 3 ]
             CCServiceWorker: [ 4, 4 ]

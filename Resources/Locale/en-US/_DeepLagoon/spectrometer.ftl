@@ -1,0 +1,43 @@
+ent-PsiSpectrometer = noospheric spectrometer
+    .desc = A hand held array that listens to the noosphere and reports what answers. Requires a power cell.
+ent-PsiSpectrometerConsole = noospheric spectrometer console
+    .desc = A stationary spectrometer wired into the grid. Reports every signature inside the outpost and the surrounding space.
+ent-PsiSpectrometerConsoleHunter = noospheric spectrometer console
+    .desc = A stationary spectrometer wired into the grid. Reports every signature inside the outpost and the surrounding space.
+
+psi-spectrometer-title = Noospheric Spectrometer
+psi-spectrometer-scan = Scan
+psi-spectrometer-hunter = Hunter mode
+psi-spectrometer-map = Contacts on map
+psi-spectrometer-ready = Ready to scan
+psi-spectrometer-recharging = Recharging
+psi-spectrometer-empty = The noosphere is quiet. No signatures found.
+psi-spectrometer-found = Signatures found: { $count }.
+psi-spectrometer-unpowered = No power. The spectrometer is silent.
+psi-spectrometer-no-charge = The cell is drained. Insert a fresh one.
+psi-spectrometer-glimmer = Glimmer: { $value }
+psi-spectrometer-range = Range: { $range }
+psi-spectrometer-glimmer-label = Glimmer
+psi-spectrometer-range-label = Range
+psi-spectrometer-column-signature = Signature
+psi-spectrometer-column-sector = Sector
+psi-spectrometer-column-subject = Subject
+psi-spectrometer-column-intensity = Intensity
+psi-spectrometer-line = { $type } | { $sector } | { $name } | { $intensity }%
+psi-spectrometer-unknown = unresolved echo
+psi-spectrometer-hunter-on = You increase the gain. The noosphere notices you.
+psi-spectrometer-hunter-off = You return the gain to normal.
+
+psi-spectrometer-type-sapient = Sapient
+psi-spectrometer-type-kinetic = Kinetic
+psi-spectrometer-type-anomalous = Anomalous
+
+psi-spectrometer-sector-self = here
+psi-spectrometer-sector-north = north
+psi-spectrometer-sector-northeast = north-east
+psi-spectrometer-sector-east = east
+psi-spectrometer-sector-southeast = south-east
+psi-spectrometer-sector-south = south
+psi-spectrometer-sector-southwest = south-west
+psi-spectrometer-sector-west = west
+psi-spectrometer-sector-northwest = north-west

@@ -1,0 +1,22 @@
+# DeepLagoon: the Psi Registry PDA cartridge. Reads and edits the psionics station
+
+- type: entity
+  parent: BaseItem
+  id: PsiRegistryCartridge
+  name: psi registry cartridge
+  description: A cartridge that reads and edits the psionic registry.
+  components:
+  - type: Sprite
+    sprite: Nyanotrasen/Objects/Devices/cartridge.rsi
+    state: cart-psi
+  - type: Icon
+    sprite: Nyanotrasen/Objects/Devices/cartridge.rsi
+    state: cart-psi
+  - type: UIFragment
+    ui: !type:PsiRegistryUi
+  - type: Cartridge
+    programName: psi-registry-program-name
+    icon:
+      sprite: Nyanotrasen/Icons/psi.rsi
+      state: psi
+  - type: PsiRegistryCartridge
