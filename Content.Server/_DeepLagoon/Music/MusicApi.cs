@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Net.Sockets;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Content.Shared._DeepLagoon.Music;
@@ -18,7 +19,11 @@ public sealed class MusicApi : IDisposable, IPostInjectInit
     [Dependency] private readonly IConfigurationManager _cfg = default!;
     [Dependency] private readonly ILogManager _log = default!;
 
-    private readonly HttpClient _http = new(new HttpClientHandler { AllowAutoRedirect = false });
+    private readonly HttpClient _http = new(new SocketsHttpHandler
+    {
+        AllowAutoRedirect = false,
+        ConnectCallback = ConnectIpv4Async,
+    });
     private ISawmill _sawmill = default!;
 
     void IPostInjectInit.PostInject() => Initialize();
@@ -27,6 +32,26 @@ public sealed class MusicApi : IDisposable, IPostInjectInit
     {
         _sawmill = _log.GetSawmill("dl.music");
         _http.DefaultRequestHeaders.UserAgent.ParseAdd("ShitcodeStation-Music/1.0");
+    }
+
+    private static async ValueTask<Stream> ConnectIpv4Async(
+        SocketsHttpConnectionContext context, CancellationToken cancel)
+    {
+        var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+        {
+            NoDelay = true,
+        };
+
+        try
+        {
+            await socket.ConnectAsync(context.DnsEndPoint, cancel).ConfigureAwait(false);
+            return new NetworkStream(socket, ownsSocket: true);
+        }
+        catch
+        {
+            socket.Dispose();
+            throw;
+        }
     }
 
     public bool Configured => _cfg.GetCVar(MusicCVars.Enabled) && Token.Length > 0;
