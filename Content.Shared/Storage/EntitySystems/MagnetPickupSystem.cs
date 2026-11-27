@@ -10,6 +10,11 @@ using Robust.Shared.Timing;
 using Robust.Shared.Utility;
 using Content.Shared.Item; // Frontier
 using Content.Shared.Verbs; // Frontier
+using System.Linq;
+using Content.Shared.Materials;
+using Content.Shared.Materials.OreSilo;
+using Content.Shared.Tag;
+using Robust.Shared.Prototypes;
 
 namespace Content.Shared.Storage.EntitySystems;
 
@@ -26,6 +31,12 @@ public sealed partial class MagnetPickupSystem : EntitySystem
     [Dependency] private SharedStorageSystem _storage = default!;
     [Dependency] private EntityWhitelistSystem _whitelistSystem = default!;
     [Dependency] private SharedItemSystem _item = default!; // Frontier
+    [Dependency] private SharedOreSiloSystem _oreSilo = default!;
+    [Dependency] private SharedMaterialStorageSystem _materialStorage = default!;
+    [Dependency] private TagSystem _tag = default!;
+
+    private static readonly ProtoId<TagPrototype> OreTag = "Ore";
+    private static readonly ProtoId<TagPrototype> ArtifactFragmentTag = "ArtifactFragment";
 
 
     private static readonly TimeSpan ScanDelay = TimeSpan.FromSeconds(1);
@@ -40,6 +51,12 @@ public sealed partial class MagnetPickupSystem : EntitySystem
         SubscribeLocalEvent<MagnetPickupComponent, MapInitEvent>(OnMagnetMapInit);
         SubscribeLocalEvent<MagnetPickupComponent, ExaminedEvent>(OnExamined); // Frontier
         SubscribeLocalEvent<MagnetPickupComponent, GetVerbsEvent<AlternativeVerb>>(AddToggleMagnetVerb); // Frontier
+    }
+
+    private bool IsTransferableOre(EntityUid uid)
+    {
+        return _tag.HasTag(uid, OreTag)
+            && !_tag.HasTag(uid, ArtifactFragmentTag);
     }
 
     private void OnMagnetMapInit(EntityUid uid, MagnetPickupComponent component, MapInitEvent args)
@@ -102,20 +119,27 @@ public sealed partial class MagnetPickupSystem : EntitySystem
     }
     // End Frontier: togglable magnets
 
+
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
-        var query = EntityQueryEnumerator<MagnetPickupComponent, StorageComponent, TransformComponent, MetaDataComponent>();
+
+        var query = EntityQueryEnumerator<
+            MagnetPickupComponent,
+            StorageComponent,
+            TransformComponent,
+            MetaDataComponent>();
+
         var currentTime = _timing.CurTime;
 
-        while (query.MoveNext(out var uid, out var comp, out var storage, out var xform, out var meta))
+        while (query.MoveNext(out var uid, out var comp,
+                   out var storage, out var xform, out var meta))
         {
             if (comp.NextScan > currentTime)
                 continue;
 
-            comp.NextScan = currentTime + ScanDelay; // Frontier: no need to rerun if built late in-round
+            comp.NextScan = currentTime + ScanDelay;
 
-            // Frontier: combine DeltaV/White Dream's magnet toggle with old system
             if (comp.MagnetCanBeEnabled)
             {
                 if (!comp.MagnetEnabled)
@@ -126,76 +150,129 @@ public sealed partial class MagnetPickupSystem : EntitySystem
                 if (!_toggle.IsActivated(uid))
                     continue;
             }
-            // End Frontier
 
-            // Begin DeltaV Removals: Allow ore bags to work inhand
-            //if (!_inventory.TryGetContainingSlot((uid, xform, meta), out var slotDef))
-            //    continue;
+            // DeepLagoon: resolve the linked material silo.
+            var silo = _oreSilo.GetAvailableSilo(uid);
+            var count = 0;
 
-            //if ((slotDef.SlotFlags & comp.SlotFlags) == 0x0)
-            //    continue;
-            // End DeltaV Removals
+            // Transfer ore already stored inside the magnet.
+            if (silo is { } connectedSilo)
+            {
+                foreach (var stored in
+                         storage.Container.ContainedEntities.ToArray())
+                {
+                    if (count >= MaxEntitiesToInsert)
+                        break;
 
-            // Frontier: run conservative space estimations, cut down on space checks
-            var slotCount = _storage.GetCumulativeItemAreas((uid, storage)); // Frontier
-            var totalSlots = storage.Grid.GetArea();
-            if (slotCount >= totalSlots)
+                    if (!IsTransferableOre(stored))
+                        continue;
+
+                    if (!_materialStorage.TryInsertMaterialEntity(
+                            connectedSilo, stored, connectedSilo))
+                        continue;
+
+                    count++;
+                }
+            }
+
+            if (count >= MaxEntitiesToInsert)
                 continue;
-            // End Frontier
+
+            var slotCount = _storage.GetCumulativeItemAreas(
+                (uid, storage));
+
+            var totalSlots = storage.Grid.GetArea();
+
+            // A connected magnet can collect ore even if its
+            // internal storage is full.
+            if (slotCount >= totalSlots && silo == null)
+                continue;
 
             var parentUid = xform.ParentUid;
             var playedSound = false;
             var finalCoords = xform.Coordinates;
             var moverCoords = _transform.GetMoverCoordinates(uid, xform);
-            var count = 0; // Frontier
 
-            foreach (var near in _lookup.GetEntitiesInRange(uid, comp.Range, LookupFlags.Dynamic | LookupFlags.Sundries))
+            foreach (var near in _lookup.GetEntitiesInRange(
+                         uid, comp.Range,
+                         LookupFlags.Dynamic | LookupFlags.Sundries))
             {
-                // Frontier: stop spamming bags
                 if (count >= MaxEntitiesToInsert)
                     break;
 
                 if (near == parentUid)
                     continue;
 
-                if (!_physicsQuery.TryGetComponent(near, out var physics) || physics.BodyStatus != BodyStatus.OnGround)
+                if (!_physicsQuery.TryGetComponent(near, out var physics)
+                    || physics.BodyStatus != BodyStatus.OnGround)
                     continue;
 
                 if (_whitelistSystem.IsWhitelistFail(storage.Whitelist, near))
                     continue;
 
+                // DeepLagoon: send ore directly to the linked silo.
+                if (silo is { } targetSilo && IsTransferableOre(near))
+                {
+                    if (_materialStorage.TryInsertMaterialEntity(
+                            targetSilo, near, targetSilo))
+                    {
+                        count++;
+                        continue;
+                    }
+                }
+
+                // Normal storage for artifact fragments and
+                // ore that could not be transferred.
                 if (!TryComp<ItemComponent>(near, out var item))
                     continue;
 
                 var itemSize = _item.GetItemShape((near, item)).GetArea();
+
                 if (itemSize > totalSlots - slotCount)
+                {
+                    if (silo != null)
+                        continue;
+
                     break;
+                }
 
-                // Count only objects we _could_ insert.
                 count++;
-                // End Frontier: stop spamming bags
 
-                // TODO: Probably move this to storage somewhere when it gets cleaned up
-                // TODO: This sucks but you need to fix a lot of stuff to make it better
-                // the problem is that stack pickups delete the original entity, which is fine, but due to
-                // game state handling we can't show a lerp animation for it.
                 var nearXform = Transform(near);
-                var nearMap = _transform.GetMapCoordinates(near, xform: nearXform);
-                var nearCoords = _transform.ToCoordinates(moverCoords.EntityId, nearMap);
+                var nearMap = _transform.GetMapCoordinates(
+                    near, xform: nearXform);
 
-                if (!_storage.Insert(uid, near, out var stacked, storageComp: storage, playSound: !playedSound))
-                    break; // Frontier: continue<break
+                var nearCoords = _transform.ToCoordinates(
+                    moverCoords.EntityId, nearMap);
 
-                slotCount += itemSize; // Frontier: adjust size (assume it's in a new slot)
+                if (!_storage.Insert(uid, near, out var stacked,
+                        storageComp: storage,
+                        playSound: !playedSound))
+                {
+                    if (silo != null)
+                        continue;
 
-                // Play pickup animation for either the stack entity or the original entity.
+                    break;
+                }
+
+                slotCount += itemSize;
+
                 if (stacked != null)
-                    _storage.PlayPickupAnimation(stacked.Value, nearCoords, finalCoords, nearXform.LocalRotation);
+                {
+                    _storage.PlayPickupAnimation(
+                        stacked.Value, nearCoords,
+                        finalCoords, nearXform.LocalRotation);
+                }
                 else
-                    _storage.PlayPickupAnimation(near, nearCoords, finalCoords, nearXform.LocalRotation);
+                {
+                    _storage.PlayPickupAnimation(
+                        near, nearCoords,
+                        finalCoords, nearXform.LocalRotation);
+                }
 
                 playedSound = true;
             }
         }
     }
+
 }
