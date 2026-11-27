@@ -3,6 +3,8 @@
   name: chat-emote-name-reptilian-snicker
   category: Vocal
   icon: _Impstation/Interface/Emotes/hiss.png
+  sound:
+    path: /Audio/_Mono/Voice/Reptilian/laugh_1.ogg
   whitelist:
     tags:
       - ReptilianEmotes
@@ -20,6 +22,8 @@
   category: Vocal
   available: true
   icon: _Impstation/Interface/Emotes/hiss.png
+  sound:
+    collection: ReptilianPurr
   whitelist:
     tags:
     - ReptilianEmotes
