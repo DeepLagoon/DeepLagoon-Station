@@ -20,6 +20,7 @@ namespace Content.Server.Destructible.Thresholds.Behaviors
         /// <param name="owner">Entity on which behavior is executed</param>
         /// <param name="system">system calling the behavior</param>
         /// <param name="cause"></param>
+
         public void Execute(EntityUid owner, DestructibleSystem system, EntityUid? cause = null)
         {
             var solutionContainerSystem = system.EntityManager.System<SharedSolutionContainerSystem>();
@@ -28,15 +29,26 @@ namespace Content.Server.Destructible.Thresholds.Behaviors
             var coordinates = system.EntityManager.GetComponent<TransformComponent>(owner).Coordinates;
 
             if (system.EntityManager.TryGetComponent(owner, out SpillableComponent? spillableComponent) &&
-                solutionContainerSystem.TryGetSolution(owner, spillableComponent.SolutionName, out _, out var compSolution))
+                solutionContainerSystem.TryGetSolution(owner, spillableComponent.SolutionName,
+                    out var soln, out var compSolution))
             {
-                spillableSystem.TrySplashSpillAt(owner, coordinates, compSolution, out _, false, user: cause);
+                var spilledSolution = solutionContainerSystem.SplitSolution(
+                    soln.Value, compSolution.Volume);
+
+                spillableSystem.TrySplashSpillAt(
+                    owner, coordinates, spilledSolution, out _, false, user: cause);
             }
             else if (Solution != null &&
-                     solutionContainerSystem.TryGetSolution(owner, Solution, out _, out var behaviorSolution))
+                     solutionContainerSystem.TryGetSolution(owner, Solution,
+                         out var behaviorSoln, out var behaviorSolution))
             {
-                spillableSystem.TrySplashSpillAt(owner, coordinates, behaviorSolution, out _, user: cause);
+                var spilledSolution = solutionContainerSystem.SplitSolution(
+                    behaviorSoln.Value, behaviorSolution.Volume);
+
+                spillableSystem.TrySplashSpillAt(
+                    owner, coordinates, spilledSolution, out _, user: cause);
             }
         }
+
     }
 }
