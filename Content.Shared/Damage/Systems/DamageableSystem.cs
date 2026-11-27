@@ -170,10 +170,12 @@ namespace Content.Shared.Damage
         }
 
         // Mono: damage origin flags for if we can't or don't want to discern by UID
+        // Mono: damage origin flags
         public enum DamageOriginFlag
         {
-            Explosion, // flag set by ExplosionSystem.Processing
-            Barotrauma // flag set by BarotraumaSystem
+            Explosion,
+            Barotrauma,
+            BodyInsurance
         }
 
         /// <summary>

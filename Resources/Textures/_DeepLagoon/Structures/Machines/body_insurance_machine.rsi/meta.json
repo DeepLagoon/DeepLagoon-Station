@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "size": {
+    "x": 64,
+    "y": 64
+  },
+  "states": [
+    {
+      "name": "idle",
+      "directions": 1
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+- type: entity
+  id: BodyInsuranceRescueBag
+  parent: BodyBag
+  name: SOS
+  description: A mysterious body bag emitting an emergency recovery signal.
+  components:
+  - type: BodyInsuranceRescueBag
+  - type: EntityStorage
+    open: false
+    airtight: true
+    openOnMove: false
+    deleteContentsOnDestruction: false
+  - type: CleanupImmune
+  - type: RadarBlip
+    enabled: true
+    requireNoGrid: false
+    visibleFromOtherGrids: true
+    maxDistance: 6000
+    config:
+      color: "#FF4040"
+      bounds: "-4.5,-4.5,4.5,4.5"
+      shape: Diamond
+      label: SOS

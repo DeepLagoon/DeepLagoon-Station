@@ -764,10 +764,24 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
                     continue;
             }
 
-            // Check if this blip is within view bounds before drawing
             if (monoViewBounds.Contains(position))
             {
                 DrawBlipShape(handle, position, box, color, blip.Config.Shape);
+
+                if (!string.IsNullOrEmpty(blip.Config.Label) &&
+                    SignatureInView(position, PixelSize,
+                        CircularRadar, ScaledMinimapRadius))
+                {
+                    var labelPosition = position +
+                        new Vector2(10f, -8f) * UIScale;
+
+                    handle.DrawString(
+                        Font,
+                        labelPosition,
+                        blip.Config.Label,
+                        0.9f * UIScale,
+                        color);
+                }
             }
         }
 

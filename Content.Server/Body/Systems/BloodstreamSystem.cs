@@ -214,6 +214,10 @@ public sealed partial class BloodstreamSystem : EntitySystem
 
     private void OnDamageChanged(Entity<BloodstreamComponent> ent, ref DamageChangedEvent args)
     {
+
+        if (args.OriginFlag == DamageableSystem.DamageOriginFlag.BodyInsurance)
+            return;
+
         if (args.DamageDelta is null || !args.DamageIncreased)
         {
             return;

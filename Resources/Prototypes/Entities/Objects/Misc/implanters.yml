@@ -30,6 +30,7 @@
             - SubdermalImplant
       allowDeimplantAll: false
       deimplantWhitelist:
+      - BodyInsuranceImplant
       - SadTromboneImplant
       - LightImplant
       - BikeHornImplant

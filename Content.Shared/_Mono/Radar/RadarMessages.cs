@@ -101,6 +101,10 @@ public record struct HitscanNetData(Vector2 Start, Vector2 End, float Thickness,
 [Serializable, NetSerializable, DataDefinition]
 public partial record struct BlipConfig
 {
+
+    [DataField]
+    public string? Label = null;
+
     [DataField]
     public Box2 Bounds = new Box2(-0.5f, -0.5f, 0.5f, 0.5f);
 

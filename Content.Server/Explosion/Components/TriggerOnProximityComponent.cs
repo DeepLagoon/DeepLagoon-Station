@@ -68,7 +68,7 @@ namespace Content.Server.Explosion.Components
         [ViewVariables(VVAccess.ReadWrite)]
         [DataField("nextVisualUpdate", customTypeSerializer: typeof(TimeOffsetSerializer))]
         [AutoPausedField]
-        public TimeSpan NextVisualUpdate = TimeSpan.Zero;
+        public TimeSpan? NextVisualUpdate = TimeSpan.Zero;
 
         /// <summary>
         /// What speed should the other object be moving at to trigger the proximity fixture?
