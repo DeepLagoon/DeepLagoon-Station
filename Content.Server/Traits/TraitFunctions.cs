@@ -16,6 +16,8 @@ using Robust.Shared.Physics.Systems;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization.Manager;
 using Robust.Shared.Utility;
+using Content.Shared.Chat.Prototypes;
+using Content.Shared.Speech;
 
 namespace Content.Server.Traits;
 
@@ -296,5 +298,36 @@ public sealed partial class TraitAddTag : TraitFunction
     {
         var tagSystem = entityManager.System<TagSystem>();
         tagSystem.AddTags(uid, Tags);
+    }
+}
+
+[UsedImplicitly]
+public sealed partial class TraitAddEmotes : TraitFunction
+{
+    [DataField, AlwaysPushInheritance]
+    public List<ProtoId<EmotePrototype>> Emotes { get; private set; } = new();
+
+    public override void OnPlayerSpawn(
+        EntityUid uid,
+        IComponentFactory factory,
+        IEntityManager entityManager,
+        ISerializationManager serializationManager)
+    {
+        if (!entityManager.TryGetComponent<SpeechComponent>(uid, out var speech))
+            return;
+
+        var changed = false;
+
+        foreach (var emote in Emotes)
+        {
+            if (speech.AllowedEmotes.Contains(emote))
+                continue;
+
+            speech.AllowedEmotes.Add(emote);
+            changed = true;
+        }
+
+        if (changed)
+            entityManager.Dirty(uid, speech);
     }
 }

@@ -5,6 +5,8 @@
   name: Hiss
   icon: Interface/Actions/scream.png
   available: false
+  sound:
+    collection: FelinidHisses
   whitelist:
     components:
     - Vocal
@@ -29,6 +31,8 @@
   name: Meow
   icon: Interface/Actions/scream.png
   available: false
+  sound:
+    collection: FelinidMeows
   whitelist:
     components:
     - Vocal
@@ -71,6 +75,8 @@
   name: Mew
   icon: Interface/Actions/scream.png
   available: false
+  sound:
+    collection: FelinidMews
   whitelist:
     components:
     - Vocal
@@ -90,6 +96,8 @@
   name: Growl
   icon: Interface/Actions/scream.png
   available: false
+  sound:
+    collection: FelinidGrowls
   whitelist:
     components:
     - Vocal
@@ -109,6 +117,8 @@
   name: Purr
   icon: Interface/Actions/scream.png
   available: false
+  sound:
+    collection: FelinidPurrs
   whitelist:
     components:
     - Vocal
