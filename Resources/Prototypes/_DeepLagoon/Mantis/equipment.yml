@@ -1,0 +1,64 @@
+- type: entity
+  parent: CombatKnife
+  id: AntiPsychicKnife
+  name: anti-psychic knife
+  description: A blade attuned to the noosphere. It bites deep into psionic targets and briefly silences their powers, but shocks the wielder when used on an ordinary mind.
+  components:
+  - type: MeleeWeapon
+    attackRate: .6666
+    damage:
+      types:
+        Slash: 10
+        Holy: 5
+  - type: AntiPsionicWeapon
+    modifiers:
+      coefficients:
+        Blunt: 1.2
+        Slash: 1.2
+        Piercing: 1.2
+        Holy: 1.2
+  - type: Sprite
+    sprite: Nyanotrasen/Objects/Weapons/Melee/anti_psychic_knife.rsi
+    state: icon
+  - type: Item
+    sprite: Nyanotrasen/Objects/Weapons/Melee/anti_psychic_knife.rsi
+    storedSprite:
+      state: icon
+      sprite: Nyanotrasen/Objects/Weapons/Melee/anti_psychic_knife.rsi
+  - type: Tag
+    tags:
+    - ForensicBeltEquip
+
+- type: entity
+  parent: EnergyShieldNfsd
+  id: InsulativeShield
+  name: insulative shield
+  description: A TSFMC energy shield wrapped in a noospheric dampening lattice. While held, it shields the bearer from mental intrusion and silences their own powers in return.
+  components:
+  - type: InsulativeShield
+    passthrough: false
+
+- type: entity
+  parent: EnergyShieldNfsd
+  id: InsulativeShieldLight
+  name: insulative shield
+  suffix: Protocol
+  description: A lighter dampening lattice issued for border control. It screens the bearer from intrusion without silencing their own abilities.
+  components:
+  - type: InsulativeShield
+    passthrough: true
+
+- type: entity
+  parent: WeaponGauntletGorilla
+  id: VeilbreakerGauntlet
+  name: veilbreaker gauntlet
+  description: A research gauntlet retuned to strike entities of the Veil. Its blows land far harder on anomalies, glimmer creatures and revenants, and no harder on anything else.
+  components:
+  - type: AntiAnomalyWeapon
+    modifiers:
+      coefficients:
+        Blunt: 2
+        Slash: 2
+        Piercing: 2
+        Heat: 1.5
+        Holy: 1.5

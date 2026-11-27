@@ -1,0 +1,11 @@
+- type: Tag
+  id: NoosphericSignatureSapient
+
+- type: Tag
+  id: NoosphericSignatureKinetic
+
+- type: Tag
+  id: NoosphericSignatureAnomalous
+
+- type: Tag
+  id: NoosphericSignatureIgnored

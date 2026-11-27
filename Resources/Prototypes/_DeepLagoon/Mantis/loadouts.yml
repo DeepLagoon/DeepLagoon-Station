@@ -1,0 +1,291 @@
+- type: loadoutGroup
+  id: MantisEars
+  name: loadout-group-contractor-ears
+  hidden: true
+  minLimit: 1
+  loadouts:
+  - MantisHeadsetScience
+  fallbacks:
+  - MantisHeadsetScience
+
+- type: loadout
+  id: MantisHeadsetScience
+  equipment:
+    ears: ClothingHeadsetScience
+
+- type: loadoutGroup
+  id: TsfMantisEars
+  name: loadout-group-contractor-ears
+  hidden: true
+  minLimit: 1
+  loadouts:
+  - TsfMantisHeadset
+  fallbacks:
+  - TsfMantisHeadset
+
+- type: loadout
+  id: TsfMantisHeadset
+  equipment:
+    ears: ClothingHeadsetTsfmc
+
+- type: loadoutGroup
+  id: MantisEyes
+  name: loadout-group-contractor-glasses
+  minLimit: 1
+  loadouts:
+  - MantisSunglasses
+  - MantisGlassesClear
+  fallbacks:
+  - MantisSunglasses
+
+- type: loadout
+  id: MantisSunglasses
+  equipment:
+    eyes: ClothingEyesGlassesSunglasses
+
+- type: loadout
+  id: MantisGlassesClear
+  equipment:
+    eyes: ClothingEyesGlasses
+
+- type: loadoutGroup
+  id: MantisGloves
+  name: loadout-group-contractor-gloves
+  hidden: true
+  minLimit: 1
+  loadouts:
+  - MantisGlovesWhite
+  fallbacks:
+  - MantisGlovesWhite
+
+- type: loadout
+  id: MantisGlovesWhite
+  equipment:
+    gloves: ClothingHandsGlovesColorWhite
+
+- type: loadoutGroup
+  id: TsfMantisGloves
+  name: loadout-group-contractor-gloves
+  hidden: true
+  minLimit: 1
+  loadouts:
+  - TsfMantisCombatGloves
+  fallbacks:
+  - TsfMantisCombatGloves
+
+- type: loadout
+  id: TsfMantisCombatGloves
+  equipment:
+    gloves: ClothingHandsGlovesCombat
+
+- type: loadoutGroup
+  id: MantisBackpack
+  name: loadout-group-contractor-backpack
+  minLimit: 1
+  loadouts:
+  - TsfmcClothingBackpack
+  - TsfmcClothingSatchel
+  - TsfmcClothingDuffel
+  - MonoSecurityGuardBackpack
+  - MonoSecurityGuardSatchel
+  - MonoSecurityGuardDuffel
+  fallbacks:
+  - TsfmcClothingBackpack
+
+- type: loadoutGroup
+  id: MantisPDA
+  name: loadout-group-contractor-id
+  hidden: true
+  minLimit: 1
+  loadouts:
+  - MantisPDALoadout
+  fallbacks:
+  - MantisPDALoadout
+
+- type: loadout
+  id: MantisPDALoadout
+  equipment:
+    id: MantisPDA
+
+- type: loadoutGroup
+  id: TsfMantisPDA
+  name: loadout-group-contractor-id
+  hidden: true
+  minLimit: 1
+  loadouts:
+  - TsfMantisPDALoadout
+  fallbacks:
+  - TsfMantisPDALoadout
+
+- type: loadout
+  id: TsfMantisPDALoadout
+  equipment:
+    id: TsfMantisPDA
+
+- type: loadoutGroup
+  id: MantisTorso
+  name: loadout-group-contractor-jumpsuit
+  minLimit: 1
+  loadouts:
+  - MantisUniformSuit
+  - MantisUniformSkirt
+  fallbacks:
+  - MantisUniformSuit
+
+- type: loadout
+  id: MantisUniformSuit
+  equipment:
+    jumpsuit: ClothingUniformJumpsuitMantis
+
+- type: loadout
+  id: MantisUniformSkirt
+  equipment:
+    jumpsuit: ClothingUniformSkirtMantis
+
+- type: loadoutGroup
+  id: TsfMantisTorso
+  name: loadout-group-contractor-jumpsuit
+  minLimit: 1
+  loadouts:
+  - TsfMantisUniformEngi
+  - TsfMantisUniformStandard
+  - TsfMantisUniformDesert
+  fallbacks:
+  - TsfMantisUniformEngi
+
+- type: loadout
+  id: TsfMantisUniformEngi
+  equipment:
+    jumpsuit: ClothingUniformTSFMCEngi
+
+- type: loadout
+  id: TsfMantisUniformStandard
+  equipment:
+    jumpsuit: ClothingUniformTSFMC
+
+- type: loadout
+  id: TsfMantisUniformDesert
+  equipment:
+    jumpsuit: ClothingUniformTSFMCDesert
+
+- type: loadoutGroup
+  id: TsfMantisShoes
+  name: loadout-group-contractor-shoes
+  minLimit: 1
+  loadouts:
+  - TsfmcCombatBoots
+  - TsfmcJackboots
+  fallbacks:
+  - TsfmcCombatBoots
+
+- type: loadoutGroup
+  id: MantisShoes
+  name: loadout-group-contractor-shoes
+  minLimit: 1
+  loadouts:
+  - MantisBootsLaceup
+  - TsfmcCombatBoots
+  fallbacks:
+  - MantisBootsLaceup
+
+- type: loadout
+  id: MantisBootsLaceup
+  equipment:
+    shoes: ClothingShoesBootsLaceup
+
+- type: loadoutGroup
+  id: MantisOuterClothing
+  name: loadout-group-contractor-outerclothing
+  minLimit: 1
+  loadouts:
+  - MantisWinterCoat
+  fallbacks:
+  - MantisWinterCoat
+
+- type: loadout
+  id: MantisWinterCoat
+  equipment:
+    outerClothing: ClothingOuterWinterCoatMantis
+
+- type: loadoutGroup
+  id: TsfMantisOuterClothing
+  name: loadout-group-contractor-outerclothing
+  minLimit: 1
+  loadouts:
+  - TsfMantisArmorLight
+  - TsfMantisArmorMedium
+  - MantisWinterCoat
+  fallbacks:
+  - TsfMantisArmorLight
+
+- type: loadout
+  id: TsfMantisArmorLight
+  equipment:
+    outerClothing: ClothingOuterArmorBPVestLight
+
+- type: loadout
+  id: TsfMantisArmorMedium
+  equipment:
+    outerClothing: ClothingOuterArmorBPVestMedium
+
+- type: loadoutGroup
+  id: MantisBelt
+  name: loadout-group-contractor-belt
+  minLimit: 1
+  loadouts:
+  - MantisBeltWebbing
+  - TsfmcCombatWebbing
+  - TsfmcCombatWebbingLarge
+  fallbacks:
+  - MantisBeltWebbing
+
+- type: loadout
+  id: MantisBeltWebbing
+  equipment:
+    belt: ClothingBeltSecurity
+
+- type: roleLoadout
+  id: JobMantis
+  points: 3
+  groups:
+  - MantisTorso
+  - MantisShoes
+  - MantisBackpack
+  - MantisOuterClothing
+  - MantisBelt
+  - MantisEars
+  - MantisEyes
+  - MantisGloves
+  - NfsdBoxSurvival
+  - MantisPDA
+  - ContractorWallet
+  - ContractorCartridge
+  - ContractorEncryptionKey
+  - ContractorUtility
+  - ContractorFun
+  - ContractorTrinkets
+  - ContractorBureaucracy
+  - NFSpeciesSpecific
+  canCustomizeName: true
+
+- type: roleLoadout
+  id: JobTsfMantis
+  points: 3
+  groups:
+  - TsfMantisTorso
+  - TsfMantisShoes
+  - MantisBackpack
+  - TsfMantisOuterClothing
+  - MantisBelt
+  - TsfMantisEars
+  - TsfmcGlasses
+  - TsfmcBalaclava
+  - TsfMantisGloves
+  - NfsdBoxSurvival
+  - TsfMantisPDA
+  - ContractorWallet
+  - ContractorCartridge
+  - ContractorEncryptionKey
+  - ContractorTrinkets
+  - NfsdSpeciesSpecific
+  canCustomizeName: true

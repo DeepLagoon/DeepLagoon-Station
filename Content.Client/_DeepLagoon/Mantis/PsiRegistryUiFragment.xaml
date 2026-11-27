@@ -1,0 +1,47 @@
+<cartridges:PsiRegistryUiFragment xmlns:cartridges="clr-namespace:Content.Client._DeepLagoon.Mantis"
+                                  xmlns="https://spacestation14.io"
+                                  xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
+                                  Orientation="Vertical"
+                                  VerticalExpand="True"
+                                  HorizontalExpand="True"
+                                  Margin="2 2 4 2">
+    <Label Name="HeaderLabel" Text="{Loc 'psi-registry-header'}" StyleClasses="LabelBig" />
+
+    <BoxContainer Orientation="Horizontal" VerticalExpand="True" HorizontalExpand="True" SeparationOverride="6">
+        <BoxContainer Orientation="Vertical" MinWidth="150" MaxWidth="190" VerticalExpand="True">
+            <Label Name="NoRecords" Text="{Loc 'psi-registry-no-records'}" FontColorOverride="DarkGray" />
+            <ScrollContainer VerticalExpand="True" HScrollEnabled="False">
+                <ItemList Name="RecordListing" SelectMode="Single" VerticalExpand="True" />
+            </ScrollContainer>
+        </BoxContainer>
+
+        <Label Name="RecordUnselected"
+               Text="{Loc 'psi-registry-select-record'}"
+               Align="Center"
+               VAlign="Center"
+               FontColorOverride="DarkGray"
+               HorizontalExpand="True" />
+
+        <BoxContainer Name="PersonContainer" Orientation="Vertical" HorizontalExpand="True" VerticalExpand="True">
+            <Label Name="PersonName" StyleClasses="LabelBig" />
+            <Label Name="PersonJob" FontColorOverride="DarkGray" />
+            <PanelContainer StyleClasses="LowDivider" Margin="0 4 0 4" />
+
+            <Label Name="StatusLabel" />
+            <Label Name="ReasonLabel" />
+
+            <Label Name="ReasonPrompt" Text="{Loc 'psi-registry-reason-label'}" Margin="0 6 0 0" />
+            <LineEdit Name="ReasonEdit" HorizontalExpand="True" PlaceHolder="{Loc 'psi-registry-reason-placeholder'}" />
+
+            <Label Name="ActionHeader" Text="{Loc 'psi-registry-set-status'}" Margin="0 6 0 0" />
+            <BoxContainer Orientation="Horizontal" SeparationOverride="4">
+                <Button Name="CleanButton" Text="{Loc 'psi-registry-status-registered-short'}" />
+                <Button Name="SuspectedButton" Text="{Loc 'psi-registry-status-suspected-short'}" />
+                <Button Name="AbusingButton" Text="{Loc 'psi-registry-status-abusing-short'}" />
+                <Button Name="ResetButton" Text="{Loc 'psi-registry-status-none-short'}" />
+            </BoxContainer>
+
+            <Label Name="AccessLabel" FontColorOverride="DarkGray" Margin="0 6 0 0" />
+        </BoxContainer>
+    </BoxContainer>
+</cartridges:PsiRegistryUiFragment>

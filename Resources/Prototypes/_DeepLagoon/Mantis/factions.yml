@@ -1,0 +1,4 @@
+- type: npcFaction
+  id: NoosphericHunter
+  hostile:
+  - GlimmerMonster

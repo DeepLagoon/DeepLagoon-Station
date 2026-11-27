@@ -1,6 +1,9 @@
 - type: npcFaction
   id: GlimmerMonster # Crew hostile psionic
   hostile:
+  # DeepLagoon start
+  - NoosphericHunter
+  # DeepLagoon end
   - PsionicInterloper
 
 - type: npcFaction

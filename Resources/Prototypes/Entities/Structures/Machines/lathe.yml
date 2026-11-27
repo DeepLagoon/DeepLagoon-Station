@@ -275,6 +275,9 @@
     # Einstein Engines Packs
     - Translators
     - RCD # Mono!
+    # DeepLagoon start
+    - PsiSpectrometerEquipment
+    # DeepLagoon end
   - type: EmagLatheRecipes
     emagDynamicPacks:
     - DynamicAmmoRecipePack
@@ -351,6 +354,9 @@
     - EngineeringBoardsGoob #Goob Factorio port
     - ReactorCircuitboards # FH edit\
     - ServiceBoardsGoob #Forge-Change
+    # DeepLagoon start
+    - PsiSpectrometerBoards
+    # DeepLagoon end
   - type: MaterialStorage
     whitelist:
       tags:
