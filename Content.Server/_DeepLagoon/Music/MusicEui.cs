@@ -71,22 +71,22 @@ public sealed class MusicEui : BaseEui
 
             case MusicEuiPlayMsg play:
                 if (MusicRules.ValidTrackId(play.TrackId, out var id))
-                    _ = _music.PlayGlobalAsync(id, string.Empty, string.Empty);
+                    _music.PlayGlobal(id, string.Empty, string.Empty);
                 break;
 
             case MusicEuiControlMsg control:
                 switch (control.Action)
                 {
-                    case MusicControlAction.Pause: _music.Pause(); break;
-                    case MusicControlAction.Resume: _music.Resume(); break;
-                    case MusicControlAction.Stop: _music.Stop(); break;
-                    case MusicControlAction.Next: _music.Next(); break;
+                    case MusicControlAction.Pause: _music.Pause(MusicChannels.Global); break;
+                    case MusicControlAction.Resume: _music.Resume(MusicChannels.Global); break;
+                    case MusicControlAction.Stop: _music.Stop(MusicChannels.Global); break;
+                    case MusicControlAction.Next: _music.Next(MusicChannels.Global, 0); break;
                 }
 
                 break;
 
             case MusicEuiGainMsg gain:
-                _music.SetGain(gain.Gain);
+                _music.SetGain(MusicChannels.Global, gain.Gain);
                 break;
         }
 
