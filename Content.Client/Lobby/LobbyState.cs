@@ -18,6 +18,9 @@ using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Configuration;
 using Robust.Shared.Timing;
 using PickerWindow = Content.Client._NF.LateJoin.Windows.PickerWindow;
+using Content.Client._NF.CryoSleep;
+using Robust.Client.UserInterface.CustomControls;
+using static Content.Shared._NF.CryoSleep.SharedCryoSleepSystem;
 
 namespace Content.Client.Lobby
 {
@@ -36,14 +39,20 @@ namespace Content.Client.Lobby
         private ClientGameTicker _gameTicker = default!;
         private ContentAudioSystem _contentAudioSystem = default!;
 
+
         protected override Type? LinkedScreenType { get; } = typeof(LobbyGui);
         public LobbyGui? Lobby;
 
         // Frontier - save pickerwindow so it opens only once
         private PickerWindow? _pickerWindow = null;
+        private CryoLobbySystem _cryoLobby = default!;
+        private DefaultWindow? _cryoWindow;
+        private Label? _cryoStatus;
+
 
         protected override void Startup()
         {
+
             if (_userInterfaceManager.ActiveScreen == null)
             {
                 return;
@@ -59,6 +68,9 @@ namespace Content.Client.Lobby
             Lobby.MusicPlayer.Previous.OnPressed += OnPreviousTrack;
             Lobby.MusicPlayer.Next.OnPressed += OnNextTrack;
             Lobby.MusicPlayer.Pause.OnPressed += OnPauseMusic;
+            _cryoLobby = _entityManager.System<CryoLobbySystem>();
+            _cryoLobby.CharacterListReceived += OnCryoCharactersReceived;
+            _cryoLobby.WakeupReceived += OnCryoWakeupResponse;
 
             chatController.SetMainChat(true);
 
@@ -86,6 +98,112 @@ namespace Content.Client.Lobby
             _gameTicker.LobbyLateJoinStatusUpdated += LobbyLateJoinStatusUpdated;
         }
 
+        private void OpenNewCharacterPicker()
+        {
+            _cryoWindow?.Close();
+
+            _pickerWindow ??= new PickerWindow();
+            _pickerWindow.OpenCentered();
+        }
+
+        private void OnCryoCharactersReceived(
+            CryoCharacterListResponse response)
+        {
+            if (Lobby == null)
+                return;
+
+            if (response.Characters.Count == 0)
+            {
+                OpenNewCharacterPicker();
+                return;
+            }
+
+            _cryoWindow?.Close();
+
+            var window = new DefaultWindow
+            {
+                Title = "Выбор персонажа",
+                MinWidth = 350
+            };
+
+            _cryoWindow = window;
+
+            var content = new BoxContainer
+            {
+                Orientation = BoxContainer.LayoutOrientation.Vertical,
+                SeparationOverride = 8
+            };
+
+            window.Contents.AddChild(content);
+
+            content.AddChild(new Label
+            {
+                Text = "Персонажи в криосне:"
+            });
+
+            foreach (var character in response.Characters)
+            {
+                var button = new Button
+                {
+                    Text = $"{character.Name} — пробудиться"
+                };
+
+                button.OnPressed += _ =>
+                {
+                    _cryoLobby.Wakeup(character.Id);
+                };
+
+                content.AddChild(button);
+            }
+
+            content.AddChild(new Label
+            {
+                Text = "Или начните игру за нового персонажа:"
+            });
+
+            var newCharacter = new Button
+            {
+                Text = "Войти за нового персонажа"
+            };
+
+            newCharacter.OnPressed += _ =>
+                OpenNewCharacterPicker();
+
+            content.AddChild(newCharacter);
+
+            _cryoStatus = new Label();
+            content.AddChild(_cryoStatus);
+
+            window.OpenCentered();
+        }
+
+        private void OnCryoWakeupResponse(
+            WakeupRequestMessage.Response response)
+        {
+            if (_cryoWindow == null || _cryoStatus == null)
+                return;
+
+            if (response.Status == ReturnToBodyStatus.Success)
+            {
+                _cryoWindow.Close();
+                return;
+            }
+
+            _cryoStatus.Text = response.Status switch
+            {
+                ReturnToBodyStatus.Occupied =>
+                    "Криокапсула занята.",
+
+                ReturnToBodyStatus.NoCryopodAvailable =>
+                    "Нет доступных криокапсул.",
+
+                ReturnToBodyStatus.Disabled =>
+                    "Пробуждение отключено.",
+
+                _ => "Не удалось пробудить персонажа."
+            };
+        }
+
         protected override void Shutdown()
         {
             // Close the background browser before switching to gameplay, including observing.
@@ -99,6 +217,12 @@ namespace Content.Client.Lobby
             Lobby!.MusicPlayer.Previous.OnPressed -= OnPreviousTrack;
             Lobby!.MusicPlayer.Next.OnPressed -= OnNextTrack;
             Lobby!.MusicPlayer.Pause.OnPressed -= OnPauseMusic;
+            _cryoLobby.CharacterListReceived -= OnCryoCharactersReceived;
+            _cryoLobby.WakeupReceived -= OnCryoWakeupResponse;
+
+            _cryoWindow?.Close();
+            _cryoWindow = null;
+            _cryoStatus = null;
 
             _voteManager.ClearPopupContainer();
 
@@ -124,14 +248,12 @@ namespace Content.Client.Lobby
         private void OnReadyPressed(BaseButton.ButtonEventArgs args)
         {
             if (!_gameTicker.IsGameStarted)
-            {
                 return;
-            }
-            // Frontier to downstream: if you want to skip the first window and go straight to station picker,
-            // simply change the enum to station or crew in the PickerWindow constructor.
-            _pickerWindow ??= new PickerWindow();
-            _pickerWindow.OpenCentered();
+
+            _cryoLobby.RequestCharacters();
         }
+
+
 
         private void OnReadyToggled(BaseButton.ButtonToggledEventArgs args)
         {

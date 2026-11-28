@@ -37,6 +37,30 @@ public abstract partial class SharedCryoSleepSystem : EntitySystem
         }
     }
 
+    [Serializable, NetSerializable]
+    public sealed class CryoCharacterEntry
+    {
+        public Guid Id;
+        public string Name = string.Empty;
+    }
+
+    [Serializable, NetSerializable]
+    public sealed class CryoCharacterListRequest : EntityEventArgs
+    {
+    }
+
+    [Serializable, NetSerializable]
+    public sealed class CryoCharacterListResponse : EntityEventArgs
+    {
+        public List<CryoCharacterEntry> Characters = new();
+    }
+
+    [Serializable, NetSerializable]
+    public sealed class CryoCharacterWakeupRequest : EntityEventArgs
+    {
+        public Guid Id;
+    }
+
     /// <summary>
     ///   Sent from the client to the server when the client, controlling a ghost, wants to return to a cryosleeping body.
     /// </summary>

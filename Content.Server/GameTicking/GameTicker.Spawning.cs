@@ -25,6 +25,7 @@ using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 using Robust.Shared.Utility;
 using Content.Server._Corvax.Respawn; // Frontier
+using Content.Server._NF.CryoSleep;
 
 namespace Content.Server.GameTicking
 {
@@ -61,6 +62,25 @@ namespace Content.Server.GameTicking
             return spawnableStations;
         }
 
+        private bool CheckCryoCharacterSpawn(
+    ICommonSession player,
+    HumanoidCharacterProfile character)
+        {
+            var prefs = _prefsManager.GetPreferences(player.UserId);
+            var slot = prefs.SelectedCharacterIndex;
+
+            var cryo = EntityManager.System<CryoSleepSystem>();
+
+            if (!cryo.IsCharacterInCryo(
+                player.UserId, slot, character.Name))
+                return true;
+
+            _chatManager.DispatchServerMessage(
+                player,
+                Loc.GetString("cryo-character-already-stored"));
+
+            return false;
+        }
         private void SpawnPlayers(List<ICommonSession> readyPlayers,
             Dictionary<NetUserId, HumanoidCharacterProfile> profiles,
             bool force)
@@ -163,6 +183,9 @@ namespace Content.Server.GameTicking
             if (!CheckDiscordRoundAdmission(player))
                 return;
 
+            if (!CheckCryoCharacterSpawn(player, character))
+                return;
+
             // Can't spawn players with a dummy ticker!
             if (DummyTicker)
                 return;
@@ -231,6 +254,9 @@ namespace Content.Server.GameTicking
         private void CompletePlayerSpawn(ICommonSession player, HumanoidCharacterProfile character, EntityUid station,
             JobPrototype jobPrototype, bool lateJoin, bool silent)
         {
+            if (!CheckCryoCharacterSpawn(player, character))
+                return;
+
             var jobId = jobPrototype.ID;
 
             // Delta-V: Add AlwaysUseSpawner.
@@ -258,6 +284,12 @@ namespace Content.Server.GameTicking
             _playTimeTrackings.PlayerRolesChanged(player);
 
             _mind.TransferTo(newMind, mob);
+
+            EntityManager.System<CryoSleepSystem>()
+             .RegisterCharacterSlot(
+                   mob,
+                     _prefsManager.GetPreferences(
+                        player.UserId).SelectedCharacterIndex);
 
             _roles.MindAddJobRole(newMind, silent: silent, jobPrototype: jobId);
             var jobName = _jobs.MindTryGetJobName(newMind);
