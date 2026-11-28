@@ -26,6 +26,17 @@ namespace Content.Server.GameTicking
             _playerManager.PlayerStatusChanged += PlayerStatusChanged;
         }
 
+        public bool CanWakeFromCryoLobby(ICommonSession session)
+        {
+            return RunLevel == GameRunLevel.InRound
+                && !DummyTicker
+                && _userDb.IsLoadComplete(session)
+                && session.AttachedEntity == null
+                && _playerGameStatuses.TryGetValue(
+                    session.UserId, out var status)
+                && status == PlayerGameStatus.NotReadyToPlay
+                && CheckDiscordRoundAdmission(session);
+        }
         private async void PlayerStatusChanged(object? sender, SessionStatusEventArgs args)
         {
             var session = args.Session;

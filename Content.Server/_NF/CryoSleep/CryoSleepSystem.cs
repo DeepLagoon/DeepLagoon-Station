@@ -70,7 +70,8 @@ public sealed partial class CryoSleepSystem : SharedCryoSleepSystem
     [Dependency] private StationJobsSystem _stationJobs = default!;
     [Dependency] private StationSystem _station = default!;
 
-    private readonly Dictionary<NetUserId, Stack<StoredBody>> _storedBodies = new();
+    private readonly Dictionary<NetUserId, List<StoredBody>> _storedBodies = new();
+    private readonly Dictionary<EntityUid, int> _characterSlots = new();
     private readonly Dictionary<EntityUid, CryoSleepEui> _openEuis = new(); // Exodus: body -> its open accept EUI, so it can be closed server-side.
     private EntityUid? _storageMap;
 
@@ -140,6 +141,36 @@ public sealed partial class CryoSleepSystem : SharedCryoSleepSystem
         }
     }
 
+    public void RegisterCharacterSlot(EntityUid body, int slot)
+    {
+        _characterSlots[body] = slot;
+    }
+
+    public bool IsCharacterInCryo(
+        NetUserId userId,
+        int slot,
+        string characterName)
+    {
+        if (!_storedBodies.TryGetValue(userId, out var bodies))
+            return false;
+
+        foreach (var body in bodies)
+        {
+            if (TerminatingOrDeleted(body.Body))
+                continue;
+
+            if (slot >= 0 && body.CharacterSlot == slot)
+                return true;
+
+            if (string.Equals(
+                body.Name.Trim(),
+                characterName.Trim(),
+                StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
     private void AddAlternativeVerbs(EntityUid uid, CryoSleepComponent component, GetVerbsEvent<AlternativeVerb> args)
     {
         if (!args.CanAccess || !args.CanInteract)
@@ -307,10 +338,17 @@ public sealed partial class CryoSleepSystem : SharedCryoSleepSystem
             if (id != null)
             {
                 if (!_storedBodies.TryGetValue(id.Value, out var bodies))
-                    _storedBodies[id.Value] = bodies = new Stack<StoredBody>();
+                    _storedBodies[id.Value] = bodies = new List<StoredBody>();
 
-                // Keep earlier characters available if this player stores another body in the same round.
-                bodies.Push(new StoredBody { Body = bodyId, Cryopod = cryopod });
+                bodies.Add(new StoredBody
+                {
+                    Id = Guid.NewGuid(),
+                    Body = bodyId,
+                    Cryopod = cryopod,
+                    Mind = mindEntity,
+                    Name = mind.CharacterName ?? MetaData(bodyId).EntityName,
+                    CharacterSlot = _characterSlots.GetValueOrDefault(bodyId, -1)
+                });
 
                 // Get the player's current job prototype, first from mind, then from component
                 string? currentJobPrototype = null;
@@ -554,6 +592,7 @@ public sealed partial class CryoSleepSystem : SharedCryoSleepSystem
     {
         _storedBodies.Clear();
         _openEuis.Clear(); // Exodus
+        _characterSlots.Clear();
     }
 
     private void OnPlayerSpawnComplete(PlayerSpawnCompleteEvent ev)
@@ -604,8 +643,12 @@ public sealed partial class CryoSleepSystem : SharedCryoSleepSystem
 
     private struct StoredBody
     {
+        public int CharacterSlot;
+        public Guid Id;
         public EntityUid Body;
         public EntityUid Cryopod;
+        public EntityUid Mind;
+        public string Name;
     }
 }
 
