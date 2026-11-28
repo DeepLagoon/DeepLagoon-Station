@@ -304,6 +304,23 @@ public abstract partial class SharedMaterialStorageSystem : EntitySystem
     }
 
     /// <summary>
+    /// Removes only this entity's local material inventory without ejecting it or consuming from
+    /// connected silos. Existing inventory can be cleared even after its insertion whitelist changed.
+    /// Callers are responsible for completing any sale or other transfer before using this operation.
+    /// </summary>
+    [PublicAPI]
+    public void ClearLocalMaterials(EntityUid uid, MaterialStorageComponent? component = null)
+    {
+        if (!Resolve(uid, ref component) || component.Storage.Count == 0)
+            return;
+
+        component.Storage.Clear();
+        var ev = new MaterialAmountChangedEvent();
+        RaiseLocalEvent(uid, ref ev);
+        Dirty(uid, component);
+    }
+
+    /// <summary>
     /// Tries to set the amount of material in the storage to a specific value.
     /// Still respects the filters in place.
     /// </summary>

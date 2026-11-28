@@ -52,11 +52,11 @@ namespace Content.Server.Database
         #endregion
 
         #region Currencies
-        Task<long> WithdrawBankAsync(NetUserId user, int slot, long expectedBalance, long amount, CancellationToken cancel = default, RecoveryPayment? recovery = null);
+        Task<long> WithdrawBankAsync(NetUserId user, int slot, long expectedBalance, long amount, CancellationToken cancel = default, RecoveryPayment? recovery = null, int? expectedProfile = null);
         Task<long> DepositBankAsync(NetUserId user, int slot, long expectedBalance, long amount, CancellationToken cancel = default,
-            IReadOnlyList<SpawnedCashSource>? origins = null, RecoveryRemoval? recovery = null);
+            IReadOnlyList<SpawnedCashSource>? origins = null, RecoveryRemoval? recovery = null, int? expectedProfile = null);
         Task<BankTransfer> TransferBankAsync(NetUserId sender, int senderSlot, long senderBalance,
-            NetUserId recipient, int recipientSlot, long recipientBalance, long amount, CancellationToken cancel = default);
+            NetUserId recipient, int recipientSlot, long recipientBalance, long amount, CancellationToken cancel = default, int? expectedSenderProfile = null, int? expectedRecipientProfile = null);
         Task<long> GetLagoonCoinsAsync(NetUserId user, CancellationToken cancel = default);
         Task<List<LagoonCoinOperation>> GetLagoonCoinHistoryAsync(NetUserId user, int page, CancellationToken cancel = default);
         Task<LagoonCoinOperation?> ClaimLagoonCoinWebhookAsync(Guid owner, CancellationToken cancel = default);
@@ -246,9 +246,9 @@ namespace Content.Server.Database
         /// <param name="deadminned">Whether the admin is deadminned or not.</param>
         Task UpdateAdminDeadminnedAsync(NetUserId userId, bool deadminned, CancellationToken cancel = default);
 
-        Task RemoveAdminRankAsync(int rankId, CancellationToken cancel = default);
-        Task AddAdminRankAsync(AdminRank rank, CancellationToken cancel = default);
-        Task UpdateAdminRankAsync(AdminRank rank, CancellationToken cancel = default);
+        Task RemoveAdminRankAsync(int rankId, CancellationToken cancel = default, string? actorName = null);
+        Task AddAdminRankAsync(AdminRank rank, CancellationToken cancel = default, string? actorName = null);
+        Task UpdateAdminRankAsync(AdminRank rank, CancellationToken cancel = default, string? actorName = null);
         #endregion
 
         #region Rounds
@@ -753,16 +753,16 @@ namespace Content.Server.Database
             return RunDbCommand(() => _db.UpdateAdminDeadminnedAsync(userId, deadminned, cancel));
         }
 
-        public Task RemoveAdminRankAsync(int rankId, CancellationToken cancel = default)
+        public Task RemoveAdminRankAsync(int rankId, CancellationToken cancel = default, string? actorName = null)
         {
             DbWriteOpsMetric.Inc();
-            return RunDbCommand(() => _db.RemoveAdminRankAsync(rankId, cancel));
+            return RunDbCommand(() => _db.RemoveAdminRankAsync(rankId, cancel, actorName));
         }
 
-        public Task AddAdminRankAsync(AdminRank rank, CancellationToken cancel = default)
+        public Task AddAdminRankAsync(AdminRank rank, CancellationToken cancel = default, string? actorName = null)
         {
             DbWriteOpsMetric.Inc();
-            return RunDbCommand(() => _db.AddAdminRankAsync(rank, cancel));
+            return RunDbCommand(() => _db.AddAdminRankAsync(rank, cancel, actorName));
         }
 
         public Task<int> AddNewRound(Server server, params Guid[] playerIds)
@@ -783,10 +783,10 @@ namespace Content.Server.Database
             return RunDbCommand(() => _db.AddRoundPlayers(id, playerIds));
         }
 
-        public Task UpdateAdminRankAsync(AdminRank rank, CancellationToken cancel = default)
+        public Task UpdateAdminRankAsync(AdminRank rank, CancellationToken cancel = default, string? actorName = null)
         {
             DbWriteOpsMetric.Inc();
-            return RunDbCommand(() => _db.UpdateAdminRankAsync(rank, cancel));
+            return RunDbCommand(() => _db.UpdateAdminRankAsync(rank, cancel, actorName));
         }
 
         public async Task<Server> AddOrGetServer(string serverName)

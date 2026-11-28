@@ -1,0 +1,115 @@
+- type: playTimeTracker
+  id: JobTsfMantis
+
+- type: playTimeTracker
+  id: JobMantis
+
+- type: job
+  id: TsfMantis
+  name: job-name-tsf-mantis
+  description: job-description-tsf-mantis
+  playTimeTracker: JobTsfMantis
+
+  requirements:
+    - !type:DepartmentTimeRequirement
+      department: Security
+      time: 7200
+  startingGear: TsfMantisGear
+  icon: JobIconTsfMantis
+  supervisors: job-supervisors-sergeant
+  weight: 120
+  displayWeight: 15
+  assignedCompany: TSF
+  canBeAntag: false
+  access:
+  - Mantis
+  accessGroups:
+  - TsfGeneralNoBrig
+  guides:
+  - TSFMC_Entry
+  - Psionics
+  special:
+  - !type:AddComponentSpecial
+    components:
+    - type: NpcFactionMember
+      factions:
+      - TSFMC
+    - type: RadioOnCryosleep
+      radioChannel: Nfsd
+    - type: Psionic
+      powerSlots: 2
+      baselinePowerCost: 75
+      nextPowerCost: 75
+      removable: false
+      powerPool: PsychoHistorianPowerPool
+    - type: InnatePsionicPowers
+      powersToAdd:
+      - MetapsionicPower
+      - TelepathyPower
+  - !type:AddImplantSpecial
+    implants: [ MindShieldImplant, TrackingImplant ]
+  - !type:AddLanguageSpecial
+    languagesSpoken:
+    - SolCommon
+    languagesUnderstood:
+    - SolCommon
+
+- type: startingGear
+  id: TsfMantisGear
+  equipment:
+    pocket1: AntiPsychicKnife
+    pocket2: PsiSpectrometer
+  storage:
+    back:
+    - InsulativeShield
+    - VeilbreakerGauntlet
+    - BookTSFSOP
+
+- type: job
+  id: Mantis
+  name: job-name-mantis
+  description: job-description-mantis
+  playTimeTracker: JobMantis
+
+  requirements:
+    - !type:OverallPlaytimeRequirement
+      time: 7200
+  startingGear: MantisGear
+  icon: JobIconMantis
+  supervisors: job-supervisors-sr
+  weight: 40
+  displayWeight: 20
+  assignedCompany: Colonial
+  canBeAntag: true
+  access:
+  - Mantis
+  - Research
+  - Maintenance
+  - Service
+  - External
+  - Frontier
+  guides:
+  - Psionics
+  special:
+  - !type:AddComponentSpecial
+    components:
+    - type: Psionic
+      powerSlots: 2
+      baselinePowerCost: 75
+      nextPowerCost: 75
+      removable: false
+      powerPool: PsychoHistorianPowerPool
+    - type: InnatePsionicPowers
+      powersToAdd:
+      - MetapsionicPower
+      - TelepathyPower
+
+- type: startingGear
+  id: MantisGear
+  equipment:
+    pocket1: AntiPsychicKnife
+    pocket2: PsiSpectrometer
+  storage:
+    back:
+    - InsulativeShieldLight
+    - ForensicScanner

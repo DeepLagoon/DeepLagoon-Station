@@ -35,6 +35,9 @@ public sealed partial class FTLComponent : Component
     [ViewVariables(VVAccess.ReadWrite)]
     public float TravelTime = 0f;
 
+    /// <summary>Content-controlled arrival duration for bounded player sector journeys; null keeps normal FTL timing.</summary>
+    public float? ArrivalTimeOverride;
+
     [DataField]
     public EntProtoId? VisualizerProto = "FtlVisualizerEntity";
 

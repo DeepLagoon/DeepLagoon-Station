@@ -1,3 +1,4 @@
+#nullable enable annotations
 using System.IO;
 using System.Linq;
 using System.Reflection;

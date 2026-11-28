@@ -40,6 +40,34 @@ public sealed partial class DecalPlacementSystem : EntitySystem
     private bool _active;
     private bool _placing;
     private bool _erasing;
+    private object? _activeOwner;
+    private object? _itemOwner;
+    private Action<Decal, EntityCoordinates>? _itemPlacement;
+    private Action<EntityCoordinates>? _itemRemoval;
+
+    public void SetItemPlacement(object owner, Action<Decal, EntityCoordinates>? placement, Action<EntityCoordinates>? removal)
+    {
+        _itemOwner = owner;
+        _itemPlacement = placement;
+        _itemRemoval = removal;
+    }
+
+    public void ClearItemPlacement(object owner)
+    {
+        if (_itemOwner != owner)
+            return;
+        _itemOwner = null;
+        _itemPlacement = null;
+        _itemRemoval = null;
+    }
+
+    private void RequestPlacement(Decal decal, EntityCoordinates coordinates)
+    {
+        if (_itemPlacement != null && _itemOwner == _activeOwner)
+            _itemPlacement(decal.WithCleanable(true), coordinates);
+        else
+            RaiseNetworkEvent(new RequestDecalPlacementEvent(decal, GetNetCoordinates(coordinates)));
+    }
 
     public (DecalPrototype? Decal, bool Snap, Angle Angle, Color Color) GetActiveDecal()
     {
@@ -93,7 +121,7 @@ public sealed partial class DecalPlacementSystem : EntitySystem
                     return false;
 
                 var decal = new Decal(coords.Position, _decalId, _decalColor, _decalAngle, _zIndex, _cleanable);
-                RaiseNetworkEvent(new RequestDecalPlacementEvent(decal, GetNetCoordinates(coords)));
+                RequestPlacement(decal, coords);
 
                 return true;
             },
@@ -127,7 +155,10 @@ public sealed partial class DecalPlacementSystem : EntitySystem
 
                 _erasing = true;
 
-                RaiseNetworkEvent(new RequestDecalRemovalEvent(GetNetCoordinates(coords)));
+                if (_itemRemoval != null && _itemOwner == _activeOwner)
+                    _itemRemoval(coords);
+                else
+                    RaiseNetworkEvent(new RequestDecalRemovalEvent(GetNetCoordinates(coords)));
 
                 return true;
             }, (session, coords, uid) =>
@@ -170,7 +201,7 @@ public sealed partial class DecalPlacementSystem : EntitySystem
         args.Target = args.Target.Offset(new Vector2(-0.5f, -0.5f));
 
         var decal = new Decal(args.Target.Position, args.DecalId, args.Color, Angle.FromDegrees(args.Rotation), args.ZIndex, args.Cleanable);
-        RaiseNetworkEvent(new RequestDecalPlacementEvent(decal, GetNetCoordinates(args.Target)));
+        RequestPlacement(decal, args.Target);
     }
 
     private void OnFillSlot(FillActionSlotEvent ev)
@@ -238,8 +269,11 @@ public sealed partial class DecalPlacementSystem : EntitySystem
     }
     // Exodus-End
 
-    public void SetActive(bool active)
+    public void SetActive(bool active, object? owner = null)
     {
+        if (!active && _activeOwner != owner)
+            return;
+        _activeOwner = active ? owner : null;
         _active = active;
         _tool.SetActive(active); // Exodus mirror active state so the tool manager can reset/gate itself
         if (_active)
@@ -298,7 +332,7 @@ public sealed partial class DecalPlacementSystem : EntitySystem
                 continue;
 
             var copy = new Decal(newPos, decal.Id, decal.Color, decal.Angle, decal.ZIndex, decal.Cleanable);
-            RaiseNetworkEvent(new RequestDecalPlacementEvent(copy, GetNetCoordinates(target)));
+            RequestPlacement(copy, target);
         }
     }
 

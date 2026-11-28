@@ -390,6 +390,7 @@ public sealed partial class CartridgeLoaderSystem : SharedCartridgeLoaderSystem
     /// </summary>
     private void OnMapInit(EntityUid uid, CartridgeLoaderComponent component, MapInitEvent args)
     {
+        RaiseLocalEvent(uid, new CartridgeLoaderPreinstallEvent());
         // TODO remove this and use container fill.
         foreach (var prototype in component.PreinstalledPrograms)
         {
@@ -493,6 +494,9 @@ public sealed partial class CartridgeLoaderSystem : SharedCartridgeLoaderSystem
         return component.CartridgeSlot.Item == program || GetInstalled(loader).Contains(program);
     }
 }
+
+/// <summary>Allows server features to extend a loader before its programs are installed.</summary>
+public sealed class CartridgeLoaderPreinstallEvent : EntityEventArgs;
 
 /// <summary>
 /// Gets sent to running programs when the cartridge loader receives a device net package

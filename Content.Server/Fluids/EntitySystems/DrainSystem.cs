@@ -16,6 +16,7 @@ using Robust.Shared.Audio.Systems;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 using Robust.Shared.Utility;
+using Content.Server._DeepLagoon.BodyInsurance;
 
 namespace Content.Server.Fluids.EntitySystems;
 
@@ -197,6 +198,9 @@ public sealed partial class DrainSystem : SharedDrainSystem
 
     private void OnExamined(Entity<DrainComponent> entity, ref ExaminedEvent args)
     {
+        if (HasComp<BodyInsuranceSilentDrainComponent>(entity))
+            return;
+
         if (!args.IsInDetailsRange ||
             !HasComp<SolutionContainerManagerComponent>(entity) ||
             !_solutionContainerSystem.ResolveSolution(entity.Owner, DrainComponent.SolutionName, ref entity.Comp.Solution, out var drainSolution))

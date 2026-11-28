@@ -10,6 +10,7 @@ namespace Content.Shared.Cargo
         /// Price when the order was added.
         /// </summary>
         public int Price;
+        public int? BasePrice;
 
         /// <summary>
         /// A unique (arbitrary) ID which identifies this order.

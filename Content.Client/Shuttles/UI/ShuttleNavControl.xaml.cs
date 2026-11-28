@@ -94,7 +94,7 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
 
     #region Mono
     // These 2 handle timing updates
-    protected const float RadarUpdateInterval = 0f;
+    protected const float RadarUpdateInterval = .1f;
     protected float _updateAccumulator = 0f;
 
     // doesn't support absolute panning and angle follow, but why would you need that?
@@ -734,14 +734,14 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         #region Mono
         // Draw radar line
         // First, figure out which angle to draw.
-        var updateRatio = _updateAccumulator / RadarUpdateInterval;
+        var updateRatio = IoCManager.Resolve<IGameTiming>().RealTime.TotalSeconds % 4 / 4;
 
         Angle angle = updateRatio * Math.Tau;
         var origin = ScalePosition(-new Vector2(Offset.X, -Offset.Y));
         handle.DrawLine(origin, origin + angle.ToVec() * ScaledMinimapRadius * 1.42f, Color.Red.WithAlpha(0.1f));
 
         // Get blips
-        var rawBlips = _blips.GetCurrentBlips();
+        var rawBlips = _blips.GetCurrentBlips(_consoleEntity);
 
         // Prepare view bounds for culling
         var monoViewBounds = new Box2(-3f, -3f, PixelSize.X + 3f, PixelSize.Y + 3f);
@@ -764,15 +764,29 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
                     continue;
             }
 
-            // Check if this blip is within view bounds before drawing
             if (monoViewBounds.Contains(position))
             {
                 DrawBlipShape(handle, position, box, color, blip.Config.Shape);
+
+                if (!string.IsNullOrEmpty(blip.Config.Label) &&
+                    SignatureInView(position, PixelSize,
+                        CircularRadar, ScaledMinimapRadius))
+                {
+                    var labelPosition = position +
+                        new Vector2(10f, -8f) * UIScale;
+
+                    handle.DrawString(
+                        Font,
+                        labelPosition,
+                        blip.Config.Label,
+                        0.9f * UIScale,
+                        color);
+                }
             }
         }
 
         // Draw missile lines from the radar blips system
-        var missileLines = _blips.GetMissileLines();
+        var missileLines = _blips.GetMissileLines(_consoleEntity);
         foreach (var line in missileLines)
         {
             var startPos = new Vector2(line.PositionStart.X, line.PositionStart.Y);
@@ -789,7 +803,7 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         }
 
         // Draw hitscan lines from the radar blips system
-        var hitscanLines = _blips.GetHitscanLines();
+        var hitscanLines = _blips.GetHitscanLines(_consoleEntity);
         foreach (var line in hitscanLines)
         {
             var startPosInView = Vector2.Transform(line.Start, worldToView);

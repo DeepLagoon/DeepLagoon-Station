@@ -73,6 +73,7 @@ public sealed partial class CargoSystem : SharedCargoSystem
         // Frontier: add specific initialization calls here.
         InitializePirateBounty();
         InitializeTradeCrates();
+        SubscribeLocalEvent<CargoPalletConsoleComponent, Content.Shared.Examine.ExaminedEvent>(OnProcurementExamine);
         // End Frontier
     }
 
@@ -82,6 +83,7 @@ public sealed partial class CargoSystem : SharedCargoSystem
         UpdateConsole(frameTime);
         UpdateTelepad(frameTime);
         UpdateBounty();
+        UpdateEconomySales();
     }
 
     [PublicAPI]

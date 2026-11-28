@@ -22,8 +22,8 @@ public sealed partial class MarketModifierSystem : EntitySystem
 
         string locVerb = ent.Comp.Buy ? "buy" : "sell";
         if (ent.Comp.Mod >= 1.0f)
-            args.PushMarkup(Loc.GetString($"market-modifier-{locVerb}-high", ("mod", ent.Comp.Mod)));
+            args.PushMarkup(Loc.GetString($"market-modifier-{locVerb}-high", ("mod", Math.Round(ent.Comp.Mod, 2))));
         else
-            args.PushMarkup(Loc.GetString($"market-modifier-{locVerb}-low", ("mod", ent.Comp.Mod)));
+            args.PushMarkup(Loc.GetString($"market-modifier-{locVerb}-low", ("mod", Math.Round(ent.Comp.Mod, 2))));
     }
 }

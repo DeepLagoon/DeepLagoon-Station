@@ -28,7 +28,9 @@
   displayWeight: 20
   assignedCompany: TSF
   canBeAntag: false
-  setPreference: false # mono
+  # DeepLagoon start
+  setPreference: true
+  # DeepLagoon end
   access:
   - Detective
   accessGroups:

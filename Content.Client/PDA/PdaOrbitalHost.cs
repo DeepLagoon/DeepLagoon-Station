@@ -10,7 +10,8 @@ namespace Content.Client.PDA;
 public sealed class PdaOrbitalHost : Control
 {
     public TguiPanel Panel { get; } = new(inheritChatAppearance: false, captureKeyboard: true, showWindowControls: false);
-    public LayoutContainer ProgramLayer { get; } = new() { MouseFilter = MouseFilterMode.Ignore };
+    // The browser defines this aperture. Native contents must not resize their own host.
+    public LayoutContainer ProgramLayer { get; } = new() { MouseFilter = MouseFilterMode.Ignore, InheritChildMeasure = false };
     public Vector4 ProgramViewport { get; private set; }
     public event Action<float>? Frame;
     private float _readyWait;
@@ -39,11 +40,22 @@ public sealed class PdaOrbitalHost : Control
     public void LayoutProgram(Control program, bool visible)
     {
         var bounds = ProgramViewport;
-        program.Visible = visible && bounds.Z > 0 && bounds.W > 0;
+        var show = visible && bounds.Z > 0 && bounds.W > 0;
+        if (program.Visible != show) program.Visible = show;
         if (!program.Visible)
             return;
-        LayoutContainer.SetPosition(program, new Vector2(bounds.X * Size.X, bounds.Y * Size.Y));
-        program.SetSize = new Vector2(bounds.Z * Size.X, bounds.W * Size.Y);
+        var scale = UIScale;
+        var position = new Vector2(MathF.Round(bounds.X * Size.X * scale), MathF.Round(bounds.Y * Size.Y * scale)) / scale;
+        var end = new Vector2(MathF.Round((bounds.X + bounds.Z) * Size.X * scale), MathF.Round((bounds.Y + bounds.W) * Size.Y * scale)) / scale;
+        var size = Vector2.Max(Vector2.Zero, end - position);
+        // Use requested bounds, not the arranged position: minimum sizes can shift the
+        // latter and must not feed another offset back into the browser's next layout.
+        if (program.GetValue<float>(LayoutContainer.MarginLeftProperty) != position.X) LayoutContainer.SetMarginLeft(program, position.X);
+        if (program.GetValue<float>(LayoutContainer.MarginTopProperty) != position.Y) LayoutContainer.SetMarginTop(program, position.Y);
+        if (program.GetValue<float>(LayoutContainer.MarginRightProperty) != end.X) LayoutContainer.SetMarginRight(program, end.X);
+        if (program.GetValue<float>(LayoutContainer.MarginBottomProperty) != end.Y) LayoutContainer.SetMarginBottom(program, end.Y);
+        // SetSize invalidates measurement even when assigned the same value.
+        if (program.SetSize != size) program.SetSize = size;
     }
 
     protected override void FrameUpdate(FrameEventArgs args)

@@ -338,7 +338,7 @@ public sealed class CurrencyDatabaseTests
         await using (var rollback = new SqliteServerDbContext(_options))
             Assert.ThrowsAsync<SqliteException>(() => rollback.GetService<IMigrator>().MigrateAsync("20261116122000_StartingHandAssignments"));
         await using var read = new SqliteServerDbContext(_options);
-        Assert.That((await read.Profile.SingleAsync()).BankBalance, Is.EqualTo(int.MaxValue + 3_000_000_000L));
+        Assert.That(await read.Profile.Select(p => p.BankBalance).SingleAsync(), Is.EqualTo(int.MaxValue + 3_000_000_000L));
         Assert.That(await read.BankFinancialOperations.CountAsync(), Is.EqualTo(2));
         Assert.That(await read.Database.GetAppliedMigrationsAsync(), Does.Contain("20261122120000_BankAmounts64Bit"));
     }
@@ -451,6 +451,35 @@ public sealed class CurrencyDatabaseTests
         Assert.That((await read.Preference.SingleAsync(p => p.UserId == _user)).Money, Is.EqualTo(10));
         await using var rejected = new SqliteServerDbContext(_options);
         Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.WithdrawBank(rejected, _user, 0, 7, 1));
+    }
+
+    [Test]
+    public async Task AccountBindingRejectsAReplacedCharacterEvenWithTheSameSlotAndBalance()
+    {
+        await SaveBank(_user, 100);
+        await SaveBank(_recipient, 50);
+        int oldId;
+        await using (var db = new SqliteServerDbContext(_options))
+        {
+            var old = await db.Profile.SingleAsync(p => p.Preference.UserId == _user);
+            oldId = old.Id;
+            db.Profile.Remove(old); await db.SaveChangesAsync();
+        }
+        await SaveBank(_user, 100);
+        // SQLite can reuse the last rowid, so the recipient keeps the deleted ID below the maximum.
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.That((await db.Profile.SingleAsync(p => p.Preference.UserId == _user)).Id, Is.Not.EqualTo(oldId));
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.WithdrawBank(db, _user, 0, 100, 10, expectedProfile: oldId));
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.DepositBank(db, _user, 0, 100, 10, expectedProfile: oldId));
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.TransferBank(db, _user, 0, 100, _recipient, 0, 50, 10, expectedSenderProfile: oldId));
+        await using (var db = new SqliteServerDbContext(_options))
+            Assert.ThrowsAsync<InvalidOperationException>(() => AccountCurrencyOperations.TransferBank(db, _recipient, 0, 50, _user, 0, 100, 10, expectedRecipientProfile: oldId));
+        await using var read = new SqliteServerDbContext(_options);
+        Assert.That((await read.Profile.SingleAsync(p => p.Preference.UserId == _user)).BankBalance, Is.EqualTo(100));
+        Assert.That((await read.Profile.SingleAsync(p => p.Preference.UserId == _recipient)).BankBalance, Is.EqualTo(50));
     }
 
     [Test]

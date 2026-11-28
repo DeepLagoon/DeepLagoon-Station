@@ -103,9 +103,16 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
     }
 
     private void OnPurchaseMessage(EntityUid shipyardConsoleUid, ShipyardConsoleComponent component, ShipyardConsolePurchaseMessage args)
+        => PurchaseShuttle(shipyardConsoleUid, component, args, refreshed: false);
+
+    private void PurchaseShuttle(EntityUid shipyardConsoleUid, ShipyardConsoleComponent component, ShipyardConsolePurchaseMessage args, bool refreshed)
     {
         if (args.Actor is not { Valid: true } player)
             return;
+
+        var deferred = EntityManager.System<Content.Server._DeepLagoon.Economy.DeferredPurchaseSystem>();
+        var pendingKey = "ship:" + args.Vessel;
+        if (deferred.IsPending(shipyardConsoleUid, player, pendingKey)) return;
 
         if (component.TargetIdSlot.ContainerSlot?.ContainedEntity is not { Valid: true } targetId)
         {
@@ -153,7 +160,20 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
 
         var name = vessel.Name;
 
-        if (vessel.Price <= 0)
+        var economy = EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>();
+        var purchasePrice = (int)economy.Quote("ship:" + vessel.ID, vessel.Price);
+        if (economy.Enabled && voucher == null && args.ExpectedPrice != purchasePrice && !refreshed)
+        {
+            RefreshState(shipyardConsoleUid, TryComp<BankAccountComponent>(player, out var currentBank) ? currentBank.Balance : 0,
+                _cash.GetCashBalance(shipyardConsoleUid), true, null, 0, targetId, (ShipyardConsoleUiKey)args.UiKey, false);
+            deferred.Enqueue(shipyardConsoleUid, player, pendingKey, args.UiKey,
+                () => TryComp<ShipyardConsoleComponent>(shipyardConsoleUid, out var current) && current == component &&
+                    component.TargetIdSlot.ContainerSlot?.ContainedEntity == targetId,
+                () => PurchaseShuttle(shipyardConsoleUid, component, args, refreshed: true));
+            ConsolePopup(player, Loc.GetString("dl-economy-price-changed"));
+            return;
+        }
+        if (purchasePrice <= 0)
             return;
 
         if (_station.GetOwningStation(shipyardConsoleUid) is not { Valid: true } station)
@@ -195,7 +215,7 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
         var shuttleUid = shuttleUidOut.Value;
         if (!_entityManager.TryGetComponent<ShuttleComponent>(shuttleUid, out var shuttle))
         {
-            ConsolePopup(player, Loc.GetString("cargo-console-insufficient-funds", ("cost", vessel.Price)));
+            ConsolePopup(player, Loc.GetString("cargo-console-insufficient-funds", ("cost", purchasePrice)));
             PlayDenySound(player, shipyardConsoleUid, component);
             return;
         }
@@ -226,7 +246,7 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
         // Keep track of whether or not a voucher was used.
         // TODO: voucher purchase should be done in a separate function.
         bool voucherUsed = false;
-        var recoveryPayment = voucher == null ? recovery.BeginPurchase(player, vessel.Price) : null;
+        var recoveryPayment = voucher == null ? recovery.BeginPurchase(player, purchasePrice) : null;
         if (voucher is not null)
         {
 			// Mono: Check if voucher has a purchase cooldown, and if it is still in cooldown cancel purchase
@@ -268,18 +288,25 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
         }
         else
         {
-            if (vessel.Price > bank.Balance && vessel.Price - bank.Balance > cashBalance)
+            if (purchasePrice > bank.Balance && purchasePrice - bank.Balance > cashBalance)
             {
                 Del(shuttleUid);
-                ConsolePopup(player, Loc.GetString("cargo-console-insufficient-funds", ("cost", vessel.Price)));
+                ConsolePopup(player, Loc.GetString("cargo-console-insufficient-funds", ("cost", purchasePrice)));
                 PlayDenySound(player, shipyardConsoleUid, component);
                 return;
             }
 
-            if (_cash.TryCashPayment(shipyardConsoleUid, vessel.Price, out var remainingDebt, true)) // Mono
-                cashBalance = Math.Max(cashBalance - vessel.Price,0);
-            if (remainingDebt > 0) // Mono
-                _bank.TryBankWithdraw(player, remainingDebt, recoveryPayment); // Mono
+            if (_cash.TryCashPayment(shipyardConsoleUid, purchasePrice, out var remainingDebt, true)) // Mono
+                cashBalance = Math.Max(cashBalance - purchasePrice,0);
+            if (remainingDebt > 0 && !_bank.TryBankWithdraw(player, remainingDebt, recoveryPayment))
+            {
+                var refund = Math.Clamp(purchasePrice - remainingDebt, 0, purchasePrice);
+                if (refund > 0) _stackSystem.Spawn(refund, _prototypeManager.Index<StackPrototype>(CreditPrototype), Transform(shipyardConsoleUid).Coordinates);
+                Del(shuttleUid);
+                ConsolePopup(player, Loc.GetString("cargo-console-payment-failed"));
+                PlayDenySound(player, shipyardConsoleUid, component);
+                return;
+            }
             recovery.AttachPurchase(shuttleUid, recoveryPayment, cashOnly: remainingDebt <= 0);
             recovery.BindPurchasedShip(recoveryPayment, shuttleUid);
         }
@@ -430,6 +457,7 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
             _applyIff.ApplyFlags(shuttleUid, applyIffComp, true);
         // Mono end
 
+        EnsureComp<Content.Server._DeepLagoon.Economy.PurchasedCapitalComponent>(shuttleUid).Paid = voucherUsed ? 0 : purchasePrice;
         var sellValue = 0;
         if (!voucherUsed)
         {
@@ -438,7 +466,7 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
                 sellValue = (int)_pricing.AppraiseGrid((EntityUid)(deed?.ShuttleUid!), LacksPreserveOnSaleComp);
 
             // Adjust for taxes
-            sellValue = CalculateShipResaleValue((shipyardConsoleUid, component), sellValue);
+            sellValue = CalculateShipResaleValue((shipyardConsoleUid, component), LimitEconomicCapitalResale(shuttleUid, sellValue));
         }
 
         var publicPurchase = HasComp<StationPublicShipyardPurchaseAnnouncementsComponent>(station);
@@ -472,7 +500,7 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
         if (voucherUsed)
             _adminLogger.Add(LogType.ShipYardUsage, LogImpact.Low, $"{ToPrettyString(player):actor} used {ToPrettyString(targetId)} to purchase shuttle {ToPrettyString(shuttleUid)} with a voucher via {ToPrettyString(shipyardConsoleUid)}");
         else
-            _adminLogger.Add(LogType.ShipYardUsage, LogImpact.Low, $"{ToPrettyString(player):actor} used {ToPrettyString(targetId)} to purchase shuttle {ToPrettyString(shuttleUid)} for {vessel.Price} credits via {ToPrettyString(shipyardConsoleUid)}");
+            _adminLogger.Add(LogType.ShipYardUsage, LogImpact.Low, $"{ToPrettyString(player):actor} used {ToPrettyString(targetId)} to purchase shuttle {ToPrettyString(shuttleUid)} for {purchasePrice} credits via {ToPrettyString(shipyardConsoleUid)}");
 
         // Adding the record to the shuttle records system makes them eligible to be copied.
         // Can be set on the component of the shipyard.
@@ -485,12 +513,13 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
                     ownerName: shuttleOwner,
                     entityUid: _entityManager.GetNetEntity(shuttleUid),
                     purchasedWithVoucher: voucherUsed,
-                    purchasePrice: (uint)vessel.Price
+                    purchasePrice: (uint)purchasePrice
                 )
             );
         }
 
-        var purchaseEv = new ShipyardShuttlePurchaseEvent(shuttleUid, player); // Mono: half of this shit could be an event.
+        if (!voucherUsed) economy.Purchased("ship:" + vessel.ID);
+        var purchaseEv = new ShipyardShuttlePurchaseEvent(shuttleUid, player, voucherUsed);
         RaiseLocalEvent(purchaseEv);
         RefreshState(shipyardConsoleUid, bank.Balance, cashBalance, true, name, sellValue, targetId, (ShipyardConsoleUiKey)args.UiKey, voucherUsed); // Mono
     }
@@ -511,6 +540,11 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
 
         if (args.Actor is not { Valid: true } player)
             return;
+        if (TryComp<ActorComponent>(player, out var seller) && _bank.IsPaymentPending(seller.PlayerSession.UserId))
+        {
+            ConsolePopup(player, Loc.GetString("dl-economy-busy"));
+            return;
+        }
 
         if (component.TargetIdSlot.ContainerSlot?.ContainedEntity is not { Valid: true } targetId)
         {
@@ -575,6 +609,14 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
             return;
         }
 
+        if (EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>().Enabled && !voucherUsed &&
+            !HasComp<Content.Server._DeepLagoon.Economy.PurchasedCapitalComponent>(shuttleUid) &&
+            !HasComp<Content.Server._DeepLagoon.ShuttleParking.ParkingShuttleComponent>(shuttleUid))
+        {
+            ConsolePopup(player, Loc.GetString("dl-economy-capital-unverified"));
+            PlayDenySound(player, uid, component);
+            return;
+        }
         var saleResult = TrySellShuttle(stationUid, shuttleUid, uid, out var bill);
         if (saleResult.Error != ShipyardSaleError.Success)
         {
@@ -601,6 +643,7 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
 
         if (!voucherUsed)
         {
+            bill = LimitEconomicCapitalResale(shuttleUid, bill);
             if (!component.IgnoreBaseSaleRate)
                 bill = (int)(bill * _baseSaleRate);
 
@@ -701,7 +744,7 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
         if (deed?.ShuttleUid != null)
         {
             sellValue = (int)_pricing.AppraiseGrid((EntityUid)(deed?.ShuttleUid!), LacksPreserveOnSaleComp);
-            sellValue = CalculateShipResaleValue((uid, component), sellValue);
+            sellValue = CalculateShipResaleValue((uid, component), LimitEconomicCapitalResale(deed!.ShuttleUid!.Value, sellValue));
         }
 
         var fullName = deed != null ? GetFullName(deed) : null;
@@ -804,7 +847,7 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
             if (deed?.ShuttleUid != null)
             {
                 sellValue = (int)_pricing.AppraiseGrid(deed.ShuttleUid.Value, LacksPreserveOnSaleComp);
-                sellValue = CalculateShipResaleValue((uid, component), sellValue);
+                sellValue = CalculateShipResaleValue((uid, component), LimitEconomicCapitalResale(deed!.ShuttleUid!.Value, sellValue));
             }
 
             var cashBalance = 0;
@@ -1013,6 +1056,10 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
             freeListings,
             CalculateSellRate(uid));
 
+        var economy = EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>();
+        if (economy.Enabled)
+            foreach (var id in newState.ShipyardPrototypes.available.Concat(newState.ShipyardPrototypes.unavailable))
+                if (_prototypeManager.TryIndex<VesselPrototype>(id, out var vessel)) newState.Prices[id] = (int)economy.Quote("ship:" + id, vessel.Price);
         _ui.SetUiState(uid, uiKey, newState);
     }
 
@@ -1064,6 +1111,14 @@ public sealed partial class ShipyardSystem : SharedShipyardSystem
             return taxRate;
         else
             return _baseSaleRate * taxRate;
+    }
+
+    private int LimitEconomicCapitalResale(EntityUid ship, int appraisal)
+    {
+        if (!EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>().Enabled) return appraisal;
+        var paid = TryComp<Content.Server._DeepLagoon.Economy.PurchasedCapitalComponent>(ship, out var capital) ? capital.Paid
+            : TryComp<Content.Server._DeepLagoon.ShuttleParking.ParkingShuttleComponent>(ship, out var legacy) ? legacy.OriginalPrice : 0;
+        return Math.Clamp(appraisal, 0, Math.Max(0, paid));
     }
 
     private int CalculateShipResaleValue(Entity<ShipyardConsoleComponent?> console, int baseAppraisal)

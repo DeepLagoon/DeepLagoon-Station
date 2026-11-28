@@ -1,5 +1,6 @@
 // Mono - Refactored into smaller subsystems
 using System.Diagnostics;
+using System.Linq;
 using Content.Server.Ghost.Roles.Components;
 using Content.Shared.Parallax.Biomes;
 using Content.Shared.Parallax.Biomes.Markers;
@@ -72,6 +73,7 @@ public sealed partial class BiomeSystem
         public readonly bool Forced = forced;
         public readonly MarkerCandidates Candidates = candidates;
         public int NextTile;
+        public IEnumerator<bool>? Finishing;
     }
 
     private void ProcessMarkerScan()
@@ -107,15 +109,15 @@ public sealed partial class BiomeSystem
             return;
         }
 
-        _markerScan = null;
-        try
+        scan.Finishing ??= FinishMarkerScan(scan, uid, grid).GetEnumerator();
+        var finishStart = Stopwatch.GetTimestamp();
+        do
         {
-            FinishMarkerScan(scan, uid, grid);
-        }
-        finally
-        {
-            _tilePool.Return(scan.Candidates.Tiles);
-        }
+            if (scan.Finishing.MoveNext())
+                continue;
+            CancelMarkerScan(biome);
+            break;
+        } while (Stopwatch.GetElapsedTime(finishStart) < MarkerScanTime);
     }
 
     private void StartMarkerPreload()
@@ -148,6 +150,7 @@ public sealed partial class BiomeSystem
         if (_markerScan is not { } scan || scan.Request.Biome != biome)
             return;
 
+        scan.Finishing?.Dispose();
         _tilePool.Return(scan.Candidates.Tiles);
         _markerScan = null;
     }
@@ -200,33 +203,42 @@ public sealed partial class BiomeSystem
         _markerScan = new MarkerScan(request, layer, bounds, count, seed, forced, new MarkerCandidates(_tilePool.Get()));
     }
 
-    private void FinishMarkerScan(MarkerScan scan, EntityUid uid, MapGridComponent grid)
+    private IEnumerable<bool> FinishMarkerScan(MarkerScan scan, EntityUid uid, MapGridComponent grid)
     {
         var (biome, layer, origin) = scan.Request;
-        SelectMarkerNodes(scan.Layer, scan.Count, new Random(scan.Seed), scan.Candidates, out var spawnSet, out var existing);
-
-        foreach (var ent in existing)
-        {
-            if (!_xformQuery.TryGetComponent(ent, out var xform) || !xform.Anchored || xform.ParentUid != uid)
-                continue;
-
-            var tile = _mapSystem.LocalToTile(uid, grid, xform.Coordinates);
-            var chunk = SharedMapSystem.GetChunkIndices(tile, ChunkSize) * ChunkSize;
-            if (scan.Candidates.Entities.GetValueOrDefault(tile) != ent ||
-                biome.ModifiedTiles.TryGetValue(chunk, out var modified) && modified.Contains(tile))
-                continue;
-
-            // Replacing generated terrain with a marker is part of generation, not mining.
-            _generatedEntityTiles.Remove(ent);
-            _scenerySpriteDefaults.Remove(ent);
-            if (biome.LoadedEntities.TryGetValue(chunk, out var entities))
-                entities.Remove(ent);
-            Del(ent);
-        }
+        var spawnSet = new Dictionary<Vector2i, string?>();
+        var existing = new HashSet<EntityUid>();
+        foreach (var step in SelectMarkerNodes(scan.Layer, scan.Count, new Random(scan.Seed), scan.Candidates, spawnSet, existing))
+            yield return step;
 
         foreach (var node in spawnSet.Keys)
         {
+            yield return true;
             var chunk = SharedMapSystem.GetChunkIndices(node, ChunkSize) * ChunkSize;
+            if (biome.ModifiedTiles.TryGetValue(chunk, out var edited) && edited.Contains(node))
+                continue;
+            if (scan.Candidates.Entities.TryGetValue(node, out var ent) && existing.Contains(ent) &&
+                _xformQuery.TryGetComponent(ent, out var xform) && xform.Anchored && xform.ParentUid == uid &&
+                _mapSystem.LocalToTile(uid, grid, xform.Coordinates) == node &&
+                (!biome.ModifiedTiles.TryGetValue(chunk, out var modified) || !modified.Contains(node)))
+            {
+                _scenerySpriteDefaults.TryGetValue(ent, out var initialSprite);
+                if (!_generatedEntityTiles.TryGetValue(ent, out var generated) || generated.Biome != biome ||
+                    generated.Tile != node || !IsUnchangedScenery(biome, ent, xform, initialSprite))
+                {
+                    // The scan may finish several ticks after discovery. Never
+                    // replace a player's authored or subsequently edited object.
+                    biome.ModifiedTiles.GetOrNew(chunk).Add(node);
+                    continue;
+                }
+                // Remove terrain and record its replacement in the same slice. A
+                // cancellation must never lose an authored entity without a marker.
+                _generatedEntityTiles.Remove(ent);
+                _scenerySpriteDefaults.Remove(ent);
+                if (biome.LoadedEntities.TryGetValue(chunk, out var entities))
+                    entities.Remove(ent);
+                Del(ent);
+            }
             biome.PendingMarkers.GetOrNew(chunk).GetOrNew(layer).Add(node);
         }
 
@@ -250,6 +262,20 @@ public sealed partial class BiomeSystem
         out HashSet<EntityUid> existingEnts,
         bool emptyTiles = true)
     {
+        Dictionary<Vector2i, string?> selected = default!;
+        HashSet<EntityUid> existing = default!;
+        foreach (var _ in GetMarkerNodeSteps(gridUid, biome, grid, layerProto, forced, bounds, count, rand,
+                     (nodes, entities) => { selected = nodes; existing = entities; }, emptyTiles)) { }
+        spawnSet = selected;
+        existingEnts = existing;
+    }
+
+    /// <summary>Cooperative marker scanning for dungeon jobs. Dispose to cancel and return pooled tiles.</summary>
+    public IEnumerable<bool> GetMarkerNodeSteps(
+        EntityUid gridUid, BiomeComponent biome, MapGridComponent grid, BiomeMarkerLayerPrototype layerProto,
+        bool forced, Box2i bounds, int count, Random rand,
+        Action<Dictionary<Vector2i, string?>, HashSet<EntityUid>> completed, bool emptyTiles = true)
+    {
         var candidates = new MarkerCandidates(_tilePool.Get());
         try
         {
@@ -258,6 +284,8 @@ public sealed partial class BiomeSystem
             {
                 for (var y = bounds.Bottom; y < bounds.Top; y++)
                 {
+                    if ((y - bounds.Bottom) % 32 == 0)
+                        yield return true;
                     var tile = new Vector2i(x, y);
                     if (!emptyTiles && (!_mapSystem.TryGetTile(grid, tile, out var existing) || existing.IsEmpty))
                         continue;
@@ -266,7 +294,11 @@ public sealed partial class BiomeSystem
                 }
             }
 
-            SelectMarkerNodes(layerProto, count, rand, candidates, out spawnSet, out existingEnts);
+            var spawnSet = new Dictionary<Vector2i, string?>();
+            var existingEnts = new HashSet<EntityUid>();
+            foreach (var step in SelectMarkerNodes(layerProto, count, rand, candidates, spawnSet, existingEnts))
+                yield return step;
+            completed(spawnSet, existingEnts);
         }
         finally
         {
@@ -295,17 +327,14 @@ public sealed partial class BiomeSystem
             candidates.Entities.Add(node, entity);
     }
 
-    private void SelectMarkerNodes(BiomeMarkerLayerPrototype layerProto, int count, Random rand,
-        MarkerCandidates candidates, out Dictionary<Vector2i, string?> spawnSet, out HashSet<EntityUid> existingEnts)
+    private IEnumerable<bool> SelectMarkerNodes(BiomeMarkerLayerPrototype layerProto, int count, Random rand,
+        MarkerCandidates candidates, Dictionary<Vector2i, string?> spawnSet, HashSet<EntityUid> existingEnts)
     {
         var remainingTiles = candidates.Tiles;
         var frontier = new ValueList<Vector2i>(32);
         // TODO: Need poisson but crashes whenever I use moony's due to inputs or smth idk
         // Get the total amount of groups to spawn across the entire chunk.
         // We treat a null entity mask as requiring nothing else on the tile
-
-        spawnSet = new Dictionary<Vector2i, string?>();
-        existingEnts = new HashSet<EntityUid>();
 
         // Iterate the group counts and pathfind out each group.
         for (var i = 0; i < count; i++)
@@ -322,6 +351,7 @@ public sealed partial class BiomeSystem
                 // This essentially may lead to a vein being split in multiple areas but the count matters more than position.
                 while (frontier.Count > 0 && groupSize > 0)
                 {
+                    yield return true;
                     // Need to pick a random index so we don't just get straight lines of ores.
                     var frontierIndex = rand.Next(frontier.Count);
                     var node = frontier[frontierIndex];
@@ -366,7 +396,7 @@ public sealed partial class BiomeSystem
     /// <remarks>
     /// Note that the marker chunks do not correspond to this chunk.
     /// </remarks>
-    private void LoadChunkMarkers(
+    private IEnumerable<bool> LoadChunkMarkers(
         BiomeComponent component,
         EntityUid gridUid,
         MapGridComponent grid,
@@ -375,65 +405,67 @@ public sealed partial class BiomeSystem
     {
         // Load any pending marker tiles first.
         if (!component.PendingMarkers.TryGetValue(chunk, out var layers))
-            return;
+            yield break;
 
         // This needs to be done separately in case we try to add a marker layer and want to force it on existing
         // loaded chunks.
         component.ModifiedTiles.TryGetValue(chunk, out var modified);
         modified ??= _tilePool.Get();
+        component.ModifiedTiles[chunk] = modified;
 
-        foreach (var (layer, nodes) in layers)
+        try
         {
-            var layerProto = ProtoManager.Index<BiomeMarkerLayerPrototype>(layer);
-
-            foreach (var node in nodes)
+            foreach (var (layer, nodes) in layers.ToArray())
             {
-                if (modified.Contains(node) || HasAnchoredEntity(gridUid, grid, node))
-                    continue;
+                var layerProto = ProtoManager.Index<BiomeMarkerLayerPrototype>(layer);
 
-                // Need to ensure the tile under it has loaded for anchoring.
-                if (_mapSystem.GetTileRef(gridUid, grid, node).Tile.IsEmpty &&
-                    TryGetTile(node, component.Layers, seed, (gridUid, grid), out var tile))
+                foreach (var node in nodes.ToArray())
                 {
-                    _mapSystem.SetTile(gridUid, grid, node, tile.Value);
+                    yield return true;
+                    nodes.Remove(node);
+                    if (modified.Contains(node) || HasAnchoredEntity(gridUid, grid, node))
+                        continue;
+
+                    // Need to ensure the tile under it has loaded for anchoring.
+                    if (_mapSystem.GetTileRef(gridUid, grid, node).Tile.IsEmpty &&
+                        TryGetTile(node, component.Layers, seed, (gridUid, grid), out var tile))
+                    {
+                        _mapSystem.SetTile(gridUid, grid, node, tile.Value);
+                    }
+
+                    string? prototype;
+
+                    if (TryGetEntity(node, component, (gridUid, grid), out var proto) &&
+                        layerProto.EntityMask.TryGetValue(proto, out var maskedProto))
+                    {
+                        prototype = maskedProto;
+                    }
+                    else
+                    {
+                        prototype = layerProto.Prototype;
+                    }
+
+                    if (prototype == null)
+                        continue;
+
+                    // If it is a ghost role then purge it
+                    // TODO: This is *kind* of a bandaid but natural mobs spawns needs a lot more work.
+                    // Ideally we'd just have ghost role and non-ghost role variants for some stuff.
+                    var uid = EntityManager.CreateEntityUninitialized(prototype, _mapSystem.GridTileToLocal(gridUid, grid, node));
+                    RemComp<GhostTakeoverAvailableComponent>(uid);
+                    RemComp<GhostRoleComponent>(uid);
+                    EntityManager.InitializeAndStartEntity(uid);
+                    modified.Add(node);
                 }
-
-                string? prototype;
-
-                if (TryGetEntity(node, component, (gridUid, grid), out var proto) &&
-                    layerProto.EntityMask.TryGetValue(proto, out var maskedProto))
-                {
-                    prototype = maskedProto;
-                }
-                else
-                {
-                    prototype = layerProto.Prototype;
-                }
-
-                if (prototype == null)
-                    continue;
-
-                // If it is a ghost role then purge it
-                // TODO: This is *kind* of a bandaid but natural mobs spawns needs a lot more work.
-                // Ideally we'd just have ghost role and non-ghost role variants for some stuff.
-                var uid = EntityManager.CreateEntityUninitialized(prototype, _mapSystem.GridTileToLocal(gridUid, grid, node));
-                RemComp<GhostTakeoverAvailableComponent>(uid);
-                RemComp<GhostRoleComponent>(uid);
-                EntityManager.InitializeAndStartEntity(uid);
-                modified.Add(node);
+                if (nodes.Count == 0)
+                    layers.Remove(layer);
             }
+            if (layers.Count == 0)
+                component.PendingMarkers.Remove(chunk);
         }
-
-        if (modified.Count == 0)
+        finally
         {
-            component.ModifiedTiles.Remove(chunk);
-            _tilePool.Return(modified);
+            FinalizeChunk(component, chunk, modified);
         }
-        else
-        {
-            component.ModifiedTiles[chunk] = modified;
-        }
-
-        component.PendingMarkers.Remove(chunk);
     }
 }

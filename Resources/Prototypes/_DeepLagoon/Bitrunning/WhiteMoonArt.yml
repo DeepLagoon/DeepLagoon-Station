@@ -8692,6 +8692,7 @@
   - HideSpawnMenu
   name: crude sign
   components:
+  - type: ThrusterExhaustImmune
   - type: Transform
     anchored: true
   - type: Sprite

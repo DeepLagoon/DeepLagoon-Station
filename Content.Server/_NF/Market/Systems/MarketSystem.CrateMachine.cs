@@ -33,6 +33,26 @@ public sealed partial class MarketSystem
         {
             marketMod = marketModComponent.Mod;
         }
+        if (component.TelepadDelivery)
+        {
+            var cargo = EntityManager.System<Content.Server.Cargo.Systems.CargoSystem>();
+            var shipment = Guid.NewGuid();
+            if (!cargo.TryReserveMarketTelepad(consoleUid, shipment, out var pad))
+            {
+                _popup.PopupEntity(Loc.GetString("market-no-telepad-available"), consoleUid, args.Actor);
+                _audio.PlayPredicted(component.ErrorSound, consoleUid, null, AudioParams.Default.WithMaxDistance(5f));
+                if (TryComp<BankAccountComponent>(args.Actor, out var account)) RefreshState(consoleUid, account.Balance, marketMod, component);
+                return;
+            }
+            var delivered = false;
+            try
+            {
+                if (args.Actor is { Valid: true } actor && TryComp<BankAccountComponent>(actor, out var bank))
+                    delivered = TrySpawnCrate(pad, actor, consoleUid, null, component, marketMod, bank, true);
+            }
+            finally { cargo.ReleaseMarketTelepad(pad, shipment, delivered); }
+            return;
+        }
 
         if (!_crateMachine.FindNearestUnoccupied(consoleUid, component.MaxCrateMachineDistance, out var machineUid) || !_entityManager.TryGetComponent<CrateMachineComponent> (machineUid, out var comp))
         {
@@ -60,27 +80,28 @@ public sealed partial class MarketSystem
         TrySpawnCrate(crateMachineUid, player, consoleUid, component, consoleComponent, marketMod, bankAccount);
     }
 
-    private void TrySpawnCrate(EntityUid crateMachineUid,
+    private bool TrySpawnCrate(EntityUid crateMachineUid,
         EntityUid player,
         EntityUid consoleUid,
-        CrateMachineComponent component,
+        CrateMachineComponent? component,
         MarketConsoleComponent consoleComponent,
         float marketMod,
-        BankAccountComponent playerBank)
+        BankAccountComponent playerBank, bool telepad = false)
     {
-        if (!HasComp<MarketItemSpawnerComponent>(crateMachineUid) ||
-            HasComp<MarketPendingShipmentComponent>(crateMachineUid) ||
+        if (!telepad && (!HasComp<MarketItemSpawnerComponent>(crateMachineUid) ||
+            HasComp<MarketPendingShipmentComponent>(crateMachineUid)) ||
             consoleComponent.CartDataList.Count == 0)
-            return;
+            return false;
 
-        var cartBalance = MarketDataExtensions.GetMarketValue(consoleComponent.CartDataList, marketMod);
+        var cartBalance = checked(MarketDataExtensions.GetMarketValue(consoleComponent.CartDataList, marketMod) +
+            (telepad ? consoleComponent.TransactionCost : 0));
         if (playerBank.Balance < cartBalance)
-            return;
+            return false;
 
         // Withdraw spesos from player
         var spawnCost = Math.Abs(cartBalance);
         var recovery = EntityManager.System<Content.Server._DeepLagoon.CrashRecovery.CrashRecoverySystem>();
-        if (!recovery.CanProtectBuyer(player)) return;
+        if (!recovery.CanProtectBuyer(player)) return false;
         var recoveryPrices = new List<long>();
         foreach (var lot in consoleComponent.CartDataList)
         {
@@ -95,21 +116,34 @@ public sealed partial class MarketSystem
             var lotCost = checked((long)Math.Round(lot.Price * lot.Quantity * marketMod));
             for (var i = 0; i < count; i++) recoveryPrices.Add(lotCost / count + (i < lotCost % count ? 1 : 0));
         }
+        if (telepad && recoveryPrices.Count > 0) recoveryPrices[0] += consoleComponent.TransactionCost;
         var recoveryPayment = recovery.BeginPurchase(player, spawnCost, recoveryPrices.Count, recoveryPrices.ToArray());
         if (!_bankSystem.TryBankWithdraw(player, spawnCost, recoveryPayment))
         {
             _popup.PopupEntity(Loc.GetString("market-insufficient-funds"), consoleUid, player);
             _audio.PlayPredicted(consoleComponent.ErrorSound, consoleUid, null, AudioParams.Default.WithMaxDistance(5f));
-            return;
+            return false;
         }
         _audio.PlayPredicted(consoleComponent.SuccessSound, consoleUid, null, AudioParams.Default.WithMaxDistance(5f));
+
+        if (telepad)
+        {
+            var key = new object();
+            recovery.AttachPurchase(key, recoveryPayment);
+            var crate = Spawn("CrateGenericSteel", Transform(crateMachineUid).Coordinates);
+            SpawnCrateItems(consoleComponent.CartDataList, crate, key);
+            consoleComponent.CartDataList = [];
+            RefreshState(consoleUid, playerBank.Balance, marketMod, consoleComponent);
+            return true;
+        }
 
         var pending = EnsureComp<MarketPendingShipmentComponent>(crateMachineUid);
         pending.Items = consoleComponent.CartDataList;
         recovery.AttachPurchase(pending, recoveryPayment);
         consoleComponent.CartDataList = [];
-        _crateMachine.OpenFor(crateMachineUid, component);
+        _crateMachine.OpenFor(crateMachineUid, component!);
         RefreshState(consoleUid, playerBank.Balance, marketMod, consoleComponent);
+        return true;
     }
 
     private void SpawnCrateItems(List<MarketLot> spawnList, EntityUid targetCrate, object recoveryKey)

@@ -119,6 +119,20 @@ public sealed partial class HumanoidProfileEditor
 
         RestoreTguiBodyMarkings(list, points);
 
+        // Alternative leg shapes cannot be combined.
+        list.RemoveAll(marking =>
+            _markingManager.TryGetMarking(marking, out var existing)
+            && existing.IsBodyReplacement
+            && bundle.Any(part =>
+                part.IsBodyReplacement
+                && part.BodyPart == existing.BodyPart
+                && part.ID != existing.ID
+                && (part.BodyPart is
+                    HumanoidVisualLayers.LLeg or
+                    HumanoidVisualLayers.RLeg or
+                    HumanoidVisualLayers.LFoot or
+                    HumanoidVisualLayers.RFoot)));
+
         var defaults = _prototypeManager.Index<MarkingPointsPrototype>(points).Points.Values
             .SelectMany(category => category.DefaultMarkings).ToHashSet();
         list.RemoveAll(marking => defaults.Contains(marking.MarkingId) && _markingManager.TryGetMarking(marking, out var existing)

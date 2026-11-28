@@ -108,6 +108,7 @@ public sealed partial class SalvageSystem
 
     private void OnSalvageClaimMessage(EntityUid uid, SalvageExpeditionConsoleComponent component, ClaimSalvageMessage args)
     {
+        if (!component.DispatchByDisk && _cfgManager.GetCVar(Content.Shared._DeepLagoon.Voyages.SectorExpeditionCVars.Enabled)) return;
         var station = GetExpeditionSource(uid, component);
 
         // Frontier
@@ -271,7 +272,7 @@ public sealed partial class SalvageSystem
         const int departTime = 20;
         var newEndTime = _timing.CurTime + TimeSpan.FromSeconds(departTime);
 
-        if (expedition.EndTime <= newEndTime)
+        if (expedition.Stage >= ExpeditionStage.Countdown)
             return;
 
         expedition.EndTime = newEndTime;

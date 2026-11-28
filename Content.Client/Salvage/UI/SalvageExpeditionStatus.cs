@@ -61,7 +61,9 @@ public sealed class SalvageExpeditionStatus : UIWidget
         }
 
         var seconds = Math.Max(0, (int) Math.Ceiling((expedition.EndTime - _timing.CurTime).TotalSeconds));
-        _label.Text = Loc.GetString("salvage-expedition-status",
+        _label.Text = expedition.Stage == ExpeditionStage.Running
+            ? Loc.GetString("salvage-expedition-status-unlimited", ("completed", expedition.ObjectivesCompleted), ("total", expedition.ObjectivesTotal))
+            : Loc.GetString("salvage-expedition-status",
             ("time", $"{seconds / 60:00}:{seconds % 60:00}"),
             ("completed", expedition.ObjectivesCompleted), ("total", expedition.ObjectivesTotal));
         _label.Visible = true;

@@ -18,6 +18,7 @@ type Item = {
   code: string;
   price: number;
   priceText: string;
+  currency?: string;
 };
 type Stock = { key: string; available: boolean; unlimited: boolean; amount: string };
 type Data = {
@@ -152,7 +153,7 @@ export const VendingMachine = () => {
           <div className={`VendingMachine__status${data.status === 'denied' ? ' is-denied' : ''}`} role="status" aria-live="polite">{status}</div>
         </aside>
       </main>
-      <footer className="VendingMachine__footer"><div className="VendingMachine__chute" data-wear-protect="box">{t('chute')}</div><span data-wear-protect="text">{data.requiresCash ? t('payment') : t('free')}</span></footer>
+      <footer className="VendingMachine__footer"><div className="VendingMachine__chute" data-wear-protect="box">{t('chute')}</div><span data-wear-protect="text">{preview?.currency === 'LC' ? t('payment-lc') : data.requiresCash ? t('payment') : t('free')}</span></footer>
     </div>
   );
 };

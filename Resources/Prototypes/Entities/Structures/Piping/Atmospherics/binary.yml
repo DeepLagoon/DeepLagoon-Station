@@ -36,6 +36,7 @@
   placement:
     mode: AlignAtmosPipeLayers
   components:
+  - type: ThrusterExhaustImmune
   - type: StationAiWhitelist # Mono
   - type: ExtensionCableReceiver
   - type: LightningTarget
@@ -174,6 +175,7 @@
   placement:
     mode: AlignAtmosPipeLayers
   components:
+  - type: ThrusterExhaustImmune
   - type: Rotatable
   - type: Transform
     noRot: false

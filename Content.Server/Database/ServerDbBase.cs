@@ -313,6 +313,7 @@ namespace Content.Server.Database
                     item.Sticky))) // Mono end
                 .WithOocNotes(profile.OocNotes)
                 .WithCustomSpeciesName(profile.CustomSpeciesName)
+                .WithBloodColor(profile.BloodColor)
                 .WithSpeechBarks(ReadSpeechBarks(profile.SpeechBarkSettingsJson))
                 .WithArousalPreferences(JsonSerializer.Deserialize<BlueMoonPreferences>(profile.ArousalPreferencesJson) ?? new())
                 .WithInteractionPanelConsent(InteractionPanelCategory.Erotic, (InteractionPanelConsent)profile.ERPConsent)
@@ -377,6 +378,7 @@ namespace Content.Server.Database
             profile.FlavorText = humanoid.FlavorText;
             profile.OocNotes = humanoid.OocNotes;
             profile.HeadshotId = humanoid.HeadshotId;
+            profile.BloodColor = humanoid.BloodColor;
             profile.Species = humanoid.Species;
             profile.CustomSpeciesName = humanoid.CustomSpeciesName;
             profile.SpeechBarkSettingsJson = JsonSerializer.Serialize(humanoid.SpeechBarks.Sanitize());
@@ -883,7 +885,16 @@ namespace Content.Server.Database
             await using var db = await GetDb(cancel);
 
             var existing = await db.DbContext.Admin.Include(a => a.Flags).SingleAsync(a => a.UserId == admin.UserId, cancel);
-            existing.Flags = admin.Flags;
+            // Keep unchanged rows: replacing the navigation collection produces a
+            // DELETE/INSERT audit event for every permission on a one-flag edit.
+            var wantedFlags = admin.Flags.Select(f => (f.Flag, f.Negative)).ToHashSet();
+            existing.Flags.RemoveAll(f => !wantedFlags.Contains((f.Flag, f.Negative)));
+            var retainedFlags = existing.Flags.Select(f => (f.Flag, f.Negative)).ToHashSet();
+            foreach (var flag in admin.Flags)
+            {
+                if (retainedFlags.Add((flag.Flag, flag.Negative)))
+                    existing.Flags.Add(new AdminFlag { Flag = flag.Flag, Negative = flag.Negative });
+            }
             existing.Title = admin.Title;
             existing.AdminRankId = admin.AdminRankId;
             existing.Deadminned = admin.Deadminned;
@@ -920,23 +931,23 @@ namespace Content.Server.Database
             await db.DbContext.SaveChangesAsync(cancel);
         }
 
-        public async Task RemoveAdminRankAsync(int rankId, CancellationToken cancel)
+        public async Task RemoveAdminRankAsync(int rankId, CancellationToken cancel, string? actorName = null)
         {
             await using var db = await GetDb(cancel);
 
             var admin = await db.DbContext.AdminRank.SingleAsync(a => a.Id == rankId, cancel);
             db.DbContext.AdminRank.Remove(admin);
 
-            await db.DbContext.SaveChangesAsync(cancel);
+            await SaveAdministrationChanges(db.DbContext, actorName, cancel);
         }
 
-        public async Task AddAdminRankAsync(AdminRank rank, CancellationToken cancel)
+        public async Task AddAdminRankAsync(AdminRank rank, CancellationToken cancel, string? actorName = null)
         {
             await using var db = await GetDb(cancel);
 
             db.DbContext.AdminRank.Add(rank);
 
-            await db.DbContext.SaveChangesAsync(cancel);
+            await SaveAdministrationChanges(db.DbContext, actorName, cancel);
         }
 
         public async Task<int> AddNewRound(Server server, params Guid[] playerIds)
@@ -1006,7 +1017,7 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
                 MakeServerRecord(round.Server));
         }
 
-        public async Task UpdateAdminRankAsync(AdminRank rank, CancellationToken cancel)
+        public async Task UpdateAdminRankAsync(AdminRank rank, CancellationToken cancel, string? actorName = null)
         {
             await using var db = await GetDb(cancel);
 
@@ -1014,11 +1025,18 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
                 .Include(r => r.Flags)
                 .SingleAsync(a => a.Id == rank.Id, cancel);
 
-            existing.Flags = rank.Flags;
+            var wantedFlags = rank.Flags.Select(f => f.Flag).ToHashSet();
+            existing.Flags.RemoveAll(f => !wantedFlags.Contains(f.Flag));
+            var retainedFlags = existing.Flags.Select(f => f.Flag).ToHashSet();
+            foreach (var flag in rank.Flags)
+            {
+                if (retainedFlags.Add(flag.Flag))
+                    existing.Flags.Add(new AdminRankFlag { Flag = flag.Flag });
+            }
             existing.Name = rank.Name;
             existing.ShortName = rank.ShortName; // Mono
 
-            await db.DbContext.SaveChangesAsync(cancel);
+            await SaveAdministrationChanges(db.DbContext, actorName, cancel);
         }
         #endregion
 

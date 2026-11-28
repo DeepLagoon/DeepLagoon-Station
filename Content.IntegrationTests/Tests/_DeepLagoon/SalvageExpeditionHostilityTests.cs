@@ -56,6 +56,7 @@ public sealed class SalvageExpeditionHostilityTests
             foreach (var defender in defenders)
             {
                 Assert.That(entities.GetComponent<NpcForcedHostilityComponent>(defender).Group, Is.EqualTo(map));
+                Assert.That(entities.HasComponent<Content.Server.Salvage.ExpeditionSalvageComponent>(defender), Is.True);
                 factions.IgnoreEntity(defender, crew);
                 Assert.That(factions.IsIgnored(defender, crew), Is.False);
             }

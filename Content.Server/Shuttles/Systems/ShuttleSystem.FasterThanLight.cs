@@ -32,6 +32,7 @@ using Content.Shared._Mono.Ships;
 using Content.Shared._Crescent.SpaceBiomes;
 using Robust.Shared.Prototypes;
 using Content.Server.Explosion.EntitySystems;
+using Content.Server.Salvage;
 
 namespace Content.Server.Shuttles.Systems;
 
@@ -686,7 +687,7 @@ public sealed partial class ShuttleSystem
         if (comp.LinkedShuttle.HasValue)
             return;
         var shuttle = entity.Comp2;
-        comp.StateTime = StartEndTime.FromCurTime(_gameTiming, DefaultArrivalTime);
+        comp.StateTime = StartEndTime.FromCurTime(_gameTiming, comp.ArrivalTimeOverride ?? DefaultArrivalTime);
         comp.State = FTLState.Arriving;
 
         // Create visualizer if it doesn't exist
@@ -1646,6 +1647,15 @@ public sealed partial class ShuttleSystem
         // Setting the entity to map directly may run grid traversal (at least at time of writing this).
         var oldMapUid = xform.MapUid;
         var oldGridMatrix = _transform.GetWorldMatrix(xform);
+        // DeepLagoon: эвакуация застрахованных тел
+        // до перемещения шаттла в БСС.
+        if (fromMapUid is { } expeditionMap &&
+            _transform.GetMap(comp.TargetCoordinates) != expeditionMap)
+        {
+            EntityManager.System<SalvageSystem>()
+                .RescueInsuredBodiesBeforeDeparture(
+                    expeditionMap, uid);
+        }
         // Move main shuttle to FTL and set its rotation to zero
         _transform.SetCoordinates(entity.Owner, ftlStart);
         _transform.SetWorldRotation(entity.Owner, Angle.Zero);
@@ -1699,7 +1709,7 @@ public sealed partial class ShuttleSystem
             _console.RefreshShuttleConsoles(dockedUid);
         }
 
-        comp.StateTime = StartEndTime.FromCurTime(_gameTiming, comp.TravelTime - DefaultArrivalTime);
+        comp.StateTime = StartEndTime.FromCurTime(_gameTiming, comp.TravelTime - (comp.ArrivalTimeOverride ?? DefaultArrivalTime));
 
         Enable(uid, component: body);
         _physics.SetLinearVelocity(uid, new Vector2(0f, 20f), body: body);

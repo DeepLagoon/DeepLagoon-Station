@@ -1,0 +1,7 @@
+- type: entity
+  parent: ResearchAndDevelopmentServer
+  id: ResearchAndDevelopmentServerSevastopol
+  suffix: Sevastopol, bolted
+  components:
+  - type: Anchorable
+    flags: [Anchorable]

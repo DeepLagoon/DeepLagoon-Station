@@ -471,6 +471,8 @@ namespace Content.Client.Lobby.UI
 
             #endregion Eyes
 
+            InitializeBloodColorControls();
+
             #endregion Appearance
 
             #region Jobs
@@ -1797,6 +1799,7 @@ namespace Content.Client.Lobby.UI
 
             Markings.CurrentEyeColor = Profile.Appearance.EyeColor;
             EyeColorPicker.SetData(Profile.Appearance.EyeColor);
+            UpdateBloodColorControls();
         }
 
         private void UpdateSaveButton()

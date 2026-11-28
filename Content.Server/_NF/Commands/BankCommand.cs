@@ -42,8 +42,6 @@ public sealed partial class BankCommand : IConsoleCommand
         }
 
         var target = args[0];
-        var bankSystem = _entitySystemManager.GetEntitySystem<BankSystem>();
-
         if (!long.TryParse(args[1], out var amount) || amount == long.MinValue)
         {
             shell.WriteError("Amount must be a valid number.");
@@ -102,142 +100,95 @@ public sealed partial class BankCommand : IConsoleCommand
 
     private async Task HandleOnlinePlayer(IConsoleShell shell, ICommonSession targetSession, long amount, string target)
     {
-        var bankSystem = _entitySystemManager.GetEntitySystem<BankSystem>();
-
+        var bank = _entitySystemManager.GetEntitySystem<BankSystem>();
         if (!_prefsManager.TryGetCachedPreferences(targetSession.UserId, out var prefs))
         {
             shell.WriteError($"Unable to retrieve preferences for player '{target}'.");
             return;
         }
-
-        if (prefs.SelectedCharacter is not HumanoidCharacterProfile profile)
+        HumanoidCharacterProfile? profile;
+        int? expectedProfile = null;
+        if (bank.TryGetCharacter(targetSession, out _, out var current, out _))
+        {
+            profile = current;
+            if (targetSession.AttachedEntity is { } body && _entityManager.TryGetComponent<BankCharacterComponent>(body, out var owner))
+                expectedProfile = owner.Profile;
+        }
+        else if (_entitySystemManager.GetEntitySystem<Content.Server.Mind.MindSystem>()
+                     .TryGetMind(targetSession.UserId, out var mind, out _) &&
+                 _entityManager.TryGetComponent<BankCharacterComponent>(mind.Value, out var remembered) &&
+                 remembered.User == targetSession.UserId.UserId)
+        {
+            // Observe/cryo must not redirect an administrator's command to a newly selected lobby character.
+            profile = prefs.Characters.GetValueOrDefault(remembered.Slot) as HumanoidCharacterProfile;
+            expectedProfile = remembered.Profile;
+        }
+        else profile = prefs.SelectedCharacter as HumanoidCharacterProfile;
+        if (profile == null)
         {
             shell.WriteError($"Player '{target}' has an invalid character profile.");
             return;
         }
-
-        var currentBalance = profile.BankBalance;
-
-        // Ensure the player won't have negative balance after withdrawal
-        if (amount < 0 && Math.Abs(amount) > currentBalance)
-        {
-            shell.WriteError($"Player '{target}' only has {currentBalance}, cannot remove {Math.Abs(amount)}.");
-            return;
-        }
-
-        bool success;
-        long? newBalance = null;
-
-        // Check if player is currently in-game with an entity
-        EntityUid? playerEntity = targetSession.AttachedEntity;
-
-        if (playerEntity != null && _entityManager.HasComponent<BankAccountComponent>(playerEntity.Value))
-        {
-            // Player is in-game with entity that has bank account - use entity methods which will update the profile
-            if (amount > 0)
-            {
-                success = bankSystem.TryBankDeposit(playerEntity.Value, amount);
-                if (success)
-                {
-                    // Get updated balance after deposit
-                    success = bankSystem.TryGetBalance(targetSession, out long updatedBalance);
-                    if (success)
-                        newBalance = updatedBalance;
-                }
-            }
-            else if (amount < 0)
-            {
-                success = bankSystem.TryBankWithdraw(playerEntity.Value, Math.Abs(amount));
-                if (success)
-                {
-                    // Get updated balance after withdrawal
-                    success = bankSystem.TryGetBalance(targetSession, out long updatedBalance);
-                    if (success)
-                        newBalance = updatedBalance;
-                }
-            }
-            else
-            {
-                shell.WriteLine($"Player '{target}' balance unchanged: {currentBalance}");
-                return;
-            }
-
-            if (success)
-                shell.WriteLine("Updated player's bank account.");
-        }
-        else
-        {
-            // Player is not in-game or entity has no bank account - update profile directly
-            if (amount > 0)
-            {
-                success = bankSystem.TryBankDeposit(targetSession, prefs, profile, amount, out newBalance);
-            }
-            else if (amount < 0)
-            {
-                success = bankSystem.TryBankWithdraw(targetSession, prefs, profile, Math.Abs(amount), out newBalance);
-            }
-            else
-            {
-                shell.WriteLine($"Player '{target}' balance unchanged: {currentBalance}");
-                return;
-            }
-        }
-
-        if (!success || newBalance == null)
-        {
-            shell.WriteError($"Failed to modify player '{target}' bank balance.");
-            return;
-        }
-
-        shell.WriteLine(amount > 0
-            ? $"Added {amount} to player '{target}' balance. New balance: {newBalance.Value}"
-            : $"Removed {Math.Abs(amount)} from player '{target}' balance. New balance: {newBalance.Value}");
+        await AdjustAccount(shell, targetSession.UserId, prefs, profile, amount, target, expectedProfile);
     }
 
-    private async Task HandleOfflinePlayer(IConsoleShell shell, NetUserId userId, PlayerPreferences prefs, HumanoidCharacterProfile profile, long amount, string target)
+    private Task HandleOfflinePlayer(IConsoleShell shell, NetUserId userId, PlayerPreferences prefs,
+        HumanoidCharacterProfile profile, long amount, string target)
+        => AdjustAccount(shell, userId, prefs, profile, amount, target);
+
+    private async Task AdjustAccount(IConsoleShell shell, NetUserId userId, PlayerPreferences prefs,
+        HumanoidCharacterProfile profile, long amount, string target, int? expectedProfile = null)
     {
-        var bankSystem = _entitySystemManager.GetEntitySystem<BankSystem>();
-        var currentBalance = profile.BankBalance;
-
-        // Ensure the player won't have negative balance after withdrawal
-        if (amount < 0 && Math.Abs(amount) > currentBalance)
-        {
-            shell.WriteError($"Player '{target}' only has {currentBalance}, cannot remove {Math.Abs(amount)}.");
-            return;
-        }
-
         if (amount == 0)
         {
-            shell.WriteLine($"Player '{target}' balance unchanged: {currentBalance}");
+            shell.WriteLine($"Player '{target}' balance unchanged: {profile.BankBalance}");
             return;
         }
-
-        bool success;
-        long? newBalance = null;
-
-        // Use the new offline bank methods
-        if (amount > 0)
+        var slot = prefs.IndexOfCharacter(profile);
+        if (slot < 0)
         {
-            success = await bankSystem.TryBankDepositOffline(userId, prefs, profile, amount);
-            if (success)
-                newBalance = currentBalance + amount;
-        }
-        else
-        {
-            success = await bankSystem.TryBankWithdrawOffline(userId, prefs, profile, Math.Abs(amount));
-            if (success)
-                newBalance = currentBalance - Math.Abs(amount);
-        }
-
-        if (!success || newBalance == null)
-        {
-            shell.WriteError($"Failed to modify offline player '{target}' bank balance.");
+            shell.WriteError("The character profile changed. Retry the command.");
             return;
         }
-
-        shell.WriteLine(amount > 0
-            ? $"Added {amount} to offline player '{target}' balance. New balance: {newBalance.Value}"
-            : $"Removed {Math.Abs(amount)} from offline player '{target}' balance. New balance: {newBalance.Value}");
+        var bank = _entitySystemManager.GetEntitySystem<BankSystem>();
+        if (!bank.BeginExchangePayment(userId))
+        {
+            shell.WriteError("Another bank operation is pending. Retry the command.");
+            return;
+        }
+        var actor = shell.Player;
+        var actorName = actor?.Name ?? "SERVER CONSOLE";
+        try
+        {
+            var account = await _dbManager.ReadEconomyAccountAsync(userId.UserId, slot);
+            if (account.Character != profile.Name || account.Bank != profile.BankBalance ||
+                expectedProfile != null && account.Profile != expectedProfile)
+                throw new InvalidOperationException("The character account changed. Refresh and retry the command.");
+            var result = await _dbManager.AdjustBankByAdminAsync(userId,
+                new(Guid.NewGuid(), slot, account.Profile, account.Bank, amount, actor?.UserId.UserId, actorName, target));
+            // The audit/outbox and balance are committed together before reporting success.
+            shell.WriteLine(amount > 0
+                ? $"Added {amount} to player '{target}' ({account.Character}). New balance: {result.Balance}"
+                : $"Removed {Math.Abs(amount)} from player '{target}' ({account.Character}). New balance: {result.Balance}");
+            try
+            {
+                if (_playerManager.TryGetSessionById(userId, out _))
+                    await bank.PublishExchangeBalance(userId, slot);
+                else if (_prefsManager.TryGetCachedPreferences(userId, out var cached) &&
+                         ReferenceEquals(cached.Characters.GetValueOrDefault(slot), profile))
+                    await _prefsManager.SetProfile(userId, slot, profile.WithBankBalance(result.Balance), persist: false);
+            }
+            catch (Exception)
+            {
+                // Refresh failures must not make a committed grant appear unsuccessful and invite a duplicate grant.
+                shell.WriteError("The balance change and audit were saved, but the displayed balance needs refreshing.");
+            }
+        }
+        catch (Exception error)
+        {
+            shell.WriteError($"Bank adjustment rejected: {error.Message}");
+        }
+        finally { bank.EndExchangePayment(userId); }
     }
 
     private bool TryGetOfflinePlayerData(string username, out NetUserId userId, out PlayerPreferences prefs, out HumanoidCharacterProfile profile)

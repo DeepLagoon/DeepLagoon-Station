@@ -19,6 +19,43 @@ public sealed class ParkingStoreTests
         SQLitePCL.Batteries_V2.Init();
 #endif
     }
+    [Test]
+    public void ResourceSaleReceiptAndSnapshotRollbackTogetherWhenReceiptWriteFails()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "parking-sale-" + Guid.NewGuid() + ".db");
+        try
+        {
+            using var store = new ParkingStore(path);
+            var owner = Guid.NewGuid();
+            var purchase = store.BeginPurchase(owner, Guid.NewGuid(), 1);
+            store.GrantPurchase(owner, purchase);
+            var ship = Ship(1);
+            var sale = new ParkingPayout(Guid.NewGuid(), owner, 0, 125000);
+            using var connection = new Microsoft.Data.Sqlite.SqliteConnection(new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder { DataSource = path }.ToString());
+            connection.Open();
+            using var command = connection.CreateCommand();
+            command.CommandText = "CREATE TRIGGER reject_sale BEFORE INSERT ON parking_payouts BEGIN SELECT RAISE(ABORT, 'simulated receipt write failure'); END";
+            command.ExecuteNonQuery();
+            Assert.Throws<Microsoft.Data.Sqlite.SqliteException>(() => store.Save(owner, purchase.Id, ship, sale));
+            Assert.That(store.Slot(owner, purchase.Id).Ship, Is.Null);
+            Assert.That(store.Slot(owner, purchase.Id).Phase, Is.EqualTo("empty"));
+            Assert.That(store.PendingPayouts(), Is.Empty);
+            command.CommandText = "DROP TRIGGER reject_sale";
+            command.ExecuteNonQuery();
+            store.Save(owner, purchase.Id, ship, sale);
+            Assert.That(store.PendingPayouts(), Is.EquivalentTo(new[] { sale }));
+            Assert.Throws<InvalidOperationException>(() => store.Save(owner, purchase.Id, ship, sale));
+            Assert.That(store.PendingPayouts(), Has.Count.EqualTo(1));
+        }
+        finally
+        {
+            Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+            File.Delete(path);
+            File.Delete(path + "-wal");
+            File.Delete(path + "-shm");
+        }
+    }
+
     [TestCase(231, 22, 14, 1)]
     [TestCase(627, 23, 41, 2)]
     [TestCase(6538, 63, 136, 4)]

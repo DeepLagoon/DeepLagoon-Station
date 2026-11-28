@@ -31,6 +31,26 @@ public abstract partial class SharedOreSiloSystem : EntitySystem
         _clientQuery = GetEntityQuery<OreSiloClientComponent>();
     }
 
+    public EntityUid? GetAvailableSilo(EntityUid client)
+    {
+        if (!_clientQuery.TryComp(client, out var clientComp))
+            return null;
+
+        if (clientComp.Silo is not { } silo)
+            return null;
+
+        if (TerminatingOrDeleted(silo))
+            return null;
+
+        if (!HasComp<MaterialStorageComponent>(silo))
+            return null;
+
+        if (!CanTransmitMaterials(silo, client))
+            return null;
+
+        return silo;
+    }
+
     private void OnToggleOreSiloClient(Entity<OreSiloComponent> ent, ref ToggleOreSiloClientMessage args)
     {
         var client = GetEntity(args.Client);

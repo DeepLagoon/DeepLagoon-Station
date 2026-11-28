@@ -13,6 +13,9 @@ public sealed partial class SectorBankComponent : Component
     public Dictionary<SectorBankAccount, SectorBankAccountInfo> Accounts = new();
 
     [ViewVariables(VVAccess.ReadOnly)]
+    [DataField] public HashSet<Guid> VoyageRefunds = new();
+
+    [ViewVariables(VVAccess.ReadOnly)]
     public float SecondsSinceLastIncrease = 0.0f;
 
     [ViewVariables(VVAccess.ReadWrite)]

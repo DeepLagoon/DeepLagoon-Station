@@ -59,6 +59,7 @@ public sealed class ApartmentLayoutStore : IApartmentLayoutStore
 {
     private readonly SqliteConnection _connection;
     private readonly SerialPersistenceQueue _writer = new();
+    public int PendingWrites => _writer.PendingCount;
     private readonly ThreadLocal<SqliteConnection> _readers;
     private readonly bool _memory;
     private SqliteConnection ReadConnection => _writer.IsExecuting ? _connection : _readers.Value!;

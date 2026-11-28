@@ -1,0 +1,15 @@
+- type: entity
+  parent: NFBasePDACartridge
+  id: DLMarketplaceCartridge
+  name: Marketplace cartridge
+  components:
+  - type: Sprite
+    sprite: _NF/Objects/Devices/cartridge.rsi
+    state: cart-ledger
+  - type: UIFragment
+    ui: !type:MarketplaceUi
+  - type: Cartridge
+    programName: dl-marketplace-program-name
+    icon: { sprite: _NF/Interface/icons.rsi, state: ledger }
+    readonly: true
+  - type: MarketplaceCartridge

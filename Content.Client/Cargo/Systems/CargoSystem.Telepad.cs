@@ -59,6 +59,10 @@ public sealed partial class CargoSystem
 
     private void OnCargoAnimComplete(EntityUid uid, CargoTelepadComponent component, AnimationCompletedEvent args)
     {
+        // Stop() raises this synchronously too. The caller is already switching states;
+        // re-entering here would start its replacement before the caller does.
+        if (!args.Finished || args.Key is not (TelepadBeamKey or TelepadIdleKey))
+            return;
         OnChangeData(uid);
     }
 

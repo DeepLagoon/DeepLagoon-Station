@@ -14,6 +14,7 @@ namespace Content.Server._DeepLagoon.Administration;
 public sealed class AdminProvenanceSystem : EntitySystem
 {
     [Dependency] private IAdminManager _admins = default!;
+    [Dependency] private AdminCashProvenanceSystem _cashProvenance = default!;
     [Dependency] private IServerConsoleHost _console = default!;
     [Dependency] private ISharedPlayerManager _players = default!;
 
@@ -48,7 +49,7 @@ public sealed class AdminProvenanceSystem : EntitySystem
             TryComp<StackComponent>(entity, out var stack) &&
             stack.StackTypeId.Id == "Credit" && stack.Count > 0)
         {
-            EnsureComp<AdminCashProvenanceComponent>(entity).Portions.Add(new AdminCashPortion
+            _cashProvenance.EnsureProvenance(entity).Portions.Add(new AdminCashPortion
             {
                 Spawner = player.UserId,
                 Name = player.Name,

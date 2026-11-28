@@ -30,7 +30,8 @@ public sealed partial class AhelpSystem
 
     private sealed record RelayRequest(string Action, Guid Ticket = default, long Event = 0, string Discord = "",
         string Request = "", bool AdminRole = false, bool Staff = false, string Text = "", string File = "",
-        byte[]? Data = null, bool Drain = false, bool Wait = false, string Media = "", bool Active = true);
+        byte[]? Data = null, bool Drain = false, bool Wait = false, string Media = "", bool Active = true,
+        int Part = 0);
 
     private void RegisterRelay() => _status.AddHandler(HandleRelay);
 
@@ -44,12 +45,12 @@ public sealed partial class AhelpSystem
             token.Length < 32 || !context.RequestHeaders.TryGetValue("Authorization", out var header) ||
             !CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(header.ToString()), Encoding.UTF8.GetBytes("Bearer " + token)))
         {
-            await context.RespondErrorAsync(HttpStatusCode.Unauthorized);
+            await RespondRelayAsync(context, code: HttpStatusCode.Unauthorized);
             return true;
         }
         if (!await _relaySlots.WaitAsync(0))
         {
-            await context.RespondJsonAsync(new { error = "busy" }, HttpStatusCode.TooManyRequests);
+            await RespondRelayAsync(context, new { error = "busy" }, HttpStatusCode.TooManyRequests);
             return true;
         }
         var reading = true;
@@ -65,7 +66,7 @@ public sealed partial class AhelpSystem
                 {
                     if (payload.Length + count > (AhelpLimits.Image + 2L) / 3 * 4 + 8192)
                     {
-                        await context.RespondErrorAsync(HttpStatusCode.RequestEntityTooLarge);
+                        await RespondRelayAsync(context, code: HttpStatusCode.RequestEntityTooLarge);
                         return true;
                     }
                     payload.Write(buffer, 0, count);
@@ -78,9 +79,10 @@ public sealed partial class AhelpSystem
                 ArrayPool<byte>.Shared.Return(buffer, clearArray: true);
             }
             if (request is null || request.Text == null || request.File == null || request.Discord == null || request.Request == null ||
-                request.Text.Length > AhelpLimits.Text || request.File.Length > 250 || request.Data?.Length > AhelpLimits.Image)
+                request.Text.Length > AhelpLimits.Text || request.File.Length > 250 || request.Data?.Length > AhelpLimits.Image ||
+                request.Part is < 0 or > 64 || request.Part > 0 && (request.Action != "send" || request.Media != "" || request.Data != null))
             {
-                await context.RespondJsonAsync(new { error = "invalid_request" }, HttpStatusCode.BadRequest);
+                await RespondRelayAsync(context, new { error = "invalid_request" }, HttpStatusCode.BadRequest);
                 return true;
             }
 
@@ -93,14 +95,14 @@ public sealed partial class AhelpSystem
                 var slot = media ? _relayMediaPendingSlot : _relayPendingSlot;
                 if (request.Wait && !await slot.WaitAsync(0))
                 {
-                    await context.RespondJsonAsync(new { error = "busy" }, HttpStatusCode.TooManyRequests);
+                    await RespondRelayAsync(context, new { error = "busy" }, HttpStatusCode.TooManyRequests);
                     return true;
                 }
                 try
                 {
                     var batch = await WaitForRelayEvents(media, request.Wait);
                     result = new { events = batch.Events, round = batch.Round, activeTickets = batch.Tickets,
-                        mediaQueue = true, mediaPlaceholders = true, typing = true };
+                        mediaQueue = true, mediaPlaceholders = true, textParts = true, typing = true };
                 }
                 finally { if (request.Wait) slot.Release(); }
             }
@@ -110,7 +112,7 @@ public sealed partial class AhelpSystem
                 _relaySlots.Release();
                 if (!await _relayImageEncoders.WaitAsync(0))
                 {
-                    await context.RespondJsonAsync(new { error = "busy" }, HttpStatusCode.TooManyRequests);
+                    await RespondRelayAsync(context, new { error = "busy" }, HttpStatusCode.TooManyRequests);
                     return true;
                 }
                 try
@@ -124,19 +126,39 @@ public sealed partial class AhelpSystem
             }
             else
                 result = await RelayOnMainThread(() => Relay(request));
-            await context.RespondJsonAsync(JsonSerializer.SerializeToElement(result, RelayJson));
+            await RespondRelayAsync(context, JsonSerializer.SerializeToElement(result, RelayJson));
         }
         catch (JsonException)
         {
-            await context.RespondJsonAsync(new { error = "invalid_request" }, HttpStatusCode.BadRequest);
+            await RespondRelayAsync(context, new { error = "invalid_request" }, HttpStatusCode.BadRequest);
         }
         catch (Exception ex)
         {
-            Log.Error($"Ahelp relay failed: {ex.GetType().Name}");
-            await context.RespondJsonAsync(new { error = "unavailable" }, HttpStatusCode.ServiceUnavailable);
+            Log.Error($"Ahelp relay failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(ex)}");
+            await RespondRelayAsync(context, new { error = "unavailable" }, HttpStatusCode.ServiceUnavailable);
         }
         finally { if (reading) _relaySlots.Release(); }
         return true;
+    }
+
+    private static async Task RespondRelayAsync(IStatusHandlerContext context, object? payload = null,
+        HttpStatusCode code = HttpStatusCode.OK)
+    {
+        try
+        {
+            if (payload == null)
+                await context.RespondErrorAsync(code);
+            else
+                await context.RespondJsonAsync(payload, code);
+        }
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode is
+            32 or 64 or 104 or 995 or 10053 or 10054 or unchecked((int) 0x80131620))
+        {
+            // The long-poll consumer disconnected. Do not attempt another response on the broken stream.
+            // Relay events remain pending until the separate, explicit ACK request arrives.
+        }
+        catch (IOException) { }
+        catch (OperationCanceledException) { }
     }
 
     private void NotifyRelay()
@@ -252,10 +274,10 @@ public sealed partial class AhelpSystem
             return new { error = "" };
         }
         AhelpStore.Result result;
-        var origin = $"discord:{discord}:{operation}";
+        var origin = $"discord:{discord}:{operation}" + (request.Part == 0 ? "" : $":part:{request.Part}");
         if (request.Action == "send")
         {
-            var text = request.Text.Trim();
+            var text = request.Text;
             if (request.Media is not ("" or "loading" or "ready" or "failed"))
                 return new { error = "invalid_request" };
             if (request.Media is "ready" or "failed")
@@ -269,7 +291,7 @@ public sealed partial class AhelpSystem
                 if (request.Media == "ready" && request.Data != null)
                 {
                     try { completed = await Task.Run(() => AhelpImage.Read(request.File, request.Data)); }
-                    catch (Exception ex) { Log.Debug($"Rejected Discord ahelp image: {ex.GetType().Name}"); }
+                    catch (Exception ex) { Log.Debug($"Rejected Discord ahelp image: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(ex)}"); }
                 }
                 result = await Task.Run(() => Store.CompleteAttachment(origin, completed));
                 if (generation != Volatile.Read(ref _roundGeneration)) return new { error = "round_changed" };
@@ -283,7 +305,7 @@ public sealed partial class AhelpSystem
                 request.Data == null ? null : await Task.Run(() => AhelpImage.Read(request.File, request.Data)); }
             catch (Exception ex)
             {
-                Log.Debug($"Rejected Discord ahelp image: {ex.GetType().Name}");
+                Log.Debug($"Rejected Discord ahelp image: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(ex)}");
                 return new { error = "invalid_image" };
             }
             result = await Task.Run(() => Store.Send(ticket.Id, ticket.Player, ticket.PlayerName, uid, name, admin,

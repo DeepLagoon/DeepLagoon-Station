@@ -68,7 +68,7 @@ public sealed partial class ApartmentSystem
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         _shopWrites.Add(session.UserId, completion);
         try { await _economy.Current(session); if (CanManage(session)) PublishShop(session); }
-        catch (Exception e) { Log.Warning($"Apartment shop load failed: {e.GetType().Name}"); }
+        catch (Exception e) { Log.Warning($"Apartment shop load failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}"); }
         finally { _shopping.Remove(session.UserId); _shopWrites.Remove(session.UserId); completion.SetResult(); }
     }
     private void PublishShop(ICommonSession session, string message = "")
@@ -142,7 +142,7 @@ public sealed partial class ApartmentSystem
         catch (Content.Server.Database.InsufficientLagoonCoinsException) { if (CanManage(session) && _shopTokens.GetValueOrDefault(session.UserId) == ev.Token) PublishShop(session, "Недостаточно Lagoon Coin."); }
         catch (Exception e) when (e is ArgumentException or InvalidOperationException or OverflowException)
         {
-            Log.Warning($"Apartment shop operation rejected for {session.UserId}: {e.GetType().Name}");
+            Log.Warning($"Apartment shop operation rejected for {session.UserId}: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             if (CanManage(session) && _shopTokens.GetValueOrDefault(session.UserId) == ev.Token)
                 PublishShop(session, ev.Action is "buyItem" or "retryItem" ? "Покупка не завершена. Проверьте цену и завершите ожидающую доставку, если она есть." : "Операция не завершена. Повторите запрос.");
         }

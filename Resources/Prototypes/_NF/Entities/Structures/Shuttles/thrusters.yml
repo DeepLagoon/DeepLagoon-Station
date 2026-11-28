@@ -6,6 +6,7 @@
   - type: Thruster
     baseThrust: 67
     thrust: 67
+    burnShape: ["-0.25,0.5","-0.15,1.0","0.15,1.0","0.25,0.5"]
     damage:
       types:
         Heat: 40

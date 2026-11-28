@@ -379,7 +379,10 @@ public abstract partial class SharedEntityStorageSystem : EntitySystem
         return CanFit(toInsert, container, component);
     }
 
-    public bool TryOpenStorage(EntityUid user, EntityUid target, bool silent = false)
+    public virtual bool TryOpenStorage(
+        EntityUid user,
+        EntityUid target,
+        bool silent = false)
     {
         if (!CanOpen(user, target, silent))
             return false;

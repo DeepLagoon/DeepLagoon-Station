@@ -25,7 +25,7 @@ public sealed partial class BankSystem
             {
                 _prefsManager.SetProfile(user, credit.Character, profile.WithBankBalance(credit.Balance), persist: false)
                     .GetAwaiter().GetResult();
-                if (prefs.SelectedCharacterIndex == credit.Character && _playerManager.TryGetSessionById(user, out var session))
+                if (_playerManager.TryGetSessionById(user, out var session) && IsCharacter(session, credit.Character))
                 {
                     if (session.AttachedEntity is { } actor && HasComp<BankAccountComponent>(actor))
                         SetConfirmedBankBalance(actor, credit.Balance);
@@ -47,10 +47,8 @@ public sealed partial class BankSystem
         if (amount <= 0 || sender.UserId == recipient.UserId ||
             sender.AttachedEntity is { } from && HasComp<IronmanComponent>(from) ||
             recipient.AttachedEntity is { } to && HasComp<IronmanComponent>(to) ||
-            !_prefsManager.TryGetCachedPreferences(sender.UserId, out var senderPrefs) ||
-            !_prefsManager.TryGetCachedPreferences(recipient.UserId, out var recipientPrefs) ||
-            senderPrefs.SelectedCharacter is not HumanoidCharacterProfile senderProfile ||
-            recipientPrefs.SelectedCharacter is not HumanoidCharacterProfile recipientProfile)
+            !TryGetCharacter(sender, out _, out var senderProfile, out var senderSlot) ||
+            !TryGetCharacter(recipient, out _, out var recipientProfile, out var recipientSlot))
             return false;
 
         if (!_bankPayments.Add(sender.UserId))
@@ -63,12 +61,13 @@ public sealed partial class BankSystem
 
         try
         {
-            var transfer = _db.TransferBankAsync(sender.UserId, senderPrefs.SelectedCharacterIndex, senderProfile.BankBalance,
-                recipient.UserId, recipientPrefs.SelectedCharacterIndex, recipientProfile.BankBalance, amount);
+            var transfer = _db.TransferBankAsync(sender.UserId, senderSlot, senderProfile.BankBalance,
+                recipient.UserId, recipientSlot, recipientProfile.BankBalance, amount,
+                expectedSenderProfile: ExpectedProfile(sender, senderSlot), expectedRecipientProfile: ExpectedProfile(recipient, recipientSlot));
             _tasks.BlockWaitOnTask(transfer);
             result = transfer.GetAwaiter().GetResult();
-            PublishTransferBalance(sender, senderPrefs.SelectedCharacterIndex, senderProfile, result.SenderBalance);
-            PublishTransferBalance(recipient, recipientPrefs.SelectedCharacterIndex, recipientProfile, result.RecipientBalance);
+            PublishTransferBalance(sender, senderSlot, senderProfile, result.SenderBalance);
+            PublishTransferBalance(recipient, recipientSlot, recipientProfile, result.RecipientBalance);
             _log.Info($"{sender.UserId} transferred {amount} to {recipient.UserId}");
             return true;
         }
@@ -90,7 +89,7 @@ public sealed partial class BankSystem
         {
             _prefsManager.SetProfile(session.UserId, slot, profile.WithBankBalance(balance), persist: false)
                 .GetAwaiter().GetResult();
-            if (session.AttachedEntity is { } entity && HasComp<Content.Shared._NF.Bank.Components.BankAccountComponent>(entity))
+            if (session.AttachedEntity is { } entity && IsBodyCharacter(entity, session.UserId.UserId, slot) && HasComp<BankAccountComponent>(entity))
                 SetConfirmedBankBalance(entity, balance);
             RaiseLocalEvent(new BalanceChangedEvent(session, balance));
             var refresh = _prefsManager.RefreshPreferencesAsync(session, default);

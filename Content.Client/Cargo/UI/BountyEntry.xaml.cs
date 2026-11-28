@@ -40,7 +40,13 @@ public sealed partial class BountyEntry : BoxContainer
                 ("item", Loc.GetString(entry.Name))));
         }
         ManifestLabel.SetMarkup(Loc.GetString("bounty-console-manifest-label", ("item", string.Join(", ", items))));
-        RewardLabel.SetMarkup(Loc.GetString("bounty-console-reward-label", ("reward", bountyPrototype.Reward + " (" + bountyPrototype.RewardSuffix + ")"))); // Mono - add suffix
+        RewardLabel.SetMarkup(BountyPresentation.Reward(_prototype, bountyPrototype, bounty.FundedReward));
+        if (bounty.FundedReward >= 0 && bounty.FoodAccount != Content.Shared._NF.Bank.Components.SectorBankAccount.Invalid)
+        {
+            FundingLabel.SetMarkup(Loc.GetString("dl-economy-food-customer",
+                ("customer", Loc.GetString($"ledger-tab-{bounty.FoodAccount}"))));
+            FundingLabel.Visible = true;
+        }
         DescriptionLabel.SetMarkup(Loc.GetString("bounty-console-description-label", ("description", Loc.GetString(bountyPrototype.Description))));
         IdLabel.SetMarkup(Loc.GetString("bounty-console-id-label", ("id", bounty.Id)));
 

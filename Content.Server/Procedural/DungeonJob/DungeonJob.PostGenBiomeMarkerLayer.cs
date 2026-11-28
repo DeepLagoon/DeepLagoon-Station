@@ -51,8 +51,15 @@ public sealed partial class DungeonJob
             if (!ValidateResume())
                 return;
 
-            biomeSystem.GetMarkerNodes(_gridUid, biomeComp, _grid, markerTemplate, true, bounds, count,
-                random, out var spawnSet, out var existing, false);
+            Dictionary<Vector2i, string?> spawnSet = default!;
+            HashSet<EntityUid> existing = default!;
+            foreach (var _ in biomeSystem.GetMarkerNodeSteps(_gridUid, biomeComp, _grid, markerTemplate, true, bounds, count,
+                         random, (nodes, entities) => { spawnSet = nodes; existing = entities; }, false))
+            {
+                await SuspendDungeon();
+                if (!ValidateResume())
+                    return;
+            }
 
             await SuspendDungeon();
             if (!ValidateResume())

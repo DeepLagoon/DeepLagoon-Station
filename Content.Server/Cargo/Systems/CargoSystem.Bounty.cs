@@ -128,7 +128,7 @@ public sealed partial class CargoSystem
                 ("item", Loc.GetString(entry.Name)))}");
             msg.PushNewline();
         }
-        msg.AddMarkupOrThrow(Loc.GetString("bounty-console-manifest-reward", ("reward", prototype.Reward + " (" + prototype.RewardSuffix + ")"))); // Mono - add suffix
+        msg.AddMarkupOrThrow(Loc.GetString("bounty-console-manifest-reward", ("reward", EffectiveBountyReward(bounty, prototype) + " (" + (bounty.FundedReward >= 0 ? "spesso" : prototype.RewardSuffix) + ")"))); // Mono - add suffix
         _paperSystem.SetContent((uid, paper), msg.ToMarkup());
     }
 
@@ -190,8 +190,14 @@ public sealed partial class CargoSystem
             return false;
         }
 
-        if (prototype.Reward > 0)
-            _stack.SpawnMultiple(prototype.RewardProto, prototype.Reward, sold.ToCoordinates());
+        var reward = EffectiveBountyReward(bounty.Value, prototype);
+        var rewardProto = bounty.Value.FundedReward >= 0 ? "SpaceCash" : prototype.RewardProto.Id;
+        if (reward > 0)
+        {
+            if (!_economyCreditMode || bounty.Value.FundedReward < 0 && !IsCreditReward(prototype))
+                _stack.SpawnMultiple(rewardProto, reward, sold.ToCoordinates());
+            _procurement.RecordBounty(_procurementPallet, bounty.Value.Bounty.Id, rewardProto, reward);
+        }
 
         FillBountyDatabase(station);
         _adminLogger.Add(LogType.Action, LogImpact.Low, $"Bounty \"{bounty.Value.Bounty}\" (id:{bounty.Value.Id}) was fulfilled");
@@ -247,6 +253,8 @@ public sealed partial class CargoSystem
         if (!Resolve(entity, ref entity.Comp))
             return;
 
+        foreach (var pending in entity.Comp.Bounties)
+            if (pending.FundedReward >= 0) EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>().RefundFood(pending.FoodAccount, pending.FundedReward);
         entity.Comp.Bounties.Clear();
         FillBountyDatabase(entity);
     }
@@ -326,6 +334,8 @@ public sealed partial class CargoSystem
         if (entry.Blacklist != null && _whitelist.IsValid(entry.Blacklist, entity))
             return false;
 
+        if (entry.MinimumFoodNutrients > 0 && !HasMealNutrients(entity, entry.MinimumFoodNutrients))
+            return false;
         return true;
     }
 
@@ -335,7 +345,8 @@ public sealed partial class CargoSystem
 
         foreach (var entry in entries)
         {
-            var count = 0;
+            long count = 0;
+            var cashEntry = false;
 
             // store entities that already satisfied an
             // entry so we don't double-count them.
@@ -345,14 +356,19 @@ public sealed partial class CargoSystem
                 if (!IsValidBountyEntry(entity, entry))
                     continue;
 
-                count += _stackQuery.CompOrNull(entity)?.Count ?? 1;
+                var stack = _stackQuery.CompOrNull(entity);
+                count += stack?.Count ?? 1;
+                cashEntry |= stack?.StackTypeId == "Credit";
                 temp.Add(entity);
 
-                if (count >= entry.Amount)
+                // Cash is a fixed-size exchange, not a commodity sale. Inspect every
+                // matching stack so extra money, including split/nested stacks, is
+                // rejected without deleting the player's surplus.
+                if (count >= entry.Amount && !cashEntry)
                     break;
             }
 
-            if (count < entry.Amount)
+            if (count < entry.Amount || cashEntry && count != entry.Amount)
                 return false;
 
             foreach (var ent in temp)
@@ -395,7 +411,7 @@ public sealed partial class CargoSystem
     [PublicAPI]
     public bool TryAddBounty(EntityUid uid, StationCargoBountyDatabaseComponent? component = null)
     {
-        if (!Resolve(uid, ref component) || component.AvailableBounties.Count == 0) // Mono - add check for no bounties available
+        if (!Resolve(uid, ref component))
             return false;
 
         // todo: consider making the cargo bounties weighted.
@@ -408,6 +424,18 @@ public sealed partial class CargoSystem
                 break;
             allBounties.Add(proto);
         }
+        if (EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>().Enabled)
+        {
+            var foodSlots = Math.Min(2, component.MaxBounties);
+            var foodCount = component.Bounties.Count(b => _protoMan.Index(b.Bounty).FoodProcurement);
+            var nonFoodCount = component.Bounties.Count - foodCount;
+            if (foodCount < foodSlots)
+                foreach (var food in _protoMan.EnumeratePrototypes<CargoBountyPrototype>().Where(p => p.FoodProcurement))
+                    if (!component.Bounties.Any(b => b.Bounty == food.ID) && TryAddBounty(uid, food, component)) return true;
+            if (nonFoodCount >= component.MaxBounties - foodSlots) return false;
+            allBounties.RemoveAll(p => p.FoodProcurement);
+        }
+        if (allBounties.Count == 0) return false;
         foreach (var proto in allBounties)
         {
             if (component.Bounties.Any(b => b.Bounty == proto.ID))
@@ -447,7 +475,14 @@ public sealed partial class CargoSystem
             Log.Error("Failed to add bounty {ID} because another one with the same ID already existed!", newBounty.Id);
             return false;
         }
-        component.Bounties.Add(new CargoBountyData(bounty, randomVal));
+        if (bounty.FoodProcurement)
+        {
+            var economy = EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>();
+            var reward = economy.MealReward * (long)bounty.Entries.Sum(e => e.Amount);
+            if (reward is <= 0 or > int.MaxValue || !economy.TryFundFood(reward, out var payer)) return false;
+            newBounty = newBounty with { FundedReward = (int)reward, FoodAccount = payer };
+        }
+        component.Bounties.Add(newBounty);
         _adminLogger.Add(LogType.Action, LogImpact.Low, $"Added bounty \"{bounty.ID}\" (id:{component.TotalBounties}) to station {ToPrettyString(uid)}");
         component.TotalBounties++;
         return true;
@@ -473,6 +508,7 @@ public sealed partial class CargoSystem
         if (!Resolve(ent, ref ent.Comp))
             return false;
 
+        if (_economyBounties.Contains((ent.Owner, data.Id)) && !_economyCreditMode) return false;
         for (var i = 0; i < ent.Comp.Bounties.Count; i++)
         {
             if (ent.Comp.Bounties[i].Id == data.Id)
@@ -491,6 +527,8 @@ public sealed partial class CargoSystem
                         : CargoBountyHistoryData.BountyResult.Completed,
                     _timing.CurTime,
                     actorName));
+                if (skipped && data.FundedReward >= 0)
+                    EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>().RefundFood(data.FoodAccount, data.FundedReward);
                 ent.Comp.Bounties.RemoveAt(i);
                 return true;
             }

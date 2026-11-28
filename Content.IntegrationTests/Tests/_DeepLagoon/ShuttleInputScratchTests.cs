@@ -1,3 +1,4 @@
+#nullable enable annotations
 using System;
 using System.Collections;
 using System.Numerics;

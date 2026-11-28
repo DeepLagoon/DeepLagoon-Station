@@ -5,7 +5,7 @@ meta:
   forkId: ""
   forkVersion: ""
   time: 07/15/2026 22:40:08
-  entityCount: 6416
+  entityCount: 6413
 maps: []
 grids:
 - 1
@@ -15250,13 +15250,6 @@ entities:
       rot: 3.141592653589793 rad
       pos: 14.5,16.5
       parent: 1
-- proto: LaserDrillFlatpack
-  entities:
-  - uid: 2160
-    components:
-    - type: Transform
-      pos: 2.5050561,1.6842697
-      parent: 1
 - proto: LightTubeBroken
   entities:
   - uid: 2162
@@ -17494,18 +17487,6 @@ entities:
     components:
     - type: Transform
       pos: 19.5,14.5
-      parent: 1
-- proto: StationLaserDrill
-  entities:
-  - uid: 2481
-    components:
-    - type: Transform
-      pos: 9.5,11.5
-      parent: 1
-  - uid: 2482
-    components:
-    - type: Transform
-      pos: 13.5,11.5
       parent: 1
 - proto: SteelBench
   entities:

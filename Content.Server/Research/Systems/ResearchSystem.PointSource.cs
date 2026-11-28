@@ -20,7 +20,8 @@ public sealed partial class ResearchSystem
         if (!CanProduce(source))
             return;
 
-        args.Points += source.Comp.PointsPerSecond;
+        var efficiency = EntityManager.System<Content.Server._DeepLagoon.Economy.EquipmentMaintenanceSystem>().Efficiency(source.Owner);
+        args.Points += (int)(source.Comp.PointsPerSecond * efficiency);
         if (source.Comp.ColdBonusPointsPerSecond <= 0 ||
             _atmosphere.GetContainingMixture(source.Owner) is not { TotalMoles: > Atmospherics.GasMinMoles } air)
             return;
@@ -28,7 +29,7 @@ public sealed partial class ResearchSystem
         const float fullBonusTemperature = Atmospherics.T0C - 200f;
         var cooling = Math.Clamp((Atmospherics.T20C - air.Temperature) /
             (Atmospherics.T20C - fullBonusTemperature), 0f, 1f);
-        args.Points += (int) (source.Comp.ColdBonusPointsPerSecond * cooling);
+        args.Points += (int) (source.Comp.ColdBonusPointsPerSecond * cooling * efficiency);
     }
 
     public bool CanProduce(Entity<ResearchPointSourceComponent> source)

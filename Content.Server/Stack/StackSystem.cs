@@ -17,7 +17,10 @@ namespace Content.Server.Stack
     public sealed partial class StackSystem : SharedStackSystem
     {
         [Dependency] private IPrototypeManager _prototypeManager = default!;
+        [Dependency] private AdminCashProvenanceSystem _cashProvenance = default!;
         [Dependency] private PricingSystem _pricing = default!;
+        [Dependency] private Content.Server._Mono.Cargo.DriftingPriceSystem _driftingPrices = default!;
+        [Dependency] private Content.Server._DeepLagoon.CryptoFarm.CryptoFarmSystem _cryptoFarms = default!;
         [Dependency] private SharedUserInterfaceSystem _ui = default!; // Cherry-picked from space-station-14#32938 courtesy of Ilya246
 
         public static readonly int[] DefaultSplitAmounts = { 1, 5, 10, 20, 50, 100, 500, 1000, 5000, 10000 };
@@ -88,13 +91,15 @@ namespace Content.Server.Stack
 
         protected override bool CanCombineStacks(EntityUid donor, EntityUid recipient)
         {
-            return _pricing.GetCraftedUnitLimit(donor) == _pricing.GetCraftedUnitLimit(recipient);
+            return _pricing.GetCraftedUnitLimit(donor) == _pricing.GetCraftedUnitLimit(recipient)
+                && _cryptoFarms.CanMergeInto(donor, recipient);
         }
 
         protected override void TransferUnits(EntityUid donor, StackComponent donorStack,
             EntityUid recipient, StackComponent recipientStack, int amount)
         {
             var origins = CashOrigins(donor, amount);
+            _driftingPrices.MergeUnitPrice(donor, recipient, recipientStack.Count, amount);
             base.TransferUnits(donor, donorStack, recipient, recipientStack, amount);
             AppendCashOrigins(recipient, origins);
         }
@@ -102,7 +107,7 @@ namespace Content.Server.Stack
         // Mixed stacks consume tracked units first, in insertion order.
         internal List<AdminCashPortion>? CashOrigins(EntityUid uid, int amount)
         {
-            if (amount <= 0 || !TryComp<AdminCashProvenanceComponent>(uid, out var provenance))
+            if (amount <= 0 || _cashProvenance.GetProvenance(uid) is not { } provenance)
                 return null;
             var result = new List<AdminCashPortion>();
             foreach (var part in provenance.Portions)
@@ -119,12 +124,12 @@ namespace Content.Server.Stack
         private void AppendCashOrigins(EntityUid uid, List<AdminCashPortion>? origins)
         {
             if (origins is { Count: > 0 })
-                EnsureComp<AdminCashProvenanceComponent>(uid).Portions.AddRange(origins);
+                _cashProvenance.EnsureProvenance(uid).Portions.AddRange(origins);
         }
 
         private void ConsumeCashOrigins(EntityUid uid, int amount)
         {
-            if (!TryComp<AdminCashProvenanceComponent>(uid, out var provenance))
+            if (_cashProvenance.GetProvenance(uid) is not { } provenance)
                 return;
             var portions = provenance.Portions;
             var emptied = 0;

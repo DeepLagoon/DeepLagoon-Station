@@ -112,7 +112,7 @@ namespace Content.Server.Construction
 
             if (currentEdge != null && construction.TargetEdgeIndex is {} targetEdgeIndex)
             {
-                if (currentNode.Edges.Count >= targetEdgeIndex)
+                if (targetEdgeIndex < 0 || targetEdgeIndex >= currentNode.Edges.Count)
                 {
                     // Target edge is incorrect.
                     construction.TargetEdgeIndex = null;

@@ -1,0 +1,19 @@
+- type: entity
+  parent: NFBasePDACartridge
+  id: DLExchangeCartridge
+  name: Exchange cartridge
+  description: Cryptocurrency wallet, trading and sector material indices.
+  components:
+  - type: Sprite
+    sprite: _NF/Objects/Devices/cartridge.rsi
+    state: cart-ledger
+  - type: Icon
+    sprite: _NF/Objects/Devices/cartridge.rsi
+    state: cart-ledger
+  - type: UIFragment
+    ui: !type:ExchangeUi
+  - type: Cartridge
+    programName: dl-exchange-program-name
+    icon: { sprite: _NF/Interface/icons.rsi, state: ledger }
+    readonly: true
+  - type: ExchangeCartridge

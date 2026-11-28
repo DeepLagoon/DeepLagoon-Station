@@ -155,6 +155,7 @@
   name: wireless camera #bodycam but currently it has more use than that
   description: A wireless camera made to observe the battlefield from the safety of your base. Can be worn in the neck slot.
   components:
+    - type: ThrusterExhaustImmune
     - type: Sprite
       sprite: _Mono/Clothing/Neck/Misc/pir.rsi
       layers:

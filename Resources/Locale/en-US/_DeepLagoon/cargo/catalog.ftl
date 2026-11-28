@@ -1,0 +1,15 @@
+dl-cargo-catalog-title = SUPPLIES
+dl-cargo-catalog-back = ← Categories
+dl-cargo-catalog-categories = Categories
+dl-cargo-catalog-tab = Catalogue
+dl-cargo-catalog-orders-tab = Orders
+dl-cargo-catalog-search-all = Search the whole catalogue
+dl-cargo-catalog-search-category = Search this category
+dl-cargo-catalog-results = Search results
+dl-cargo-catalog-clear = Clear search
+dl-cargo-catalog-empty = No products found
+dl-cargo-catalog-no-orders = No active orders
+dl-cargo-catalog-category-count = Products: { $count }
+dl-cargo-catalog-order = Order →
+dl-cargo-catalog-balance = Balance
+dl-cargo-catalog-capacity = Queue

@@ -1,24 +1,14 @@
-<PanelContainer xmlns="https://spacestation14.io"
-                HorizontalExpand="True">
-    <Button Name="MainButton"
-            ToolTip=""
-            Access="Public"
-            HorizontalExpand="True"
-            VerticalExpand="True" />
-    <BoxContainer Orientation="Horizontal"
-                  HorizontalExpand="True">
-        <TextureRect Name="Icon"
-                     Access="Public"
-                     MinSize="32 32"
-                     RectClipContent="True" />
-        <Label Name="ProductName"
-               Access="Public"
-               HorizontalExpand="True" />
-        <PanelContainer StyleClasses="BackgroundDark">
-            <Label Name="PointCost"
-                   Access="Public"
-                   MinSize="52 32"
-                   Align="Right" />
-        </PanelContainer>
-    </BoxContainer>
+<PanelContainer xmlns="https://spacestation14.io" HorizontalExpand="True" MinWidth="280" RectClipContent="True">
+    <Button Name="MainButton" Access="Public" HorizontalExpand="True" MinHeight="96">
+        <BoxContainer Orientation="Horizontal" HorizontalExpand="True" SeparationOverride="12" Margin="10 8" MouseFilter="Ignore">
+            <TextureRect Name="Icon" Access="Public" SetSize="48 48" Stretch="KeepAspectCentered" VerticalAlignment="Center" MouseFilter="Ignore" />
+            <BoxContainer Orientation="Vertical" HorizontalExpand="True" SeparationOverride="6" MouseFilter="Ignore">
+                <RichTextLabel Name="ProductName" Access="Public" HorizontalExpand="True" SetHeight="42" MaxHeight="42" RectClipContent="True" MouseFilter="Ignore" />
+                <BoxContainer Orientation="Horizontal" HorizontalExpand="True" SeparationOverride="6" MouseFilter="Ignore">
+                    <Label Name="PointCost" Access="Public" HorizontalExpand="True" ClipText="True" FontColorOverride="#8EE4C0" MouseFilter="Ignore" />
+                    <Label Text="{Loc 'dl-cargo-catalog-order'}" MouseFilter="Ignore" />
+                </BoxContainer>
+            </BoxContainer>
+        </BoxContainer>
+    </Button>
 </PanelContainer>

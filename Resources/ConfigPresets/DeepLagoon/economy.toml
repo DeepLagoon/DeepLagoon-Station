@@ -1,0 +1,38 @@
+# Maintenance is independently switchable during the round:
+#   cvar economy.maintenance_enabled true
+#   cvar economy.maintenance_enabled false
+# Disabling stops wear and removes efficiency penalties, preserving saved wear.
+# No restart, migration or reset of parked equipment is required.
+[economy]
+enabled = false
+# Only enable for isolated manual tests with an administrator as the sole player.
+count_admins = false
+maintenance_enabled = false
+procurement_per_player_hour = 20000
+protected_share = 0.4
+protected_daily = 60000
+small_sale = 8000
+food_per_player_hour = 1500
+meal_reward = 1500
+nfsd_payroll_hour = 250000
+medical_payroll_hour = 65000
+payroll_buffer_hours = 2.0
+
+# Persistent item delivery also requires crash_recovery.enabled=true in the
+# server's startup configuration. Enable recovery in the lobby, before the round.
+
+# Physical sector expeditions replace the ordinary console's mission picker.
+# Disk-dispatched underground expeditions retain their existing interface.
+[sector_expeditions]
+enabled = false
+max_loaded = 16
+land_range = 160
+# Total reward per new sector order; 0 uses crew cost + planet difficulty.
+# Debug uses a separate game grant; Release must reserve real faction bank funds.
+research_budget = 0
+research_refresh_seconds = 900
+
+[parking]
+repair_enabled = false
+repair_commission = 0.25
+repair_credits_per_lc = 1000

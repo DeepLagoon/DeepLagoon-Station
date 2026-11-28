@@ -118,6 +118,7 @@
   parent: ClothingOuterBase
   description: Caution! Wet Floor!
   components:
+  - type: ThrusterExhaustImmune
   - type: Sprite
     sprite: Objects/Specific/Janitorial/wet_floor_sign.rsi
   - type: Item

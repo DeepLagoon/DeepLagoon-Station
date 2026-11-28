@@ -97,7 +97,7 @@ public sealed partial class LagoonEconomySystem : EntitySystem
             var snapshot = await _database.GetEconomyAsync(session.UserId, ExternalTier(session));
             Remember(session, snapshot);
         }
-        catch (Exception e) { Log.Warning($"Economy refresh failed: {e.GetType().Name}"); }
+        catch (Exception e) { Log.Warning($"Economy refresh failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}"); }
         finally { _loading.Remove(session.UserId); }
     }
     private bool CanRequest(ICommonSession session, bool supporters = false)
@@ -129,7 +129,7 @@ public sealed partial class LagoonEconomySystem : EntitySystem
         try { await Publish(session); }
         catch (Exception e)
         {
-            Log.Warning($"Economy menu failed: {e.GetType().Name}");
+            Log.Warning($"Economy menu failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             MenuError(session, request, "Не удалось загрузить данные Lagoon Coin. Попробуйте ещё раз.");
         }
         finally { _busy.Remove(session.UserId); }
@@ -173,7 +173,7 @@ public sealed partial class LagoonEconomySystem : EntitySystem
         }
         catch (InsufficientLagoonCoinsException) { await Publish(session, "Недостаточно Lagoon Coin."); }
         catch (Exception e) when (e is ArgumentException or InvalidOperationException) { await Publish(session, e.Message); }
-        catch (Exception e) { Log.Error($"Economy action failed: {e.GetType().Name}"); MenuError(session, _menuRequests.GetValueOrDefault(session.UserId), "Не удалось выполнить операцию. Загрузите данные заново, чтобы проверить её результат."); }
+        catch (Exception e) { Log.Error($"Economy action failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}"); MenuError(session, _menuRequests.GetValueOrDefault(session.UserId), "Не удалось выполнить операцию. Загрузите данные заново, чтобы проверить её результат."); }
         finally { _busy.Remove(session.UserId); }
     }
     private async void PaidSupporters(ICommonSession session)
@@ -193,6 +193,6 @@ public sealed partial class LagoonEconomySystem : EntitySystem
             }
             if (session.Channel.IsConnected) RaiseNetworkEvent(new LagoonPaidSupportersEvent(_paidNames), session);
         }
-        catch (Exception e) { Log.Warning($"Paid supporter list failed: {e.GetType().Name}"); }
+        catch (Exception e) { Log.Warning($"Paid supporter list failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}"); }
     }
 }

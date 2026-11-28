@@ -25199,4 +25199,57 @@ Entries:
     id: 2866
     time: '2026-11-25T09:07:34.000Z'
     url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/85
-GeneratedThrough: '2026-11-25T09:07:34.000Z'
+  - author: DDLis
+    changes:
+      - type: Fix
+        message: Баллоны теперь сохраняют выставленное давление на вдох
+    id: 2867
+    time: '2026-11-27T01:03:03.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/88
+  - author: DDLis
+    changes:
+      - type: Add
+        message: Магнит руды подключается теперь к silo
+    id: 2868
+    time: '2026-11-27T01:03:38.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/87
+  - author: DDLis
+    changes:
+      - type: Add
+        message: Добавлено страхование тела
+    id: 2869
+    time: '2026-11-27T01:04:33.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/89
+  - author: DDLis
+    changes:
+      - type: Add
+        message: >-
+          Добавлена бесплатная черта "Повадки таяран", позволяющая мяукать, мурлыкать, шипеть и
+          рычать
+      - type: Add
+        message: Добавлены новые звуки мяуканья, мурлыканья и криков таяран
+    id: 2870
+    time: '2026-11-27T16:00:43.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/94
+  - author: DDLis
+    changes:
+      - type: Add
+        message: 'Унатхи могут урчать :face_holding_back_tears:'
+    id: 2871
+    time: '2026-11-27T16:00:45.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/92
+  - author: DDLis
+    changes:
+      - type: Add
+        message: Добавляет черту "Повадки унатхов"
+    id: 2872
+    time: '2026-11-27T16:00:45.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/93
+  - author: DDLis
+    changes:
+      - type: Fix
+        message: Нельзя теперь дюпать жидкости в мензурках
+    id: 2873
+    time: '2026-11-27T16:01:11.000Z'
+    url: https://github.com/DeepLagoon/DeepLagoon-Station/pull/91
+GeneratedThrough: '2026-11-27T17:48:43.000Z'

@@ -39,6 +39,7 @@ public sealed class MoverBranchCounterTests
             physics.SetBodyStatus(prepared, body, BodyStatus.OnGround);
             Assert.That(em.System<FixtureSystem>().TryCreateFixture(prepared, new PhysShapeCircle(.1f), "body",
                 hard: true, collisionLayer: 1, body: body), Is.True);
+            physics.WakeBody(prepared, body: body);
             var xform = em.GetComponent<TransformComponent>(prepared);
             var originalPosition = xform.LocalPosition;
             var originalRotation = xform.LocalRotation;

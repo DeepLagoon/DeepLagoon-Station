@@ -157,7 +157,7 @@ public sealed partial class SalvageExpeditionWindow : FancyWindow,
 
             lBox.AddChild(new Label
             {
-                Text = mission.Duration.ToString(),
+                Text = Loc.GetString("salvage-expedition-duration-unlimited"),
                 FontColorOverride = StyleNano.NanoGold,
                 HorizontalAlignment = HAlignment.Left,
                 Margin = new Thickness(0f, 0f, 0f, 5f),

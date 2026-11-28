@@ -24,6 +24,7 @@ import { focusMap } from './focus';
 import { createLogger } from './logging';
 import { resumeRenderer, suspendRenderer } from './renderer';
 import { gridEditorUpdate } from './interfaces/gridEditorTabs.mjs';
+import { displayData } from './textPresentation.mjs';
 
 const logger = createLogger('backend');
 
@@ -64,7 +65,8 @@ export const backendReducer = (state = initialState, action) => {
   const { type, payload } = action;
 
   if (type === 'backend/update') {
-    const incomingData = gridEditorUpdate(state.data, payload);
+    const presentation = { ...payload, data: displayData(payload.data), static_data: displayData(payload.static_data) };
+    const incomingData = gridEditorUpdate(state.data, presentation);
     // Merge config
     const config = {
       ...state.config,
@@ -74,7 +76,7 @@ export const backendReducer = (state = initialState, action) => {
     const newInterface = payload.config?.interface && payload.config.interface !== state.config?.interface;
     const staticData = {
       ...(newInterface || payload.replaceStaticData ? {} : state.staticData),
-      ...payload.static_data,
+      ...presentation.static_data,
     };
     const partialData = {
       ...(newInterface || payload.resetPartialData ? {} : state.partialData),
@@ -83,7 +85,7 @@ export const backendReducer = (state = initialState, action) => {
     for (const key of payload.removedData || []) delete partialData[key];
     const data = {
       ...(payload.replaceData || newInterface ? {} : state.data),
-      ...(payload.replaceData ? staticData : payload.static_data),
+      ...(payload.replaceData ? staticData : presentation.static_data),
       ...(payload.replaceData ? partialData : {}),
       ...incomingData,
     };

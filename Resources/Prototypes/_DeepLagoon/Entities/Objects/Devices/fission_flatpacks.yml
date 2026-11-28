@@ -1,0 +1,19 @@
+- type: entity
+  parent: BaseFlatpack
+  id: NuclearReactorSmallFlatpack
+  name: small nuclear reactor flatpack
+  description: A complete small nuclear reactor, ready to unpack with a multitool.
+  components:
+  - type: Flatpack
+    entity: NuclearReactorSmall
+    qualityNeeded: Pulsing
+
+- type: entity
+  parent: BaseFlatpack
+  id: TurbineSmallFlatpack
+  name: small gas turbine flatpack
+  description: A complete small gas turbine, ready to unpack with a multitool.
+  components:
+  - type: Flatpack
+    entity: TurbineSmall
+    qualityNeeded: Pulsing

@@ -138,7 +138,7 @@ public sealed partial class CrashRecoverySystem
                 {
                     assets[i] = state.Asset; // retain this entity's previous good data; never block other owners
                     if (_encodingFailures.Add(state.Asset.Identity))
-                        Log.Error($"Recovery entity encoding deferred: {state.Asset.Identity}: {error.GetType().Name}");
+                        Log.Error($"Recovery entity encoding deferred: {state.Asset.Identity}: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(error)}");
                 }
             }
             await _db.WriteCrashRecovery(scope, run, assets, purchases);

@@ -150,7 +150,7 @@ namespace Content.Server.Preferences.Managers
                 [slot] = profile
             };
 
-            prefsData.Prefs = new PlayerPreferences(profiles, slot, curPrefs.AdminOOCColor, curPrefs.ChatPanelSettings);
+            prefsData.Prefs = new PlayerPreferences(profiles, curPrefs.SelectedCharacterIndex, curPrefs.AdminOOCColor, curPrefs.ChatPanelSettings);
 
             // Bank transactions already saved the character balance atomically.
             if (persist && ShouldStorePrefs(session.Channel.AuthType))

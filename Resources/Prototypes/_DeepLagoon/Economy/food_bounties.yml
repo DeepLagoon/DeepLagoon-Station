@@ -1,0 +1,135 @@
+- type: cargoBounty
+  id: DLEconomyFoodBurger
+  idPrefix: FOOD
+  foodProcurement: true
+  reward: 4500
+  rewardProto: SpaceCash
+  rewardSuffix: spesso
+  description: dl-economy-food-description
+  entries:
+  - name: dl-economy-food-burger
+    amount: 3
+    minimumFoodNutrients: 5
+    whitelist:
+      tags:
+      - Burger
+      - BountyRatBurger
+      - BountyBrainBurger
+      - BountyAppendixBurger
+      - BountyBaseballBurger
+      - BountyCatBurger
+      - BountyClownBurger
+      - BountyCrabBurger
+      - BountyEmpoweredBurger
+      - BountyHumanBurger
+      - BountyJellyBurger
+      - BountyMimeBurger
+      - BountyPlainBurger
+      - BountySoylentBurger
+      - BountySpellBurger
+      - BountyTofuBurger
+      - BountyBaconBurger
+      - BountyCheeseBurger
+      - BountyFilletOCarpBurger
+      - BountyFiveAlarmBurger
+      - BountySuperBiteBurger
+      - BountyGhostBurger
+      - BountyBigBiteBurger
+
+- type: cargoBounty
+  id: DLEconomyFoodSoup
+  idPrefix: FOOD
+  foodProcurement: true
+  reward: 4500
+  rewardProto: SpaceCash
+  rewardSuffix: spesso
+  description: dl-economy-food-description
+  entries:
+  - name: dl-economy-food-soup
+    amount: 3
+    minimumFoodNutrients: 5
+    whitelist:
+      tags:
+      - Soup
+      - BountyMushroomSoup
+      - BountyPeaSoup
+      - BountyFrenchOnionSoup
+      - BountyNettleSoup
+      - BountyEyeballSoup
+      - BountyVegtableSoup
+      - BountyMeatballSoup
+      - BountySaltySweetMisoColaSoup
+
+- type: cargoBounty
+  id: DLEconomyFoodBread
+  idPrefix: FOOD
+  foodProcurement: true
+  reward: 4500
+  rewardProto: SpaceCash
+  rewardSuffix: spesso
+  description: dl-economy-food-description
+  entries:
+  - name: dl-economy-food-bread
+    amount: 3
+    minimumFoodNutrients: 10
+    whitelist:
+      tags:
+      - Bread
+      - BountyBread
+      - BountyCreamCheeseBread
+      - BountyGarlicBread
+      - BountyMeatBread
+      - BountyMimanaBread
+      - BountySausageBread
+      - BountySpiderMeatBread
+      - BountyTofuBread
+      - BountyXenoMeatBread
+
+- type: cargoBounty
+  id: DLEconomyFoodPizza
+  idPrefix: FOOD
+  foodProcurement: true
+  reward: 4500
+  rewardProto: SpaceCash
+  rewardSuffix: spesso
+  description: dl-economy-food-description
+  entries:
+  - name: dl-economy-food-pizza
+    amount: 3
+    minimumFoodNutrients: 20
+    whitelist:
+      tags:
+      - Pizza
+      - BountyMargheritaPizza
+      - BountyMushroomPizza
+      - BountyMeatPizza
+      - BountySpicyRockPizza
+      - BountyDankPizza
+      - BountyDonkPocketPizza
+      - BountyHawaiianPizza
+      - BountyVegetablePizza
+
+- type: cargoBounty
+  id: DLEconomyFoodPie
+  idPrefix: FOOD
+  foodProcurement: true
+  reward: 4500
+  rewardProto: SpaceCash
+  rewardSuffix: spesso
+  description: dl-economy-food-description
+  entries:
+  - name: dl-economy-food-pie
+    amount: 3
+    minimumFoodNutrients: 15
+    whitelist:
+      tags:
+      - Pie
+      - BountyAmanitaPie
+      - BountyApplePie
+      - BountyCherryPie
+      - BountyFrostyPie
+      - BountyMeatPie
+      - BountyPumpkinPie
+      - BountyXenoPie
+      - BountyHoneyAppleStreuselPie
+      - BountyBananaCreamPie

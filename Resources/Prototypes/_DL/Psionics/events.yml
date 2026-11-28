@@ -4,7 +4,6 @@
     children:
     - id: NoosphericStorm
     - id: MundaneDischarge
-    - id: NoosphericZap
     - id: NoosphericFry
     - id: PsionicCatGotYourTongue
     - id: MassMindSwap

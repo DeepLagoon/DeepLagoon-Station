@@ -76,6 +76,7 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
         _cooldowns.Clear();
         _looseLoot.Clear();
         _viewers.Clear();
+        _visibilityPiles.Clear();
         _protected.Clear();
         _derelictFields.Clear();
         base.Shutdown();
@@ -89,6 +90,8 @@ public sealed partial class OrbitalDebrisSystem : EntitySystem
 
     public override void Update(float frameTime)
     {
+        // With no owned junk/loot there is nothing to enforce between spawn passes.
+        if (_piles.Count == 0 && _looseLoot.Count == 0 && _timing.CurTime < _next) return;
         CollectObservers();
         // Visibility caps and detached loot cleanup follow movement on each simulation update.
         EnforceVisibleLimits();

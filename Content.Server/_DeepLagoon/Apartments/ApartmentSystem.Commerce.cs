@@ -72,7 +72,7 @@ public sealed partial class ApartmentSystem
         try { PublishCommerce(session, token, await _economy.Current(session), order, message: message, completed: completed); }
         catch (Exception e)
         {
-            Log.Warning($"Apartment commerce refresh failed: {e.GetType().Name}");
+            Log.Warning($"Apartment commerce refresh failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             if (session.Channel.IsConnected && CommerceEditor(session, token) != null)
                 RaiseNetworkEvent(new ApartmentCommerceStateEvent(token, -1, [], order, message: message, completed: completed), session);
         }
@@ -87,7 +87,7 @@ public sealed partial class ApartmentSystem
         try { PublishCommerce(session, ev.Token, await _economy.Current(session)); }
         catch (Exception e)
         {
-            Log.Warning($"Apartment catalogue failed: {e.GetType().Name}");
+            Log.Warning($"Apartment catalogue failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             if (session.Channel.IsConnected && CommerceEditor(session, ev.Token) != null)
                 RaiseNetworkEvent(new ApartmentCommerceStateEvent(ev.Token, -1, [], message: "Не удалось загрузить баланс и запас. Повторите загрузку."), session);
         }
@@ -117,7 +117,7 @@ public sealed partial class ApartmentSystem
         { await CommerceFailure(session, ev.Token, ev.Order, e is OverflowException ? "Слишком большое количество наборов." : e.Message, true); }
         catch (Exception e)
         {
-            Log.Error($"Apartment furniture purchase failed: {e.GetType().Name}");
+            Log.Error($"Apartment furniture purchase failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             await CommerceFailure(session, ev.Token, ev.Order, "Не удалось проверить результат. Повторите тот же запрос; повторного списания не будет.", false);
         }
         finally { _furnitureBusy.Remove(session.UserId); }

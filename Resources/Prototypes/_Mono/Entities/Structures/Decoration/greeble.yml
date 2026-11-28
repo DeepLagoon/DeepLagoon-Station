@@ -4,8 +4,22 @@
   placement:
     mode: SnapgridCenter
   components:
+  - type: ThrusterExhaustImmune
   - type: Transform
     anchored: true
+  - type: WallAttachment
+    protectWall: true
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.4,-0.4,0.4,0.4"
+        hard: false
+        density: 100
+  - type: Pullable
   - type: Clickable
   - type: Animateable
   - type: RequiresGrid
@@ -137,6 +151,8 @@
   placement:
     mode: SnapgridCenter
   components:
+  - type: WallAttachment
+    protectWall: false
   - type: Sprite
     sprite: _Mono/Structures/Decoration/Greeble/32x32.rsi
     layers:
@@ -150,6 +166,8 @@
   placement:
     mode: SnapgridCenter
   components:
+  - type: WallAttachment
+    protectWall: false
   - type: Sprite
     sprite: _Mono/Structures/Decoration/Greeble/32x32.rsi
     layers:
@@ -163,6 +181,8 @@
   placement:
     mode: SnapgridCenter
   components:
+  - type: WallAttachment
+    protectWall: false
   - type: Sprite
     sprite: _Mono/Structures/Decoration/Greeble/32x32.rsi
     layers:
@@ -176,6 +196,8 @@
   placement:
     mode: SnapgridCenter
   components:
+  - type: WallAttachment
+    protectWall: false
   - type: Sprite
     sprite: _Mono/Structures/Decoration/Greeble/32x32.rsi
     layers:

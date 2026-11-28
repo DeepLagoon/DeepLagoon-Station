@@ -71,6 +71,7 @@ namespace Content.Server._DV.Mail.EntitySystems
         [Dependency] private SharedAudioSystem _audioSystem = default!;
         [Dependency] private SharedContainerSystem _containerSystem = default!;
         [Dependency] private SharedHandsSystem _handsSystem = default!;
+        [Dependency] private Content.Server._DeepLagoon.Cleanup.AgeCleanupSystem _ageCleanup = default!;
         [Dependency] private SharedSolutionContainerSystem _solution = default!;
         [Dependency] private StationSystem _stationSystem = default!;
         [Dependency] private TagSystem _tagSystem = default!;
@@ -825,6 +826,7 @@ namespace Content.Server._DV.Mail.EntitySystems
             _tagSystem.AddTag(uid, "Recyclable");
             component.IsEnabled = false;
             UpdateMailTrashState(uid, true);
+            _ageCleanup.MarkOpenedMail(uid);
         }
 
         private void UpdateAntiTamperVisuals(EntityUid uid, bool isLocked)

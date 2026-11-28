@@ -134,6 +134,9 @@
   - TsfMarsoc # Mono
   - TsfInfantry # Mono
   - TsfBorg # Mono
+  # DeepLagoon start
+  - TsfMantis
+  # DeepLagoon end
   - TsfCivilian
 
 - type: department

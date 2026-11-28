@@ -92,7 +92,7 @@ public sealed partial class ArtSystem
         }
         catch (Exception e) when (e is not OutOfMemoryException)
         {
-            Log.Warning($"Rejected art draft: {e.GetType().Name}");
+            Log.Warning($"Rejected art draft: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             return DraftStatus(uid, c, ev, false);
         }
         finally { _draftJobs--; _draftBaking.Remove(uid); }

@@ -123,6 +123,11 @@ public sealed partial class ItemMinerSystem : EntitySystem
                 continue;
             }
             _frame.Active++;
+            var maintenance = EntityManager.System<Content.Server._DeepLagoon.Economy.EquipmentMaintenanceSystem>();
+            maintenance.Work(uid, frameTime);
+            maintenance.TrackMinerFactor(uid);
+            // Stretch the schedule only during powered work, without discarding earned queued cycles.
+            miner.NextAt = AddInterval(miner.NextAt, TimeSpan.FromSeconds(Math.Max(0, frameTime) * (1 - maintenance.Efficiency(uid))));
             if (miner.NeedApcPower) _power.SetPowerDisabled(uid, false);
             if (TerminatingOrDeleted(miner.AudioUid) && miner.MiningSound != null)
                 miner.AudioUid = _audio.PlayPvs(miner.MiningSound, uid)?.Entity;

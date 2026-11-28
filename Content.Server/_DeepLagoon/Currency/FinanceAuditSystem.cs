@@ -107,7 +107,7 @@ public sealed class FinanceAuditSystem : EntitySystem
         }
         catch (Exception ex)
         {
-            Log.Warning($"Finance audit relay unavailable: {ex.GetType().Name}");
+            Log.Warning($"Finance audit relay unavailable: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(ex)}");
             await context.RespondErrorAsync(HttpStatusCode.ServiceUnavailable);
         }
         finally { _request.Release(); }

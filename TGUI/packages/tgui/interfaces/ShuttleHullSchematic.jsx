@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useBackend } from '../backend';
 import { ConsolePlate, ConsoleKey, RadarScope } from '../components/ShipConsoleFrame';
 
@@ -16,6 +17,9 @@ export const ShuttleHullSchematic = ({ hull }) => <RadarScope
 
 export const ShuttleHullSummary = ({ hull }) => {
   const { act } = useBackend();
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer); }, []);
+  const cooldown = Math.max(0, Math.ceil(((hull.snapshotReadyAt || 0) - now) / 1000));
   const missing = categories.filter(([key]) => (hull[key]?.missing || 0) > 0);
   const integrity = Math.max(0, Math.min(1, hull.integrity ?? 1));
   const energy = Math.max(0, hull.storedEnergy || 0);
@@ -51,6 +55,11 @@ export const ShuttleHullSummary = ({ hull }) => {
       <ConsoleKey disabled={!hull.present} onClick={() => act('resetHullHistory')}>
         Очистить историю повреждений
       </ConsoleKey>
+      <ConsoleKey disabled={!hull.present || hull.snapshotBusy || cooldown > 0} onClick={() => act('saveRepairSnapshot')}>
+        {cooldown > 0 ? `Снимок через ${Math.floor(cooldown / 60)}:${String(cooldown % 60).padStart(2, '0')}` : 'Сохранить снимок шаттла'}
+      </ConsoleKey>
+      <p className="ShuttleHull__note">Сохраняет текущую палубу и оборудование для призраков Ship Repair Device. Перезапись доступна раз в 20 минут.</p>
+      {hull.snapshotMessage && <p role="status">{hull.snapshotMessage}</p>}
       <p className="ShuttleHull__note">Сброс принимает текущее состояние за исходное для всех консолей шаттла.</p>
       <p className="ShuttleHull__note">Учитываются удалённые элементы относительно сохранённой схемы.
         Боезапас и текущая прочность отдельных элементов здесь не отображаются.</p>

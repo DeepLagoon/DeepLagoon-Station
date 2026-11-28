@@ -41,25 +41,25 @@ public abstract partial class ServerDbBase
         await AccountCurrencyOperations.CompleteLagoonCoinWebhook(db.DbContext, user, key, owner, cancel);
     }
 
-    public async Task<long> WithdrawBankAsync(NetUserId user, int slot, long expectedBalance, long amount, CancellationToken cancel = default, RecoveryPayment? recovery = null)
+    public async Task<long> WithdrawBankAsync(NetUserId user, int slot, long expectedBalance, long amount, CancellationToken cancel = default, RecoveryPayment? recovery = null, int? expectedProfile = null)
     {
         await using var db = await GetDb(cancel);
-        return await AccountCurrencyOperations.WithdrawBank(db.DbContext, user.UserId, slot, expectedBalance, amount, cancel, recovery);
+        return await AccountCurrencyOperations.WithdrawBank(db.DbContext, user.UserId, slot, expectedBalance, amount, cancel, recovery, expectedProfile);
     }
 
     public async Task<long> DepositBankAsync(NetUserId user, int slot, long expectedBalance, long amount, CancellationToken cancel = default,
-        IReadOnlyList<SpawnedCashSource>? origins = null, RecoveryRemoval? recovery = null)
+        IReadOnlyList<SpawnedCashSource>? origins = null, RecoveryRemoval? recovery = null, int? expectedProfile = null)
     {
         await using var db = await GetDb(cancel);
-        return await AccountCurrencyOperations.DepositBank(db.DbContext, user.UserId, slot, expectedBalance, amount, cancel, origins, recovery);
+        return await AccountCurrencyOperations.DepositBank(db.DbContext, user.UserId, slot, expectedBalance, amount, cancel, origins, recovery, expectedProfile);
     }
 
     public async Task<BankTransfer> TransferBankAsync(NetUserId sender, int senderSlot, long senderBalance,
-        NetUserId recipient, int recipientSlot, long recipientBalance, long amount, CancellationToken cancel = default)
+        NetUserId recipient, int recipientSlot, long recipientBalance, long amount, CancellationToken cancel = default, int? expectedSenderProfile = null, int? expectedRecipientProfile = null)
     {
         await using var db = await GetDb(cancel);
         return await AccountCurrencyOperations.TransferBank(db.DbContext, sender.UserId, senderSlot, senderBalance,
-            recipient.UserId, recipientSlot, recipientBalance, amount, cancel);
+            recipient.UserId, recipientSlot, recipientBalance, amount, cancel, expectedSenderProfile, expectedRecipientProfile);
     }
 
     public async Task<long> GetLagoonCoinsAsync(NetUserId user, CancellationToken cancel = default)

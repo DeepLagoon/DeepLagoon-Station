@@ -22,14 +22,14 @@ public sealed partial class DeviceLinkSystem : SharedDeviceLinkSystem
         SubscribeLocalEvent<DeviceLinkSourceComponent, NewLinkEvent>(OnNewLink);
     }
 
-    internal void SerializeInternalLinks(HashSet<EntityUid> entities, Action serialize)
+    internal void SerializeInternalLinks(HashSet<EntityUid> entities, Action serialize, IEnumerable<EntityUid>? sources = null)
     {
         // Multiple external entity keys would all serialize to the same invalid YAML key.
         var originals = new Dictionary<DeviceLinkSourceComponent,
             Dictionary<EntityUid, HashSet<(ProtoId<SourcePortPrototype>, ProtoId<SinkPortPrototype>)>>>();
         try
         {
-            foreach (var entity in entities)
+            foreach (var entity in sources ?? entities)
             {
                 if (!TryComp<DeviceLinkSourceComponent>(entity, out var source) ||
                     source.LinkedPorts.Keys.All(entities.Contains))

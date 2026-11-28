@@ -13,6 +13,10 @@ namespace Content.Shared.Cargo.Prototypes;
 [Prototype, Serializable, NetSerializable]
 public sealed partial class CargoBountyPrototype : IPrototype
 {
+    /// <summary>Requires an actual treasury reservation before publication.</summary>
+    [DataField] public bool FoodProcurement;
+    /// <summary>Payer for credit-denominated voyages without an existing funded meal reservation.</summary>
+    [DataField] public Content.Shared._NF.Bank.Components.SectorBankAccount VoyageAccount = Content.Shared._NF.Bank.Components.SectorBankAccount.Frontier;
     /// <inheritdoc/>
     [IdDataField]
     public string ID { get; private set; } = default!;
@@ -57,6 +61,8 @@ public sealed partial class CargoBountyPrototype : IPrototype
 [DataDefinition, Serializable, NetSerializable]
 public readonly partial record struct CargoBountyItemEntry()
 {
+    /// <summary>Rejects empty containers and eaten leftovers from funded meal orders.</summary>
+    [DataField] public int MinimumFoodNutrients { get; init; }
     /// <summary>
     /// A whitelist for determining what items satisfy the entry.
     /// </summary>

@@ -38,6 +38,8 @@ REVIEWED_ENGINE_PATHS = frozenset({
     "Robust.Shared/Physics/Systems/SharedPhysicsSystem.cs",
     "Robust.Shared/Physics/Systems/SharedPhysicsSystem.Queries.cs",
     "Robust.Shared/Physics/Systems/SharedPhysicsSystem.GridSubsteps.cs",
+    # Reconcile duplicate joint instances after PVS re-entry; joint state/wire fields stay unchanged.
+    "Robust.Shared/Physics/Systems/SharedJointSystem.cs",
     "Robust.Shared.IntegrationTests/Physics/GridMotionSubstepTests.cs",
     "Robust.Client/UserInterface/UserInterfaceManager.Scaling.cs",
     "Robust.Client.Tests/UserInterface/UIScaleTest.cs",
@@ -135,6 +137,23 @@ REVIEWED_ENGINE_PATHS = frozenset({
     "Robust.Server.IntegrationTests/ViewVariables/ViewVariablesModificationTest.cs",
     # Reviewed opt-in tick/ECS/PVS diagnostics; existing wire and authentication contracts.
     "Robust.Server/BaseServer.Performance.cs",
+    # Reviewed opt-in server memory counters/captures and offline analysis tools.
+    # These add no client messages, authentication fields, or module-loading rules.
+    "Robust.Server/BaseServer.Memory.cs",
+    "Robust.Server/Console/Commands/MemoryDiagnosticsCommand.cs",
+    "Robust.Server/Diagnostics/MemoryDiagnosticCounters.cs",
+    "Robust.Server/Diagnostics/ServerMemoryDiagnostics.Capture.cs",
+    "Robust.Server/Diagnostics/ServerMemoryDiagnostics.cs",
+    "Robust.Server/GameStates/PvsSystem.Memory.cs",
+    "Robust.UnitTesting/Server/MemoryDiagnosticsTest.cs",
+    "Tools/Diagnostics/README.md",
+    "Tools/Diagnostics/analyze-memory.py",
+    "Tools/Diagnostics/dotnet-tools.json",
+    "Tools/Diagnostics/test_analyze_memory.py",
+    # Local audio-source ownership fixes; serialized audio state and wire fields are unchanged.
+    "Robust.Client/Audio/AudioSystem.Limits.cs",
+    "Robust.Client/Audio/AudioSystem.cs",
+    "Robust.UnitTesting/Client/Audio/AudioConcurrencyTest.cs",
     "Robust.Server/ServerTickTiming.Diagnostics.cs",
     "Robust.Server/ServerTickTiming.Performance.cs",
     "Robust.Server/ServerTickTiming.PerformanceOutput.cs",
@@ -155,8 +174,12 @@ REVIEWED_ENGINE_PATHS = frozenset({
     "Robust.Shared/Serialization/Manager/SerializationManager.WriterPreparation.cs",
     "Robust.Shared/Serialization/Manager/SerializationManager.Writing.cs",
     "Robust.Shared/EntitySerialization/EntitySerializer.cs",
+    "Robust.Shared/EntitySerialization/EntitySerializer.Incremental.cs",
+    "Robust.Shared.IntegrationTests/Serialization/IncrementalEntityWriterTests.cs",
     "Robust.Shared/EntitySerialization/EntityDeserializer.cs",
     "Robust.Shared/EntitySerialization/EntityDeserializer.Incremental.cs",
+    # Opt-in live snapshot loading preserves saved timer epochs while yielding between entities.
+    "Robust.Shared/Serialization/TypeSerializers/Implementations/Custom/TimeOffsetSerializer.cs",
     "Robust.Shared/EntitySerialization/Systems/MapLoaderSystem.Incremental.cs",
     "Robust.Shared/GameObjects/Systems/SharedMapSystem.MapInit.cs",
     "Robust.Shared/GameObjects/Systems/EntityLookupSystem.ComponentQueries.cs",
@@ -164,6 +187,51 @@ REVIEWED_ENGINE_PATHS = frozenset({
     "Robust.Shared.IntegrationTests/Serialization/WriterPreparationTest.cs",
     "Robust.Shared.IntegrationTests/Physics/PhysicsReplicationHotfixTests.cs",
     "Robust.Shared.IntegrationTests/Physics/TypedLookupMapTests.cs",
+    # Reviewed PVS scheduling/deletion isolation and CEF resource lifetime; no loader/trust changes.
+    "Robust.Client.WebView/Cef/BrowserLifetime.cs",
+    "Robust.Client.WebView/Cef/ImageBuffer.cs",
+    "Robust.Client.WebView/Cef/RobustCefClient.cs",
+    "Robust.Client.WebView/Cef/WebViewGeometry.cs",
+    "Robust.Client.WebView/Cef/WebViewManagerCef.BrowserWindow.cs",
+    "Robust.Client.WebView/Cef/WebViewManagerCef.Control.cs",
+    "Robust.Client.WebView/Cef/WebViewManagerCef.cs",
+    "Robust.Client.WebView/Properties/AssemblyInfo.cs",
+    "Robust.Client.WebView.Tests/BrowserLifetimeTests.cs",
+    "Robust.Client.WebView.Tests/ClosingRenderHandlerTests.cs",
+    "Robust.Client.WebView.Tests/ImageBufferTests.cs",
+    "Robust.Client.WebView.Tests/Robust.Client.WebView.Tests.csproj",
+    "Robust.Server/GameStates/PvsDeletionHistory.cs",
+    "Robust.Server/GameStates/PvsSystem.Chunks.cs",
+    "Robust.Server/GameStates/PvsSystem.Entity.cs",
+    "Robust.Server/GameStates/PvsSystem.Session.cs",
+    "Robust.Server/GameStates/PvsSystem.ToSendSet.cs",
+    "Robust.Server.IntegrationTests/GameStates/PvsDeletionHistoryTests.cs",
+    "Robust.Server.IntegrationTests/GameStates/PvsDeletionIsolationTest.cs",
+    "Robust.Server.IntegrationTests/GameStates/PvsEntryByteBudgetTest.cs",
+    "Robust.Server.IntegrationTests/GameStates/PvsSnapshotRetryTest.cs",
+    "Robust.Server.IntegrationTests/GameStates/PvsViewerDataTests.cs",
+    "Robust.Shared/Physics/Systems/GridFixtureBoundsCache.cs",
+    "Robust.Server.IntegrationTests/Physics/GridFixtureBoundsCacheTests.cs",
+    "RobustToolbox.slnx",
+
+})
+
+# Explicit local development only; never accepted as release metadata.
+REVIEWED_DEVELOPMENT_ENGINE_PATHS = frozenset({
+    "Robust.Client/Audio/AudioSystem.cs",
+    "Robust.Client/Audio/AudioSystem.Limits.cs",
+    "Robust.Server/BaseServer.Memory.cs",
+    "Robust.Server/Console/Commands/MemoryDiagnosticsCommand.cs",
+    "Robust.Server/Diagnostics/MemoryDiagnosticCounters.cs",
+    "Robust.Server/Diagnostics/ServerMemoryDiagnostics.Capture.cs",
+    "Robust.Server/Diagnostics/ServerMemoryDiagnostics.cs",
+    "Robust.Server/GameStates/PvsSystem.Memory.cs",
+    "Robust.UnitTesting/Client/Audio/AudioConcurrencyTest.cs",
+    "Robust.UnitTesting/Server/MemoryDiagnosticsTest.cs",
+    "Tools/Diagnostics/README.md",
+    "Tools/Diagnostics/analyze-memory.py",
+    "Tools/Diagnostics/dotnet-tools.json",
+    "Tools/Diagnostics/test_analyze_memory.py",
 })
 
 
@@ -218,15 +286,24 @@ def read_contract(root: Path) -> dict:
         raise CompatibilityError(f"Invalid ENGINE-COMPATIBILITY.json: {exc}") from exc
 
 
-def check(root: Path = ROOT, *, allow_stock: bool = False) -> dict:
+def check(root: Path = ROOT, *, allow_stock: bool = False, development_engine: Path | None = None) -> dict:
     root = root.resolve()
-    engine = root / "RobustToolbox"
+    engine = development_engine.resolve() if development_engine is not None else root / "RobustToolbox"
+    if development_engine is not None and allow_stock:
+        raise CompatibilityError("Development engine cannot be stock validation")
     contract = read_contract(root)
-    if _git(engine, "status", "--porcelain", "--untracked-files=all", "--ignore-submodules=none"):
+    if development_engine is None and _git(engine, "status", "--porcelain", "--untracked-files=all", "--ignore-submodules=none"):
         raise CompatibilityError("Engine checkout or its dependencies have uncommitted changes")
     release = "refs/tags/v" + contract["official_engine_version"]
-    changed = set(filter(None, _git(engine, "diff", "--no-ext-diff", "--no-textconv", "--name-only", release, "HEAD", "--").splitlines()))
-    unexpected = changed - REVIEWED_ENGINE_PATHS
+    revision = [] if development_engine is not None else ["HEAD"]
+    changed = set(filter(None, _git(engine, "diff", "--no-ext-diff", "--no-textconv", "--name-only", release, *revision, "--").splitlines()))
+    reviewed = REVIEWED_ENGINE_PATHS
+    if development_engine is not None:
+        changed.update(filter(None, _git(engine, "ls-files", "--others", "--exclude-standard").splitlines()))
+        if _git(engine, "submodule", "foreach", "--quiet", "--recursive", "git status --porcelain --untracked-files=all"):
+            raise CompatibilityError("Development engine dependencies must remain clean")
+        reviewed = reviewed | REVIEWED_DEVELOPMENT_ENGINE_PATHS
+    unexpected = changed - reviewed
     if unexpected:
         raise CompatibilityError("Unreviewed engine changes relative to the official client baseline: " +
                                  ", ".join(sorted(unexpected)))
@@ -258,15 +335,19 @@ def main() -> int:
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--allow-stock", action="store_true", help="CI-only validation against unmodified official release source")
     parser.add_argument("--metadata-output", type=Path)
+    parser.add_argument("--development-engine", type=Path, help="Explicit local source tree; checks tracked AND untracked changes, cannot produce release metadata")
     args = parser.parse_args()
     try:
         if args.allow_stock and args.metadata_output:
             raise CompatibilityError("Stock validation cannot produce release metadata")
-        metadata = check(args.root, allow_stock=args.allow_stock)
+        if args.development_engine is not None and args.metadata_output:
+            raise CompatibilityError("Development engine cannot produce release metadata")
+        metadata = check(args.root, allow_stock=args.allow_stock, development_engine=args.development_engine)
         if args.metadata_output:
             args.metadata_output.parent.mkdir(parents=True, exist_ok=True)
             args.metadata_output.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
-        print(f"Official engine compatibility: {metadata['engine_version']}")
+        mode = "Local development engine checked against official version" if args.development_engine is not None else "Official engine compatibility"
+        print(f"{mode}: {metadata['engine_version']}")
         return 0
     except CompatibilityError as exc:
         print(f"Engine compatibility check failed: {exc}", file=sys.stderr)

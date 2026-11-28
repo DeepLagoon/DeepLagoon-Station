@@ -94,3 +94,10 @@
     sprite: _DeepLagoon/Mobs/Tajaran/plantigrade.rsi
     state: r_foot
 
+- type: speciesBaseSprites
+  id: MobReptilianPlantigradeSprites
+  sprites:
+    LLeg: MobHumanLLeg
+    RLeg: MobHumanRLeg
+    LFoot: MobHumanLFoot
+    RFoot: MobHumanRFoot

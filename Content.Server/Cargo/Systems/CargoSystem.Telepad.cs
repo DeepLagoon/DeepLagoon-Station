@@ -36,6 +36,7 @@ public sealed partial class CargoSystem
         var query = EntityQueryEnumerator<CargoTelepadComponent>();
         while (query.MoveNext(out var uid, out var comp))
         {
+            if (MarketTelepadBusy(uid)) continue;
             // Don't EntityQuery for it as it's not required.
             TryComp<AppearanceComponent>(uid, out var appearance);
 
@@ -48,7 +49,7 @@ public sealed partial class CargoSystem
             }
 
             if (!TryComp<DeviceLinkSinkComponent>(uid, out var sinkComponent) ||
-                sinkComponent.LinkedSources.FirstOrNull() is not { } console ||
+                sinkComponent.LinkedSources.Where(HasComp<CargoOrderConsoleComponent>).FirstOrNull() is not { } console ||
                 !HasComp<CargoOrderConsoleComponent>(console))
             {
                 comp.Accumulator = comp.Delay;
@@ -85,6 +86,7 @@ public sealed partial class CargoSystem
 
                 comp.CurrentState = CargoTelepadState.Teleporting;
                 _appearance.SetData(uid, CargoTelepadVisuals.State, CargoTelepadState.Teleporting, appearance);
+                _marketPadCooldown[uid] = _timing.CurTime + TimeSpan.FromSeconds(Math.Max(.1, comp.Delay));
             }
 
             comp.Accumulator += comp.Delay;
@@ -109,6 +111,8 @@ public sealed partial class CargoSystem
 
     private void OnShutdown(Entity<CargoTelepadComponent> ent, ref ComponentShutdown args)
     {
+        _marketPadReservations.Remove(ent.Owner);
+        _marketPadCooldown.Remove(ent.Owner);
         //if (ent.Comp.CurrentOrders.Count == 0) //Frontier - todo: find a smarter way to maybe fix this otherwise its exploity by forcing crate spawn on rando station
             return;
 

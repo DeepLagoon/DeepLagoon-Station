@@ -4,6 +4,7 @@
   name: bar sign
   abstract: true
   components:
+  - type: ThrusterExhaustImmune
   - type: MeleeSound
     soundGroups:
       Brute:

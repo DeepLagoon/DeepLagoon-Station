@@ -100,7 +100,6 @@ public sealed partial class PdaMenu
             labels.String(key, Loc.GetString("dl-pda-" + key));
         labels.String("messenger", Loc.GetString("dl-messenger-title"));
         host.Panel.SetStaticData(new TguiData().Object("labels", labels).ToString());
-        SetSize = new Vector2(760, 680);
         ShowOrbital();
     }
 

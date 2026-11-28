@@ -4,6 +4,7 @@
   name: brb sign
   description: Lets others know you are away.
   components:
+  - type: ThrusterExhaustImmune
   - type: Sprite
     sprite: Objects/Misc/brbsign.rsi
     state: icon

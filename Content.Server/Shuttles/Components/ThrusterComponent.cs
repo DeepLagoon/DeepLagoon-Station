@@ -34,25 +34,25 @@ namespace Content.Server.Shuttles.Components
         [DataField("thrusterType")]
         public ThrusterType Type = ThrusterType.Linear;
 
+        /// <summary>
+        /// Exhaust damage area in local coordinates, extending behind the nozzle.
+        /// Larger engine prototypes override this with a wider, longer plume.
+        /// </summary>
         [DataField("burnShape")] public List<Vector2> BurnPoly = new()
         {
             new Vector2(-0.4f, 0.5f),
-            new Vector2(-0.1f, 1.2f),
-            new Vector2(0.1f, 1.2f),
+            new Vector2(-0.25f, 1.4f),
+            new Vector2(0.25f, 1.4f),
             new Vector2(0.4f, 0.5f)
         };
 
         /// <summary>
-        /// How much damage is done per second to anything colliding with our thrust.
+        /// Damage applied to entities in the exhaust on each fire cooldown.
         /// </summary>
         [DataField("damage")] public DamageSpecifier? Damage = new();
 
         [DataField("requireSpace")]
         public bool RequireSpace = true;
-
-        // Used for burns
-
-        public List<EntityUid> Colliding = new();
 
         public bool Firing = false;
 

@@ -14,7 +14,7 @@ namespace Content.Server.Explosion.Components
     /// <summary>
     /// Raises a <see cref="TriggerEvent"/> whenever an entity collides with a fixture attached to the owner of this component.
     /// </summary>
-    [RegisterComponent, AutoGenerateComponentPause]
+    [RegisterComponent]
     public sealed partial class TriggerOnProximityComponent : SharedTriggerOnProximityComponent
     {
         public const string FixtureID = "trigger-on-proximity-fixture";
@@ -59,7 +59,6 @@ namespace Content.Server.Explosion.Components
         /// </summary>
         [ViewVariables(VVAccess.ReadWrite)]
         [DataField("nextTrigger", customTypeSerializer: typeof(TimeOffsetSerializer))]
-        [AutoPausedField]
         public TimeSpan NextTrigger = TimeSpan.Zero;
 
         /// <summary>
@@ -67,7 +66,6 @@ namespace Content.Server.Explosion.Components
         /// </summary>
         [ViewVariables(VVAccess.ReadWrite)]
         [DataField("nextVisualUpdate", customTypeSerializer: typeof(TimeOffsetSerializer))]
-        [AutoPausedField]
         public TimeSpan NextVisualUpdate = TimeSpan.Zero;
 
         /// <summary>

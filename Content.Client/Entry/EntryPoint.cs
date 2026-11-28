@@ -99,6 +99,7 @@ namespace Content.Client.Entry
             IoCManager.InjectDependencies(this);
 
             _contentLoc.Initialize();
+            InitializeRadarTelemetryNetworking();
             _componentFactory.DoAutoRegistrations();
             _componentFactory.IgnoreMissingComponents();
 

@@ -444,7 +444,7 @@ public sealed partial class CrashRecoverySystem : EntitySystem
             _failedUntil[uid] = _timing.RealTime + TimeSpan.FromMinutes(1);
             _captureAfter[uid] = _failedUntil[uid];
             _serializer = null;
-            Log.Error($"Recovery capture failed for {uid}: {e.GetType().Name}: {e.Message}");
+            Log.Error($"Recovery capture failed for {uid}: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
         }
         finally
         {

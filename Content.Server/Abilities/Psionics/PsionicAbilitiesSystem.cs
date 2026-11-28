@@ -99,7 +99,7 @@ public sealed partial class PsionicAbilitiesSystem : EntitySystem
         foreach (var weight in copy)
         {
             if (!_prototypeManager.TryIndex<PsionicPowerPrototype>(weight.Key, out var copyPower)
-                || !psionic.ActivePowers.Contains(copyPower))
+                || !psionic.ActivePowers.Any(power => power.ID == copyPower.ID))
                 continue;
 
             psionic.AvailablePowers.Remove(copyPower.ID);
@@ -109,7 +109,7 @@ public sealed partial class PsionicAbilitiesSystem : EntitySystem
             && _prototypeManager.TryIndex<WeightedRandomPrototype>(psionic.PowerPool, out var pool))
             foreach (var (id, weight) in pool.Weights)
                 if (_prototypeManager.TryIndex<PsionicPowerPrototype>(id, out var candidate)
-                    && !psionic.ActivePowers.Contains(candidate))
+                    && !psionic.ActivePowers.Any(power => power.ID == candidate.ID))
                     psionic.AvailablePowers.TryAdd(id, weight);
 
         if (psionic.AvailablePowers.Count <= 0)
@@ -127,7 +127,7 @@ public sealed partial class PsionicAbilitiesSystem : EntitySystem
     public void InitializePsionicPower(EntityUid uid, PsionicPowerPrototype proto, PsionicComponent psionic, bool playFeedback = true)
     {
         if (!_prototypeManager.HasIndex<PsionicPowerPrototype>(proto.ID)
-            || psionic.ActivePowers.Contains(proto))
+            || psionic.ActivePowers.Any(power => power.ID == proto.ID))
             return;
 
         psionic.ActivePowers.Add(proto);
@@ -268,9 +268,12 @@ public sealed partial class PsionicAbilitiesSystem : EntitySystem
 
     public void RemovePsionicPower(EntityUid uid, PsionicComponent psionicComponent, PsionicPowerPrototype psionicPower, bool forced = false)
     {
-        if (!psionicComponent.ActivePowers.Contains(psionicPower)
-            || !psionicComponent.Removable && !forced)
+        var activePower = psionicComponent.ActivePowers.FirstOrDefault(power => power.ID == psionicPower.ID);
+        if (activePower == null || !psionicComponent.Removable && !forced)
             return;
+
+        // Prototype reloads replace object instances. Remove the exact power that was initialized.
+        psionicPower = activePower;
 
         foreach (var function in psionicPower.RemovalFunctions)
             function.OnAddPsionic(uid,
@@ -289,9 +292,7 @@ public sealed partial class PsionicAbilitiesSystem : EntitySystem
 
     public void RemovePsionicPower(EntityUid uid, PsionicPowerPrototype psionicPower, bool forced = false)
     {
-        if (!TryComp<PsionicComponent>(uid, out var psionicComponent)
-            || !psionicComponent.ActivePowers.Contains(psionicPower)
-            || !psionicComponent.Removable && !forced)
+        if (!TryComp<PsionicComponent>(uid, out var psionicComponent))
             return;
 
         RemovePsionicPower(uid, psionicComponent, psionicPower, forced);

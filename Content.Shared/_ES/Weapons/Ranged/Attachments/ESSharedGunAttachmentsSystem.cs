@@ -71,12 +71,21 @@ public abstract partial class ESSharedGunAttachmentsSystem : EntitySystem
             _wield.RefreshModifiers(ent.Owner);
     }
 
-    protected virtual void OnEntRemovedFromContainer(Entity<ESAttachableGunComponent> ent, ref EntRemovedFromContainerMessage args)
+    protected virtual void OnEntRemovedFromContainer(
+     Entity<ESAttachableGunComponent> ent,
+     ref EntRemovedFromContainerMessage args)
     {
+        // Не обновляем характеристики удаляемого оружия.
+        if (TerminatingOrDeleted(ent.Owner))
+            return;
+
         var containerId = args.Container.ID;
+
         if (!ent.Comp.Slots.Any(s => s.ContainerId.Equals(containerId)))
             return;
+
         _gun.RefreshModifiers(ent.Owner);
+
         if (HasComp<GunWieldBonusComponent>(ent))
             _wield.RefreshModifiers(ent.Owner);
     }
@@ -248,17 +257,34 @@ public abstract partial class ESSharedGunAttachmentsSystem : EntitySystem
     }
 
     // Mono start
-    private void OnCompAttachmentEquip(EntityUid uid, ESGunComponentAttachmentComponent component, GunRefreshModifiersEvent args)
+    private void OnCompAttachmentEquip(
+        EntityUid uid,
+        ESGunComponentAttachmentComponent component,
+        GunRefreshModifiersEvent args)
     {
         if (_timing.ApplyingState)
             return;
+
         var target = args.Gun.Owner;
+
+        // Запрещаем добавление компонентов
+        // к уничтожаемому оружию.
+        if (TerminatingOrDeleted(target))
+            return;
+
         EntityManager.AddComponents(target, component.Components);
     }
 
-    private void OnCompAttachmentUnequip(EntityUid uid, ESGunComponentAttachmentComponent component, EntGotRemovedFromContainerMessage args)
+    private void OnCompAttachmentUnequip(
+        EntityUid uid,
+        ESGunComponentAttachmentComponent component,
+        EntGotRemovedFromContainerMessage args)
     {
         var target = args.Container.Owner;
+
+        if (TerminatingOrDeleted(target))
+            return;
+
         EntityManager.RemoveComponents(target, component.Components);
     }
 

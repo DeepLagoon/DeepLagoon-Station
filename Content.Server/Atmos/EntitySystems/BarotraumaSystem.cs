@@ -9,6 +9,9 @@ using Content.Shared.FixedPoint;
 using Content.Shared.Inventory;
 using Content.Shared.Inventory.Events;
 using Robust.Shared.Containers;
+using Content.Server._DeepLagoon.BodyInsurance;
+using Content.Server.Storage.Components;
+using Content.Shared.Storage.Components;
 
 namespace Content.Server.Atmos.EntitySystems
 {
@@ -22,6 +25,18 @@ namespace Content.Server.Atmos.EntitySystems
 
         private const float UpdateTimer = 1f;
         private float _timer;
+
+        private bool IsInsideRescueBag(EntityUid uid)
+        {
+            if (!TryComp<InsideEntityStorageComponent>(uid, out var inside))
+                return false;
+
+            if (!HasComp<BodyInsuranceRescueBagComponent>(inside.Storage))
+                return false;
+
+            return TryComp<EntityStorageComponent>(
+                inside.Storage, out var storage) && !storage.Open;
+        }
 
         public override void Initialize()
         {
@@ -242,7 +257,13 @@ namespace Content.Server.Atmos.EntitySystems
 
                 var pressure = 1f;
 
-                if (_atmosphereSystem.GetContainingMixture(uid) is {} mixture)
+                // Внутри страхового мешка поддерживается
+                // безопасное для тела давление.
+                if (IsInsideRescueBag(uid))
+                {
+                    pressure = Atmospherics.OneAtmosphere;
+                }
+                else if (_atmosphereSystem.GetContainingMixture(uid) is { } mixture)
                 {
                     pressure = MathF.Max(mixture.Pressure, 1f);
                 }

@@ -46,6 +46,8 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
             return;
         }
 
+        if (repairData.ShipyardLocked) return;
+
         var gridClick = _transform.WithEntityId(clickPos, targetGrid);
         var gridIndices = _map.CoordinatesToTile(targetGrid, targetGrid.Comp, gridClick);
 
@@ -87,6 +89,7 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
             {
                 // just fail the repair if it doesn't have the comp
                 if (!_proto.TryIndex(repairData.EntityPalette[spec.ProtoIndex], out var entProto)
+                    || Content.Shared._DeepLagoon.Mining.LaserDrillAvailability.IsRetiredPrototype(_proto, entProto.ID)
                     || !entProto.TryComp<ShipRepairableComponent>(out var repairable, Factory)
                     || entProto.TryComp<ShipRepairableRestrictComponent>(out var entRestrict, Factory)
                         && _whitelist.IsWhitelistFail(entRestrict.ToolWhitelist, ent)
@@ -196,6 +199,7 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
 
         if (args.TargetGrid is not { } targetGrid || !TryComp<ShipRepairDataComponent>(targetGrid, out var repairData))
             return;
+        if (repairData.ShipyardLocked) return;
 
         if (!TryGetChunk(repairData, args.TargetGridIndices, out var chunk))
             return;
@@ -210,6 +214,8 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
         {
             if (_net.IsClient || !chunk.Entities.TryGetValue(args.RepairId.Value, out var spec))
                 return;
+
+            if (Content.Shared._DeepLagoon.Mining.LaserDrillAvailability.IsRetiredPrototype(_proto, repairData.EntityPalette[spec.ProtoIndex])) return;
 
             if (!TryComp<MapGridComponent>(targetGrid, out var grid))
                 return;

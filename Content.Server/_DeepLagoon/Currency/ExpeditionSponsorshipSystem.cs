@@ -76,9 +76,7 @@ public sealed partial class ExpeditionSponsorshipSystem : EntitySystem
 
             // Consume this interval once, even if the bank cannot confirm the deposit.
             sponsorship.Seconds %= IntervalSeconds;
-            if (!_preferences.TryGetCachedPreferences(user, out var preferences) ||
-                preferences.SelectedCharacterIndex != sponsorship.Slot ||
-                preferences.SelectedCharacter is not HumanoidCharacterProfile profile ||
+            if (!_bank.TryGetCharacter(session, out var preferences, out var profile, out var slot) || slot != sponsorship.Slot ||
                 !HasComp<BankAccountComponent>(mob) ||
                 !_bank.TryBankDeposit(session, preferences, profile, Payout, out var balance))
                 continue;

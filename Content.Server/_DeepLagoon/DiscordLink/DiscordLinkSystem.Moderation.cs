@@ -70,7 +70,7 @@ public sealed partial class DiscordLinkSystem
         }
         catch (Exception e)
         {
-            Log.Error($"Discord moderation failed: {e.GetType().Name}");
+            Log.Error($"Discord moderation failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             await context.RespondJsonAsync(new { error = "unavailable" }, HttpStatusCode.ServiceUnavailable);
         }
         finally { _apiLock.Release(); }

@@ -351,7 +351,8 @@ namespace Content.Server.Lathe
 
             var lathe = EnsureComp<LatheProducingComponent>(uid);
             lathe.StartTime = _timing.CurTime;
-            lathe.ProductionLength = time * component.FinalTimeMultiplier; // Frontier: TimeMultiplier<FinalTimeMultiplier
+            lathe.ProductionLength = EntityManager.System<Content.Server._DeepLagoon.Economy.EquipmentMaintenanceSystem>().ProductionTime(uid, time * component.FinalTimeMultiplier); // Frontier: TimeMultiplier<FinalTimeMultiplier
+            lathe.Recipe = recipe.ID;
             lathe.Actor = GetEntity(actor);
             component.CurrentRecipe = recipe;
 

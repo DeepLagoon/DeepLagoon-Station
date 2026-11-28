@@ -129,6 +129,13 @@ public sealed partial class AnchorableSystem : EntitySystem
 
         var xform = Transform(uid);
 
+        if (!xform.Anchored || (component.Flags & AnchorableFlags.Unanchorable) == 0)
+            return;
+        var completion = new UnanchorCompletionAttemptEvent(args.User, used);
+        RaiseLocalEvent(uid, completion);
+        if (completion.Cancelled)
+            return;
+
         RaiseLocalEvent(uid, new BeforeUnanchoredEvent(args.User, used));
         _transformSystem.Unanchor(uid, xform);
         RaiseLocalEvent(uid, new UserUnanchoredEvent(args.User, used));

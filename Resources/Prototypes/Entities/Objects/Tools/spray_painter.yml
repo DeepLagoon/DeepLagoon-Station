@@ -11,6 +11,9 @@
     sprite: Objects/Tools/spray_painter.rsi
   - type: ActivatableUI
     key: enum.SprayPainterUiKey.Key
+    verbOnly: true
+    inHandsOnly: true
+    verbText: spray-painter-open-settings
   - type: UserInterface
     interfaces:
       enum.SprayPainterUiKey.Key:

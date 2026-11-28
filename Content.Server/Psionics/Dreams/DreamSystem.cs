@@ -2,6 +2,7 @@ using Content.Shared.Dataset;
 using Content.Shared.Bed.Sleep;
 using Content.Server.Chat.Systems;
 using Content.Server.Chat.Managers;
+using Content.Server.Chat;
 using Robust.Shared.Random;
 using Robust.Shared.Prototypes;
 using Robust.Server.GameObjects;
@@ -15,6 +16,7 @@ namespace Content.Server.Psionics.Dreams
         [Dependency] private IRobustRandom _random = default!;
         [Dependency] private IChatManager _chatManager = default!;
         [Dependency] private IPrototypeManager _prototypeManager = default!;
+        [Dependency] private TelepathicChatSystem _telepathy = default!;
         private float _accumulator = 0f;
         private float _updateRate = 15f;
 
@@ -37,7 +39,8 @@ namespace Content.Server.Psionics.Dreams
 
             foreach (var sleeper in EntityQuery<SleepingComponent>())
             {
-                if (!TryComp<ActorComponent>(sleeper.Owner, out var actor))
+                if (!_telepathy.CanReceiveTelepathy(sleeper.Owner)
+                    || !TryComp<ActorComponent>(sleeper.Owner, out var actor))
                     continue;
 
                 var setName = _random.Pick(DreamSetPrototypes);

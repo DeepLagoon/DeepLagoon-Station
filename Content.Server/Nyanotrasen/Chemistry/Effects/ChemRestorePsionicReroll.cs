@@ -2,6 +2,7 @@ using Content.Shared.EntityEffects;
 using JetBrains.Annotations;
 using Robust.Shared.Prototypes;
 using Content.Shared.Abilities.Psionics;
+using Content.Server.Psionics;
 
 namespace Content.Server.Chemistry.ReagentEffects;
 
@@ -16,7 +17,8 @@ public sealed partial class ChemRestorePsionicReroll : EntityEffect
 
     public override void Effect(EntityEffectBaseArgs args)
     {
-        if (args is not EntityEffectReagentArgs _
+        if (args is not EntityEffectReagentArgs
+            || !args.EntityManager.HasComponent<PsionicTraitComponent>(args.TargetEntity)
             || !args.EntityManager.TryGetComponent(args.TargetEntity, out PsionicComponent? psionicComp)
             || !psionicComp.Roller && !BypassRoller)
             return;

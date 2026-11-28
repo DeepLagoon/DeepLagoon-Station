@@ -23,7 +23,7 @@ namespace Content.Server.GameTicking.Commands
                 return;
             }
 
-            ticker.EndRound();
+            ticker.EndRound(forced: true);
         }
     }
 }

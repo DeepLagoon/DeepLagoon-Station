@@ -12,6 +12,8 @@ public sealed partial class SectorDefinition
     [DataField] public uint Seed;
     [DataField] public string Profile = "DeepLagoonFrontier";
     [DataField] public string Star = "StarKyphrus";
+    // Lightweight console/navigation manifest; no world background, regions or physical terrain.
+    [DataField] public bool NavigationOnly;
     [DataField] public List<SectorPlanet> Planets = new();
     [DataField] public List<SpaceRegion> Regions = new();
 }

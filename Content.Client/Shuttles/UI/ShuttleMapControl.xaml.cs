@@ -267,7 +267,9 @@ public sealed partial class ShuttleMapControl : BaseShuttleControl
         var mapObjects = _mapObjects;
         DrawRecenter();
 
-        if (InFtl || mapObjects.Count == 0)
+        var hasPlanets = _mapManager.TryGetMap(ViewingMap, out var navigationMap) &&
+            EntManager.TryGetComponent<Content.Shared._FarHorizons.StarSystem.StarSystemMapComponent>(navigationMap, out var navigation) && navigation.StarSystem?.Planets.Count > 0;
+        if (InFtl || mapObjects.Count == 0 && !hasPlanets)
         {
             DrawBacking(handle);
             DrawNoSignal(handle);
@@ -737,9 +739,10 @@ public sealed partial class ShuttleMapControl : BaseShuttleControl
         var scale = 1f;
         if (FitViewport)
         {
-            scale = MathF.Min(1, MathF.Max(1, PixelWidth - 2 * margin) / MathF.Max(1, dimensions.X));
-            dimensions = handle.GetDimensions(font, text, scale);
-            position = new Vector2(margin, PixelHeight - dimensions.Y - margin);
+            // Tiny/hidden viewports must not request a sub-pixel FreeType font size.
+            // Keep the normal readable font; the viewport clips overflowing coordinates.
+            if (PixelWidth < 2 * margin + dimensions.X || PixelHeight < 2 * margin + dimensions.Y)
+                return;
         }
         handle.DrawString(font, position, text, scale, color);
     }

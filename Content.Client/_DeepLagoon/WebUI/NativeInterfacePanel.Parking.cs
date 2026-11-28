@@ -24,17 +24,32 @@ public sealed partial class NativeInterfacePanel
         Button(_body, "Парковка", () => { _parkingTab = 0; Rebuild(); });
         Button(_body, "Долгосрочное хранение", () => { _parkingTab = 1; Rebuild(); });
         Button(_body, "Купить места", () => { _parkingTab = 2; Rebuild(); });
+        if (!data.Bool("repairEnabled"))
+        {
+            if (_parkingTab == 3) _parkingTab = 0;
+            CloseParkingRepairConfirmation();
+            _parkingRepairSelected.Clear();
+        }
+        if (data.Bool("repairEnabled"))
+            Button(_body, "Ремонт шаттла", () => { _parkingTab = 3; Rebuild(); });
         if (_parkingTab == 0)
         {
             Text(_body, "Шаттл: " + data.String("shipName"));
             Text(_body, "Категория: " + data.String("category") + " · Владелец: " + data.String("owner"));
             Text(_body, data.Bool("parked") ? "На парковке · заморожен" : "Парковка бесплатна");
-            if (data.Bool("parked"))
+            if (data.Bool("parked") && data.String("parkingSnapshot").Length > 0)
+                Text(_body, "Защита от краша: " + data.String("parkingSnapshot"));
+            if (data.Bool("recoveredParking"))
+            {
+                DockSelector(data);
+                Button(_body, "Вернуть бесплатно", () => Act("recall", new TguiData().String("dock", _parkingDock)), usable && _parkingDock.Length > 0);
+            }
+            else if (data.Bool("parked"))
                 RecallDockSelector(data.Object("recallMap"), usable && data.Bool("hasShip"));
             else
                 Button(_body, "Поставить на парковку", () => Act("park"), usable && data.Bool("hasShip"));
-            Button(_body, "Сохранить надолго…", () => { _parkingTab = 1; Rebuild(); }, usable && data.Bool("hasShip"));
-            Text(_body, "В конце смены шаттл на бесплатной парковке продадут в вашу пользу. Для переноса в новую смену сохраните его в долгосрочное место.");
+            Button(_body, "Сохранить надолго…", () => { _parkingTab = 1; Rebuild(); }, usable && data.Bool("hasShip") && !data.Bool("recoveredParking"));
+            if (!data.Bool("recoveredParking")) Text(_body, "В конце смены шаттл на бесплатной парковке продадут в вашу пользу. Для переноса в новую смену сохраните его в долгосрочное место.");
         }
         else if (_parkingTab == 1)
         {
@@ -63,6 +78,10 @@ public sealed partial class NativeInterfacePanel
                     ConfirmParking(label, question, () => Act("redeem", Fields()), usable && !data.Bool("hasShip") && !waiting && _parkingDock.Length > 0);
                 }
             }
+        }
+        else if (_parkingTab == 3)
+        {
+            ParkingRepair(data.Object("repair"), usable);
         }
         else
         {

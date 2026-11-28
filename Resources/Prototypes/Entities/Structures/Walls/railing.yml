@@ -5,6 +5,7 @@
   name: railing
   description: Basic railing meant to protect idiots like you from falling.
   components:
+  - type: ThrusterExhaustImmune
   - type: Sprite
     drawdepth: SmallObjects
     sprite: Structures/Walls/railing.rsi

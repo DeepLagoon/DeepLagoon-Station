@@ -26,6 +26,8 @@ public sealed partial class OrbitalDebrisSystem
     private readonly HashSet<EntityUid> _occupied = new();
     private readonly HashSet<EntityUid> _viewMaps = new();
     private readonly List<(EntityUid Uid, float Distance)> _limitCandidates = new();
+    private readonly record struct VisibilityPile(EntityUid Uid, EntityUid Map, Vector2 Position, float HalfExtent);
+    private readonly List<VisibilityPile> _visibilityPiles = new();
     private readonly Dictionary<EntityUid, EntityUid> _looseLoot = new();
     private readonly List<EntityUid> _lootSnapshot = new();
     private int _viewGeneration;
@@ -110,22 +112,41 @@ public sealed partial class OrbitalDebrisSystem
     private void EnforceVisibleLimits()
     {
         if (_piles.Count <= VisibleLimit) return;
-        foreach (var viewer in _activeViewers) EnforceViewLimit(viewer.Views);
+        CollectVisibilityPiles();
+        foreach (var viewer in _activeViewers) EnforceViewLimitCached(viewer.Views);
+    }
+
+    private void CollectVisibilityPiles()
+    {
+        _visibilityPiles.Clear();
+        foreach (var (uid, pile) in _piles)
+        {
+            if (!TerminatingOrDeleted(uid))
+                _visibilityPiles.Add(new VisibilityPile(uid, pile.Map, PilePosition(uid, pile), pile.HalfExtent));
+        }
     }
 
     /// <summary>One budget across all eyes of a player; overlapping players share the same physical population.</summary>
     public void EnforceViewLimit(IReadOnlyList<Observer> views)
     {
+        // Public callers can move grids between calls in the same tick.
+        CollectVisibilityPiles();
+        EnforceViewLimitCached(views);
+    }
+
+    private void EnforceViewLimitCached(IReadOnlyList<Observer> views)
+    {
         _limitCandidates.Clear();
-        foreach (var (uid, pile) in _piles)
+        foreach (var pile in _visibilityPiles)
         {
-            if (TerminatingOrDeleted(uid)) continue;
-            var position = PilePosition(uid, pile);
+            // An earlier viewer may already have retired/released this cached entry.
+            if (!_piles.ContainsKey(pile.Uid)) continue;
             var distance = float.PositiveInfinity;
             foreach (var view in views)
-                if (Visible(view, pile.Map, position, pile.HalfExtent)) distance = MathF.Min(distance, Vector2.DistanceSquared(view.Position, position));
-            if (!float.IsPositiveInfinity(distance)) _limitCandidates.Add((uid, distance));
+                if (Visible(view, pile.Map, pile.Position, pile.HalfExtent)) distance = MathF.Min(distance, Vector2.DistanceSquared(view.Position, pile.Position));
+            if (!float.IsPositiveInfinity(distance)) _limitCandidates.Add((pile.Uid, distance));
         }
+        if (_limitCandidates.Count <= VisibleLimit) return;
         _limitCandidates.Sort((a, b) => b.Distance.CompareTo(a.Distance));
         for (var i = 0; i < _limitCandidates.Count - VisibleLimit; i++) RetireSurplus(_limitCandidates[i].Uid);
     }
@@ -162,6 +183,7 @@ public sealed partial class OrbitalDebrisSystem
 
     private void CleanDetachedLoot()
     {
+        if (_looseLoot.Count == 0) return;
         _lootSnapshot.Clear();
         _lootSnapshot.AddRange(_looseLoot.Keys);
         foreach (var item in _lootSnapshot)

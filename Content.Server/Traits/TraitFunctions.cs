@@ -7,6 +7,8 @@ using Content.Shared.Weapons.Melee;
 using Content.Shared.Tag;
 using Content.Shared.Psionics;
 using Content.Server.Abilities.Psionics;
+using Content.Server.Psionics;
+using Content.Shared.Abilities.Psionics;
 using Content.Server._EinsteinEngines.Language;
 using JetBrains.Annotations;
 using Robust.Shared.Audio;
@@ -16,6 +18,8 @@ using Robust.Shared.Physics.Systems;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization.Manager;
 using Robust.Shared.Utility;
+using Content.Shared.Chat.Prototypes;
+using Content.Shared.Speech;
 
 namespace Content.Server.Traits;
 
@@ -56,6 +60,9 @@ public sealed partial class TraitAddComponent : TraitFunction
     {
         foreach (var entry in Components.Values)
         {
+            if (entry.Component is PsionicComponent or LatentPsychicComponent)
+                entityManager.EnsureComponent<PsionicTraitComponent>(uid, out _);
+
             if (entityManager.HasComponent(uid, entry.Component.GetType()))
                 continue;
 
@@ -102,6 +109,8 @@ public sealed partial class TraitAddPsionics : TraitFunction
     {
         var prototype = IoCManager.Resolve<IPrototypeManager>();
         var psionic = entityManager.System<PsionicAbilitiesSystem>();
+
+        entityManager.EnsureComponent<PsionicTraitComponent>(uid, out _);
 
         foreach (var powerProto in PsionicPowers)
             if (prototype.TryIndex(powerProto, out var psionicPower))
@@ -296,5 +305,36 @@ public sealed partial class TraitAddTag : TraitFunction
     {
         var tagSystem = entityManager.System<TagSystem>();
         tagSystem.AddTags(uid, Tags);
+    }
+}
+
+[UsedImplicitly]
+public sealed partial class TraitAddEmotes : TraitFunction
+{
+    [DataField, AlwaysPushInheritance]
+    public List<ProtoId<EmotePrototype>> Emotes { get; private set; } = new();
+
+    public override void OnPlayerSpawn(
+        EntityUid uid,
+        IComponentFactory factory,
+        IEntityManager entityManager,
+        ISerializationManager serializationManager)
+    {
+        if (!entityManager.TryGetComponent<SpeechComponent>(uid, out var speech))
+            return;
+
+        var changed = false;
+
+        foreach (var emote in Emotes)
+        {
+            if (speech.AllowedEmotes.Contains(emote))
+                continue;
+
+            speech.AllowedEmotes.Add(emote);
+            changed = true;
+        }
+
+        if (changed)
+            entityManager.Dirty(uid, speech);
     }
 }

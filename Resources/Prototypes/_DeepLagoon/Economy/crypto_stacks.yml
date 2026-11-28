@@ -1,0 +1,20 @@
+- type: Tag
+  id: DatafarmCoin
+
+- type: stack
+  id: BitcoinContribcoin
+  name: ent-BitcoinContribcoin
+  spawn: BitcoinContribcoin
+  maxCount: 15
+
+- type: stack
+  id: BitcoinIdeascoin
+  name: ent-BitcoinIdeascoin
+  spawn: BitcoinIdeascoin
+  maxCount: 15
+
+- type: stack
+  id: BitcoinGoidacoin
+  name: ent-BitcoinGoidacoin
+  spawn: BitcoinGoidacoin
+  maxCount: 15

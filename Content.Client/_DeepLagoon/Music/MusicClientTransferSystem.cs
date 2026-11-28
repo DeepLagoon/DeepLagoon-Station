@@ -13,22 +13,28 @@ namespace Content.Client._DeepLagoon.Music;
 
 public sealed partial class MusicClientTransferSystem : EntitySystem
 {
-    [Dependency] private ITransferManager _transfer = default!;
     [Dependency] private ILogManager _log = default!;
     [Dependency] private ITaskManager _tasks = default!;
 
     private MusicAudioSystem _audio = default!;
     private ISawmill _sawmill = default!;
+    private bool _stopped;
 
     public override void Initialize()
     {
         base.Initialize();
+        _stopped = false;
         _sawmill = _log.GetSawmill("dl.music.recv");
         _audio = EntityManager.System<MusicAudioSystem>();
-        _transfer.RegisterTransferMessage(MusicConstants.TransferKey, OnTrack, NetMessageAccept.Client);
     }
 
-    private void OnTrack(TransferReceivedEvent ev)
+    public override void Shutdown()
+    {
+        _stopped = true;
+        base.Shutdown();
+    }
+
+    public void OnTrack(TransferReceivedEvent ev)
     {
         _ = ReceiveAsync(ev);
     }
@@ -74,6 +80,7 @@ public sealed partial class MusicClientTransferSystem : EntitySystem
 
             _tasks.RunOnMainThread(() =>
             {
+                if (_stopped) return;
                 try
                 {
                     _audio.Begin(channel, id);

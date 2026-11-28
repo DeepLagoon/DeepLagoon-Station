@@ -248,6 +248,8 @@ public sealed partial class PricingSystem : EntitySystem
     /// </remarks>
     public double GetPrice(EntityUid uid, bool includeContents = true)
     {
+        if (HasComp<Content.Server.Salvage.ExpeditionSalvageComponent>(uid))
+            return 0;
         var limit = GetCraftedPriceLimit(uid);
         var ev = new PriceCalculationEvent();
         ev.Price = 0; // Structs doesnt initialize doubles when called by constructor.
@@ -300,8 +302,24 @@ public sealed partial class PricingSystem : EntitySystem
         return GetPalletPrice(uid, currentGrid, 1, out _, includeContents);
     }
 
-    internal double GetPalletPrice(EntityUid uid, EntityUid currentGrid, double multiplier, out double basePrice, bool includeContents = true)
+    internal double GetPalletPrice(EntityUid uid, EntityUid currentGrid, double multiplier, out double basePrice, bool includeContents = true,
+        Action<EntityUid, double, double>? observeOwnPrice = null)
     {
+        if (HasComp<Content.Server.Salvage.ExpeditionSalvageComponent>(uid))
+        {
+            basePrice = 0;
+            observeOwnPrice?.Invoke(uid, 0, 0);
+            return 0;
+        }
+        // A fulfilled cash bounty may contain otherwise unsellable credits. Return their
+        // face value, never a market markup on the player's existing money.
+        if (TryComp<StackComponent>(uid, out var cash) && cash.StackTypeId == "Credit")
+        {
+            basePrice = cash.Count;
+            observeOwnPrice?.Invoke(uid, basePrice, basePrice);
+            return basePrice;
+        }
+
         var limit = GetCraftedPriceLimit(uid);
         var ev = new PriceCalculationEvent();
         ev.Price = 0;
@@ -310,7 +328,9 @@ public sealed partial class PricingSystem : EntitySystem
         if (ev.Handled)
         {
             basePrice = Math.Min(ev.Price, limit);
-            return Math.Min(basePrice * multiplier, limit);
+            var handledPrice = Math.Min(basePrice * multiplier, limit);
+            observeOwnPrice?.Invoke(uid, basePrice, handledPrice);
+            return handledPrice;
         }
 
         var price = ev.Price;
@@ -329,6 +349,7 @@ public sealed partial class PricingSystem : EntitySystem
 
         basePrice = Math.Min(price, limit);
         price = Math.Min(basePrice * multiplier, limit);
+        observeOwnPrice?.Invoke(uid, basePrice, price);
 
         if (includeContents && TryComp<ContainerManagerComponent>(uid, out var containers))
         {
@@ -336,7 +357,7 @@ public sealed partial class PricingSystem : EntitySystem
             {
                 foreach (var ent in container.ContainedEntities)
                 {
-                    price += GetPalletPrice(ent, currentGrid, multiplier, out var childBasePrice);
+                    price += GetPalletPrice(ent, currentGrid, multiplier, out var childBasePrice, observeOwnPrice: observeOwnPrice);
                     basePrice += childBasePrice;
                 }
             }

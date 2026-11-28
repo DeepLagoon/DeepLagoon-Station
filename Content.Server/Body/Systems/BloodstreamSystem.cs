@@ -124,7 +124,7 @@ public sealed partial class BloodstreamSystem : EntitySystem
                 continue;
 
             if (TryComp<BloodDeficiencyComponent>(uid, out var deficiency) && !_mobStateSystem.IsDead(uid))
-                TryModifyBloodLevel(uid, -(bloodstream.BloodRefreshAmount + bloodstream.BloodMaxVolume * deficiency.BloodLossPercentage), bloodstream);
+                TryRemoveBloodWithoutSpill(uid, bloodstream.BloodRefreshAmount + bloodstream.BloodMaxVolume * deficiency.BloodLossPercentage, bloodstream);
             // Adds blood to their blood level if it is below the maximum; Blood regeneration. Must be alive.
             if (bloodSolution.Volume < bloodSolution.MaxVolume && !_mobStateSystem.IsDead(uid))
             {
@@ -214,6 +214,10 @@ public sealed partial class BloodstreamSystem : EntitySystem
 
     private void OnDamageChanged(Entity<BloodstreamComponent> ent, ref DamageChangedEvent args)
     {
+
+        if (args.OriginFlag == DamageableSystem.DamageOriginFlag.BodyInsurance)
+            return;
+
         if (args.DamageDelta is null || !args.DamageIncreased)
         {
             return;
@@ -405,6 +409,17 @@ public sealed partial class BloodstreamSystem : EntitySystem
         return true;
     }
 
+    /// <summary>Metabolic blood loss destroys the blood reagent; it does not create a wound or puddle.</summary>
+    public bool TryRemoveBloodWithoutSpill(EntityUid uid, FixedPoint2 amount, BloodstreamComponent? component = null)
+    {
+        if (amount < 0 || !Resolve(uid, ref component, logMissing: false) ||
+            !_solutionContainerSystem.ResolveSolution(uid, component.BloodSolutionName, ref component.BloodSolution, out var solution))
+            return false;
+        solution.RemoveReagent(component.BloodReagent, amount, ignoreReagentData: true);
+        _solutionContainerSystem.UpdateChemicals(component.BloodSolution.Value);
+        return true;
+    }
+
     /// <summary>
     ///     Tries to make an entity bleed more or less
     /// </summary>
@@ -493,8 +508,10 @@ public sealed partial class BloodstreamSystem : EntitySystem
             foreach (var reagent in bloodSolution.Contents)
             {
                 List<ReagentData> reagentData = reagent.Reagent.EnsureReagentData();
-                reagentData.RemoveAll(x => x is DnaData);
-                reagentData.AddRange(GetEntityBloodData(entity.Owner));
+                reagentData.RemoveAll(x => x is DnaData or BloodColorData);
+                foreach (var datum in GetEntityBloodData(entity.Owner))
+                    if (datum is not BloodColorData || reagent.Reagent.Prototype == entity.Comp.BloodReagent)
+                        reagentData.Add(datum);
             }
         }
     }
@@ -516,7 +533,35 @@ public sealed partial class BloodstreamSystem : EntitySystem
         }
 
         bloodData.Add(dnaData);
+        if (TryComp<BloodstreamComponent>(uid, out var bloodstream) && bloodstream.BloodColor is { } color)
+            bloodData.Add(new BloodColorData { Color = color });
 
         return bloodData;
+    }
+
+    public void SetBloodColor(EntityUid uid, Color? color, BloodstreamComponent? component = null)
+    {
+        if (!Resolve(uid, ref component, logMissing: false))
+            return;
+        component.BloodColor = color?.WithAlpha(1f);
+        if (!_solutionContainerSystem.ResolveSolution(uid, component.BloodSolutionName, ref component.BloodSolution, out var solution))
+            return;
+        for (var i = 0; i < solution.Contents.Count; i++)
+        {
+            var entry = solution.Contents[i];
+            if (entry.Reagent.Prototype != component.BloodReagent)
+                continue;
+            // Replace data rather than mutating a list shared with a previously
+            // drawn solution. Existing DNA and other reagent data are retained.
+            var data = new List<ReagentData>();
+            if (entry.Reagent.Data != null)
+                foreach (var datum in entry.Reagent.Data)
+                    if (datum is not BloodColorData)
+                        data.Add(datum.Clone());
+            if (component.BloodColor is { } opaque)
+                data.Add(new BloodColorData { Color = opaque });
+            solution.Contents[i] = new ReagentQuantity(new ReagentId(entry.Reagent.Prototype, data), entry.Quantity);
+        }
+        _solutionContainerSystem.UpdateChemicals(component.BloodSolution.Value);
     }
 }

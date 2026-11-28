@@ -218,6 +218,11 @@
   id: ComputerMarketConsoleNFNormal
   suffix: Normal
   components:
+  - type: MarketConsole
+    telepadDelivery: true
+  - type: DeviceLinkSource
+    ports:
+    - OrderSender
   - type: MarketModifier
     mod: 2 #Mono: 6 >> 2
 

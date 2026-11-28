@@ -76,6 +76,13 @@ namespace Content.Shared.Construction.Components
         public UnanchorAttemptEvent(EntityUid user, EntityUid tool) : base(user, tool) { }
     }
 
+    /// <summary>
+    /// Final state check after the tool delay, before unanchoring. Kept separate
+    /// from the initial attempt so warnings, extra delays and tool effects are not repeated.
+    /// </summary>
+    public sealed class UnanchorCompletionAttemptEvent(EntityUid user, EntityUid tool)
+        : BaseAnchoredAttemptEvent(user, tool);
+
     public abstract class BaseAnchoredEvent : EntityEventArgs
     {
         public EntityUid User { get; }

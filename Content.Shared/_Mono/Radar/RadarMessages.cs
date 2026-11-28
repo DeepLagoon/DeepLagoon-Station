@@ -22,6 +22,8 @@ public enum RadarBlipShape
 [Serializable, NetSerializable]
 public sealed class GiveBlipsEvent : EntityEventArgs
 {
+    public readonly NetEntity Radar, Map;
+    public readonly TimeSpan SampleTime;
     /// <summary>
     /// Palette of blip configs, basically an int->config map.
     /// </summary>
@@ -46,12 +48,14 @@ public sealed class GiveBlipsEvent : EntityEventArgs
         List<BlipConfig> configPalette,
         List<BlipNetData> blips,
         List<MissileVectorNetData> missiles,
-        List<HitscanNetData> hitscans)
+        List<HitscanNetData> hitscans, NetEntity radar = default, NetEntity map = default, TimeSpan sampleTime = default)
     {
-        ConfigPalette = configPalette;
-        Blips = blips;
-        Missiles = missiles;
-        HitscanLines = hitscans;
+        // The sender reuses its buffers immediately after dispatch. A packet owns its snapshot.
+        ConfigPalette = configPalette.ToList();
+        Blips = blips.ToList();
+        Missiles = missiles.ToList();
+        HitscanLines = hitscans.ToList();
+        Radar = radar; Map = map; SampleTime = sampleTime;
     }
 }
 
@@ -69,10 +73,12 @@ public sealed class RequestBlipsEvent : EntityEventArgs
 public sealed class BlipRemovalEvent : EntityEventArgs
 {
     public NetEntity NetBlipUid { get; set; }
+    public readonly TimeSpan SampleTime;
 
-    public BlipRemovalEvent(NetEntity netBlipUid)
+    public BlipRemovalEvent(NetEntity netBlipUid, TimeSpan sampleTime = default)
     {
         NetBlipUid = netBlipUid;
+        SampleTime = sampleTime;
     }
 }
 
@@ -84,8 +90,12 @@ public record struct BlipNetData
     Vector2 Vel,
     Angle Rotation,
     ushort ConfigIndex,
-    ushort? OnGridConfigIndex
+    ushort? OnGridConfigIndex,
+    GridBlipAnchor? Anchor = null
 );
+
+[Serializable, NetSerializable]
+public record struct GridBlipAnchor(NetCoordinates Position, Angle Rotation);
 
 [Serializable, NetSerializable]
 public record struct MissileVectorNetData
@@ -101,6 +111,10 @@ public record struct HitscanNetData(Vector2 Start, Vector2 End, float Thickness,
 [Serializable, NetSerializable, DataDefinition]
 public partial record struct BlipConfig
 {
+
+    [DataField]
+    public string? Label = null;
+
     [DataField]
     public Box2 Bounds = new Box2(-0.5f, -0.5f, 0.5f, 0.5f);
 

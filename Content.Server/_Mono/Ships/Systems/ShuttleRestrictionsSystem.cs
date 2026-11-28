@@ -5,6 +5,9 @@ using Content.Server._NF.Shipyard;
 using Content.Shared._Mono.Ships.Components;
 using Content.Shared._Mono.Shipyard;
 using Content.Shared._NF.Shipyard;
+using Content.Shared._NF.Shipyard.Prototypes;
+using Content.Server._DeepLagoon.ShuttleParking;
+using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
 
 namespace Content.Server._Mono.Ships.Systems;
@@ -18,6 +21,7 @@ public sealed partial class ShuttleRestrictionsSystem : EntitySystem
     [Dependency] private IGameTiming _gameTiming = default!;
     [Dependency] private ShuttleDeedSystem _shuttleDeed = default!;
     [Dependency] private HyperwarRuleSystem _hyperwar = default!;
+    [Dependency] private IPrototypeManager _prototypes = default!;
 
     private TimeSpan _lastUpdate = TimeSpan.Zero;
     private readonly TimeSpan _interval = TimeSpan.FromMinutes(1);
@@ -85,29 +89,47 @@ public sealed partial class ShuttleRestrictionsSystem : EntitySystem
 
         var limitActive = _hyperwar.HyperwarActive ? ev.Vessel.HyperwarLimitActive : ev.Vessel.LimitActive;
 
-        var query = EntityQueryEnumerator<VesselComponent>();
-        var shuttleCount = 0;
-
         if (limitActive <= 0)
             return;
 
-        while (query.MoveNext(out var uid, out var targetVessel))
-        {
-            if (targetVessel.VesselId != ev.Vessel.ID)
-                continue;
-
-            // InactiveShipComponent isn't like a tag, it's more like ApcPowerReceiver. You need to check if it's inactive.
-            if (!TryComp<ShipActivityComponent>(uid, out var inactivity) || inactivity.InactivePastThreshold)
-                continue;
-
-            shuttleCount++;
-        }
-
-        if (shuttleCount >= limitActive)
+        if (!TryCountOccupiedVessels(ev.Vessel.ID, ev.Shuttle, null, out var shuttleCount) || shuttleCount >= limitActive)
         {
             ev.CancelReason = "shipyard-console-limited";
             ev.Cancel();
         }
+    }
+
+    /// <summary>Stored vessels do not reserve active fleet slots; activation must acquire one.</summary>
+    public bool CanRestoreParkedVessel(string vessel, Guid identity)
+    {
+        if (!_prototypes.TryIndex<VesselPrototype>(vessel, out var prototype)) return false;
+        if (_hyperwar.HyperwarActive && _gameTiming.CurTime < prototype.HyperwarTimelock) return false;
+        var limit = _hyperwar.HyperwarActive ? prototype.HyperwarLimitActive : prototype.LimitActive;
+        return limit <= 0 || TryCountOccupiedVessels(vessel, null, identity, out var count) && count < limit;
+    }
+
+    private bool TryCountOccupiedVessels(string vessel, EntityUid? candidate, Guid? returningIdentity, out int count)
+    {
+        var reserved = new Dictionary<Guid, string>();
+        // Free parking remains part of the fleet, including after a crash. Paid
+        // long-term storage does not block a faction while its owner is offline.
+        var parking = EntityManager.System<ParkingSystem>();
+        var ready = parking.TryCopyStoredVesselReservations(reserved, includeLongTerm: false);
+        if (returningIdentity is { } returning) reserved.Remove(returning);
+        count = 0;
+        var physical = AllEntityQuery<VesselComponent>();
+        while (physical.MoveNext(out var uid, out var target))
+        {
+            if (uid == candidate || TerminatingOrDeleted(uid) || target.VesselId.Id != vessel || parking.IsParkingStagingGrid(uid)) continue;
+            if (TryComp<ParkingShuttleComponent>(uid, out var parked) && parked.Identity != Guid.Empty)
+            {
+                if (parked.Identity != returningIdentity) reserved[parked.Identity] = vessel;
+            }
+            else if (_shuttleDeed.HasOwner(uid)) count++;
+        }
+        foreach (var stored in reserved.Values)
+            if (stored == vessel) count++;
+        return ready;
     }
 
     private bool IsActive(Entity<VesselComponent?> vessel)
@@ -134,7 +156,7 @@ public sealed partial class ShuttleRestrictionsSystem : EntitySystem
             totalPowerEntities++;
         }
 
-        var percentage = totalPowerEntities != 0 && powered != 0 ? powered / totalPowerEntities : 0;
+        var percentage = totalPowerEntities != 0 ? (double) powered / totalPowerEntities : 0;
 
         if (percentage >= PoweredInactivityThreshold)
             return true;

@@ -1,6 +1,7 @@
 - type: vendingMachineInventory
   id: FlatpackVendPremiumInventory
   startingInventory:
+    ExpeditionUpgradeKit: 4294967295 # LC purchase, never a random/free eject
     #ShuttleGunKineticFlatpack: 4294967295 # Infinite
     OreProcessorFlatpack: 4294967295 # Infinite
     OreMagnetFlatpack: 4294967295 # Infinite
@@ -38,7 +39,6 @@
     WeaponCapacitorRechargerFlatpack: 4294967295 # Infinite
     MercenaryTechFabFlatpack: 4294967295 # Infinite
     NFHolopadShipFlatpack: 4294967295 # Infinite
-    # LaserDrillFlatpack: 4294967295 # Infinite - Mono
     ComputerIFFFlatpack: 4294967295 # Infinite - Mono
     ResearchAndDevelopmentServerMercFlatpack: 4294967295 # Mono: infinite
     ComputerResearchAndDevelopmentFlatpack: 4294967295 # Mono: infinite

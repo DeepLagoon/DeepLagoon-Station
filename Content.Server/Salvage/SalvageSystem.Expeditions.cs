@@ -44,6 +44,18 @@ public sealed partial class SalvageSystem
     [Dependency] private IConfigurationManager _cfgManager = default!; // Frontier
 
     private readonly JobQueue _salvageQueue = new();
+    private readonly HashSet<EntityUid> _settledSectorSurfaces = new();
+
+    private bool RetainSectorSurface(EntityUid map, SalvageExpeditionComponent expedition)
+    {
+        if (!EntityManager.System<Content.Server._DeepLagoon.Voyages.SectorExpeditionSystem>().RetainSectorPlanet(map)) return false;
+        if (expedition.Completed && SectorSurfaceCanReward(map) &&
+            TryComp<SalvageExpeditionDataComponent>(expedition.Station, out var data) && _settledSectorSurfaces.Add(map))
+            FinishExpedition(data, map, expedition, expedition.Station);
+        _mapSystem.SetPaused(Comp<MapComponent>(map).MapId, true);
+        return true;
+    }
+    private bool SectorSurfaceCanReward(EntityUid map) => EntityManager.System<Content.Server._DeepLagoon.Voyages.SectorExpeditionSystem>().SectorRewardAllowed(map);
     private readonly List<(SpawnSalvageMissionJob Job, CancellationTokenSource CancelToken)> _salvageJobs = new();
     private readonly List<DifficultyRating> _missionDifficulties = [DifficultyRating.Moderate, DifficultyRating.Hazardous, DifficultyRating.Extreme]; // Frontier
     private const double SalvageJobTime = 0.002;
@@ -142,14 +154,20 @@ public sealed partial class SalvageSystem
             }
         }
 
+        var sectors = EntityManager.System<Content.Server._DeepLagoon.Voyages.SectorExpeditionSystem>();
+        if (_settledSectorSurfaces.Remove(uid)) { sectors.ForgetRetainedPlanet(uid); return; }
         if (Deleted(component.Station))
+        {
+            sectors.SectorPlanetFinished(uid, false); sectors.ForgetRetainedPlanet(uid);
             return;
+        }
 
         // Finish mission
         if (TryComp<SalvageExpeditionDataComponent>(component.Station, out var data))
         {
             FinishExpedition(data, uid, component, component.Station); // Frontier: null<component.Station
         }
+        sectors.ForgetRetainedPlanet(uid);
     }
 
     private void OnDataUnpaused(EntityUid uid, SalvageExpeditionDataComponent component, ref EntityUnpausedEvent args)
@@ -221,6 +239,10 @@ public sealed partial class SalvageSystem
 
                 break;
         }
+
+        var sectorTravel = EntityManager.System<Content.Server._DeepLagoon.Voyages.SectorExpeditionSystem>();
+        expedition.Completed &= sectorTravel.SectorRewardAllowed(uid);
+        sectorTravel.SectorPlanetFinished(uid, expedition.Completed);
 
         // Handle payout after expedition has finished
         if (expedition.Completed)
@@ -440,6 +462,7 @@ public sealed partial class SalvageSystem
     // Frontier: handle exped spawn job failures gracefully - reset the console
     private void OnExpeditionSpawnComplete(EntityUid uid, SalvageExpeditionDataComponent component, ExpeditionSpawnCompleteEvent ev)
     {
+        EntityManager.System<Content.Server._DeepLagoon.Voyages.SectorExpeditionSystem>().SectorGenerationResult(uid, ev.Success);
         if (component.ActiveMission == ev.MissionIndex && !ev.Success)
         {
             component.ActiveMission = 0;

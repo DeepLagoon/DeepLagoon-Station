@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputPath>..\bin\Content.Tests\</OutputPath>
@@ -18,10 +18,10 @@
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Condition="'$(UseSystemSqlite)' != 'True'" />
   </ItemGroup>
 
-  <Import Project="..\RobustToolbox\Imports\Client.props" />
-  <Import Project="..\RobustToolbox\Imports\Server.props" />
-  <Import Project="..\RobustToolbox\Imports\Shared.props" />
-  <Import Project="..\RobustToolbox\Imports\Testing.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Client.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Server.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Shared.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Testing.props" />
   <!-- FullRelease Content.Client uses the signed module without exporting its
        direct assembly reference to test code that also uses WebView and CEF. -->
   <PropertyGroup Condition="'$(WebViewSignedReference)' != ''">
@@ -43,5 +43,5 @@
     <ProjectReference Include="..\Content.Shared\Content.Shared.csproj" />
   </ItemGroup>
 
-  <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
+  <Import Project="$(DeepLagoonEngineRoot)\MSBuild\Robust.Properties.targets" />
 </Project>

@@ -7,8 +7,8 @@
 
   <Import Project="../MSBuild/Content.props" />
 
-  <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
+  <Import Project="$(DeepLagoonEngineRoot)\MSBuild\Robust.Properties.targets" />
 
-  <Import Project="..\RobustToolbox\Imports\Shared.props" />
-  <Import Project="..\RobustToolbox\Imports\Packaging.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Shared.props" />
+  <Import Project="$(DeepLagoonEngineRoot)\Imports\Packaging.props" />
 </Project>

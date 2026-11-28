@@ -6,6 +6,7 @@
   placement:
     mode: SnapgridCenter
   components:
+  - type: ThrusterExhaustImmune
   - type: Sprite
     offset: 0,0.45
     sprite: _Mono/Structures/Wallmounts/Addons/armor.rsi
@@ -35,6 +36,7 @@
   - type: Fixtures
     fixtures:
       fix1:
+        hard: true
         shape:
           !type:PhysShapeAabb
           bounds: "-0.5,0.1,0.5,0.8"
@@ -157,6 +159,8 @@
   placement:
     mode: SnapgridCenter
   components:
+    - type: WallAttachment
+      protectWall: false
     - type: Sprite
       offset: 0,0.45
       sprite: _Mono/Structures/Wallmounts/Addons/armor.rsi
@@ -203,6 +207,8 @@
   placement:
     mode: SnapgridCenter
   components:
+    - type: WallAttachment
+      protectWall: false
     - type: Sprite
       offset: 0,0.45
       sprite: _Mono/Structures/Wallmounts/Addons/armor.rsi
@@ -249,6 +255,8 @@
   placement:
     mode: SnapgridCenter
   components:
+    - type: WallAttachment
+      protectWall: false
     - type: Sprite
       offset: 0,0.45
       sprite: _Mono/Structures/Wallmounts/Addons/armor.rsi

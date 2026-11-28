@@ -142,6 +142,10 @@ namespace Content.Server.Body.Components
         [DataField]
         public ProtoId<ReagentPrototype> BloodReagent = "Blood";
 
+        /// <summary>Null preserves the reagent's normal species color.</summary>
+        [DataField]
+        public Color? BloodColor;
+
         /// <summary>Name/Key that <see cref="BloodSolution"/> is indexed by.</summary>
         [DataField]
         public string BloodSolutionName = DefaultBloodSolutionName;

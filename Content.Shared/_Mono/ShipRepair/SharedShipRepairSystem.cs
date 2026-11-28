@@ -45,9 +45,10 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
         if (!TryComp<MapGridComponent>(gridUid, out var grid))
             return;
 
-        var repairData = EnsureComp<ShipRepairDataComponent>(gridUid);
-        repairData.Chunks.Clear();
-        repairData.EntityPalette.Clear();
+        var stored = EnsureComp<ShipRepairDataComponent>(gridUid);
+        if (stored.ShipyardLocked) return;
+        // Publish only a complete snapshot. An exception must leave the previous blueprint intact.
+        var repairData = new ShipRepairDataComponent { ChunkSize = stored.ChunkSize };
 
         var chunkSize = repairData.ChunkSize;
 
@@ -93,6 +94,7 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
                 maybeProtoId = new EntProtoId(meta.EntityPrototype.ID);
             }
             var protoId = maybeProtoId.Value;
+            if (Content.Shared._DeepLagoon.Mining.LaserDrillAvailability.IsRetiredPrototype(_proto, protoId)) continue;
 
             var paletteIndex = repairData.EntityPalette.IndexOf(protoId);
             if (paletteIndex == -1)
@@ -114,7 +116,12 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
             };
         }
 
-        Dirty(gridUid, repairData);
+        stored.Chunks = repairData.Chunks;
+        stored.EntityPalette = repairData.EntityPalette;
+        stored.SnapshotVersion = Guid.NewGuid();
+        Dirty(gridUid, stored);
+        var captured = new ShipRepairSnapshotCreatedEvent();
+        RaiseLocalEvent(gridUid, ref captured);
     }
 
     public bool TryRepairTileTile(Entity<ShipRepairDataComponent> grid, Vector2i indices)

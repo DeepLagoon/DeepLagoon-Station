@@ -32,7 +32,7 @@ public sealed partial class ApartmentSystem
         }
         catch (Exception e)
         {
-            Log.Warning($"Apartment gallery failed for {session.UserId}: {e.GetType().Name}");
+            Log.Warning($"Apartment gallery failed for {session.UserId}: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             RaiseNetworkEvent(new ApartmentGalleryState(ev.Token, [], ev.Page, 0, "Не удалось загрузить картины квартиры. Повторите запрос."), session);
         }
     }

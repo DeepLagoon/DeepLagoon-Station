@@ -93,6 +93,7 @@ public sealed partial class FireControlSystem
 
     private void OnControllableStartup(Entity<FireControllableComponent> ent, ref ComponentStartup args)
     {
+        EnsureComp<Content.Shared._Mono.ShipGuns.ShipGunNoRecoilComponent>(ent);
         if (Transform(ent).Anchored && _power.IsPowered(ent) && TryRegister(ent, ent.Comp))
             QueueServerUiUpdate(ent.Comp.ControllingServer);
     }

@@ -29,6 +29,7 @@
     - type: Rotatable
       rotateWhileAnchored: true
     - type: Thruster
+      requireSpace: false # Exhaust damages obstructions while leaving floor tiles intact.
       damage:
         types:
           Heat: 40

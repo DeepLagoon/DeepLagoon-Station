@@ -234,6 +234,9 @@
   name: FlatpackVend Premium
   description: Contains every flatpack from here to the neighboring sectors. Mostly.
   components:
+  - type: LagoonCoinVendingCatalog
+    prices:
+      ExpeditionUpgradeKit: 30
   - type: VendingMachine
     pack: FlatpackVendPremiumInventory
 

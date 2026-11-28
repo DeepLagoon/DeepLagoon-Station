@@ -1,0 +1,11 @@
+ent-AntiPsychicKnife = anti-psychic knife
+    .desc = A blade attuned to the noosphere. It bites deep into psionic targets and briefly silences their powers, but shocks the wielder when used on an ordinary mind.
+ent-InsulativeShield = insulative shield
+    .desc = A TSFMC energy shield wrapped in a noospheric dampening lattice. While held, it shields the bearer from mental intrusion and silences their own powers in return.
+ent-InsulativeShieldLight = insulative shield
+    .desc = A lighter dampening lattice issued for border control. It screens the bearer from intrusion without silencing their own abilities.
+ent-VeilbreakerGauntlet = veilbreaker gauntlet
+    .desc = A research gauntlet retuned to strike entities of the Veil. Its blows land far harder on anomalies, glimmer creatures and revenants, and no harder on anything else.
+ent-PsiSpectrometerComputerCircuitboard = noospheric spectrometer computer board
+    .desc = A computer printed circuit board for a noospheric spectrometer console.
+research-technology-noospheric-research = Noospheric Research

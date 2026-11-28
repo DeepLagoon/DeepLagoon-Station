@@ -9,6 +9,9 @@ using Content.Shared.SprayPainter.Prototypes;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Prototypes;
 using System.Linq;
+using Content.Shared.Decals;
+using Content.Shared.Interaction.Events;
+using Content.Shared.UserInterface;
 
 namespace Content.Shared.SprayPainter;
 
@@ -42,15 +45,20 @@ public abstract partial class SharedSprayPainterSystem : EntitySystem
         {
             subs.Event<SprayPainterSpritePickedMessage>(OnSpritePicked);
             subs.Event<SprayPainterColorPickedMessage>(OnColorPicked);
+            subs.Event<SprayPainterCustomColorMessage>(OnCustomColorPicked);
+            subs.Event<SprayPainterDecalSettingsMessage>(OnDecalSettings);
         });
 
         SubscribeLocalEvent<PaintableAirlockComponent, InteractUsingEvent>(OnAirlockInteract);
+        SubscribeLocalEvent<SprayPainterComponent, UseInHandEvent>(OnUseInHand, before: new[] { typeof(ActivatableUISystem) });
 
         SubscribeLocalEvent<PrototypesReloadedEventArgs>(OnPrototypesReloaded);
     }
 
     private void OnMapInit(Entity<SprayPainterComponent> ent, ref MapInitEvent args)
     {
+        if (string.IsNullOrEmpty(ent.Comp.DecalId))
+            ent.Comp.DecalId = Proto.EnumeratePrototypes<DecalPrototype>().Where(p => p.ShowMenu).OrderBy(p => p.ID).FirstOrDefault()?.ID ?? "";
         if (ent.Comp.ColorPalette.Count == 0)
             return;
 
@@ -69,6 +77,7 @@ public abstract partial class SharedSprayPainterSystem : EntitySystem
             return;
 
         airlock.Department = args.Department;
+        airlock.PaintColor = args.Color;
         Dirty(target, airlock);
 
         Audio.PlayPredicted(ent.Comp.SpraySound, ent, args.Args.User);
@@ -80,14 +89,71 @@ public abstract partial class SharedSprayPainterSystem : EntitySystem
 
     #region UI messages
 
+    private void OnUseInHand(EntityUid uid, SprayPainterComponent component, UseInHandEvent args)
+    {
+        if (args.Handled)
+            return;
+        component.Mode = (SprayPainterMode) (((int) component.Mode + 1) % 3);
+        Dirty(uid, component);
+        _popup.PopupClient(Loc.GetString("spray-painter-mode-changed", ("mode", Loc.GetString(ModeLocKey(component.Mode)))), uid, args.User);
+        args.Handled = true;
+    }
+
+    public static string ModeLocKey(SprayPainterMode mode) => mode switch
+    {
+        SprayPainterMode.Airlocks => "spray-painter-mode-airlocks",
+        SprayPainterMode.Pipes => "spray-painter-mode-pipes",
+        _ => "spray-painter-mode-decals",
+    };
+
+    public static bool ValidColor(Color color) => float.IsFinite(color.R) && float.IsFinite(color.G)
+        && float.IsFinite(color.B) && float.IsFinite(color.A) && color.R is >= 0 and <= 1
+        && color.G is >= 0 and <= 1 && color.B is >= 0 and <= 1 && color.A is >= 0 and <= 1;
+
+    private void OnCustomColorPicked(Entity<SprayPainterComponent> ent, ref SprayPainterCustomColorMessage args)
+    {
+        if (!ValidColor(args.Color))
+            return;
+        switch (ent.Comp.Mode)
+        {
+            case SprayPainterMode.Airlocks: ent.Comp.AirlockColor = args.Color; break;
+            case SprayPainterMode.Pipes: ent.Comp.PipeColor = args.Color; ent.Comp.PickedColor = null; break;
+            case SprayPainterMode.Decals: ent.Comp.DecalColor = args.Color; break;
+        }
+        Dirty(ent);
+    }
+
+    private void OnDecalSettings(Entity<SprayPainterComponent> ent, ref SprayPainterDecalSettingsMessage args)
+    {
+        if (ent.Comp.Mode != SprayPainterMode.Decals || !ValidDecal(args.Decal))
+            return;
+        ent.Comp.DecalId = args.Decal.Id;
+        ent.Comp.DecalColor = args.Decal.Color ?? Color.White;
+        ent.Comp.DecalRotation = (float) args.Decal.Angle.Degrees;
+        ent.Comp.DecalSnap = args.Snap;
+        ent.Comp.DecalZIndex = args.Decal.ZIndex;
+        Dirty(ent);
+    }
+
+    protected bool ValidDecal(Decal decal) => Proto.HasIndex<DecalPrototype>(decal.Id)
+        && ValidColor(decal.Color ?? Color.White) && double.IsFinite(decal.Angle.Theta)
+        && decal.ZIndex is >= -100 and <= 100;
+
     private void OnColorPicked(Entity<SprayPainterComponent> ent, ref SprayPainterColorPickedMessage args)
     {
+        if (ent.Comp.Mode == SprayPainterMode.Airlocks && args.Key != null
+            && ent.Comp.ColorPalette.TryGetValue(args.Key, out var color))
+        {
+            ent.Comp.AirlockColor = color;
+            Dirty(ent);
+            return;
+        }
         SetColor(ent, args.Key);
     }
 
     private void OnSpritePicked(Entity<SprayPainterComponent> ent, ref SprayPainterSpritePickedMessage args)
     {
-        if (args.Index >= Styles.Count)
+        if (args.Index < 0 || args.Index >= Styles.Count || ent.Comp.Mode != SprayPainterMode.Airlocks)
             return;
 
         ent.Comp.Index = args.Index;
@@ -103,6 +169,7 @@ public abstract partial class SharedSprayPainterSystem : EntitySystem
             return;
 
         ent.Comp.PickedColor = paletteKey;
+        ent.Comp.PipeColor = ent.Comp.ColorPalette[paletteKey];
         Dirty(ent, ent.Comp);
     }
 
@@ -113,7 +180,8 @@ public abstract partial class SharedSprayPainterSystem : EntitySystem
         if (args.Handled)
             return;
 
-        if (!TryComp<SprayPainterComponent>(args.Used, out var painter))
+        if (!TryComp<SprayPainterComponent>(args.Used, out var painter) || painter.Mode != SprayPainterMode.Airlocks
+            || painter.Index < 0 || painter.Index >= Styles.Count)
             return;
 
         var group = Proto.Index<AirlockGroupPrototype>(ent.Comp.Group);
@@ -126,7 +194,7 @@ public abstract partial class SharedSprayPainterSystem : EntitySystem
             return;
         }
 
-        var doAfterEventArgs = new DoAfterArgs(EntityManager, args.User, painter.AirlockSprayTime, new SprayPainterDoorDoAfterEvent(sprite, style.Department), args.Used, target: ent, used: args.Used)
+        var doAfterEventArgs = new DoAfterArgs(EntityManager, args.User, painter.AirlockSprayTime, new SprayPainterDoorDoAfterEvent(sprite, style.Department, painter.AirlockColor), args.Used, target: ent, used: args.Used)
         {
             BreakOnMove = true,
             BreakOnDamage = true,

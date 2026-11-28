@@ -361,6 +361,7 @@ public sealed partial class HumanoidProfileEditor
             .String("hairStyle", p.Appearance.HairStyleId).String("beardStyle", p.Appearance.FacialHairStyleId)
             .String("hairColor", p.Appearance.HairColor.ToHexNoAlpha()).String("beardColor", p.Appearance.FacialHairColor.ToHexNoAlpha())
             .String("eyeColor", p.Appearance.EyeColor.ToHexNoAlpha()).String("skinColor", p.Appearance.SkinColor.ToHexNoAlpha())
+            .String("bloodColor", p.BloodColor.Length == 0 ? "#800000" : p.BloodColor).Bool("customBloodColor", p.BloodColor.Length > 0)
             .Bool("hairLocked", _markingManager.MustMatchSkin(p.Species, HumanoidVisualLayers.Hair, out _, _prototypeManager))
             .Bool("beardLocked", _markingManager.MustMatchSkin(p.Species, HumanoidVisualLayers.FacialHair, out _, _prototypeManager))
             .Number("skinTone", Skin.Value).Bool("humanSkin", species.SkinColoration == HumanoidSkinColor.HumanToned)
@@ -630,6 +631,15 @@ public sealed partial class HumanoidProfileEditor
                 break;
             case "plantigrade-legs":
                 if (!bool.TryParse(value, out var straightLegs) || !SetPlantigradeLegs(straightLegs)) return false;
+                break;
+            case "blood-color-enabled":
+                if (!bool.TryParse(value, out var customBlood) || !SetBloodColorOverride(customBlood)) return false;
+                break;
+            case "blood-color":
+                if (value.Length != 7 || !Color.TryFromHex(value, out _)) return false;
+                Profile = Profile.WithBloodColor(value);
+                UpdateBloodColorControls();
+                ReloadProfilePreview();
                 break;
             case "body-feature": return HandleBodyCustomizationAction(args);
             case "speech-bubble-select":

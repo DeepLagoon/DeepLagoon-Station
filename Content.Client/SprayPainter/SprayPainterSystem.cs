@@ -5,14 +5,49 @@ using Robust.Shared.Serialization.TypeSerializers.Implementations;
 using Robust.Shared.Utility;
 using System.Linq;
 using Robust.Shared.Graphics;
+using Content.Client.SprayPainter.UI;
+using Content.Shared.SprayPainter.Components;
+using Robust.Client.GameObjects;
+using Content.Shared.Doors.Components;
 
 namespace Content.Client.SprayPainter;
 
 public sealed partial class SprayPainterSystem : SharedSprayPainterSystem
 {
     [Dependency] private IResourceCache _resourceCache = default!;
+    [Dependency] private UserInterfaceSystem _ui = default!;
+    [Dependency] private SpriteSystem _sprites = default!;
 
     public List<SprayPainterEntry> Entries { get; private set; } = new();
+
+    public override void Initialize()
+    {
+        base.Initialize();
+        SubscribeLocalEvent<SprayPainterComponent, AfterAutoHandleStateEvent>(OnPainterState);
+        SubscribeLocalEvent<PaintableAirlockComponent, AfterAutoHandleStateEvent>(OnAirlockState);
+        SubscribeLocalEvent<PaintableAirlockComponent, ComponentStartup>(OnAirlockStartup);
+    }
+
+    private void OnPainterState(EntityUid uid, SprayPainterComponent component, ref AfterAutoHandleStateEvent args)
+    {
+        if (_ui.TryGetOpenUi<SprayPainterBoundUserInterface>(uid, SprayPainterUiKey.Key, out var ui))
+            ui.UpdateFromComponent();
+    }
+
+    private void OnAirlockState(EntityUid uid, PaintableAirlockComponent component, ref AfterAutoHandleStateEvent args)
+        => UpdateAirlockColor(uid, component);
+
+    private void OnAirlockStartup(EntityUid uid, PaintableAirlockComponent component, ComponentStartup args)
+        => UpdateAirlockColor(uid, component);
+
+    private void UpdateAirlockColor(EntityUid uid, PaintableAirlockComponent component)
+    {
+        if (TryComp<SpriteComponent>(uid, out var sprite))
+        {
+            if (_sprites.LayerMapTryGet((uid, sprite), DoorVisualLayers.Base, out var layer, false))
+                _sprites.LayerSetColor((uid, sprite), layer, component.PaintColor);
+        }
+    }
 
     protected override void CacheStyles()
     {

@@ -17,6 +17,43 @@ namespace Content.Tests.Server;
 public sealed class AhelpStoreTest
 {
     [Test]
+    public void DiscordTextPartsSurviveRestartAndRetryWithoutDuplicatingOrTrimmingText()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "ahelp-parts-" + Guid.NewGuid() + ".sqlite3");
+        var player = Guid.NewGuid();
+        var ticket = Guid.Empty;
+        var first = new string('x', AhelpLimits.Text - 1) + " ";
+        const string second = " продолжение 😀 ";
+        try
+        {
+            using (var store = new AhelpStore(path))
+            {
+                ticket = store.Send(default, player, "Player", player, "Player", false, false,
+                    "help", "create", 1).Event!.Ticket.Id;
+                Assert.That(store.Send(ticket, player, "Player", player, "Player", false, false,
+                    first, "discord:456:321", 2).Applied, Is.True);
+            }
+            using (var store = new AhelpStore(path))
+            {
+                Assert.That(store.Send(ticket, player, "Player", player, "Player", false, false,
+                    first, "discord:456:321", 3).Applied, Is.False);
+                Assert.That(store.Send(ticket, player, "Player", player, "Player", false, false,
+                    second, "discord:456:321:part:1", 4).Applied, Is.True);
+                Assert.That(store.Send(ticket, player, "Player", player, "Player", false, false,
+                    second, "discord:456:321:part:1", 5).Applied, Is.False);
+                Assert.That(store.Read(player, false, ticket, player, 0).Lines.Select(line => line.Text),
+                    Is.EqualTo(new[] { "help", first, second }));
+            }
+        }
+        finally
+        {
+            File.Delete(path);
+            File.Delete(path + "-wal");
+            File.Delete(path + "-shm");
+        }
+    }
+
+    [Test]
     public void HistoryShowsRecentClosedTicketsAndEnforcesPlayerPrivacy()
     {
         using var store = new AhelpStore(":memory:");

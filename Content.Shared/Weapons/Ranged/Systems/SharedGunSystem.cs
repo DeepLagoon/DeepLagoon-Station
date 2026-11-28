@@ -763,6 +763,8 @@ public abstract partial class SharedGunSystem : EntitySystem
     // Mono - rewritten
     public void CauseImpulse(EntityCoordinates toCoordinates, Entity<GunComponent> ent, float scale)
     {
+        if (HasComp<Content.Shared._Mono.ShipGuns.ShipGunNoRecoilComponent>(ent))
+            return;
         var totalImpulse = ent.Comp.Recoil * scale;
         var selfXform = Transform(ent);
 

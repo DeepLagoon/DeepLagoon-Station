@@ -63,6 +63,7 @@ public sealed partial class ShipyardConsoleBoundUserInterface : BoundUserInterfa
         if (state is not ShipyardConsoleInterfaceState cState)
             return;
 
+        if (_menu != null) _menu.Prices = cState.Prices;
         Balance = cState.Balance;
         ShipSellValue = cState.ShipSellValue;
         var castState = (ShipyardConsoleInterfaceState) state;
@@ -87,7 +88,7 @@ public sealed partial class ShipyardConsoleBoundUserInterface : BoundUserInterfa
         }
 
         var vesselId = row.Vessel.ID;
-        SendMessage(new ShipyardConsolePurchaseMessage(vesselId));
+        SendMessage(new ShipyardConsolePurchaseMessage(vesselId, _menu?.Prices.GetValueOrDefault(vesselId, row.Vessel.Price) ?? row.Vessel.Price));
     }
 
     private void SellShip(ButtonEventArgs args)

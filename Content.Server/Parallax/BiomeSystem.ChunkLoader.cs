@@ -11,6 +11,7 @@ using Robust.Shared.Map.Components;
 using Robust.Shared.Noise;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization.Manager;
+using Robust.Shared.Utility;
 
 
 namespace Content.Server.Parallax;
@@ -18,8 +19,6 @@ namespace Content.Server.Parallax;
 public sealed partial class BiomeSystem
 {
     private readonly List<(Vector2i, Tile)> _chunkLoaderTiles = new();
-    private readonly List<(string, EntityCoordinates)> _chunkLoaderDecals = new();
-    private readonly List<EntityUid> _chunkLoaderEntitiesToDelete = new();
     private readonly HashSet<EntityUid> _chunkOccupants = new();
     private readonly HashSet<Vector2i> _occupiedTiles = new();
     private readonly List<Vector2i> _preexistingTiles = new();
@@ -37,8 +36,6 @@ public sealed partial class BiomeSystem
     {
         var expectedChunkSize = ChunkSize * ChunkSize;
         _chunkLoaderTiles.Capacity = expectedChunkSize;
-        _chunkLoaderDecals.Capacity = expectedChunkSize / 8;
-        _chunkLoaderEntitiesToDelete.Capacity = expectedChunkSize / 4;
     }
 
     protected override FastNoiseLite GetNoise(FastNoiseLite seedNoise, int seed)
@@ -80,26 +77,34 @@ public sealed partial class BiomeSystem
     /// <summary>
     /// Loads a particular queued chunk for a biome.
     /// </summary>
-    private void LoadChunk(
-        BiomeComponent component,
-        EntityUid gridUid,
-        MapGridComponent grid,
-        Vector2i chunk,
-        int seed)
+    private IEnumerable<bool> LoadChunkSteps(ChunkRequest request, bool alreadyLoaded)
     {
+        var (gridUid, component, grid, chunk) = request;
+        var seed = component.Seed;
+        foreach (var step in LoadChunkMarkers(component, gridUid, grid, chunk, seed))
+            yield return step;
+        if (alreadyLoaded)
+            yield break;
+
         component.ModifiedTiles.TryGetValue(chunk, out var modified);
         modified ??= _tilePool.Get();
         _preexistingTiles.Clear();
-
-        LoadTiles(component, gridUid, grid, chunk, seed, modified);
-        if (component.Layers.Any(layer => layer is BiomeEntityLayer or BiomeMetaLayer))
-            LoadEntities(component, gridUid, grid, chunk, seed, modified);
-        if (component.Layers.Any(layer => layer is BiomeDecalLayer or BiomeMetaLayer))
-            LoadDecals(component, gridUid, grid, chunk, seed, modified);
-
-        // Preserve authored terrain even when it happens to match the generated tile.
+        LoadTiles(component, gridUid, grid, chunk, seed, modified, _resumingChunks.Remove(request));
+        // This buffer is shared with other chunks, so consume it before yielding.
         modified.UnionWith(_preexistingTiles);
         FinalizeChunk(component, chunk, modified);
+        yield return true;
+
+        if (component.Layers.Any(layer => layer is BiomeEntityLayer or BiomeMetaLayer))
+        {
+            foreach (var step in LoadEntities(component, gridUid, grid, chunk, seed))
+                yield return step;
+        }
+        if (component.Layers.Any(layer => layer is BiomeDecalLayer or BiomeMetaLayer))
+        {
+            foreach (var step in LoadDecals(component, gridUid, grid, chunk, seed))
+                yield return step;
+        }
     }
 
     private void LoadTiles(
@@ -108,7 +113,8 @@ public sealed partial class BiomeSystem
         MapGridComponent grid,
         Vector2i chunk,
         int seed,
-        HashSet<Vector2i> modified)
+        HashSet<Vector2i> modified,
+        bool resuming = false)
     {
         _chunkLoaderTiles.Clear();
 
@@ -116,7 +122,9 @@ public sealed partial class BiomeSystem
         {
             if (_mapSystem.TryGetTileRef(gridUid, grid, indices, out var tileRef) && !tileRef.Tile.IsEmpty)
             {
-                _preexistingTiles.Add(indices);
+                if (!resuming || !TryGetTile(indices, component.Layers, seed, (gridUid, grid), out var expected) ||
+                    tileRef.Tile != expected.Value)
+                    _preexistingTiles.Add(indices);
                 return;
             }
 
@@ -133,33 +141,34 @@ public sealed partial class BiomeSystem
         }
     }
 
-    private void LoadEntities(
+    private IEnumerable<bool> LoadEntities(
         BiomeComponent component,
         EntityUid gridUid,
         MapGridComponent grid,
         Vector2i chunk,
-        int seed,
-        HashSet<Vector2i> modified)
+        int seed)
     {
         component.LoadedEntities.TryGetValue(chunk, out var loadedEntities);
 
-        ForEachTileInChunk(chunk, modified, indices =>
+        foreach (var indices in ChunkTiles(chunk))
         {
-            if (HasAnchoredEntity(gridUid, grid, indices))
-                return;
+            yield return true;
+            if (component.ModifiedTiles.TryGetValue(chunk, out var modified) && modified.Contains(indices) ||
+                HasAnchoredEntity(gridUid, grid, indices))
+                continue;
 
             if (TryGetEntity(indices, component, (gridUid, grid), out var entPrototype))
             {
                 // Resolve rock tables directly and deterministically so a reload cannot reroll the ore.
                 var terrainSeed = unchecked(seed * 397 ^ indices.X * 73856093 ^ indices.Y * 19349663);
                 if (_spawners.ResolveBiomeTerrain(entPrototype, terrainSeed) is not { } prototype)
-                    return;
+                    continue;
 
                 var ent = _expeditionLoot.SpawnBiomeEntity(prototype, _mapSystem.GridTileToLocal(gridUid, grid, indices));
                 if (TerminatingOrDeleted(ent))
                 {
-                    modified.Add(indices);
-                    return;
+                    component.ModifiedTiles.GetOrNew(chunk).Add(indices);
+                    continue;
                 }
 
                 if (_xformQuery.TryGetComponent(ent, out var xform) && !xform.Anchored)
@@ -173,41 +182,33 @@ public sealed partial class BiomeSystem
                 _generatedEntityTiles.Add(ent, (component, indices));
                 RecordSceneryDefault(component, ent);
             }
-        });
+        }
     }
 
-    private void LoadDecals(
+    private IEnumerable<bool> LoadDecals(
         BiomeComponent component,
         EntityUid gridUid,
         MapGridComponent grid,
         Vector2i chunk,
-        int seed,
-        HashSet<Vector2i> modified)
+        int seed)
     {
-        Dictionary<uint, Vector2i>? loadedDecals = null;
+        component.LoadedDecals.TryGetValue(chunk, out var loadedDecals);
 
-        _chunkLoaderDecals.Clear();
-
-        ForEachTileInChunk(chunk, modified, indices =>
+        foreach (var indices in ChunkTiles(chunk))
         {
-            if (HasAnchoredEntity(gridUid, grid, indices) || !TryGetDecals(indices, component.Layers, seed, (gridUid, grid), out var decals))
-                return;
+            yield return true;
+            if (component.ModifiedTiles.TryGetValue(chunk, out var modified) && modified.Contains(indices) ||
+                HasAnchoredEntity(gridUid, grid, indices) || !TryGetDecals(indices, component.Layers, seed, (gridUid, grid), out var decals))
+                continue;
 
             foreach (var decal in decals)
             {
-                _chunkLoaderDecals.Add((decal.ID, new EntityCoordinates(gridUid, decal.Position)));
-            }
-        });
-
-        // Batch create
-        foreach (var (decalId, coords) in _chunkLoaderDecals)
-        {
-            if (_decals.TryAddDecal(decalId, coords, out var dec))
-            {
-                var tilePos = _mapSystem.LocalToTile(gridUid, grid, coords);
-                if (loadedDecals == null)
-                    component.LoadedDecals[chunk] = loadedDecals = new Dictionary<uint, Vector2i>();
-                loadedDecals.Add(dec, tilePos);
+                if (_decals.TryAddDecal(decal.ID, new EntityCoordinates(gridUid, decal.Position), out var dec))
+                {
+                    if (loadedDecals == null)
+                        component.LoadedDecals[chunk] = loadedDecals = new Dictionary<uint, Vector2i>();
+                    loadedDecals.Add(dec, indices);
+                }
             }
         }
     }
@@ -228,18 +229,34 @@ public sealed partial class BiomeSystem
     /// <summary>
     /// Unloads a specific biome chunk.
     /// </summary>
-    private void UnloadChunk(BiomeComponent component, EntityUid gridUid, MapGridComponent grid, Vector2i chunk, int seed, List<(Vector2i, Tile)> tiles)
+    private IEnumerable<bool> UnloadChunkSteps(ChunkRequest request)
     {
+        var (gridUid, component, grid, chunk) = request;
         component.ModifiedTiles.TryGetValue(chunk, out var modified);
         modified ??= _tilePool.Get();
+        // Keep ownership of this set across ticks; tile changes during unloading
+        // must update this same instance rather than overwrite it on completion.
+        component.ModifiedTiles[chunk] = modified;
+        try
+        {
+            UnloadDecals(component, gridUid, chunk, modified);
+            yield return true;
+            foreach (var step in UnloadEntities(component, gridUid, grid, chunk, modified))
+                yield return step;
+            UnloadTiles(component, gridUid, grid, chunk, component.Seed, modified, _chunkLoaderTiles);
+            component.LoadedChunks.Remove(chunk);
+        }
+        finally
+        {
+            FinalizeChunk(component, chunk, modified);
+        }
+    }
 
-        UnloadDecals(component, gridUid, chunk, modified);
-        UnloadEntities(component, gridUid, grid, chunk, modified);
-        UnloadTiles(component, gridUid, grid, chunk, seed, modified, tiles);
-
-        component.LoadedChunks.Remove(chunk);
-
-        FinalizeChunk(component, chunk, modified);
+    private static IEnumerable<Vector2i> ChunkTiles(Vector2i chunk)
+    {
+        for (var x = chunk.X; x < chunk.X + ChunkSize; x++)
+        for (var y = chunk.Y; y < chunk.Y + ChunkSize; y++)
+            yield return new Vector2i(x, y);
     }
 
     private void UnloadDecals(BiomeComponent component, EntityUid gridUid, Vector2i chunk, HashSet<Vector2i> modified)
@@ -255,17 +272,18 @@ public sealed partial class BiomeSystem
         component.LoadedDecals.Remove(chunk);
     }
 
-    private void UnloadEntities(BiomeComponent component, EntityUid gridUid, MapGridComponent grid, Vector2i chunk, HashSet<Vector2i> modified)
+    private IEnumerable<bool> UnloadEntities(BiomeComponent component, EntityUid gridUid, MapGridComponent grid, Vector2i chunk, HashSet<Vector2i> modified)
     {
         if (!component.LoadedEntities.TryGetValue(chunk, out var loadedEntities))
-            return;
+            yield break;
 
-        _chunkLoaderEntitiesToDelete.Clear();
         var xformQuery = GetEntityQuery<TransformComponent>();
 
         // Batch validate entities and collect ones to delete
-        foreach (var (ent, tile) in loadedEntities)
+        foreach (var (ent, tile) in loadedEntities.ToArray())
         {
+            yield return true;
+            loadedEntities.Remove(ent);
             _generatedEntityTiles.Remove(ent);
             _scenerySpriteDefaults.Remove(ent, out var initialSprite);
             if (Deleted(ent) || !xformQuery.TryGetComponent(ent, out var xform))
@@ -287,16 +305,13 @@ public sealed partial class BiomeSystem
                 continue;
             }
 
-            _chunkLoaderEntitiesToDelete.Add(ent);
+            // Validate and delete together: players can modify or move scenery
+            // between slices, so never retain an unchecked deletion for a later tick.
+            Del(ent);
         }
 
         component.LoadedEntities.Remove(chunk);
 
-        // Batch delete entities
-        foreach (var ent in _chunkLoaderEntitiesToDelete)
-        {
-            Del(ent);
-        }
     }
 
     private void RecordSceneryDefault(BiomeComponent biome, EntityUid uid)

@@ -1,161 +1,156 @@
 using System.Numerics;
+using System.Linq;
 using Content.Shared._Mono.Radar;
+using Content.Shared.GameTicking;
 using Robust.Shared.Map;
 using Robust.Shared.Timing;
-using System.Linq;
+using Robust.Shared.Network;
+using Robust.Shared.Map.Components;
 
 namespace Content.Client._Mono.Radar;
 
 public sealed partial class RadarBlipsSystem : EntitySystem
 {
     [Dependency] private IGameTiming _timing = default!;
-    private SharedMapSystem _map => Robust.Shared.IoC.IoCManager.Resolve<Robust.Shared.GameObjects.IEntityManager>().System<SharedMapSystem>();
+    [Dependency] private SharedMapSystem _map = default!;
     [Dependency] private SharedTransformSystem _xform = default!;
-
-    private const double BlipStaleSeconds = 3.0;
-    private TimeSpan _lastRequestTime = TimeSpan.Zero;
-    private static readonly TimeSpan RequestThrottle = TimeSpan.FromMilliseconds(500);
-
-    private TimeSpan _lastUpdatedTime;
-    private List<BlipNetData> _blips = new();
-    private List<MissileVectorNetData> _missiles = new();
-    private List<HitscanNetData> _hitscans = new();
-    private List<BlipConfig> _configPalette = new();
-
-    // cached results to avoid allocating on every draw/frame
-    private readonly List<BlipData> _cachedBlipData = new();
-    private readonly List<MissileVectorData> _cachedMissileData = new();
+    [Dependency] private IClientNetManager _net = default!;
+    private sealed class Contacts(EntityUid map)
+    {
+        public readonly EntityUid Map = map;
+        public TimeSpan Sample, NextRequest, Sent;
+        public bool Received, Awaiting;
+        public List<BlipNetData> Blips = new();
+        public List<MissileVectorNetData> Missiles = new();
+        public List<HitscanNetData> Hitscans = new();
+        public List<BlipConfig> Palette = new();
+        public readonly List<BlipData> DrawBlips = new();
+        public readonly List<MissileVectorData> DrawMissiles = new();
+    }
+    private const double StaleSeconds = 3;
+    private readonly Dictionary<EntityUid, Contacts> _reports = new();
+    private readonly Dictionary<NetEntity, TimeSpan> _removed = new();
+    private readonly List<BlipData> _emptyBlips = new();
+    private readonly List<MissileVectorData> _emptyMissiles = new();
+    private readonly List<HitscanNetData> _emptyHitscans = new();
+    private EntityUid? _lastConsole;
 
     public override void Initialize()
     {
-        base.Initialize();
-        SubscribeNetworkEvent<GiveBlipsEvent>(HandleReceiveBlips);
+        SubscribeNetworkEvent<GiveBlipsEvent>((ev, _) => ApplyReport(ev));
         SubscribeNetworkEvent<BlipRemovalEvent>(RemoveBlip);
+        SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => ResetReports());
     }
-
-    private void HandleReceiveBlips(GiveBlipsEvent ev, EntitySessionEventArgs args)
+    private void ResetReports()
     {
-        _configPalette = ev.ConfigPalette;
-        _blips = ev.Blips;
-        _missiles = ev.Missiles;
-        _hitscans = ev.HitscanLines;
-        _lastUpdatedTime = _timing.CurTime;
+        _reports.Clear(); _removed.Clear(); _lastConsole = null;
     }
-
-    private void RemoveBlip(BlipRemovalEvent args)
+    private Contacts? Report(EntityUid? console, bool create = false)
     {
-        var blipid = _blips.FirstOrDefault(x => x.Uid == args.NetBlipUid);
-        _blips.Remove(blipid);
+        console ??= _lastConsole;
+        if (console is not { } uid || !Exists(uid) || Transform(uid).MapUid is not { } map) return null;
+        if (_reports.TryGetValue(uid, out var contacts) && contacts.Map == map) return contacts;
+        _reports.Remove(uid);
+        if (!create) return null;
+        if (_reports.Count >= 16) _reports.Remove(_reports.OrderBy(p => p.Value.NextRequest).First().Key);
+        return _reports[uid] = new Contacts(map);
     }
-
+    public bool ApplyReport(GiveBlipsEvent ev)
+    {
+        if (!TryGetEntity(ev.Radar, out var radar) || radar is not { } uid || Report(uid) is not { } state ||
+            ev.Map != GetNetEntity(state.Map) || state.Received && ev.SampleTime <= state.Sample ||
+            (_timing.CurTime - ev.SampleTime).TotalSeconds > StaleSeconds) return false;
+        state.Sample = ev.SampleTime; state.Received = true; state.Awaiting = false;
+        state.Blips = ev.Blips.Where(b => !_removed.TryGetValue(b.Uid, out var removed) || removed < ev.SampleTime).ToList();
+        state.Missiles = ev.Missiles; state.Hitscans = ev.HitscanLines; state.Palette = ev.ConfigPalette;
+        foreach (var key in _removed.Where(p => (_timing.CurTime - p.Value).TotalSeconds > StaleSeconds).Select(p => p.Key).ToArray()) _removed.Remove(key);
+        return true;
+    }
+    private void RemoveBlip(BlipRemovalEvent ev)
+    {
+        _removed[ev.NetBlipUid] = ev.SampleTime;
+        foreach (var state in _reports.Values)
+        {
+            state.Blips.RemoveAll(b => b.Uid == ev.NetBlipUid);
+            state.Missiles.RemoveAll(b => b.Uid == ev.NetBlipUid);
+        }
+    }
     public void RequestBlips(EntityUid console)
     {
-        // Only request if we have a valid console
-        if (!Exists(console))
-            return;
-
-        // Add request throttling to avoid network spam
-        if (_timing.CurTime - _lastRequestTime < RequestThrottle)
-            return;
-
-        _lastRequestTime = _timing.CurTime;
-
-        var netConsole = GetNetEntity(console);
-        var ev = new RequestBlipsEvent(netConsole);
-        RaiseNetworkEvent(ev);
+        if (Report(console, true) is not { } state) return;
+        _lastConsole = console;
+        var now = _timing.RealTime;
+        if (now < state.NextRequest) return;
+        if (state.Awaiting && now - state.Sent < TimeSpan.FromMilliseconds(500)) return;
+        // Each open console owns its request cadence as well as its report. A second window
+        // must not consume a global throttle and leave this window without contacts.
+        state.NextRequest = now + TimeSpan.FromMilliseconds(100);
+        state.Sent = now; state.Awaiting = true;
+        _net.ClientSendMessage(new MsgRadarPoll { Radar = GetNetEntity(console) });
     }
-
-    /// <summary>
-    /// Gets the current blips as world positions with their scale, color and shape.
-    /// </summary>
-    public List<BlipData> GetCurrentBlips()
+    private bool Fresh(Contacts? state) => state is { Received: true } && (_timing.CurTime - state.Sample).TotalSeconds <= StaleSeconds;
+    public List<BlipData> GetCurrentBlips(EntityUid? console = null)
     {
-        // clear the cache and bail early if the data is stale
-        _cachedBlipData.Clear();
-        if (_timing.CurTime.TotalSeconds - _lastUpdatedTime.TotalSeconds > BlipStaleSeconds)
-            return _cachedBlipData;
-
-        // populate the cached list instead of allocating a new one each frame
-        foreach (var blip in _blips)
+        var state = Report(console);
+        if (!Fresh(state)) return _emptyBlips;
+        state!.DrawBlips.Clear();
+        var age = (float)Math.Clamp((_timing.CurTime - state.Sample).TotalSeconds, 0, StaleSeconds);
+        foreach (var blip in state.Blips)
         {
+            if (blip.ConfigIndex >= state.Palette.Count) continue;
             var coord = GetCoordinates(blip.Position);
-
-            if (!coord.IsValid(EntityManager))
-                continue;
-
-            var predictedPos = new EntityCoordinates(coord.EntityId, coord.Position + blip.Vel * (float)(_timing.CurTime - _lastUpdatedTime).TotalSeconds);
-
-            var predictedMap = _xform.ToMapCoordinates(predictedPos);
-
-            var config = _configPalette[blip.ConfigIndex];
+            if (!coord.IsValid(EntityManager)) continue;
+            var predicted = new EntityCoordinates(coord.EntityId, coord.Position + blip.Vel * age);
+            var config = state.Palette[blip.ConfigIndex];
             var rotation = blip.Rotation;
-            // hijack our shape if we're on a grid and we want to do that
-            if (_map.TryFindGridAt(predictedMap, out var grid, out _) && grid != EntityUid.Invalid)
+            _map.TryFindGridAt(_xform.ToMapCoordinates(predicted), out var grid, out _);
+            // Mounted equipment belongs to its hull. A map-space sample plus linear velocity
+            // cannot follow rotation, and drifts away from the client's own hull transform.
+            // Keep the map sample as a fallback when a remote grid is outside PVS.
+            if (blip.Anchor is { } anchor)
             {
-                if (blip.OnGridConfigIndex is { } gridIdx)
-                    config = _configPalette[gridIdx];
-                rotation += Transform(grid).LocalRotation;
+                var local = GetCoordinates(anchor.Position);
+                if (local.IsValid(EntityManager) && HasComp<MapGridComponent>(local.EntityId) && Transform(local.EntityId).MapUid == state.Map)
+                {
+                    grid = local.EntityId; predicted = local;
+                    rotation = _xform.GetWorldRotation(local.EntityId) + anchor.Rotation;
+                }
             }
-            var maybeGrid = grid != EntityUid.Invalid ? grid : (EntityUid?)null;
-
-            _cachedBlipData.Add(new(blip.Uid, predictedPos, rotation, maybeGrid, config));
+            if (grid != EntityUid.Invalid && blip.OnGridConfigIndex is { } index && index < state.Palette.Count) config = state.Palette[index];
+            state.DrawBlips.Add(new(blip.Uid, predicted, rotation, grid != EntityUid.Invalid ? grid : null, config));
         }
-
-        return _cachedBlipData;
+        return state.DrawBlips;
     }
-
-    /// <summary>
-    /// Gets the missile vectors to be rendered on the radar
-    /// </summary>
-    public List<MissileVectorData> GetMissileLines()
+    public List<MissileVectorData> GetMissileLines(EntityUid? console = null)
     {
-        // clear the cache and bail early if the data is stale
-        _cachedMissileData.Clear();
-        if (_timing.CurTime.TotalSeconds - _lastUpdatedTime.TotalSeconds > BlipStaleSeconds)
-            return _cachedMissileData;
-
-        // populate the cached list instead of allocating a new one each frame
-        foreach (var missile in _missiles)
+        var state = Report(console);
+        if (!Fresh(state)) return _emptyMissiles;
+        state!.DrawMissiles.Clear();
+        var age = (float)Math.Clamp((_timing.CurTime - state.Sample).TotalSeconds, 0, StaleSeconds);
+        foreach (var missile in state.Missiles)
         {
-            var tiedBlip = _blips.FirstOrDefault(x => x.Uid == missile.Uid);
-            var coord = tiedBlip.Position;
-            var color = Color.FromHex("#00AACC");
-            var colorArcs = Color.FromHex("#FF0040");
-
-            var predictedPosStart = new NetCoordinates(missile.Uid, coord.Position + tiedBlip.Vel * (float)(_timing.CurTime - _lastUpdatedTime).TotalSeconds);
-            var posEnd = Vector2.Create(
-                predictedPosStart.X + (missile.Range / 2) * (float)Math.Cos(tiedBlip.Rotation + Math.PI * -0.5),
-                predictedPosStart.Y + (missile.Range / 2) * (float)Math.Sin(tiedBlip.Rotation + Math.PI * -0.5));
-            var predictedPosEnd = new NetCoordinates(missile.Uid, posEnd);
-
-            _cachedMissileData.Add(new(missile.Uid, predictedPosStart, predictedPosEnd, color));
+            var index = state.Blips.FindIndex(b => b.Uid == missile.Uid);
+            if (index < 0) continue;
+            var blip = state.Blips[index]; var coord = GetCoordinates(blip.Position);
+            if (!coord.IsValid(EntityManager)) continue;
+            var position = coord.Position + blip.Vel * age;
+            var start = GetNetCoordinates(new EntityCoordinates(coord.EntityId, position));
+            NetCoordinates End(double angle, float range) => GetNetCoordinates(new EntityCoordinates(coord.EntityId,
+                position + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * range));
+            var direction = blip.Rotation.Theta - Math.PI * .5;
+            state.DrawMissiles.Add(new(missile.Uid, start, End(direction, missile.Range / 2), Color.FromHex("#00AACC")));
             if (missile.ScanArc > 0)
             {
-                var posEndLeft = Vector2.Create(
-                    predictedPosStart.X + (missile.Range) * (float)Math.Cos(tiedBlip.Rotation + Math.PI * -0.5 - (missile.ScanArc * 0.5)),
-                    predictedPosStart.Y + (missile.Range) * (float)Math.Sin(tiedBlip.Rotation + Math.PI * -0.5 - (missile.ScanArc * 0.5)));
-                var posEndRight = Vector2.Create(
-                    predictedPosStart.X + (missile.Range) * (float)Math.Cos(tiedBlip.Rotation + Math.PI * -0.5 + (missile.ScanArc * 0.5)),
-                    predictedPosStart.Y + (missile.Range) * (float)Math.Sin(tiedBlip.Rotation + Math.PI * -0.5+ (missile.ScanArc * 0.5)));
-                var predictedPosLeft = new NetCoordinates(missile.Uid, posEndLeft);
-                var predictedPosRight = new NetCoordinates(missile.Uid, posEndRight);
-                _cachedMissileData.Add(new(missile.Uid, predictedPosStart, predictedPosLeft, colorArcs));
-                _cachedMissileData.Add(new(missile.Uid, predictedPosStart, predictedPosRight, colorArcs));
+                state.DrawMissiles.Add(new(missile.Uid, start, End(direction - missile.ScanArc.Theta * .5, missile.Range), Color.FromHex("#FF0040")));
+                state.DrawMissiles.Add(new(missile.Uid, start, End(direction + missile.ScanArc.Theta * .5, missile.Range), Color.FromHex("#FF0040")));
             }
         }
-
-        return _cachedMissileData;
+        return state.DrawMissiles;
     }
-
-    /// <summary>
-    /// Gets the hitscan lines to be rendered on the radar
-    /// </summary>
-    public List<HitscanNetData> GetHitscanLines()
+    public List<HitscanNetData> GetHitscanLines(EntityUid? console = null)
     {
-        if (_timing.CurTime.TotalSeconds - _lastUpdatedTime.TotalSeconds > BlipStaleSeconds)
-            return new();
-
-        return _hitscans;
+        var state = Report(console);
+        return Fresh(state) ? state!.Hitscans : _emptyHitscans;
     }
 }
 

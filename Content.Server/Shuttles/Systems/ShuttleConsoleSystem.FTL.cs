@@ -175,6 +175,13 @@ public sealed partial class ShuttleConsoleSystem
             return;
         }
 
+        // Research-sector entry is authorized by the expedition console's accepted order.
+        if (Transform(shuttleUid.Value).MapID != targetMap && _mapSystem.TryGetMap(targetMap, out var researchMap) &&
+            HasComp<Content.Server._DeepLagoon.Voyages.SectorExpeditionMapComponent>(researchMap))
+        {
+            _popup.PopupEntity("Для перелёта в исследовательский сектор возьмите заявку в консоли экспедиций", ent.Owner, PopupType.Medium);
+            return;
+        }
         // Check shuttle can FTL to this target.
         if (!_shuttle.CanFTLTo(shuttleUid.Value, targetMap, ent))
         {

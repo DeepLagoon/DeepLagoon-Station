@@ -126,16 +126,18 @@ namespace Content.Client.VendingMachines.UI
 
                 var itemName = Identity.Name(dummy, _entityManager);
                 var cost = 0; // mono
-                if (requiresCash) // frontier
+                if (requiresCash || entry.Currency == "LC") // frontier
                     cost = entry.Price ?? VendingMachinePricing.GetPrice(prototype, priceModifier, _prototypeManager, _entityManager);
+
+                var priceText = entry.Currency == "LC" ? $"{cost} LC" : BankSystemExtensions.ToSpesoString(cost);
 
                 string itemText;
 
                 // Frontier: unlimited vending
                 if (entry.Amount != uint.MaxValue)
-                    itemText = $"[{BankSystemExtensions.ToSpesoString(cost)}] {itemName} [{entry.Amount}]";
+                    itemText = $"[{priceText}] {itemName} [{entry.Amount}]";
                 else
-                    itemText = $"[{BankSystemExtensions.ToSpesoString(cost)}] {itemName}";
+                    itemText = $"[{priceText}] {itemName}";
                 // End Frontier: unlimited vending
 
                 if (itemText.Length > longestEntry.Length)

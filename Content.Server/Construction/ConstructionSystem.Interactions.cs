@@ -100,7 +100,11 @@ namespace Content.Server.Construction
 
             // When we handle a node, we're essentially testing the current event interaction against all of this node's
             // edges' first steps. If any of them accepts the interaction, we stop iterating and enter that edge.
-            for (var i = 0; i < node.Edges.Count; i++)
+            // A recipe selected from the construction menu has an intended next edge.
+            // Trying every edge lets common materials silently choose a square wall instead.
+            var firstEdge = construction.TargetEdgeIndex ?? 0;
+            var lastEdge = construction.TargetEdgeIndex.HasValue ? firstEdge + 1 : node.Edges.Count;
+            for (var i = firstEdge; i < lastEdge && i >= 0 && i < node.Edges.Count; i++)
             {
                 var edge = node.Edges[i];
                 if (HandleEdge(uid, ev, edge, validation, construction) is var result and not HandleResult.False)

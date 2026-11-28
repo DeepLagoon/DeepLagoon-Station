@@ -30,6 +30,7 @@ public sealed partial class ShuttleConsoleBoundUserInterface : BoundUserInterfac
 
         _window.RequestFTL += OnFTLRequest;
         _window.ResetHullHistory += () => SendMessage(new ShuttleHullResetMessage());
+        _window.SaveRepairSnapshot += () => SendMessage(new ShuttleRepairSnapshotMessage());
         _window.HullViewChanged += active => SendMessage(new ShuttleHullViewMessage(active));
         _window.RequestBeaconFTL += OnFTLBeaconRequest;
         _window.RequestAutopilot += OnAutopilotRequest; // Mono
@@ -131,6 +132,7 @@ public sealed partial class ShuttleConsoleBoundUserInterface : BoundUserInterfac
     protected override void ReceiveMessage(BoundUserInterfaceMessage message)
     {
         base.ReceiveMessage(message);
+        if (message is ShuttleRepairSnapshotState snapshot) _window?.UpdateRepairSnapshot(snapshot);
         if (message is ShuttleHullStateMessage hull)
             _window?.UpdateHullState(hull.State);
         else if (message is ShieldReadoutMessage shield && _window is { } window)

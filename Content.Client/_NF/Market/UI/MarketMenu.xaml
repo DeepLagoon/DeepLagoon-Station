@@ -10,6 +10,8 @@
                   VerticalExpand="True"
                   Access="Public"
                   Orientation="Vertical">
+        <Button Name="PlayerMarketButton" Access="Public" Text="{Loc 'dl-trade-title'}"
+                HorizontalExpand="True" Margin="18 8 18 0" />
         <BoxContainer Orientation="Vertical"
                       VerticalExpand="True"
                       HorizontalExpand="True"

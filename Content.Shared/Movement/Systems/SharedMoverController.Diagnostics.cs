@@ -13,7 +13,7 @@ public abstract partial class SharedMoverController
     {
         public long Entered, Relay, RelayMissing, NoTransform, CannotMove, NoPhysics, Pulled, AirBlocked;
         public long Prepared, Queued, Serial, Contained, Asleep, NonCollidable, ZeroWish, AirWeightless;
-        public long Actors, ActiveNpcs, Brains;
+        public long Actors, ActiveNpcs, Brains, SleepingIdle;
 
         public void Add(in MoverBranchCounts other)
         {
@@ -24,6 +24,7 @@ public abstract partial class SharedMoverController
             Contained += other.Contained; Asleep += other.Asleep; NonCollidable += other.NonCollidable;
             ZeroWish += other.ZeroWish; Actors += other.Actors; ActiveNpcs += other.ActiveNpcs; Brains += other.Brains;
             AirWeightless += other.AirWeightless;
+            SleepingIdle += other.SleepingIdle;
         }
     }
 

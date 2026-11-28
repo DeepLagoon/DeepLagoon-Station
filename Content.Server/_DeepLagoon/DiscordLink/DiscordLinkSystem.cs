@@ -191,7 +191,7 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
         catch (Exception e)
         {
             RevokeAdmission(session, "Не удалось подтвердить допуск. Переподключитесь позже.");
-            Log.Error($"Discord lobby admission failed: {e.GetType().Name}");
+            Log.Error($"Discord lobby admission failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
         }
     }
 
@@ -226,7 +226,7 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
                 await RefreshAdmission(session);
             }
         }
-        catch (Exception e) { Log.Error($"Discord WL refresh failed: {e.GetType().Name}"); }
+        catch (Exception e) { Log.Error($"Discord WL refresh failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}"); }
         finally
         {
             _checkingPrompts = false;
@@ -511,7 +511,7 @@ public sealed partial class DiscordLinkSystem : SharedDiscordBoostSystem
         catch (Exception e)
         {
             // Never log codes, request bodies or tokens.
-            Log.Error($"Discord link API failed: {e.GetType().Name}");
+            Log.Error($"Discord link API failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(e)}");
             await context.RespondJsonAsync(new { error = "unavailable" }, HttpStatusCode.ServiceUnavailable);
         }
         finally

@@ -3,6 +3,8 @@
   name: chat-emote-name-reptilian-snicker
   category: Vocal
   icon: _Impstation/Interface/Emotes/hiss.png
+  sound:
+    path: /Audio/_Mono/Voice/Reptilian/laugh_1.ogg
   whitelist:
     tags:
       - ReptilianEmotes
@@ -13,3 +15,26 @@
   chatTriggers:
     - snicker
     - snickers
+
+- type: emote
+  id: ReptilianPurr
+  name: chat-emote-name-reptilian-purr
+  category: Vocal
+  available: true
+  icon: _Impstation/Interface/Emotes/hiss.png
+  sound:
+    collection: ReptilianPurr
+  whitelist:
+    tags:
+    - ReptilianEmotes
+  blacklist:
+    components:
+    - BorgChassis
+  chatMessages:
+  - chat-emote-msg-reptilian-purr
+  chatTriggers:
+  - purr
+  - purrs
+  - purring
+  - урчит
+  - урчать

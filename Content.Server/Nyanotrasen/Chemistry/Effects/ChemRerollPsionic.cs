@@ -23,7 +23,8 @@ namespace Content.Server.Chemistry.ReagentEffects
 
         public override void Effect(EntityEffectBaseArgs args)
         {
-            if (args is not EntityEffectReagentArgs _)
+            if (args is not EntityEffectReagentArgs
+                || !args.EntityManager.HasComponent<PsionicTraitComponent>(args.TargetEntity))
                 return;
 
             var psySys = args.EntityManager.EntitySysManager.GetEntitySystem<PsionicsSystem>();

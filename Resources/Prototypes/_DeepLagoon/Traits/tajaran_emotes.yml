@@ -1,0 +1,16 @@
+- type: trait
+  id: TajaranEmotes
+  name: trait-tajaran-emotes-name
+  description: trait-tajaran-emotes-desc
+  category: Quirks
+  points: 0
+  cost: 0
+  slots: 0
+  functions:
+  - !type:TraitAddEmotes
+    emotes:
+    - Hiss
+    - Meow
+    - Mew
+    - Growl
+    - Purr

@@ -138,7 +138,7 @@ public sealed partial class AhelpSystem : EntitySystem
             try { await Task.Run(() => Store.ResetRound(epoch)); }
             catch (Exception ex)
             {
-                Log.Error($"Ahelp round reset failed: {ex.GetType().Name}");
+                Log.Error($"Ahelp round reset failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(ex)}");
                 await Task.Delay(TimeSpan.FromSeconds(5));
                 continue;
             }
@@ -162,7 +162,7 @@ public sealed partial class AhelpSystem : EntitySystem
             }
             catch (Exception ex)
             {
-                Log.Error($"Ahelp round cleanup failed: {ex.GetType().Name}");
+                Log.Error($"Ahelp round cleanup failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(ex)}");
                 await Task.Delay(TimeSpan.FromSeconds(5));
                 continue;
             }
@@ -210,7 +210,7 @@ public sealed partial class AhelpSystem : EntitySystem
             foreach (var result in await Task.Run(() => Store.Results(session.UserId.UserId)))
                 await DeliverResult(session, result);
         }
-        catch (Exception ex) { Log.Error($"Ahelp presence update failed: {ex.GetType().Name}"); }
+        catch (Exception ex) { Log.Error($"Ahelp presence update failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(ex)}"); }
     }
 
     private async void OnRequest(AhelpRequest request, EntitySessionEventArgs args)
@@ -286,7 +286,7 @@ public sealed partial class AhelpSystem : EntitySystem
         }
         catch (Exception ex)
         {
-            Log.Warning($"Ahelp upload {chunk.Operation} failed: {ex.GetType().Name}");
+            Log.Warning($"Ahelp upload {chunk.Operation} failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(ex)}");
             Publish(await Task.Run(() => Store.CompleteAttachment($"game:{user.UserId}:{chunk.Operation}", null)), sound: false);
             Error(args.SenderSession, chunk.Operation, "invalid_image");
         }
@@ -391,7 +391,7 @@ public sealed partial class AhelpSystem : EntitySystem
         catch (Exception ex)
         {
             if (bytes == null)
-                Log.Error($"Ahelp action failed: {ex.GetType().Name}");
+                Log.Error($"Ahelp action failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(ex)}");
             Error(session, request.Operation, bytes == null ? "unavailable" : "invalid_image");
         }
         finally { _working.Remove(key); }
@@ -417,7 +417,7 @@ public sealed partial class AhelpSystem : EntitySystem
         }
         catch (Exception ex)
         {
-            Log.Debug($"Ahelp preview unavailable: {ex.GetType().Name}");
+            Log.Debug($"Ahelp preview unavailable: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(ex)}");
             Reply(session, new AhelpDownload(id, 0, 0, [], preview: true));
         }
         finally { _previewJobs.Remove(user); }
@@ -466,7 +466,7 @@ public sealed partial class AhelpSystem : EntitySystem
     private async void SendResult(ICommonSession session, AhelpStore.Entry entry)
     {
         try { await DeliverResult(session, entry); }
-        catch (Exception ex) { Log.Error($"Ahelp result delivery failed: {ex.GetType().Name}"); }
+        catch (Exception ex) { Log.Error($"Ahelp result delivery failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(ex)}"); }
     }
 
     private async Task DeliverResult(ICommonSession session, AhelpStore.Entry entry)
@@ -554,7 +554,7 @@ public sealed partial class AhelpSystem : EntitySystem
                     Publish(await Task.Run(() => Store.Release(ticket.Id, assignee, Now)));
             }
         }
-        catch (Exception ex) { Log.Error($"Ahelp maintenance failed: {ex.GetType().Name}"); }
+        catch (Exception ex) { Log.Error($"Ahelp maintenance failed: {Content.Server._DeepLagoon.Diagnostics.ExceptionDiagnostics.Describe(ex)}"); }
         finally { _maintaining = false; }
     }
 }

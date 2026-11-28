@@ -8,14 +8,12 @@ public sealed partial class PathfindingSystem
 {
     private PathResult UpdateAStarPath(AStarPathRequest request)
     {
+        if (request.CancellationToken.IsCancellationRequested || request.Task.IsCanceled)
+            return PathResult.NoPath;
+
         if (request.Start.Equals(request.End))
         {
             return PathResult.Path;
-        }
-
-        if (request.Task.IsCanceled)
-        {
-            return PathResult.NoPath;
         }
 
         // TODO: Need partial planning that uses best node.
@@ -69,6 +67,8 @@ public sealed partial class PathfindingSystem
 
         while (request.Frontier.Count > 0 && count < NodeLimit)
         {
+            if (request.CancellationToken.IsCancellationRequested)
+                return PathResult.NoPath;
             // Handle whether we need to pause if we've taken too long
             if (count % 20 == 0 && count > 0 && request.Stopwatch.Elapsed > PathTime)
             {

@@ -1,0 +1,69 @@
+- type: entity
+  id: PsiSpectrometerBase
+  abstract: true
+  components:
+  - type: UserInterface
+    interfaces:
+      enum.PsiSpectrometerUiKey.Key:
+        type: PsiSpectrometerBoundUserInterface
+  - type: GuideHelp
+    guides: [ Psionics ]
+
+- type: entity
+  id: PsiSpectrometer
+  parent: [PsiSpectrometerBase, BaseItem, PowerCellSlotSmallItem]
+  name: noospheric spectrometer
+  description: A hand held array that listens to the noosphere and reports what answers. Requires a charged power cell.
+  components:
+  - type: PsiSpectrometer
+    range: 8
+    chargePerScan: 15
+  - type: Sprite
+    sprite: Objects/Specific/Research/anomalylocatorwide.rsi
+    layers:
+    - state: icon
+    - state: screen
+      shader: unshaded
+  - type: Item
+    size: Normal
+  - type: ActivatableUI
+    key: enum.PsiSpectrometerUiKey.Key
+    inHandsOnly: true
+
+- type: entity
+  id: PsiSpectrometerConsole
+  parent: [PsiSpectrometerBase, BaseComputer]
+  name: noospheric spectrometer console
+  description: A stationary spectrometer wired into the grid. Reports every signature inside the outpost and the surrounding space.
+  components:
+  - type: PsiSpectrometer
+    range: 14
+    requiresPower: true
+  - type: ActivatableUI
+    key: enum.PsiSpectrometerUiKey.Key
+    singleUser: true
+  - type: Sprite
+    noRot: true
+    sprite: Structures/Machines/computers.rsi
+    layers:
+    - map: ["computerLayerBody"]
+      state: computer
+    - map: ["computerLayerKeyboard"]
+      state: generic_keyboard
+    - map: ["computerLayerScreen"]
+      state: registry
+    - map: ["computerLayerKeys"]
+      state: rd_key
+    - map: ["enum.WiresVisualLayers.MaintenancePanel"]
+      state: generic_panel_open
+  - type: Computer
+    board: PsiSpectrometerComputerCircuitboard
+  - type: PointLight
+    radius: 1.5
+    energy: 1.6
+    enabled: false
+    color: "#1f8c28"
+  - type: AccessReader
+    access:
+    - [ Mantis ]
+    - [ HeadOfPersonnel ]

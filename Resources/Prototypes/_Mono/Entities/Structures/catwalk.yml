@@ -5,6 +5,7 @@
   placement:
     mode: SnapgridCenter
   components:
+  - type: ThrusterExhaustImmune
   - type: Clickable
   - type: Sprite
     sprite: _Mono/Structures/steel_catwalk.rsi

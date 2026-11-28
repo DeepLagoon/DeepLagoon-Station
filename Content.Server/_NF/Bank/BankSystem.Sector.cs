@@ -18,7 +18,11 @@ public sealed partial class BankSystem : SharedBankSystem
     private void OnSectorInit(EntityUid entity, SectorBankComponent component, ComponentInit args)
     {
         foreach (var account in component.Accounts)
+        {
             AddLedgerEntry(account.Key, LedgerEntryType.TickingIncome, account.Value.Balance);
+            EntityManager.System<Content.Server._DeepLagoon.Procurement.ProcurementSystem>()
+                .RecordTreasury(account.Key.ToString(), "opening_balance", account.Value.Balance, account.Value.Balance);
+        }
     }
 
     /// <summary>
@@ -50,6 +54,9 @@ public sealed partial class BankSystem : SharedBankSystem
         }
 
         var bankAccount = CollectionsMarshal.GetValueRefOrNullRef(bank.Accounts, account);
+        if (!EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>()
+                .AllowsSpending(account, bankAccount.Balance, amount, reason))
+            return false;
         if (bankAccount.Balance < amount)
         {
             _log.Info($"TryBankWithdraw: account has less money {bankAccount.Balance} than requested {amount}. Sector budget withdraw attempt. Parameters: Acc: {account} Am: {amount} Rsn: {reason}");
@@ -58,7 +65,17 @@ public sealed partial class BankSystem : SharedBankSystem
 
         bankAccount.Balance -= amount;
         AddLedgerEntry(account, reason, amount);
+        EntityManager.System<Content.Server._DeepLagoon.Procurement.ProcurementSystem>()
+            .RecordTreasury(account.ToString(), reason.ToString(), -amount, bankAccount.Balance);
         return true;
+    }
+
+    public bool TryVoyageRefund(Guid id, SectorBankAccount account, long amount)
+    {
+        if (!TryComp(_sectorService.GetServiceEntity(), out SectorBankComponent? bank)) return false;
+        if (bank.VoyageRefunds.Contains(id)) return true;
+        if (!TrySectorDeposit(account, amount, LedgerEntryType.StationDepositOther, bank)) return false;
+        bank.VoyageRefunds.Add(id); return true;
     }
 
     /// <summary>
@@ -95,6 +112,8 @@ public sealed partial class BankSystem : SharedBankSystem
             return false;
         bankAccount.Balance += amount;
         AddLedgerEntry(account, reason, amount);
+        EntityManager.System<Content.Server._DeepLagoon.Procurement.ProcurementSystem>()
+            .RecordTreasury(account.ToString(), reason.ToString(), amount, bankAccount.Balance);
         return true;
     }
 
@@ -145,7 +164,12 @@ public sealed partial class BankSystem : SharedBankSystem
         if (seconds <= 0)
             return;
 
+        var economy = EntityManager.System<Content.Server._DeepLagoon.Economy.SectorEconomySystem>();
         foreach (var (accountId, accountInfo) in bank.Accounts)
-            TrySectorDeposit(accountId, seconds * accountInfo.IncreasePerSecond, LedgerEntryType.TickingIncome, bank);
+        {
+            var rate = accountInfo.IncreasePerSecond;
+            if (economy.Enabled) rate = Math.Max(rate, (long)Math.Ceiling(economy.PayrollHourly(accountId) / 3600d));
+            TrySectorDeposit(accountId, checked(seconds * rate), LedgerEntryType.TickingIncome, bank);
+        }
     }
 }

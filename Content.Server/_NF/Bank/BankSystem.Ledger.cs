@@ -8,6 +8,9 @@ namespace Content.Server._NF.Bank;
 
 public sealed partial class BankSystem : SharedBankSystem
 {
+    public long LedgerAmount(SectorBankAccount account, LedgerEntryType type)
+        => TryComp(_sectorService.GetServiceEntity(), out SectorBankComponent? ledger)
+            ? ledger.AccountLedgerEntries.GetValueOrDefault((account, type)) : 0;
     public void CleanupLedger()
     {
         if (!TryComp(_sectorService.GetServiceEntity(), out SectorBankComponent? ledger))
