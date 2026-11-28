@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using Content.Shared._DeepLagoon.Music;
 using Robust.Client.Audio;
@@ -21,43 +22,64 @@ public sealed class MusicAudioSystem : EntitySystem
 
     private ISawmill _sawmill = default!;
 
-    private readonly Dictionary<string, MemoryStream> _pending = new();
+    private readonly Dictionary<string, ChannelState> _channels = new();
 
-    private AudioStream? _stream;
-    private AudioStream? _startedFor;
-    private EntityUid? _playing;
-    private string? _trackId;
-
-    private uint _sourceNetId;
-    private float _maxDistance = MusicConstants.SpeakerMaxDistance;
-
-    private float _startAt = -1f;
-    private float _startDelay;
-    private float _offset;
-    private float _gain = 0.75f;
-
-    private bool _playRequested;
-    private float _requestedPosition;
-
-    private bool _positionLocked;
-
-    public float Gain => _gain;
-
-    public MusicPlaybackStatus Status { get; private set; } = MusicPlaybackStatus.Stopped;
-
-    public string? CurrentTrackId => _trackId;
-
-    public float Position
+    private sealed class ChannelState
     {
-        get
-        {
-            if (_positionLocked)
-                return _offset;
+        public readonly string Name;
+        public readonly Dictionary<string, MemoryStream> Pending = new();
 
-            return _playing != null && TryComp<AudioComponent>(_playing, out var audio)
-                ? (float) ((audio.PauseTime ?? _timing.CurTime) - audio.AudioStart).TotalSeconds
-                : _offset;
+        public AudioStream? Stream;
+        public AudioStream? StartedFor;
+        public EntityUid? Playing;
+        public string? TrackId;
+
+        public uint SourceNetId;
+        public float MaxDistance = MusicConstants.SpeakerMaxDistance;
+
+        public float StartAt = -1f;
+        public float StartDelay;
+        public float Offset;
+        public float Gain = 0.75f;
+
+        public bool PlayRequested;
+        public float RequestedPosition;
+        public bool PositionLocked;
+
+        public MusicPlaybackStatus Status = MusicPlaybackStatus.Stopped;
+
+        public ChannelState(string name)
+        {
+            Name = name;
         }
+    }
+
+    private ChannelState Channel(string name)
+    {
+        if (_channels.TryGetValue(name, out var existing))
+            return existing;
+
+        var created = new ChannelState(name);
+        _channels[name] = created;
+        return created;
+    }
+
+    public float GainOf(string channel) => Channel(channel).Gain;
+
+    public MusicPlaybackStatus StatusOf(string channel) => Channel(channel).Status;
+
+    public string? TrackOf(string channel) => Channel(channel).TrackId;
+
+    public float PositionOf(string channel)
+    {
+        var state = Channel(channel);
+
+        if (state.PositionLocked)
+            return state.Offset;
+
+        return state.Playing != null && TryComp<AudioComponent>(state.Playing, out var audio)
+            ? (float) ((audio.PauseTime ?? _timing.CurTime) - audio.AudioStart).TotalSeconds
+            : state.Offset;
     }
 
     public override void Initialize()
@@ -66,41 +88,49 @@ public sealed class MusicAudioSystem : EntitySystem
         _sawmill = _logManager.GetSawmill("dl.music.client");
     }
 
-    public void Prepare(string trackId, uint sourceNetId, float maxDistance, float startDelay, float gain)
+    public void Prepare(string channel, string trackId, uint sourceNetId, float maxDistance, float startDelay,
+        float gain)
     {
-        _trackId = trackId;
-        _sourceNetId = sourceNetId;
-        _maxDistance = float.IsFinite(maxDistance) && maxDistance > 0f
+        var state = Channel(channel);
+
+        state.TrackId = trackId;
+        state.SourceNetId = sourceNetId;
+        state.MaxDistance = float.IsFinite(maxDistance) && maxDistance > 0f
             ? maxDistance
             : MusicConstants.SpeakerMaxDistance;
-        _startDelay = float.IsFinite(startDelay) && startDelay > 0f ? startDelay : 0f;
+        state.StartDelay = float.IsFinite(startDelay) && startDelay > 0f ? startDelay : 0f;
 
         if (float.IsFinite(gain))
-            _gain = Math.Clamp(gain, 0f, 1f);
+            state.Gain = Math.Clamp(gain, 0f, 1f);
     }
 
-    public void Begin(string trackId)
+    public void Begin(string channel, string trackId)
     {
-        if (_trackId != null && _trackId != trackId)
+        var state = Channel(channel);
+
+        if (state.TrackId != null && state.TrackId != trackId)
             return;
 
-        DiscardPending(trackId);
-        _trackId = trackId;
-        _pending[trackId] = new MemoryStream();
-        Status = MusicPlaybackStatus.Downloading;
+        DiscardPending(state, trackId);
+        state.TrackId = trackId;
+        state.Pending[trackId] = new MemoryStream();
+        state.Status = MusicPlaybackStatus.Downloading;
     }
 
-    public void Append(string trackId, byte[] data, int length)
+    public void Append(string channel, string trackId, byte[] data, int length)
     {
-        if (!_pending.TryGetValue(trackId, out var buffer))
+        var state = Channel(channel);
+        if (!state.Pending.TryGetValue(trackId, out var buffer))
             return;
 
         buffer.Write(data, 0, length);
     }
 
-    public bool Complete(string trackId)
+    public bool Complete(string channel, string trackId)
     {
-        if (!_pending.Remove(trackId, out var buffer))
+        var state = Channel(channel);
+
+        if (!state.Pending.Remove(trackId, out var buffer))
             return false;
 
         byte[] bytes;
@@ -109,9 +139,9 @@ public sealed class MusicAudioSystem : EntitySystem
             bytes = buffer.ToArray();
         }
 
-        if (_trackId != trackId)
+        if (state.TrackId != trackId)
         {
-            Status = MusicPlaybackStatus.Stopped;
+            state.Status = MusicPlaybackStatus.Stopped;
             return false;
         }
 
@@ -119,170 +149,178 @@ public sealed class MusicAudioSystem : EntitySystem
         try
         {
             using var streamIn = new MemoryStream(bytes, false);
-            stream = _audioManager.LoadAudioWav(streamIn, trackId);
+            stream = _audioManager.LoadAudioWav(streamIn, $"{channel}:{trackId}");
         }
         catch (Exception e)
         {
-            _sawmill.Warning("Music decode failed: {Error}", e.GetType().Name);
+            _sawmill.Warning("Music decode failed on {Channel}: {Error}", channel, e.GetType().Name);
         }
 
         if (stream == null)
         {
-            Status = MusicPlaybackStatus.Stopped;
+            state.Status = MusicPlaybackStatus.Stopped;
             return false;
         }
 
-        if (_playing != null)
-            _audio.Stop(_playing);
+        if (state.Playing != null)
+            _audio.Stop(state.Playing);
 
-        _playing = null;
+        state.Playing = null;
 
-        _stream?.Dispose();
-        _stream = stream;
-        _startedFor = null;
-        _positionLocked = false;
+        state.Stream?.Dispose();
+        state.Stream = stream;
+        state.StartedFor = null;
+        state.PositionLocked = false;
 
-        if (Status != MusicPlaybackStatus.Paused)
+        if (state.Status != MusicPlaybackStatus.Paused)
         {
-            _startAt = (float) _timing.CurTime.TotalSeconds + _startDelay;
-            Status = MusicPlaybackStatus.Downloading;
+            state.StartAt = (float) _timing.CurTime.TotalSeconds + state.StartDelay;
+            state.Status = MusicPlaybackStatus.Downloading;
         }
 
-        _startDelay = 0f;
+        state.StartDelay = 0f;
         return true;
     }
 
-    public void Play(float position)
+    public void Play(string channel, float position)
     {
-        _playRequested = true;
-        _requestedPosition = float.IsFinite(position) && position > 0f ? position : 0f;
+        var state = Channel(channel);
+        state.PlayRequested = true;
+        state.RequestedPosition = float.IsFinite(position) && position > 0f ? position : 0f;
 
-        if (_stream == null)
+        if (state.Stream == null)
             return;
 
-        if (_startAt > 0f && (float) _timing.CurTime.TotalSeconds < _startAt)
+        if (state.StartAt > 0f && (float) _timing.CurTime.TotalSeconds < state.StartAt)
             return;
 
-        if (Status == MusicPlaybackStatus.Paused)
-            Status = MusicPlaybackStatus.Downloading;
+        if (state.Status == MusicPlaybackStatus.Paused)
+            state.Status = MusicPlaybackStatus.Downloading;
 
-        Start();
+        Start(state);
     }
 
-    private void Start()
+    private void Start(ChannelState state)
     {
-        if (_stream == null)
+        if (state.Stream == null)
             return;
 
-        if (Status == MusicPlaybackStatus.Paused)
+        if (state.Status == MusicPlaybackStatus.Paused)
             return;
 
-        if (_playing != null && TryComp<AudioComponent>(_playing, out var existing))
+        if (state.Playing != null && TryComp<AudioComponent>(state.Playing, out var existing))
         {
             if (existing.State == AudioState.Paused)
             {
-                _audio.SetState(_playing, AudioState.Playing);
-                ApplyGain();
-                Status = MusicPlaybackStatus.Playing;
-                _startAt = -1f;
+                _audio.SetState(state.Playing, AudioState.Playing);
+                ApplyGain(state);
+                state.Status = MusicPlaybackStatus.Playing;
+                state.StartAt = -1f;
                 return;
             }
 
             if (existing.State == AudioState.Playing)
             {
-                Status = MusicPlaybackStatus.Playing;
-                _startAt = -1f;
+                state.Status = MusicPlaybackStatus.Playing;
+                state.StartAt = -1f;
                 return;
             }
         }
 
-        if (_startedFor == _stream && _playing != null && !TerminatingOrDeleted(_playing.Value))
+        if (state.StartedFor == state.Stream && state.Playing != null && !TerminatingOrDeleted(state.Playing.Value))
         {
-            Status = MusicPlaybackStatus.Playing;
-            _startAt = -1f;
+            state.Status = MusicPlaybackStatus.Playing;
+            state.StartAt = -1f;
             return;
         }
 
         EntityUid? source = null;
-        if (_sourceNetId != 0)
+        if (state.SourceNetId != 0)
         {
-            if (!TryResolveSource(_sourceNetId, out var resolved))
+            if (!TryResolveSource(state.SourceNetId, out var resolved))
             {
-                _sawmill.Debug("Music playback held: source entity {Source} is not available yet", _sourceNetId);
+                _sawmill.Debug("Music on {Channel} held: source {Source} not available yet",
+                    state.Name, state.SourceNetId);
                 return;
             }
 
             source = resolved;
         }
 
-        var audioParams = AudioParams.Default.WithMaxDistance(_maxDistance);
-        _offset = _requestedPosition;
-        if (_offset > 0f)
-            audioParams = audioParams.WithPlayOffset(_offset);
+        var audioParams = AudioParams.Default.WithMaxDistance(state.MaxDistance);
+        state.Offset = state.RequestedPosition;
+        if (state.Offset > 0f)
+            audioParams = audioParams.WithPlayOffset(state.Offset);
 
         (EntityUid Entity, AudioComponent Component)? played;
         if (source != null)
-            played = _audio.PlayEntity(_stream, source.Value, null, audioParams);
+            played = _audio.PlayEntity(state.Stream, source.Value, null, audioParams);
         else
-            played = _audio.PlayGlobal(_stream, null, audioParams);
+            played = _audio.PlayGlobal(state.Stream, null, audioParams);
 
         if (played == null)
         {
-            Status = MusicPlaybackStatus.Stopped;
+            state.Status = MusicPlaybackStatus.Stopped;
             return;
         }
 
-        _playing = played.Value.Entity;
-        _startedFor = _stream;
-        _startAt = -1f;
-        ApplyGain();
-        Status = MusicPlaybackStatus.Playing;
+        state.Playing = played.Value.Entity;
+        state.StartedFor = state.Stream;
+        state.StartAt = -1f;
+        ApplyGain(state);
+        state.Status = MusicPlaybackStatus.Playing;
     }
 
-    public void Seek(float position)
+    public void Seek(string channel, float position)
     {
         if (!float.IsFinite(position))
             return;
 
-        _requestedPosition = Math.Max(0f, position);
-        _playRequested = true;
+        var state = Channel(channel);
+        state.RequestedPosition = Math.Max(0f, position);
+        state.PlayRequested = true;
 
-        if (_stream == null)
+        if (state.Stream == null)
             return;
 
-        if (_playing != null && TryComp<AudioComponent>(_playing, out var audio))
+        if (state.Playing != null && TryComp<AudioComponent>(state.Playing, out var audio))
         {
-            audio.PlaybackPosition = _requestedPosition;
-            _offset = _requestedPosition;
-            _positionLocked = true;
-            Status = audio.State == AudioState.Paused ? MusicPlaybackStatus.Paused : MusicPlaybackStatus.Playing;
+            audio.PlaybackPosition = state.RequestedPosition;
+            state.Offset = state.RequestedPosition;
+            state.PositionLocked = true;
+            state.Status = audio.State == AudioState.Paused
+                ? MusicPlaybackStatus.Paused
+                : MusicPlaybackStatus.Playing;
             return;
         }
 
-        Start();
+        Start(state);
     }
 
-    public void Pause()
+    public void Pause(string channel)
     {
-        if (_playing != null)
+        var state = Channel(channel);
+
+        if (state.Playing != null)
         {
-            _offset = Position;
-            _positionLocked = true;
-            _audio.SetState(_playing, AudioState.Paused);
+            state.Offset = PositionOf(channel);
+            state.PositionLocked = true;
+            _audio.SetState(state.Playing, AudioState.Paused);
         }
 
-        _startAt = -1f;
-        _playRequested = false;
-        Status = MusicPlaybackStatus.Paused;
+        state.StartAt = -1f;
+        state.PlayRequested = false;
+        state.Status = MusicPlaybackStatus.Paused;
     }
 
-    public void SetGain(float gain)
+    public void SetGain(string channel, float gain)
     {
         if (!float.IsFinite(gain))
             return;
 
-        _gain = Math.Clamp(gain, 0f, 1f);
-        ApplyGain();
+        var state = Channel(channel);
+        state.Gain = Math.Clamp(gain, 0f, 1f);
+        ApplyGain(state);
     }
 
     private bool TryResolveSource(uint netId, out EntityUid source)
@@ -297,60 +335,77 @@ public sealed class MusicAudioSystem : EntitySystem
         return true;
     }
 
-    private void ApplyGain()
+    private void ApplyGain(ChannelState state)
     {
-        if (_playing != null)
-            _audio.SetGain(_playing, _gain);
+        if (state.Playing != null)
+            _audio.SetGain(state.Playing, state.Gain);
     }
 
-    private void DiscardPending(string trackId)
+    private static void DiscardPending(ChannelState state, string trackId)
     {
-        if (!_pending.Remove(trackId, out var stale))
+        if (!state.Pending.Remove(trackId, out var stale))
             return;
 
         stale.Dispose();
     }
 
-    public void Finish()
+    public void Finish(string channel)
     {
-        foreach (var buffer in _pending.Values)
+        var state = Channel(channel);
+
+        foreach (var buffer in state.Pending.Values)
             buffer.Dispose();
-        _pending.Clear();
+        state.Pending.Clear();
 
-        if (_playing != null)
-            _audio.Stop(_playing);
+        if (state.Playing != null)
+            _audio.Stop(state.Playing);
 
-        _playing = null;
-        _stream?.Dispose();
-        _stream = null;
-        _startedFor = null;
-        _trackId = null;
-        _sourceNetId = 0;
-        _offset = 0f;
-        _startAt = -1f;
-        _startDelay = 0f;
-        _playRequested = false;
-        _requestedPosition = 0f;
-        _positionLocked = false;
-        Status = MusicPlaybackStatus.Stopped;
+        state.Playing = null;
+        state.Stream?.Dispose();
+        state.Stream = null;
+        state.StartedFor = null;
+        state.TrackId = null;
+        state.SourceNetId = 0;
+        state.Offset = 0f;
+        state.StartAt = -1f;
+        state.StartDelay = 0f;
+        state.PlayRequested = false;
+        state.RequestedPosition = 0f;
+        state.PositionLocked = false;
+        state.Status = MusicPlaybackStatus.Stopped;
+    }
+
+    public void FinishAll()
+    {
+        foreach (var name in _channels.Keys)
+            Finish(name);
     }
 
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
 
-        if (Status == MusicPlaybackStatus.Playing && _playing != null &&
-            TryComp<AudioComponent>(_playing, out var audio) && audio.State == AudioState.Stopped)
+        foreach (var state in _channels.Values)
         {
-            Finish();
-            return;
+            if (state.Status == MusicPlaybackStatus.Playing && state.Playing != null &&
+                TryComp<AudioComponent>(state.Playing, out var audio) && audio.State == AudioState.Stopped)
+            {
+                Finish(state.Name);
+                continue;
+            }
+
+            if (state.Status != MusicPlaybackStatus.Paused && state.PlayRequested && state.Stream != null &&
+                state.StartAt > 0f && (float) _timing.CurTime.TotalSeconds >= state.StartAt)
+            {
+                Start(state);
+                continue;
+            }
+
+            if (state.Status == MusicPlaybackStatus.Downloading && state.PlayRequested && state.Stream != null &&
+                state.StartAt < 0f)
+            {
+                Start(state);
+            }
         }
-
-        if (Status != MusicPlaybackStatus.Paused && _playRequested && _stream != null &&
-            _startAt > 0f && (float) _timing.CurTime.TotalSeconds >= _startAt)
-            Start();
-
-        if (Status == MusicPlaybackStatus.Downloading && _playRequested && _stream != null && _startAt < 0f)
-            Start();
     }
 }

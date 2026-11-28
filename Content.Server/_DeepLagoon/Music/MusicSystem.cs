@@ -1,12 +1,12 @@
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Content.Server.Administration.Managers;
 using Content.Shared._DeepLagoon.Music;
 using Content.Shared.GameTicking;
 using Content.Shared.Administration;
 using Robust.Server.GameObjects;
 using Robust.Shared.GameObjects.Components;
-using Content.Server.Power.EntitySystems;
 using Content.Shared.Toggleable;
 using Robust.Shared.Configuration;
 using Robust.Shared.IoC;
@@ -14,7 +14,6 @@ using Robust.Shared.Log;
 using Robust.Shared.Network;
 using Robust.Server.Player;
 using Robust.Shared.Player;
-using Robust.Shared.Timing;
 
 namespace Content.Server._DeepLagoon.Music;
 
@@ -27,40 +26,62 @@ public sealed class MusicSystem : EntitySystem
     [Dependency] private readonly UserInterfaceSystem _ui = default!;
     [Dependency] private readonly AppearanceSystem _appearance = default!;
     [Dependency] private readonly ILogManager _log = default!;
-    [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly INetManager _net = default!;
     private INetManager NetManager => _net;
 
     private ISawmill _sawmill = default!;
 
-    private readonly List<MusicTrack> _queue = new();
+    private readonly Dictionary<string, MusicChannel> _channels = new();
 
     private readonly Dictionary<string, MusicTrack> _known = new();
 
     private CancellationTokenSource _lifetime = new();
 
-    private MusicTrack? _current;
-    private byte[]? _currentAudio;
-    private float _gain;
-    private int _pending;
-    public MusicPlaybackStatus Status { get; private set; } = MusicPlaybackStatus.Stopped;
-    public MusicTrack? Current => _current;
-    public float Gain => _gain;
+    private float _defaultGain;
+
     public bool Enabled => _cfg.GetCVar(MusicCVars.Enabled);
 
     public event Action? StateChanged;
 
-    private float _clientPosition;
+    public sealed class MusicChannel
+    {
+        public readonly string Name;
+        public readonly List<MusicTrack> Queue = new();
 
-    private uint _sourceNetEntity;
+        public MusicTrack? Current;
+        public byte[]? Audio;
+        public MusicPlaybackStatus Status = MusicPlaybackStatus.Stopped;
+        public float Position;
+        public float Gain;
+        public int Pending;
+        public uint SourceNetEntity;
+        public float MaxDistance = MusicConstants.SpeakerMaxDistance;
+        public int RunId;
+        public float StartAt;
+        public float PublishTimer;
 
-    private float _maxDistance = MusicConstants.SpeakerMaxDistance;
+        public MusicChannel(string name, float gain)
+        {
+            Name = name;
+            Gain = gain;
+        }
 
-    private int _runId;
+        public bool IsGlobal => SourceNetEntity == 0;
+    }
 
-    private float _startAt;
+    private MusicChannel Channel(string name) => Channel(name, _defaultGain);
 
-    private float _publishTimer;
+    private MusicChannel Channel(string name, float gain)
+    {
+        if (_channels.TryGetValue(name, out var existing))
+            return existing;
+
+        var created = new MusicChannel(name, gain);
+        _channels[name] = created;
+        return created;
+    }
+
+    public MusicChannel? Find(string name) => _channels.GetValueOrDefault(name);
 
     private void Remember(IEnumerable<MusicTrack> tracks)
     {
@@ -86,10 +107,10 @@ public sealed class MusicSystem : EntitySystem
         base.Initialize();
         _sawmill = _log.GetSawmill("dl.music");
         NetManager.RegisterNetMessage<MusicPlaybackNetMessage>();
-        _gain = MusicRules.ClampGain(_cfg.GetCVar(MusicCVars.GlobalGain));
+        _defaultGain = MusicRules.ClampGain(_cfg.GetCVar(MusicCVars.GlobalGain));
         _cfg.OnValueChanged(MusicCVars.GlobalGain, value =>
         {
-            _gain = MusicRules.ClampGain(value);
+            _defaultGain = MusicRules.ClampGain(value);
             RefreshSpeakers();
             Publish();
         });
@@ -104,49 +125,17 @@ public sealed class MusicSystem : EntitySystem
         SubscribeLocalEvent<PlayerSpawnCompleteEvent>(OnPlayerSpawned);
     }
 
-    private void OnPlayerSpawned(PlayerSpawnCompleteEvent args)
-    {
-        if (Status is not (MusicPlaybackStatus.Playing or MusicPlaybackStatus.Paused) ||
-            _currentAudio == null || _current == null)
-            return;
-
-        _ = ResendToAsync(args.Player);
-    }
-
-    private async Task ResendToAsync(ICommonSession session)
-    {
-        var audio = _currentAudio;
-        var track = _current;
-        if (audio == null || track == null || !session.Channel.IsConnected)
-            return;
-
-        var run = _runId;
-
-        if (!await _broadcast.SendTrackAsync(session, track.Id, audio, _gain, _sourceNetEntity, _maxDistance))
-            return;
-
-        if (run != _runId || !session.Channel.IsConnected)
-            return;
-
-        var position = Math.Max(0f, _clientPosition);
-        var paused = Status == MusicPlaybackStatus.Paused;
-
-        if (paused)
-        {
-            _broadcast.SendControl(session, MusicPlaybackCommand.Pause, position, _gain, _sourceNetEntity,
-                _maxDistance);
-            return;
-        }
-
-        _broadcast.SendControl(session, MusicPlaybackCommand.Play, position, _gain, _sourceNetEntity, _maxDistance);
-    }
+    private static string ChannelFor(EntityUid speaker, IEntityManager entities) =>
+        MusicChannels.Speaker((uint) entities.GetNetEntity(speaker).Id);
 
     public override void Shutdown()
     {
         base.Shutdown();
         _lifetime.Cancel();
         _lifetime.Dispose();
-        Stop();
+
+        foreach (var channel in _channels.Values)
+            _broadcast.SendControlAll(channel.Name, MusicPlaybackCommand.Stop);
     }
 
     public bool IsAdmin(ICommonSession? session) =>
@@ -171,57 +160,77 @@ public sealed class MusicSystem : EntitySystem
         if (!MusicRules.ValidTrackId(args.TrackId, out var id))
             return;
 
-        _ = PlayForActorAsync(ent.Owner, args.Actor, id);
+        Play(ChannelFor(ent.Owner, EntityManager), (uint) GetNetEntity(ent.Owner).Id, id, string.Empty, string.Empty);
     }
 
-    private async Task PlayForActorAsync(EntityUid speaker, EntityUid actor, string id)
-    {
-        if (!Enabled)
-            return;
+    public void PlayGlobal(string trackId, string title, string artist) =>
+        Play(MusicChannels.Global, 0, trackId, title, artist);
 
-        var run = ++_runId;
+    public async Task<bool> PlayGlobalAsync(string trackId, string title, string artist) =>
+        await PlayAsync(MusicChannels.Global, 0, trackId, title, artist);
+
+    private void Play(string channelName, uint sourceNetEntity, string trackId, string title, string artist)
+    {
+        _ = PlayAsync(channelName, sourceNetEntity, trackId, title, artist);
+    }
+
+    private async Task<bool> PlayAsync(string channelName, uint sourceNetEntity, string trackId, string title,
+        string artist)
+    {
+        if (!Enabled || !MusicRules.ValidTrackId(trackId, out var id))
+            return false;
+
+        var channel = Channel(channelName);
+        var run = ++channel.RunId;
 
         var decoded = await _api.FetchAsync(id, _lifetime.Token);
-        if (decoded == null || run != _runId)
-            return;
+        if (decoded == null || run != channel.RunId)
+            return false;
 
-        var wav = await WrapOffThreadAsync(decoded);
-        if (run != _runId)
-            return;
+        var wav = await Task.Run(() => MusicTranscoder.WrapWav(decoded.Pcm, decoded.SampleRate, decoded.Channels));
+        if (run != channel.RunId)
+            return false;
 
-        _currentAudio = wav;
+        channel.Audio = wav;
+        channel.SourceNetEntity = sourceNetEntity;
+        channel.MaxDistance = MusicConstants.SpeakerMaxDistance;
+
         var meta = Describe(id);
-        _current = new MusicTrack(id, meta.Title, meta.Artist, decoded.Duration);
-
-        _sourceNetEntity = (uint) GetNetEntity(speaker).Id;
-        _maxDistance = MusicConstants.SpeakerMaxDistance;
-
-        _pending = IoCManager.Resolve<IPlayerManager>().PlayerCount;
-        _clientPosition = 0f;
-        Status = MusicPlaybackStatus.Downloading;
+        var shownTitle = MusicRules.Clean(title, MusicConstants.MaxTitleLength);
+        var shownArtist = MusicRules.Clean(artist, MusicConstants.MaxArtistLength);
+        channel.Current = new MusicTrack(
+            id,
+            shownTitle.Length > 0 ? shownTitle : meta.Title,
+            shownArtist.Length > 0 ? shownArtist : meta.Artist,
+            decoded.Duration);
+        channel.Pending = IoCManager.Resolve<IPlayerManager>().PlayerCount;
+        channel.Position = 0f;
+        channel.Status = MusicPlaybackStatus.Downloading;
         Publish();
         RefreshSpeakers();
 
-        var delay = MusicRules.StartDelay(0f);
-        var sent = await _broadcast.BroadcastAsync(id, wav, delay, _gain, _sourceNetEntity, _maxDistance);
+        var delay = sourceNetEntity == 0 ? _broadcast.SlowestSeconds() : MusicRules.StartDelay(0f);
+        var sent = await _broadcast.BroadcastAsync(channelName, id, wav, delay, channel.Gain, sourceNetEntity,
+            channel.MaxDistance);
 
-        if (run != _runId)
-            return;
+        if (run != channel.RunId)
+            return false;
 
-        if (sent == 0 && _pending > 0)
+        if (sent == 0 && channel.Pending > 0)
         {
-            _sawmill.Warning("Music {Track} reached no listeners", id);
-            Status = MusicPlaybackStatus.Stopped;
-            _current = null;
-            _currentAudio = null;
+            _sawmill.Warning("Music {Track} on {Channel} reached no listeners", id, channelName);
+            channel.Status = MusicPlaybackStatus.Stopped;
+            channel.Current = null;
+            channel.Audio = null;
             Publish();
             RefreshSpeakers();
-            return;
+            return false;
         }
 
-        _startAt = delay;
-        Status = MusicPlaybackStatus.Playing;
+        channel.StartAt = delay;
+        channel.Status = MusicPlaybackStatus.Playing;
         Publish();
+        return true;
     }
 
     public async Task<(MusicTrack[] Tracks, MusicSearchStatus Status)> SearchAsync(string query)
@@ -231,175 +240,141 @@ public sealed class MusicSystem : EntitySystem
         return (tracks.ToArray(), status);
     }
 
-    private static Task<byte[]> WrapOffThreadAsync(DecodedTrack decoded) =>
-        Task.Run(() => MusicTranscoder.WrapWav(decoded.Pcm, decoded.SampleRate, decoded.Channels));
-
-    public async Task<bool> PlayGlobalAsync(string trackId, string title, string artist)
-    {
-        if (!Enabled || !MusicRules.ValidTrackId(trackId, out var id))
-            return false;
-
-        var run = ++_runId;
-
-        var decoded = await _api.FetchAsync(id, _lifetime.Token);
-        if (decoded == null || run != _runId)
-            return false;
-
-        var wav = await WrapOffThreadAsync(decoded);
-        if (run != _runId)
-            return false;
-
-        _currentAudio = wav;
-
-        _sourceNetEntity = 0;
-        _maxDistance = MusicConstants.SpeakerMaxDistance;
-
-        var meta = Describe(id);
-        var shownTitle = MusicRules.Clean(title, MusicConstants.MaxTitleLength);
-        var shownArtist = MusicRules.Clean(artist, MusicConstants.MaxArtistLength);
-        _current = new MusicTrack(
-            id,
-            shownTitle.Length > 0 ? shownTitle : meta.Title,
-            shownArtist.Length > 0 ? shownArtist : meta.Artist,
-            decoded.Duration);
-        _pending = IoCManager.Resolve<IPlayerManager>().PlayerCount;
-        _clientPosition = 0f;
-        Status = MusicPlaybackStatus.Downloading;
-        Publish();
-        RefreshSpeakers();
-
-        var delay = _broadcast.SlowestSeconds();
-        var sent = await _broadcast.BroadcastAsync(id, wav, delay, _gain, _sourceNetEntity, _maxDistance);
-
-        if (run != _runId)
-            return false;
-
-        if (sent == 0 && _pending > 0)
-        {
-            _sawmill.Warning("Music {Track} reached no listeners", id);
-            Status = MusicPlaybackStatus.Stopped;
-            _current = null;
-            _currentAudio = null;
-            Publish();
-            RefreshSpeakers();
-            return false;
-        }
-
-        _startAt = delay;
-        Status = MusicPlaybackStatus.Playing;
-        Publish();
-        return true;
-    }
-
     private void OnControl(Entity<MusicSpeakerComponent> ent, ref MusicControlMessage args)
     {
+        var channel = ChannelFor(ent.Owner, EntityManager);
+
         switch (args.Action)
         {
-            case MusicControlAction.Pause: Pause(); break;
-            case MusicControlAction.Resume: Resume(); break;
-            case MusicControlAction.Stop: Stop(); break;
-            case MusicControlAction.Next: Next(); break;
+            case MusicControlAction.Pause: Pause(channel); break;
+            case MusicControlAction.Resume: Resume(channel); break;
+            case MusicControlAction.Stop: Stop(channel); break;
+            case MusicControlAction.Next: Next(channel, (uint) GetNetEntity(ent.Owner).Id); break;
         }
     }
 
-    private void OnGain(Entity<MusicSpeakerComponent> ent, ref MusicSetGainMessage args) => SetGain(args.Gain);
+    private void OnGain(Entity<MusicSpeakerComponent> ent, ref MusicSetGainMessage args) =>
+        SetGain(ChannelFor(ent.Owner, EntityManager), args.Gain);
 
     private void OnSetTime(Entity<MusicSpeakerComponent> ent, ref MusicSetTimeMessage args)
     {
-        if (_current == null)
+        var channelName = ChannelFor(ent.Owner, EntityManager);
+        var channel = Find(channelName);
+        if (channel?.Current == null)
             return;
 
-        var position = MusicRules.ClampPosition(args.Position, _current.Duration);
-        _clientPosition = position;
-        _broadcast.SendControl(MusicPlaybackCommand.Seek, position, _gain, _sourceNetEntity, _maxDistance);
+        var position = MusicRules.ClampPosition(args.Position, channel.Current.Duration);
+        channel.Position = position;
+        _broadcast.SendControl(channelName, MusicPlaybackCommand.Seek, position, channel.Gain,
+            channel.SourceNetEntity, channel.MaxDistance);
         Publish();
     }
 
-    public void Pause()
+    public void Pause(string channelName)
     {
-        if (Status != MusicPlaybackStatus.Playing)
+        var channel = Find(channelName);
+        if (channel == null || channel.Status != MusicPlaybackStatus.Playing)
             return;
 
-        _startAt = 0f;
-        Status = MusicPlaybackStatus.Paused;
-        _broadcast.SendControl(MusicPlaybackCommand.Pause);
+        channel.StartAt = 0f;
+        channel.Status = MusicPlaybackStatus.Paused;
+        _broadcast.SendControl(channelName, MusicPlaybackCommand.Pause, channel.Position, channel.Gain,
+            channel.SourceNetEntity, channel.MaxDistance);
         Publish();
         RefreshSpeakers();
     }
 
-    public void Resume()
+    public void Resume(string channelName)
     {
-        if (Status != MusicPlaybackStatus.Paused)
+        var channel = Find(channelName);
+        if (channel == null || channel.Status != MusicPlaybackStatus.Paused)
             return;
 
-        _startAt = 0f;
-        Status = MusicPlaybackStatus.Playing;
-        _broadcast.SendControl(MusicPlaybackCommand.Play, _clientPosition, _gain, _sourceNetEntity, _maxDistance);
+        channel.StartAt = 0f;
+        channel.Status = MusicPlaybackStatus.Playing;
+        _broadcast.SendControl(channelName, MusicPlaybackCommand.Play, channel.Position, channel.Gain,
+            channel.SourceNetEntity, channel.MaxDistance);
         Publish();
         RefreshSpeakers();
     }
 
-    public void Stop()
+    public void Stop(string channelName)
     {
-        _runId++;
-        _current = null;
-        _currentAudio = null;
-        _pending = 0;
-        _clientPosition = 0f;
-        _startAt = 0f;
-        _publishTimer = 0f;
-        Status = MusicPlaybackStatus.Stopped;
-        _broadcast.SendControl(MusicPlaybackCommand.Stop);
+        var channel = Find(channelName);
+        if (channel == null)
+            return;
+
+        channel.RunId++;
+        channel.Current = null;
+        channel.Audio = null;
+        channel.Pending = 0;
+        channel.Position = 0f;
+        channel.StartAt = 0f;
+        channel.PublishTimer = 0f;
+        channel.Status = MusicPlaybackStatus.Stopped;
+        _broadcast.SendControlAll(channelName, MusicPlaybackCommand.Stop);
         Publish();
         RefreshSpeakers();
     }
 
-    public void Next()
+    public void Next(string channelName, uint speakerNetEntity)
     {
-        if (_queue.Count == 0)
+        var channel = Find(channelName);
+        if (channel == null)
+            return;
+
+        if (channel.Queue.Count == 0)
         {
-            Stop();
+            Stop(channelName);
             return;
         }
 
-        var next = _queue[0];
-        _queue.RemoveAt(0);
+        var next = channel.Queue[0];
+        channel.Queue.RemoveAt(0);
 
-        Status = MusicPlaybackStatus.Downloading;
-        _clientPosition = 0f;
+        channel.Status = MusicPlaybackStatus.Downloading;
+        channel.Position = 0f;
         Publish();
 
-        _ = PlayNextAsync(next, _runId + 1);
+        _ = PlayNextAsync(channelName, next, speakerNetEntity, channel.RunId + 1);
     }
 
-    private async Task PlayNextAsync(MusicTrack next, int expectedRun)
+    private async Task PlayNextAsync(string channelName, MusicTrack next, uint speakerNetEntity, int expectedRun)
     {
-        if (await PlayGlobalAsync(next.Id, next.Title, next.Artist))
+        if (await PlayAsync(channelName, speakerNetEntity, next.Id, next.Title, next.Artist))
             return;
 
-        if (_runId != expectedRun || Status != MusicPlaybackStatus.Downloading)
+        var channel = Find(channelName);
+        if (channel == null || channel.RunId != expectedRun || channel.Status != MusicPlaybackStatus.Downloading)
             return;
 
-        if (_queue.Count == 0)
+        if (channel.Queue.Count == 0)
             return;
 
-        var following = _queue[0];
-        _queue.RemoveAt(0);
-        await PlayNextAsync(following, _runId + 1);
+        var following = channel.Queue[0];
+        channel.Queue.RemoveAt(0);
+        await PlayNextAsync(channelName, following, speakerNetEntity, channel.RunId + 1);
     }
 
-    public void Enqueue(MusicTrack track)
+    public void Enqueue(string channelName, MusicTrack track)
     {
-        if (_queue.Count >= Math.Clamp(_cfg.GetCVar(MusicCVars.QueueLimit), 1, MusicConstants.MaxQueue))
-            _queue.RemoveAt(0);
+        var channel = Channel(channelName);
 
-        _queue.Add(track);
+        if (channel.Queue.Count >= Math.Clamp(_cfg.GetCVar(MusicCVars.QueueLimit), 1, MusicConstants.MaxQueue))
+            channel.Queue.RemoveAt(0);
+
+        channel.Queue.Add(track);
     }
 
-    public void SetGain(float gain)
+    public void SetGain(string channelName, float gain)
     {
-        _gain = MusicRules.ClampGain(gain);
-        _broadcast.SendControl(MusicPlaybackCommand.Gain, _clientPosition, _gain);
+        var channel = Find(channelName);
+        if (channel == null)
+            return;
+
+        channel.Gain = MusicRules.ClampGain(gain);
+        _broadcast.SendControl(channelName, MusicPlaybackCommand.Gain, channel.Position, channel.Gain,
+            channel.SourceNetEntity, channel.MaxDistance);
         Publish();
         RefreshSpeakers();
     }
@@ -410,83 +385,149 @@ public sealed class MusicSystem : EntitySystem
     {
         base.Update(frameTime);
 
-        if (Status != MusicPlaybackStatus.Playing)
-            return;
+        var dirty = false;
 
-        if (_startAt > 0f)
+        foreach (var channel in _channels.Values)
         {
-            _startAt -= frameTime;
+            if (channel.Status != MusicPlaybackStatus.Playing)
+                continue;
 
-            if (_startAt > 0f)
-                return;
+            var step = frameTime;
 
-            frameTime = -_startAt;
-            _startAt = 0f;
+            if (channel.StartAt > 0f)
+            {
+                channel.StartAt -= step;
+
+                if (channel.StartAt > 0f)
+                    continue;
+
+                step = -channel.StartAt;
+                channel.StartAt = 0f;
+            }
+
+            channel.Position += step;
+
+            if (channel.Current != null && channel.Current.Duration > 0f &&
+                channel.Position >= channel.Current.Duration)
+            {
+                Next(channel.Name, channel.SourceNetEntity);
+                continue;
+            }
+
+            channel.PublishTimer += step;
+            if (channel.PublishTimer < 1f)
+                continue;
+
+            channel.PublishTimer = 0f;
+            dirty = true;
         }
 
-        _clientPosition += frameTime;
-
-        if (_current != null && _current.Duration > 0f && _clientPosition >= _current.Duration)
-        {
-            Next();
-            return;
-        }
-
-        _publishTimer += frameTime;
-        if (_publishTimer < 1f)
-            return;
-
-        _publishTimer = 0f;
-        Publish();
+        if (dirty)
+            Publish();
     }
 
     private void OnOpened(Entity<MusicSpeakerComponent> ent, ref BoundUIOpenedEvent args)
     {
-        _ui.SetUiState(ent.Owner, MusicUiKey.Key, BuildState());
+        var channel = ChannelFor(ent.Owner, EntityManager);
+        _ui.SetUiState(ent.Owner, MusicUiKey.Key, BuildState(channel));
 
         Reply(ent.Owner, new MusicSearchResultMessage([], MusicSearchStatus.Ok), args.Actor);
     }
 
-    public float Position => _clientPosition;
+    public MusicState BuildState(string channelName) => BuildState(Channel(channelName));
 
-    public MusicState BuildState() => new(Status, _current, _clientPosition, _current?.Duration ?? 0f, _gain,
-        IsGlobal, _pending, _pending);
-
-    public bool IsGlobal { get; private set; } = true;
+    private MusicState BuildState(MusicChannel channel) => new(channel.Status, channel.Current, channel.Position,
+        channel.Current?.Duration ?? 0f, channel.Gain, channel.IsGlobal, channel.Pending, channel.Pending);
 
     private void Publish()
     {
         StateChanged?.Invoke();
 
-        var state = BuildState();
         var query = EntityQueryEnumerator<MusicSpeakerComponent, UserInterfaceComponent>();
         while (query.MoveNext(out var uid, out _, out var ui))
         {
             if (ui.ClientOpenInterfaces.Count == 0)
                 continue;
 
-            _ui.SetUiState(uid, MusicUiKey.Key, state);
+            var channel = Channel(ChannelFor(uid, EntityManager));
+            _ui.SetUiState(uid, MusicUiKey.Key, BuildState(channel));
         }
     }
 
     private void RefreshSpeakers()
     {
-        var playing = Status == MusicPlaybackStatus.Playing;
         var query = EntityQueryEnumerator<MusicSpeakerComponent>();
         while (query.MoveNext(out var uid, out _))
-            _appearance.SetData(uid, ToggleableVisuals.Enabled, playing);
+        {
+            var channel = Find(ChannelFor(uid, EntityManager));
+            var active = channel is { Status: MusicPlaybackStatus.Playing } &&
+                         (channel.SourceNetEntity == 0 || channel.SourceNetEntity == (uint) GetNetEntity(uid).Id);
+            _appearance.SetData(uid, ToggleableVisuals.Enabled, active);
+        }
     }
 
     private void Reply(EntityUid speaker, BoundUserInterfaceMessage message, EntityUid actor) =>
         _ui.ServerSendUiMessage(speaker, MusicUiKey.Key, message, actor);
 
-    public MusicEuiState BuildEuiState() => new(
-        Status.ToString().ToLowerInvariant(),
-        _current,
-        _gain,
-        _current?.Duration ?? 0f,
-        _clientPosition,
-        Enabled,
-        ListenerCount,
-        _queue.Count);
+    public MusicEuiState BuildEuiState() => BuildEuiState(MusicChannels.Global);
+
+    public MusicEuiState BuildEuiState(string channelName)
+    {
+        var channel = Find(channelName);
+
+        if (channel == null)
+        {
+            return new MusicEuiState("stopped", null, _defaultGain, 0f, 0f, Enabled, ListenerCount, 0);
+        }
+
+        return new MusicEuiState(
+            channel.Status.ToString().ToLowerInvariant(),
+            channel.Current,
+            channel.Gain,
+            channel.Current?.Duration ?? 0f,
+            channel.Position,
+            Enabled,
+            ListenerCount,
+            channel.Queue.Count);
+    }
+
+    private void OnPlayerSpawned(PlayerSpawnCompleteEvent args)
+    {
+        foreach (var channel in _channels.Values)
+        {
+            if (channel.Status is not (MusicPlaybackStatus.Playing or MusicPlaybackStatus.Paused) ||
+                channel.Audio == null || channel.Current == null)
+                continue;
+
+            if (!_broadcast.InRange(args.Player, channel.SourceNetEntity, channel.MaxDistance))
+                continue;
+
+            _ = ResendToAsync(args.Player, channel);
+        }
+    }
+
+    private async Task ResendToAsync(ICommonSession session, MusicChannel channel)
+    {
+        var audio = channel.Audio;
+        var track = channel.Current;
+        if (audio == null || track == null || !session.Channel.IsConnected)
+            return;
+
+        var run = channel.RunId;
+
+        if (!await _broadcast.SendTrackAsync(session, channel.Name, track.Id, audio, channel.Gain,
+                channel.SourceNetEntity, channel.MaxDistance))
+            return;
+
+        if (run != channel.RunId || !session.Channel.IsConnected)
+            return;
+
+        var position = Math.Max(0f, channel.Position);
+        var command = channel.Status == MusicPlaybackStatus.Paused
+            ? MusicPlaybackCommand.Pause
+            : MusicPlaybackCommand.Play;
+
+        _broadcast.SendControl(session, channel.Name, command, position, channel.Gain, channel.SourceNetEntity,
+            channel.MaxDistance);
+    }
 }

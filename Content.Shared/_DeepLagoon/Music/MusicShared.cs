@@ -12,6 +12,7 @@ public static class MusicConstants
 
     public const int MaxQueryLength = 128;
     public const int MaxIdLength = 64;
+    public const int MaxChannelLength = 64;
     public const int MaxTitleLength = 256;
     public const int MaxArtistLength = 256;
     public const int MaxAlbumLength = 256;
@@ -23,6 +24,33 @@ public static class MusicConstants
     public const float MaxAckSeconds = 120f;
 
     public const int MaxQueue = 50;
+}
+
+public static class MusicChannels
+{
+    public const string Global = "global";
+
+    public static string Speaker(uint netEntity) => $"spk:{netEntity}";
+}
+
+public static class MusicFraming
+{
+    public static byte[] Wrap(string channel, string trackId, byte[] audio)
+    {
+        var channelBytes = System.Text.Encoding.UTF8.GetBytes(channel);
+        var idBytes = System.Text.Encoding.UTF8.GetBytes(trackId);
+        var frame = new byte[8 + channelBytes.Length + idBytes.Length + audio.Length];
+
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(frame, channelBytes.Length);
+        channelBytes.CopyTo(frame, 4);
+
+        var idOffset = 4 + channelBytes.Length;
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(frame.AsSpan(idOffset), idBytes.Length);
+        idBytes.CopyTo(frame, idOffset + 4);
+
+        audio.CopyTo(frame, idOffset + 4 + idBytes.Length);
+        return frame;
+    }
 }
 
 [Serializable, NetSerializable]
@@ -211,6 +239,7 @@ public sealed class MusicPlaybackNetMessage : Robust.Shared.Network.NetMessage
     public float Gain { get; set; }
     public float StartDelay { get; set; }
     public int TotalBytes { get; set; }
+    public string Channel { get; set; } = MusicChannels.Global;
     public string TrackId { get; set; } = string.Empty;
     public string ResourcePath { get; set; } = string.Empty;
     public uint Source { get; set; }
@@ -218,7 +247,7 @@ public sealed class MusicPlaybackNetMessage : Robust.Shared.Network.NetMessage
 
     public override MsgGroups MsgGroup => MsgGroups.Command;
 
-    public override int EstimateBufferSize() => 96;
+    public override int EstimateBufferSize() => 128;
 
     public override void WriteToBuffer(Lidgren.Network.NetOutgoingMessage buffer,
         Robust.Shared.Serialization.IRobustSerializer serializer)
@@ -228,6 +257,7 @@ public sealed class MusicPlaybackNetMessage : Robust.Shared.Network.NetMessage
         buffer.Write(Gain);
         buffer.Write(StartDelay);
         buffer.Write(TotalBytes);
+        buffer.Write(Channel);
         buffer.Write(TrackId);
         buffer.Write(ResourcePath);
         buffer.Write(Source);
@@ -242,6 +272,7 @@ public sealed class MusicPlaybackNetMessage : Robust.Shared.Network.NetMessage
         Gain = buffer.ReadFloat();
         StartDelay = buffer.ReadFloat();
         TotalBytes = buffer.ReadInt32();
+        Channel = buffer.ReadString();
         TrackId = buffer.ReadString();
         ResourcePath = buffer.ReadString();
         Source = buffer.ReadUInt32();

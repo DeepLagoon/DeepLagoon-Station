@@ -11,10 +11,8 @@ public sealed partial class MusicNetManager
     [Dependency] private IClientNetManager _net = default!;
     [Dependency] private ILogManager _log = default!;
     [Dependency] private IEntitySystemManager _systems = default!;
-    [Dependency] private IEntityManager _entManager = default!;
 
     private ISawmill _sawmill = default!;
-    private string _launchId = string.Empty;
 
     public void Initialize()
     {
@@ -35,48 +33,39 @@ public sealed partial class MusicNetManager
             return;
         }
 
+        var channel = message.Channel.Length > 0 ? message.Channel : MusicChannels.Global;
+
         switch (message.Command)
         {
             case MusicPlaybackCommand.Stop:
-                _launchId = string.Empty;
-                audio.Finish();
+                audio.Finish(channel);
                 return;
 
             case MusicPlaybackCommand.Prepare:
-                _launchId = message.TrackId;
-                audio.Prepare(message.TrackId, message.Source, message.MaxDistance, message.StartDelay,
+                audio.Prepare(channel, message.TrackId, message.Source, message.MaxDistance, message.StartDelay,
                     message.Gain);
                 return;
 
             case MusicPlaybackCommand.Gain:
-                audio.SetGain(message.Gain);
+                audio.SetGain(channel, message.Gain);
                 return;
 
             case MusicPlaybackCommand.Pause:
-                audio.Pause();
+                audio.Pause(channel);
                 return;
-        }
 
-        if (message.TrackId.Length > 0 && message.TrackId != _launchId)
-        {
-            _sawmill.Debug("Music command {Command} ignored: belongs to {Track}", message.Command, message.TrackId);
-            return;
-        }
-
-        switch (message.Command)
-        {
             case MusicPlaybackCommand.Play:
-                audio.SetGain(message.Gain);
-                audio.Play(message.Position);
-                break;
+                audio.SetGain(channel, message.Gain);
+                audio.Play(channel, message.Position);
+                return;
 
             case MusicPlaybackCommand.Seek:
-                audio.Seek(message.Position);
-                break;
+                audio.Seek(channel, message.Position);
+                return;
 
             default:
                 _sawmill.Warning("Unknown music playback command {Command}", message.Command);
-                break;
+                return;
         }
     }
 }

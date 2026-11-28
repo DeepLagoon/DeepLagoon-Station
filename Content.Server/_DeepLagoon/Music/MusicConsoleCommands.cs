@@ -63,7 +63,7 @@ public sealed class MusicStopCommand : IConsoleCommand
 
     public void Execute(IConsoleShell shell, string argStr, string[] args)
     {
-        _systems.GetEntitySystem<MusicSystem>().Stop();
+        _systems.GetEntitySystem<MusicSystem>().Stop(MusicChannels.Global);
         shell.WriteLine(_loc.GetString("dl-music-cmd-stop-ok"));
     }
 }
@@ -83,12 +83,15 @@ public sealed class MusicStatusCommand : IConsoleCommand
     public void Execute(IConsoleShell shell, string argStr, string[] args)
     {
         var music = _systems.GetEntitySystem<MusicSystem>();
-        var current = music.Current;
+        var channel = MusicChannels.Global;
+        var state = music.Find(channel);
 
         shell.WriteLine(_loc.GetString("dl-music-cmd-status-state",
-            ("state", music.Status.ToString().ToLowerInvariant())));
+            ("state", (state?.Status ?? MusicPlaybackStatus.Stopped).ToString().ToLowerInvariant())));
         shell.WriteLine(_loc.GetString("dl-music-cmd-status-listeners", ("count", music.ListenerCount)));
-        shell.WriteLine(_loc.GetString("dl-music-cmd-status-gain", ("gain", music.Gain.ToString("0.##"))));
+        shell.WriteLine(_loc.GetString("dl-music-cmd-status-gain", ("gain", (state?.Gain ?? 0f).ToString("0.##"))));
+
+        var current = state?.Current;
 
         if (current == null)
         {

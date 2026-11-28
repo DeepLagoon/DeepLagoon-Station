@@ -41,6 +41,18 @@ public sealed partial class MusicClientTransferSystem : EntitySystem
 
             var lengthBytes = new byte[4];
             await stream.ReadExactlyAsync(lengthBytes);
+            var channelLength = BinaryPrimitives.ReadInt32LittleEndian(lengthBytes);
+            if (channelLength is <= 0 or > MusicConstants.MaxChannelLength)
+            {
+                _sawmill.Warning("Music stream rejected: bad channel length {Length}", channelLength);
+                return;
+            }
+
+            var channelBytes = new byte[channelLength];
+            await stream.ReadExactlyAsync(channelBytes);
+            var channel = Encoding.UTF8.GetString(channelBytes);
+
+            await stream.ReadExactlyAsync(lengthBytes);
             var idLength = BinaryPrimitives.ReadInt32LittleEndian(lengthBytes);
             if (idLength is <= 0 or > MusicConstants.MaxIdLength)
             {
@@ -64,11 +76,11 @@ public sealed partial class MusicClientTransferSystem : EntitySystem
             {
                 try
                 {
-                    _audio.Begin(id);
-                    _audio.Append(id, bytes, bytes.Length);
+                    _audio.Begin(channel, id);
+                    _audio.Append(channel, id, bytes, bytes.Length);
 
-                    if (!_audio.Complete(id))
-                        _sawmill.Warning("Music track {Id} could not be decoded", id);
+                    if (!_audio.Complete(channel, id))
+                        _sawmill.Warning("Music track {Id} on {Channel} could not be decoded", id, channel);
                 }
                 catch (Exception e)
                 {
